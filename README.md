@@ -4,8 +4,8 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-BayesianLearningCode provides R code to reproduce the examples in a
-forthcoming book.
+BayesianLearningCode provides R code to reproduce (most of the) examples
+in a future book.
 
 ## Installation
 
