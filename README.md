@@ -4,9 +4,8 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-BayesianLearningCode provides R code to reproduce the examples in the
-book “Bayesian Learning” by Sylvia Frühwirth-Schnatter, Bettina Grün,
-Gregor Kastner, and Helga Wagner.
+BayesianLearningCode provides R code to reproduce the examples in a
+forthcoming book.
 
 ## Installation
 
