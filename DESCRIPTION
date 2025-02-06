@@ -2,8 +2,16 @@ Package: BayesianLearningCode
 Title: Accompanying Code to a Future Book
 Version: 0.0.1
 Authors@R: 
-    c(person("Gregor", "Kastner", , "gregor.kastner@aau.at", role = c("aut", "cre")),
-      person("Bettina", Grün", , "bettina.gruen@wu.ac.at", role = "aut"))
+    c(person(given = "Gregor",
+             family = "Kastner",
+             email = "gregor.kastner@aau.at",
+             role = c("aut", "cre"),
+             comment = c(ORCID = "0000-0002-8237-8271")),
+      person(given = "Bettina",
+             family = "Grün",
+             email = "bettina.gruen@wu.ac.at",
+             role = "aut",
+             comment = c(ORCID = "0000-0001-7265-4773")))
 Description: R code replicating most of the examples presented in a future book.
 License: GPL (>= 3)
 Encoding: UTF-8
