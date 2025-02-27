@@ -64,9 +64,12 @@
     
     
 <div class="section level2">
-<h2 id="example-1-3-and-1-4-classifying-categorical-observations-into-two-states">Example 1.3 and 1.4: Classifying categorical observations into two
-states<a class="anchor" aria-label="anchor" href="#example-1-3-and-1-4-classifying-categorical-observations-into-two-states"></a>
+<h2 id="section-1-3">Section 1.3<a class="anchor" aria-label="anchor" href="#section-1-3"></a>
 </h2>
+<div class="section level3">
+<h3 id="example-1-3-and-1-4-classifying-categorical-observations-into-two-states">Example 1.3 and 1.4: Classifying categorical observations into two
+states<a class="anchor" aria-label="anchor" href="#example-1-3-and-1-4-classifying-categorical-observations-into-two-states"></a>
+</h3>
 <p>We have two firms, a reliable firm
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>
 with
@@ -76,16 +79,16 @@ and a less reliable firm
 with
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>A</mi><mi>C</mi></msup><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mn>1</mn><mo>−</mo><mn>0.7</mn><mo>=</mo><mn>0.3</mn></mrow><annotation encoding="application/x-tex">P(A^C) = 1 - 0.7 = 0.3</annotation></semantics></math>.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">PrA</span> <span class="op">&lt;-</span> <span class="fl">0.7</span> <span class="co"># Probability of items being produced by the reliable firm</span></span>
-<span><span class="va">PrAC</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="op">-</span> <span class="va">PrA</span> <span class="co"># Probability of items being produced by the less reliable firm</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">PrA</span> <span class="op">&lt;-</span> <span class="fl">0.7</span></span>
+<span><span class="va">PrAC</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="op">-</span> <span class="va">PrA</span></span></code></pre></div>
 <p>The failure rate, i.e. the probability of a faulty item, is 0.01 for
 the reliable firm
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>
 and 0.05 for the less reliable firm
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>A</mi><mi>C</mi></msup><annotation encoding="application/x-tex">A^C</annotation></semantics></math>.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">PrFA</span> <span class="op">&lt;-</span> <span class="fl">0.01</span> <span class="co"># Failure rate of the reliable firm</span></span>
-<span><span class="va">PrFAC</span> <span class="op">&lt;-</span> <span class="fl">0.05</span> <span class="co"># Failure rate of the less reliable firm</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">PrFA</span> <span class="op">&lt;-</span> <span class="fl">0.01</span></span>
+<span><span class="va">PrFAC</span> <span class="op">&lt;-</span> <span class="fl">0.05</span></span></code></pre></div>
 <p>Assume that we observe any number of failures
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>
 between 0 and 6 (from
@@ -121,8 +124,8 @@ we could simply set
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>A</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>A</mi><mi>C</mi></msup><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mn>0.5</mn></mrow><annotation encoding="application/x-tex">P(A) = P(A^C) = 0.5</annotation></semantics></math>
 and recompute the posterior probabilities.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">PrA</span> <span class="op">&lt;-</span> <span class="fl">0.5</span> <span class="co"># Probability of items being produced by the reliable firm</span></span>
-<span><span class="va">PrAC</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="op">-</span> <span class="va">PrA</span> <span class="co"># Probability of items being produced by the less reliable firm</span></span>
+<code class="sourceCode R"><span><span class="va">PrA</span> <span class="op">&lt;-</span> <span class="fl">0.5</span></span>
+<span><span class="va">PrAC</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="op">-</span> <span class="va">PrA</span></span>
 <span><span class="va">PosteriorTheta1Unormalized</span> <span class="op">&lt;-</span> <span class="va">PrFA</span> <span class="op">^</span> <span class="va">y</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">PrFA</span><span class="op">)</span> <span class="op">^</span> <span class="op">(</span><span class="va">N</span> <span class="op">-</span> <span class="va">y</span><span class="op">)</span> <span class="op">*</span> <span class="va">PrA</span></span>
 <span><span class="va">PosteriorTheta0Unormalized</span> <span class="op">&lt;-</span> <span class="va">PrFAC</span> <span class="op">^</span> <span class="va">y</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">PrFAC</span><span class="op">)</span> <span class="op">^</span> <span class="op">(</span><span class="va">N</span> <span class="op">-</span> <span class="va">y</span><span class="op">)</span> <span class="op">*</span> <span class="va">PrAC</span></span>
 <span><span class="va">NormalizingConstant</span> <span class="op">&lt;-</span> <span class="va">PosteriorTheta0Unormalized</span> <span class="op">+</span> <span class="va">PosteriorTheta1Unormalized</span></span>
@@ -136,10 +139,53 @@ are complementary.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">PosteriorTheta0Unormalized</span> <span class="op">/</span> <span class="va">NormalizingConstant</span>, <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 0.016 0.078 0.305 0.696 0.923 0.984 0.997</span></span></code></pre></div>
 </div>
-<div class="section level2">
-<h2 id="example-1-5-classifying-continuous-observations-into-two-states">Example 1.5: Classifying continuous observations into two
+<div class="section level3">
+<h3 id="example-1-5-classifying-continuous-observations-into-two-states">Example 1.5: Classifying continuous observations into two
 states<a class="anchor" aria-label="anchor" href="#example-1-5-classifying-continuous-observations-into-two-states"></a>
-</h2>
+</h3>
+<p>We have a Bernoulli random variable
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϑ</mi><annotation encoding="application/x-tex">\vartheta</annotation></semantics></math>
+with prior probability
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>ϑ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mn>0.55</mn><mo>,</mo></mrow><annotation encoding="application/x-tex">P(\vartheta) = 0.55,</annotation></semantics></math>
+and we know for the females that
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo stretchy="false" form="prefix">|</mo><msub><mi>θ</mi><mn>1</mn></msub><mo>∼</mo><mi>E</mi><mi>x</mi><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>λ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo></mrow><annotation encoding="application/x-tex">y|\theta_1 \sim Exp(\lambda),</annotation></semantics></math>
+and for the males that
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo stretchy="false" form="prefix">|</mo><msub><mi>θ</mi><mn>0</mn></msub><mo>∼</mo><mi>G</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>α</mi><mo>,</mo><mi>β</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo></mrow><annotation encoding="application/x-tex">y|\theta_0 \sim G(\alpha, \beta),</annotation></semantics></math>
+where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>λ</mi><mo>=</mo><mn>1</mn><mi>/</mi><mn>2.2</mn></mrow><annotation encoding="application/x-tex">\lambda = 1/2.2</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mo>=</mo><mn>5</mn></mrow><annotation encoding="application/x-tex">\alpha = 5</annotation></semantics></math>,
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>β</mi><mo>=</mo><mn>5</mn><mi>/</mi><mn>5.5</mn></mrow><annotation encoding="application/x-tex">\beta = 5/5.5</annotation></semantics></math>.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">Prtheta</span> <span class="op">=</span> <span class="fl">0.55</span></span>
+<span><span class="va">lambda</span> <span class="op">=</span> <span class="fl">1</span><span class="op">/</span><span class="fl">2.2</span></span>
+<span><span class="va">alpha</span> <span class="op">=</span> <span class="fl">5</span></span>
+<span><span class="va">beta</span> <span class="op">=</span> <span class="fl">5</span><span class="op">/</span><span class="fl">5.5</span></span></code></pre></div>
+<p>First, we visualize the conditional densitites.</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">10</span>, <span class="fl">0.01</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">x</span>, <span class="fu"><a href="https://rdrr.io/r/stats/Exponential.html" class="external-link">dexp</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">lambda</span><span class="op">)</span>, type <span class="op">=</span> <span class="st">"l"</span>, xlab <span class="op">=</span> <span class="st">""</span>, ylab <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/title.html" class="external-link">title</a></span><span class="op">(</span><span class="st">"Conditional densities of distance"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">x</span>, <span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html" class="external-link">dgamma</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">alpha</span>, <span class="va">beta</span><span class="op">)</span>, col <span class="op">=</span> <span class="st">"red"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="Chapter01_files/figure-html/unnamed-chunk-11-1.png" width="672"></p>
+<p>Now, we compute the non-normalized posteriors for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>∈</mo><mo stretchy="false" form="prefix">{</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mn>3</mn><mo>,</mo><mn>6</mn><mo>,</mo><mn>8</mn><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">y \in \{1, 2, 3, 6, 8\}</annotation></semantics></math>.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">6</span>, <span class="fl">8</span><span class="op">)</span></span>
+<span><span class="va">theta1_y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Exponential.html" class="external-link">dexp</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">lambda</span><span class="op">)</span> <span class="op">*</span> <span class="va">Prtheta</span></span>
+<span><span class="va">theta0_y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html" class="external-link">dgamma</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">alpha</span>, <span class="va">beta</span><span class="op">)</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">Prtheta</span><span class="op">)</span></span></code></pre></div>
+<p>Finally, here are the posterior probabilities.</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">female</span> <span class="op">&lt;-</span> <span class="va">theta1_y</span> <span class="op">/</span> <span class="op">(</span><span class="va">theta0_y</span> <span class="op">+</span> <span class="va">theta1_y</span><span class="op">)</span></span>
+<span><span class="va">male</span> <span class="op">&lt;-</span> <span class="va">theta0_y</span> <span class="op">/</span> <span class="op">(</span><span class="va">theta0_y</span> <span class="op">+</span> <span class="va">theta1_y</span><span class="op">)</span></span>
+<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">female</span>, <span class="va">male</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">y</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"female"</span>, <span class="st">"male"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">res</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt;            1     2     3     6     8</span></span>
+<span><span class="co">#&gt; female 0.971 0.769 0.509 0.202 0.166</span></span>
+<span><span class="co">#&gt; male   0.029 0.231 0.491 0.798 0.834</span></span></code></pre></div>
+</div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
