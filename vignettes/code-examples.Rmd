@@ -14,22 +14,48 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
-# Example 1.3: Classifying categorical observations into two states
+# Chapter 1
 
+## Example 1.3: Classifying categorical observations into two states
+
+We have two firms, a reliable firm $A$ with $P(A) = 0.7$ and a less reliable firm $A^C$ with
+$P(A^C) = 1 - 0.7 = 0.3$.
+
+```{r}
 PrA <- 0.7 # Probability of items being produced by the reliable firm
 PrAC <- 1 - PrA # Probability of items being produced by the less reliable firm
+```
 
+The failure rate, i.e. the probability of a faulty item, is 0.01 for the reliable
+firm $A$ and 0.05 for the less reliable firm $A^C$.
+
+```{r}
 PrFA <- 0.01 # Failure rate of the reliable firm
 PrFAC <- 0.05 # Failure rate of the less reliable firm
+```
 
+Assume that we observe any number of failures $y$ between 0 and 6 (from $N = 100$ observations total),
+but we don't know whether the items are from company $A$ or $A^C$.
+
+```{r}
 N <- 100
 y <- 0:6
+```
 
+We can now compute the probability of dealing with items from company $A$ by using
+Bayes' theorem.
+
+```{r}
 PosteriorTheta1Unormalized <- PrFA ^ y * (1 - PrFA) ^ (N - y) * PrA
 PosteriorTheta0Unormalized <- PrFAC ^ y * (1 - PrFAC) ^ (N - y) * PrAC
 NormalizingConstant <- PosteriorTheta0Unormalized + PosteriorTheta1Unormalized
 
 round(PosteriorTheta1Unormalized / NormalizingConstant, 3)
+```
+
+Of course, the probabilities of dealing with items from company $A^C$ are
+complementary.
+
+```{r}
 round(PosteriorTheta0Unormalized / NormalizingConstant, 3)
 ```
