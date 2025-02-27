@@ -11,8 +11,18 @@ Authors@R:
              family = "Grün",
              email = "bettina.gruen@wu.ac.at",
              role = "aut",
-             comment = c(ORCID = "0000-0001-7265-4773")))
-Description: R code replicating most of the examples presented in a future book.
+             comment = c(ORCID = "0000-0001-7265-4773")),
+      person(given = "Helga",
+             family = "Wagner",
+             email = "helga.wagner@jku.at",
+             role = "ctb",
+             comment = c(ORCID = "0000-0002-7003-9512")),
+    person(given = "Sylvia",
+             family = "Frühwirth-Schnatter",
+             email = "sylvia.fruehwirth-schnatter@wu.ac.at",
+             role = "ctb",
+             comment = c(ORCID = "0000-0003-0516-5552")))
+Description: R code replicating examples presented in a future book.
 License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
