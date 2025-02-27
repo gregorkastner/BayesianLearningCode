@@ -93,8 +93,8 @@ round(PosteriorTheta0Unormalized / NormalizingConstant, 3)
 We have a Bernoulli random variable $\vartheta$ with prior probability
 $$P(\vartheta) = 0.55,$$
 and we know for the females that
-$$y|\theta_1 \sim Exp(\lambda),$$
-and for the males that $$y|\theta_0 \sim G(\alpha, \beta),$$
+$$y|\vartheta_1 \sim Exp(\lambda),$$
+and for the males that $$y|\vartheta_0 \sim G(\alpha, \beta),$$
 where $\lambda = 1/2.2$, $\alpha = 5$, and $\beta = 5/5.5$.
 
 ```{r}
