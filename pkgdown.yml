@@ -3,7 +3,7 @@ pkgdown: 2.1.1
 pkgdown_sha: ~
 articles:
   Chapter01: Chapter01.html
-last_built: 2025-03-01T22:14Z
+last_built: 2025-03-01T22:23Z
 urls:
   reference: https://gregorkastner.github.io/BayesianLearningCode/reference
   article: https://gregorkastner.github.io/BayesianLearningCode/articles
