@@ -11,7 +11,7 @@ vignette: >
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  fig.width = 7,
+  fig.width = 8,
   fig.height = 5
 )
 knitr::opts_knit$set(global.par = TRUE)
@@ -114,7 +114,7 @@ if (pdfplots) {
   pdf("bayes-basic-example2.pdf", width = 12, height = 8)
   par(mgp = c(1.6, .6, 0), mar = c(2, 2, 3, .5), lwd = 2)
 }
-x <- seq(0, 10, 0.1)
+x <- seq(0, 10, 0.2)
 plot(x, dexp(x, lambda), type = "l", xlab = "", ylab = "")
 title("Conditional densities and non-normalized posteriors of distance")
 lines(x, dgamma(x, alpha, beta), col = "red")
@@ -129,8 +129,14 @@ points(y, theta0_y, col = "red")
 theta1_y_morepoints <- dexp(x, lambda) * Prtheta
 theta0_y_morepoints <- dgamma(x, alpha, beta) * (1 - Prtheta)
 
-lines(x,  theta1_y_morepoints, lty = 3)
-lines(x,  theta0_y_morepoints, lty = 3, col = "red")
+lines(x,  theta1_y_morepoints, lty = 2)
+lines(x,  theta0_y_morepoints, lty = 2, col = "red")
+
+legend("topright", c("Conditional density (female)",
+                     "Conditional density (male)",
+                     "Non-normalized posterior (female)",
+                     "Non-normalized posterior (male)"),
+       col = rep(c("black", "red"), 2), lty = rep(1:2, each = 2))
 ```
 
 Finally, here are the posterior probabilities. Note that each ratio of the pairs
@@ -148,8 +154,9 @@ round(res, 3)
 Visualized.
 
 ```{r}
-female_morepoints <- theta1_y_morepoints / (theta0_y_morepoints + theta1_y_morepoints)
-male_morepoints <- theta0_y_morepoints / (theta0_y_morepoints + theta1_y_morepoints)
+sum_morepoints <- theta0_y_morepoints + theta1_y_morepoints
+female_morepoints <- theta1_y_morepoints / sum_morepoints
+male_morepoints <- theta0_y_morepoints / sum_morepoints
 res <- rbind(female_morepoints, male_morepoints)
 colnames(res) <- x
 barplot(res, main = "Posterior probabilities of female/male", col = c("black", "red"))
