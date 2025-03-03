@@ -5,8 +5,6 @@
 \alias{accidents}
 \title{Accidents data}
 \format{
-\subsection{\code{accidents}}{
-
 A monthly time series object with 192 rows and 4 columns
 \describe{
 \item{children}{number of children aged 6 to 10 years seriously injured or killed}
@@ -14,7 +12,6 @@ A monthly time series object with 192 rows and 4 columns
 \item{children_exposure}{estimated number of children exposed}
 \item{seniors_exposure}{estimated number of seniors exposed}
 ...
-}
 }
 }
 \source{
