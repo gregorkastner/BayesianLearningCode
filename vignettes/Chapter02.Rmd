@@ -34,6 +34,6 @@ if (pdfplots) {
 }
 library(BayesianLearningCode)
 str(accidents)
-plot(accidents[,c(1,3)], main = "Serious road accidents involving pedestrian children")
-plot(accidents[,c(2,4)], main = "Serious road accidents involving pedestrian seniors")
+plot(accidents[,c(1,3)], main = "Road accidents involving pedestrian children")
+plot(accidents[,c(2,4)], main = "Road accidents involving pedestrian seniors")
 ```
