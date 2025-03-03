@@ -70,13 +70,19 @@
 <div class="section level3">
 <h3 id="example-2-2-road-safety-data">Example 2.2: Road safety data<a class="anchor" aria-label="anchor" href="#example-2-2-road-safety-data"></a>
 </h3>
-<p>We load the data first and have a look at the help file.</p>
+<p>Let’s first take a look at the data.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">accidents</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in data(accidents): data set 'accidents' not found</span></span>
-<span><span class="op">?</span><span class="va">accidents</span></span>
-<span><span class="co">#&gt; No documentation for 'accidents' in specified packages and libraries:</span></span>
-<span><span class="co">#&gt; you could try '??accidents'</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gregorkastner.github.io/BayesianLearningCode/">BayesianLearningCode</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">accidents</span><span class="op">)</span></span>
+<span><span class="co">#&gt;  Time-Series [1:192, 1:4] from 1987 to 2003: 1 1 2 1 4 5 2 2 1 5 ...</span></span>
+<span><span class="co">#&gt;  - attr(*, "dimnames")=List of 2</span></span>
+<span><span class="co">#&gt;   ..$ : NULL</span></span>
+<span><span class="co">#&gt;   ..$ : chr [1:4] "children" "seniors" "children_exposure" "seniors_exposure"</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">accidents</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">3</span><span class="op">)</span><span class="op">]</span>, main <span class="op">=</span> <span class="st">"Serious road accidents involving pedestrian children"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="Chapter02_files/figure-html/unnamed-chunk-3-1.png" width="768"></p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">accidents</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">4</span><span class="op">)</span><span class="op">]</span>, main <span class="op">=</span> <span class="st">"Serious road accidents involving pedestrian seniors"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="Chapter02_files/figure-html/unnamed-chunk-3-2.png" width="768"></p>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
