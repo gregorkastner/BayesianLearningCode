@@ -7,6 +7,11 @@ Authors@R:
              email = "gregor.kastner@aau.at",
              role = c("aut", "cre"),
              comment = c(ORCID = "0000-0002-8237-8271")),
+      person(given = "Sylvia",
+             family = "Frühwirth-Schnatter",
+             email = "sylvia.fruehwirth-schnatter@wu.ac.at",
+             role = "aut",
+             comment = c(ORCID = "0000-0003-0516-5552"))
       person(given = "Bettina",
              family = "Grün",
              email = "bettina.gruen@wu.ac.at",
@@ -15,13 +20,9 @@ Authors@R:
       person(given = "Helga",
              family = "Wagner",
              email = "helga.wagner@jku.at",
-             role = "ctb",
-             comment = c(ORCID = "0000-0002-7003-9512")),
-    person(given = "Sylvia",
-             family = "Frühwirth-Schnatter",
-             email = "sylvia.fruehwirth-schnatter@wu.ac.at",
-             role = "ctb",
-             comment = c(ORCID = "0000-0003-0516-5552")))
+             role = "aut",
+             comment = c(ORCID = "0000-0002-7003-9512"))),
+)
 Description: R code replicating examples presented in a future book.
 License: GPL (>= 3)
 Encoding: UTF-8
