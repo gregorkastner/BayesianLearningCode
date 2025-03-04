@@ -21,7 +21,7 @@ Authors@R:
              family = "Wagner",
              email = "helga.wagner@jku.at",
              role = "aut",
-             comment = c(ORCID = "0000-0002-7003-9512"))),
+             comment = c(ORCID = "0000-0002-7003-9512"))
 )
 Description: R code replicating examples presented in a future book.
 License: GPL (>= 3)
