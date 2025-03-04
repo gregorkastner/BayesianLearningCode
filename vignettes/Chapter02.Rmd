@@ -37,7 +37,7 @@ plot(accidents[,c(1,3)], main = "Road accidents involving pedestrian children")
 plot(accidents[,c(2,4)], main = "Road accidents involving pedestrian seniors")
 ```
 
-## Example 2.4: Road safety data (cont'd)
+## Example 2.4: Posterior inference for the Road Safety Data
 The posterior under a flat prior is
 $$
 \mu|\mathbf{y} \sim \mathcal G(N\bar y + 1, N),
