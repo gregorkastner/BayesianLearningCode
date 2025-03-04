@@ -24,7 +24,6 @@ par(mgp = c(1.6, .6, 0), mar = c(2.5, 2.5, 2.5, .5), lwd = 1)
 
 # Section 2.1
 ## Example 2.2: Road safety data
-
 Let's first take a look at the data.
 
 ```{r, echo=-1}
@@ -36,4 +35,76 @@ library(BayesianLearningCode)
 str(accidents)
 plot(accidents[,c(1,3)], main = "Road accidents involving pedestrian children")
 plot(accidents[,c(2,4)], main = "Road accidents involving pedestrian seniors")
+```
+
+## Example 2.4: Road safety data (cont'd)
+The posterior under a flat prior is
+$$
+\mu|\mathbf{y} \sim \mathcal G(N\bar y + 1, N),
+$$
+which we visualize for the seniors, along with the 0.05-, the 0.5-,
+and the 0.95-quantile.
+
+```{r, echo=-1}
+if (pdfplots) {
+  pdf("TODO.pdf", width = 12, height = 8)
+  par(mgp = c(1.6, .6, 0), mar = c(2, 2, 3, .5), lwd = 2)
+}
+y <- accidents[,"seniors"]
+aN <- sum(y) + 1
+bN <- length(y)
+
+x <- seq(4.5, 6, by = 0.01)
+par(mfrow = c(1, 2))
+plot(x, dgamma(x, aN, bN), type = "l", xlab = "", ylab = "",
+     main = "Posterior density and quantiles")
+abline(h = 0, lty = 3)
+
+probs <- c(0.05, .5, .95)
+qs <- qgamma(probs, aN, bN)
+ds <- dgamma(qs, aN, bN)
+
+for (i in seq_along(probs)) lines(c(qs[i], qs[i]), c(-1, ds[i]), lty = 2)
+
+plot(x, pgamma(x, aN, bN), type = "l", xlab = "", ylab = "",
+     main = "Posterior cdf and quantiles")
+abline(h = c(0, 1), lty = 3)
+
+for (i in seq_along(probs)) {
+  lines(c(.9*min(x), qs[i]), c(probs[i], probs[i]), lty = 2)
+  lines(c(qs[i], qs[i]), c(probs[i], -1), lty = 2)
+}
+par(mfrow = c(1, 1))
+```
+
+# Section 2.2
+## Example 2.8: Road safety data (cont'd)
+
+We now include the exposure at time $t$, $e_t$, to estimate the monthly risk
+$\lambda$ of children to be killed or seriously injured via the following
+likelihood assumption:
+
+$$
+y_t \sim \mathcal P(\lambda e_t), \quad t = 1,\dots,T.
+$$
+Note that we still assume that the data is independently (but not identically!)
+distributed. We proceed by computing and visualizing the posterior for different
+prior hyperparameter choices.
+
+```{r, echo = -1}
+if (pdfplots) {
+  pdf("TODO.pdf", width = 12, height = 8)
+  par(mgp = c(1.6, .6, 0), mar = c(2, 2, 3, .5), lwd = 2)
+}
+y <- accidents[, "children"]
+exp <- accidents[, "children_exposure"]
+lambdahat <- mean(y)/mean(exp)
+a0 <- c(0, 0.5, 1, 2)
+b0 <- a0/lambdahat
+aN <- a0 + sum(y)
+bN <- b0 + sum(exp)
+
+x <- seq(0.00016, 0.00026, by = .000001)
+plot(x, dgamma(x, aN[1], bN[1]), type = "l")
+for (i in 2:length(aN)) lines(x, dgamma(x, aN[i], bN[i]), lty = 2)
 ```
