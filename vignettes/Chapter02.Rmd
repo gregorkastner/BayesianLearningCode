@@ -105,6 +105,20 @@ aN <- a0 + sum(y)
 bN <- b0 + sum(exp)
 
 x <- seq(0.00016, 0.00026, by = .000001)
-plot(x, dgamma(x, aN[1], bN[1]), type = "l")
+plot(x, dgamma(x, aN[1], bN[1]), type = "l", xlab = "", ylab = "")
 for (i in 2:length(aN)) lines(x, dgamma(x, aN[i], bN[i]), lty = 2)
 ```
+TO DISCUSS: FIGURE 2.7 LOOKS SLIGHTLY DIFFERENT
+
+For all our chosen priors, we get the same posterior mean, but we see slightly
+different credible intervals.
+
+```{r}
+postmean <- aN/bN
+leftpostquant <- qgamma(.025, aN, bN)
+rightpostquant <- qgamma(.975, aN, bN)
+res <- cbind(leftpostquant, postmean, rightpostquant)
+rownames(res) <- paste0("a0 = ", a0, ", ", "b0 = ", round(b0))
+res
+```
+
