@@ -23,7 +23,7 @@ par(mgp = c(1.6, .6, 0), mar = c(2.5, 2.5, 2.5, .5), lwd = 1)
 ```
 
 # Section 2.1
-## Example 2.2: Road safety data
+## Example 2.2: Road Safety Data
 Let's first take a look at the data.
 
 ```{r, echo=-1}
@@ -32,7 +32,7 @@ if (pdfplots) {
   par(mgp = c(1.6, .6, 0), mar = c(2, 2, 3, .5), lwd = 2)
 }
 library(BayesianLearningCode)
-str(accidents)
+summary(accidents)
 plot(accidents[,c(1,3)], main = "Road accidents involving pedestrian children")
 plot(accidents[,c(2,4)], main = "Road accidents involving pedestrian seniors")
 ```
@@ -45,17 +45,17 @@ $$
 which we visualize for the seniors, along with the 0.05-, the 0.5-,
 and the 0.95-quantile.
 
-```{r, echo=-1}
+```{r, echo=-(1:2)}
 if (pdfplots) {
   pdf("TODO.pdf", width = 12, height = 8)
   par(mgp = c(1.6, .6, 0), mar = c(2, 2, 3, .5), lwd = 2)
 }
+par(mfrow = c(1, 2))
 y <- accidents[,"seniors"]
 aN <- sum(y) + 1
 bN <- length(y)
 
 x <- seq(4.5, 6, by = 0.01)
-par(mfrow = c(1, 2))
 plot(x, dgamma(x, aN, bN), type = "l", xlab = "", ylab = "",
      main = "Posterior density and quantiles")
 abline(h = 0, lty = 3)
@@ -74,51 +74,132 @@ for (i in seq_along(probs)) {
   lines(c(.9*min(x), qs[i]), c(probs[i], probs[i]), lty = 2)
   lines(c(qs[i], qs[i]), c(probs[i], -1), lty = 2)
 }
-par(mfrow = c(1, 1))
 ```
 
 # Section 2.2
-## Example 2.8: Road safety data (cont'd)
+## Example 2.8: Including Exposures for the Road Safety Data
 
 We now include the exposure at time $t$, $e_t$, to estimate the monthly risk
 $\lambda$ of children to be killed or seriously injured via the following
 likelihood assumption:
 
 $$
-y_t \sim \mathcal P(\lambda e_t), \quad t = 1,\dots,T.
+y_i \sim \mathcal P(\lambda e_i), \quad i = 1,\dots,N.
 $$
 Note that we still assume that the data is independently (but not identically!)
 distributed. We proceed by computing and visualizing the posterior for different
 prior hyperparameter choices.
 
-```{r, echo = -1}
+```{r, echo = -(1:2)}
 if (pdfplots) {
   pdf("TODO.pdf", width = 12, height = 8)
   par(mgp = c(1.6, .6, 0), mar = c(2, 2, 3, .5), lwd = 2)
 }
+par(mfrow = c(1, 1))
 y <- accidents[, "children"]
 exp <- accidents[, "children_exposure"]
 lambdahat <- mean(y)/mean(exp)
-a0 <- c(0, 0.5, 1, 2)
-b0 <- a0/lambdahat
+a0 <- c(1, 0.5, 1, 2)
+b0 <- c(0, a0[-1]/lambdahat)
 aN <- a0 + sum(y)
 bN <- b0 + sum(exp)
 
 x <- seq(0.00016, 0.00026, by = .000001)
-plot(x, dgamma(x, aN[1], bN[1]), type = "l", xlab = "", ylab = "")
-for (i in 2:length(aN)) lines(x, dgamma(x, aN[i], bN[i]), lty = 2)
-```
-TO DISCUSS: FIGURE 2.7 LOOKS SLIGHTLY DIFFERENT
+plot(x, dgamma(x, aN[1], bN[1]), type = "l", xlab = "", ylab = "",
+     main = "Posterior densities for various priors")
+for (i in 2:length(aN)) lines(x, dgamma(x, aN[i], bN[i]), lty = i)
 
-For all our chosen priors, we get the same posterior mean, but we see slightly
-different credible intervals.
+hyperparams <- paste0("a0 = ", formatC(a0, 1, format = "f"),
+                      ", ", "b0 = ", round(b0))
+
+legend("topright", hyperparams, lty = 1:4)
+```
+
+For all our data-driven priors, we get the same posterior mean. The credible
+intervals differ slightly.
 
 ```{r}
 postmean <- aN/bN
 leftpostquant <- qgamma(.025, aN, bN)
 rightpostquant <- qgamma(.975, aN, bN)
 res <- cbind(leftpostquant, postmean, rightpostquant)
-rownames(res) <- paste0("a0 = ", a0, ", ", "b0 = ", round(b0))
+rownames(res) <- hyperparams
 res
 ```
 
+## Example 2.9: Including a structural break for the Road Safety Data
+
+We now continue with a Poisson model with a (known) structural break at
+$i = 94$ (that is, in October 1994). Because the data is stored as a time
+series (ts) object, we can use the window function to conveniently extract the
+two time frames.
+
+```{r, echo = -(1:2), fig.width = 8, fig.height = 4}
+if (pdfplots) {
+  pdf("TODO.pdf", width = 12, height = 8)
+  par(mgp = c(1.6, .6, 0), mar = c(2, 2, 3, .5), lwd = 2)
+}
+par(mfrow = c(1, 2))
+accidents1 <- window(accidents, end = c(1994, 9))
+accidents2 <- window(accidents, start = c(1994, 10))
+
+a01 <- a02 <- 1
+b01 <- b02 <- 0
+
+aN1 <- a01 + sum(accidents1[, "children"])
+aN2 <- a02 + sum(accidents2[, "children"])
+bN1 <- b01 + length(accidents1[, "children"])
+bN2 <- b02 + length(accidents2[, "children"])
+
+post <- function(x1, x2, aN1, aN2, bN1, bN2) {
+  dgamma(x1, aN1, bN1) * dgamma(x2, aN2, bN2)
+}
+
+mu1 <- seq(1, 3, by = 0.03)
+mu2 <- mu1
+z <- outer(mu1, mu2, post, aN1 = aN1, aN2 = aN2, bN1 = bN1, bN2 = bN2)
+
+nrz <- nrow(z)
+ncz <- ncol(z)
+
+# Generate the desired number of colors from this palette
+nbcol <- 10
+color <- hcl.colors(10, "YlOrRd")
+
+# Compute the z-value at the facet centres
+
+zfacet <- z[-1, -1] + z[-1, -ncz] + z[-nrz, -1] + z[-nrz, -ncz]
+# Recode facet z-values into color indices
+facetcol <- cut(zfacet, nbcol)
+
+persp(mu1, mu2, z, col = color[facetcol], ticktype = "detailed", zlab = "",
+      xlab = "mu1", ylab = "mu2",
+      phi = 20, theta = -30)
+
+contour(mu1, mu2, z, col = color, xlab = bquote(mu[1]), ylab = bquote(mu[2]))
+abline(0,1)
+```
+
+## Example 2.10: Obtaining posterior draws for the Road Safety Data
+
+We now proceed with simple Monte Carlo approximation of (nonlinear) functionals
+of the posterior.
+
+```{r, echo = -(1:2), fig.width = 8, fig.height = 4}
+if (pdfplots) {
+  pdf("TODO.pdf", width = 12, height = 8)
+  par(mgp = c(1.6, .6, 0), mar = c(2, 2, 3, .5), lwd = 2)
+}
+par(mfrow = c(2, 2))
+set.seed(1)
+
+nsamp <- 2000
+mu1 <- rgamma(nsamp, aN1, bN1)
+mu2 <- rgamma(nsamp, aN2, bN2)
+delta1 <- mu2 - mu1
+delta2 <- (mu2 - mu1) / mu1
+
+ts.plot(delta1, main = "Trace plot of delta1")
+ts.plot(100*delta2, main = "Trace plot of delta2")
+hist(delta1, breaks = 20, prob = TRUE, xlab = "", ylab = "")
+hist(100*delta2, breaks = 20, prob = TRUE, xlab = "", ylab = "")
