@@ -68,16 +68,19 @@
 <h2 id="section-2-1">Section 2.1<a class="anchor" aria-label="anchor" href="#section-2-1"></a>
 </h2>
 <div class="section level3">
-<h3 id="example-2-2-road-safety-data">Example 2.2: Road safety data<a class="anchor" aria-label="anchor" href="#example-2-2-road-safety-data"></a>
+<h3 id="example-2-2-road-safety-data">Example 2.2: Road Safety Data<a class="anchor" aria-label="anchor" href="#example-2-2-road-safety-data"></a>
 </h3>
 <p>Let’s first take a look at the data.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gregorkastner.github.io/BayesianLearningCode/">BayesianLearningCode</a></span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">accidents</span><span class="op">)</span></span>
-<span><span class="co">#&gt;  Time-Series [1:192, 1:4] from 1987 to 2003: 1 1 2 1 4 5 2 2 1 5 ...</span></span>
-<span><span class="co">#&gt;  - attr(*, "dimnames")=List of 2</span></span>
-<span><span class="co">#&gt;   ..$ : NULL</span></span>
-<span><span class="co">#&gt;   ..$ : chr [1:4] "children" "seniors" "children_exposure" "seniors_exposure"</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">accidents</span><span class="op">)</span></span>
+<span><span class="co">#&gt;     children        seniors      children_exposure seniors_exposure</span></span>
+<span><span class="co">#&gt;  Min.   :0.000   Min.   : 0.00   Min.   :8171      Min.   :42854   </span></span>
+<span><span class="co">#&gt;  1st Qu.:1.000   1st Qu.: 3.00   1st Qu.:8678      1st Qu.:43574   </span></span>
+<span><span class="co">#&gt;  Median :2.000   Median : 5.00   Median :8900      Median :44097   </span></span>
+<span><span class="co">#&gt;  Mean   :1.839   Mean   : 5.25   Mean   :8856      Mean   :43890   </span></span>
+<span><span class="co">#&gt;  3rd Qu.:3.000   3rd Qu.: 7.00   3rd Qu.:9103      3rd Qu.:44264   </span></span>
+<span><span class="co">#&gt;  Max.   :5.000   Max.   :15.00   Max.   :9204      Max.   :44671</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">accidents</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">3</span><span class="op">)</span><span class="op">]</span>, main <span class="op">=</span> <span class="st">"Road accidents involving pedestrian children"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="Chapter02_files/figure-html/unnamed-chunk-3-1.png" width="768"></p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
@@ -98,7 +101,6 @@ along with the 0.05-, the 0.5-, and the 0.95-quantile.</p>
 <span><span class="va">bN</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">4.5</span>, <span class="fl">6</span>, by <span class="op">=</span> <span class="fl">0.01</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">x</span>, <span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html" class="external-link">dgamma</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">aN</span>, <span class="va">bN</span><span class="op">)</span>, type <span class="op">=</span> <span class="st">"l"</span>, xlab <span class="op">=</span> <span class="st">""</span>, ylab <span class="op">=</span> <span class="st">""</span>,</span>
 <span>     main <span class="op">=</span> <span class="st">"Posterior density and quantiles"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>h <span class="op">=</span> <span class="fl">0</span>, lty <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
@@ -118,15 +120,13 @@ along with the 0.05-, the 0.5-, and the 0.95-quantile.</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">qs</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, <span class="va">qs</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">probs</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, <span class="op">-</span><span class="fl">1</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p><img src="Chapter02_files/figure-html/unnamed-chunk-4-1.png" width="768"></p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
 <h2 id="section-2-2">Section 2.2<a class="anchor" aria-label="anchor" href="#section-2-2"></a>
 </h2>
 <div class="section level3">
-<h3 id="example-2-8-road-safety-data-contd">Example 2.8: Road safety data (cont’d)<a class="anchor" aria-label="anchor" href="#example-2-8-road-safety-data-contd"></a>
+<h3 id="example-2-8-including-exposures-for-the-road-safety-data">Example 2.8: Including Exposures for the Road Safety Data<a class="anchor" aria-label="anchor" href="#example-2-8-including-exposures-for-the-road-safety-data"></a>
 </h3>
 <p>We now include the exposure at time
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>,
@@ -135,40 +135,117 @@ to estimate the monthly risk
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math>
 of children to be killed or seriously injured via the following
 likelihood assumption:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mi>t</mi></msub><mo>∼</mo><mi>𝒫</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>λ</mi><msub><mi>e</mi><mi>t</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mspace width="1.0em"></mspace><mi>t</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><mi>T</mi><mi>.</mi></mrow><annotation encoding="application/x-tex">
-y_t \sim \mathcal P(\lambda e_t), \quad t = 1,\dots,T.
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mi>i</mi></msub><mo>∼</mo><mi>𝒫</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>λ</mi><msub><mi>e</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mspace width="1.0em"></mspace><mi>i</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><mi>N</mi><mi>.</mi></mrow><annotation encoding="application/x-tex">
+y_i \sim \mathcal P(\lambda e_i), \quad i = 1,\dots,N.
 </annotation></semantics></math> Note that we still assume that the data
 is independently (but not identically!) distributed. We proceed by
 computing and visualizing the posterior for different prior
 hyperparameter choices.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="va">accidents</span><span class="op">[</span>, <span class="st">"children"</span><span class="op">]</span></span>
 <span><span class="va">exp</span> <span class="op">&lt;-</span> <span class="va">accidents</span><span class="op">[</span>, <span class="st">"children_exposure"</span><span class="op">]</span></span>
 <span><span class="va">lambdahat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">exp</span><span class="op">)</span></span>
-<span><span class="va">a0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.5</span>, <span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="va">b0</span> <span class="op">&lt;-</span> <span class="va">a0</span><span class="op">/</span><span class="va">lambdahat</span></span>
+<span><span class="va">a0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0.5</span>, <span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="va">b0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">a0</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">/</span><span class="va">lambdahat</span><span class="op">)</span></span>
 <span><span class="va">aN</span> <span class="op">&lt;-</span> <span class="va">a0</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span></span>
 <span><span class="va">bN</span> <span class="op">&lt;-</span> <span class="va">b0</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">exp</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.00016</span>, <span class="fl">0.00026</span>, by <span class="op">=</span> <span class="fl">.000001</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">x</span>, <span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html" class="external-link">dgamma</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">aN</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="va">bN</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>, type <span class="op">=</span> <span class="st">"l"</span>, xlab <span class="op">=</span> <span class="st">""</span>, ylab <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
-<span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">2</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">aN</span><span class="op">)</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">x</span>, <span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html" class="external-link">dgamma</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">aN</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, <span class="va">bN</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Chapter02_files/figure-html/unnamed-chunk-5-1.png" width="768">
-TO DISCUSS: FIGURE 2.7 LOOKS SLIGHTLY DIFFERENT</p>
-<p>For all our chosen priors, we get the same posterior mean, but we see
-slightly different credible intervals.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">x</span>, <span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html" class="external-link">dgamma</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">aN</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="va">bN</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>, type <span class="op">=</span> <span class="st">"l"</span>, xlab <span class="op">=</span> <span class="st">""</span>, ylab <span class="op">=</span> <span class="st">""</span>,</span>
+<span>     main <span class="op">=</span> <span class="st">"Posterior densities for various priors"</span><span class="op">)</span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">2</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">aN</span><span class="op">)</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">x</span>, <span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html" class="external-link">dgamma</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">aN</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, <span class="va">bN</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span>, lty <span class="op">=</span> <span class="va">i</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">hyperparams</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"a0 = "</span>, <span class="fu"><a href="https://rdrr.io/r/base/formatc.html" class="external-link">formatC</a></span><span class="op">(</span><span class="va">a0</span>, <span class="fl">1</span>, format <span class="op">=</span> <span class="st">"f"</span><span class="op">)</span>,</span>
+<span>                      <span class="st">", "</span>, <span class="st">"b0 = "</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">b0</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topright"</span>, <span class="va">hyperparams</span>, lty <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span></span></code></pre></div>
+<p><img src="Chapter02_files/figure-html/unnamed-chunk-5-1.png" width="768"></p>
+<p>For all our data-driven priors, we get the same posterior mean. The
+credible intervals differ slightly.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">postmean</span> <span class="op">&lt;-</span> <span class="va">aN</span><span class="op">/</span><span class="va">bN</span></span>
 <span><span class="va">leftpostquant</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html" class="external-link">qgamma</a></span><span class="op">(</span><span class="fl">.025</span>, <span class="va">aN</span>, <span class="va">bN</span><span class="op">)</span></span>
 <span><span class="va">rightpostquant</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html" class="external-link">qgamma</a></span><span class="op">(</span><span class="fl">.975</span>, <span class="va">aN</span>, <span class="va">bN</span><span class="op">)</span></span>
 <span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">leftpostquant</span>, <span class="va">postmean</span>, <span class="va">rightpostquant</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"a0 = "</span>, <span class="va">a0</span>, <span class="st">", "</span>, <span class="st">"b0 = "</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">b0</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">hyperparams</span></span>
 <span><span class="va">res</span></span>
-<span><span class="co">#&gt;                     leftpostquant    postmean rightpostquant</span></span>
-<span><span class="co">#&gt; a0 = 0, b0 = 0       0.0001865031 0.000207597   0.0002298047</span></span>
-<span><span class="co">#&gt; a0 = 0.5, b0 = 2409  0.0001865176 0.000207597   0.0002297886</span></span>
-<span><span class="co">#&gt; a0 = 1, b0 = 4817    0.0001865321 0.000207597   0.0002297725</span></span>
-<span><span class="co">#&gt; a0 = 2, b0 = 9634    0.0001865610 0.000207597   0.0002297405</span></span></code></pre></div>
+<span><span class="co">#&gt;                     leftpostquant     postmean rightpostquant</span></span>
+<span><span class="co">#&gt; a0 = 1.0, b0 = 0     0.0001870605 0.0002081851   0.0002304234</span></span>
+<span><span class="co">#&gt; a0 = 0.5, b0 = 2409  0.0001865176 0.0002075970   0.0002297886</span></span>
+<span><span class="co">#&gt; a0 = 1.0, b0 = 4817  0.0001865321 0.0002075970   0.0002297725</span></span>
+<span><span class="co">#&gt; a0 = 2.0, b0 = 9634  0.0001865610 0.0002075970   0.0002297405</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="example-2-9-including-a-structural-break-for-the-road-safety-data">Example 2.9: Including a structural break for the Road Safety
+Data<a class="anchor" aria-label="anchor" href="#example-2-9-including-a-structural-break-for-the-road-safety-data"></a>
+</h3>
+<p>We now continue with a Poisson model with a (known) structural break
+at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo>=</mo><mn>94</mn></mrow><annotation encoding="application/x-tex">i = 94</annotation></semantics></math>
+(that is, in October 1994). Because the data is stored as a time series
+(ts) object, we can use the window function to conveniently extract the
+two time frames.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">accidents1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/window.html" class="external-link">window</a></span><span class="op">(</span><span class="va">accidents</span>, end <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1994</span>, <span class="fl">9</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">accidents2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/window.html" class="external-link">window</a></span><span class="op">(</span><span class="va">accidents</span>, start <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1994</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">a01</span> <span class="op">&lt;-</span> <span class="va">a02</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
+<span><span class="va">b01</span> <span class="op">&lt;-</span> <span class="va">b02</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
+<span></span>
+<span><span class="va">aN1</span> <span class="op">&lt;-</span> <span class="va">a01</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">accidents1</span><span class="op">[</span>, <span class="st">"children"</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="va">aN2</span> <span class="op">&lt;-</span> <span class="va">a02</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">accidents2</span><span class="op">[</span>, <span class="st">"children"</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="va">bN1</span> <span class="op">&lt;-</span> <span class="va">b01</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">accidents1</span><span class="op">[</span>, <span class="st">"children"</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="va">bN2</span> <span class="op">&lt;-</span> <span class="va">b02</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">accidents2</span><span class="op">[</span>, <span class="st">"children"</span><span class="op">]</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">post</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x1</span>, <span class="va">x2</span>, <span class="va">aN1</span>, <span class="va">aN2</span>, <span class="va">bN1</span>, <span class="va">bN2</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html" class="external-link">dgamma</a></span><span class="op">(</span><span class="va">x1</span>, <span class="va">aN1</span>, <span class="va">bN1</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html" class="external-link">dgamma</a></span><span class="op">(</span><span class="va">x2</span>, <span class="va">aN2</span>, <span class="va">bN2</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="va">mu1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">3</span>, by <span class="op">=</span> <span class="fl">0.03</span><span class="op">)</span></span>
+<span><span class="va">mu2</span> <span class="op">&lt;-</span> <span class="va">mu1</span></span>
+<span><span class="va">z</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/outer.html" class="external-link">outer</a></span><span class="op">(</span><span class="va">mu1</span>, <span class="va">mu2</span>, <span class="va">post</span>, aN1 <span class="op">=</span> <span class="va">aN1</span>, aN2 <span class="op">=</span> <span class="va">aN2</span>, bN1 <span class="op">=</span> <span class="va">bN1</span>, bN2 <span class="op">=</span> <span class="va">bN2</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">nrz</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">z</span><span class="op">)</span></span>
+<span><span class="va">ncz</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">z</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Generate the desired number of colors from this palette</span></span>
+<span><span class="va">nbcol</span> <span class="op">&lt;-</span> <span class="fl">10</span></span>
+<span><span class="va">color</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/palettes.html" class="external-link">hcl.colors</a></span><span class="op">(</span><span class="fl">10</span>, <span class="st">"YlOrRd"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Compute the z-value at the facet centres</span></span>
+<span></span>
+<span><span class="va">zfacet</span> <span class="op">&lt;-</span> <span class="va">z</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1</span><span class="op">]</span> <span class="op">+</span> <span class="va">z</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span>, <span class="op">-</span><span class="va">ncz</span><span class="op">]</span> <span class="op">+</span> <span class="va">z</span><span class="op">[</span><span class="op">-</span><span class="va">nrz</span>, <span class="op">-</span><span class="fl">1</span><span class="op">]</span> <span class="op">+</span> <span class="va">z</span><span class="op">[</span><span class="op">-</span><span class="va">nrz</span>, <span class="op">-</span><span class="va">ncz</span><span class="op">]</span></span>
+<span><span class="co"># Recode facet z-values into color indices</span></span>
+<span><span class="va">facetcol</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cut.html" class="external-link">cut</a></span><span class="op">(</span><span class="va">zfacet</span>, <span class="va">nbcol</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/persp.html" class="external-link">persp</a></span><span class="op">(</span><span class="va">mu1</span>, <span class="va">mu2</span>, <span class="va">z</span>, col <span class="op">=</span> <span class="va">color</span><span class="op">[</span><span class="va">facetcol</span><span class="op">]</span>, ticktype <span class="op">=</span> <span class="st">"detailed"</span>, zlab <span class="op">=</span> <span class="st">""</span>,</span>
+<span>      xlab <span class="op">=</span> <span class="st">"mu1"</span>, ylab <span class="op">=</span> <span class="st">"mu2"</span>,</span>
+<span>      phi <span class="op">=</span> <span class="fl">20</span>, theta <span class="op">=</span> <span class="op">-</span><span class="fl">30</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/contour.html" class="external-link">contour</a></span><span class="op">(</span><span class="va">mu1</span>, <span class="va">mu2</span>, <span class="va">z</span>, col <span class="op">=</span> <span class="va">color</span>, xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/bquote.html" class="external-link">bquote</a></span><span class="op">(</span><span class="va">mu</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>, ylab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/bquote.html" class="external-link">bquote</a></span><span class="op">(</span><span class="va">mu</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span></span></code></pre></div>
+<p><img src="Chapter02_files/figure-html/unnamed-chunk-7-1.png" width="768"></p>
+</div>
+<div class="section level3">
+<h3 id="example-2-10-obtaining-posterior-draws-for-the-road-safety-data">Example 2.10: Obtaining posterior draws for the Road Safety
+Data<a class="anchor" aria-label="anchor" href="#example-2-10-obtaining-posterior-draws-for-the-road-safety-data"></a>
+</h3>
+<p>We now proceed with simple Monte Carlo approximation of (nonlinear)
+functionals of the posterior.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">nsamp</span> <span class="op">&lt;-</span> <span class="fl">2000</span></span>
+<span><span class="va">mu1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html" class="external-link">rgamma</a></span><span class="op">(</span><span class="va">nsamp</span>, <span class="va">aN1</span>, <span class="va">bN1</span><span class="op">)</span></span>
+<span><span class="va">mu2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html" class="external-link">rgamma</a></span><span class="op">(</span><span class="va">nsamp</span>, <span class="va">aN2</span>, <span class="va">bN2</span><span class="op">)</span></span>
+<span><span class="va">delta1</span> <span class="op">&lt;-</span> <span class="va">mu2</span> <span class="op">-</span> <span class="va">mu1</span></span>
+<span><span class="va">delta2</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">mu2</span> <span class="op">-</span> <span class="va">mu1</span><span class="op">)</span> <span class="op">/</span> <span class="va">mu1</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/ts.plot.html" class="external-link">ts.plot</a></span><span class="op">(</span><span class="va">delta1</span>, main <span class="op">=</span> <span class="st">"Trace plot of delta1"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/ts.plot.html" class="external-link">ts.plot</a></span><span class="op">(</span><span class="fl">100</span><span class="op">*</span><span class="va">delta2</span>, main <span class="op">=</span> <span class="st">"Trace plot of delta2"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">delta1</span>, breaks <span class="op">=</span> <span class="fl">20</span>, prob <span class="op">=</span> <span class="cn">TRUE</span>, xlab <span class="op">=</span> <span class="st">""</span>, ylab <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="fl">100</span><span class="op">*</span><span class="va">delta2</span>, breaks <span class="op">=</span> <span class="fl">20</span>, prob <span class="op">=</span> <span class="cn">TRUE</span>, xlab <span class="op">=</span> <span class="st">""</span>, ylab <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span></code></pre></div>
+<p><img src="Chapter02_files/figure-html/unnamed-chunk-8-1.png" width="768"></p>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
