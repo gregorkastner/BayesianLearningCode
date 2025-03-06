@@ -23,3 +23,75 @@ par(mgp = c(1.6, .6, 0), mar = c(2.5, 2.5, 2.5, .5), lwd = 1)
 ```
 
 # Section 3.1
+## Figure 3.1
+
+To reproduce the posteriors in this figure, we simply need to plug in
+respective counts into the expression for the posterior density and visualize
+it accordingly.
+
+```{r, echo=-(1:2)}
+if (pdfplots) {
+  pdf("TODO.pdf", width = 12, height = 8)
+  par(mgp = c(1.6, .6, 0), mar = c(2, 2, 3, .5), lwd = 2)
+}
+par(mfrow = c(3, 2))
+
+trueprop <- c(0, .1, .5)
+N <- c(100, 400)
+xs <- seq(0, 1, .001)
+
+for (p in trueprop) {
+  for (n in N) {
+    aN <- n*p + 1
+    bN <- n - n*p + 1
+    plot(xs, dbeta(xs, aN, bN), type = "l", xlab = "", ylab = "",
+         main = bquote(N == .(n) ~ "and" ~ S[N] == .(n*p)))
+  }
+}
+```
+
+We now proceed to computing credible intervals. Note that R is (mostly)
+vectorized, so we can compute all posterior parameters in one line, without
+the need for a loop.
+
+```{r}
+alpha <- .05
+
+Ns <- rep(N, each = length(trueprop))
+SNs <- Ns * rep(trueprop, length(N))
+
+aN <- SNs + 1    
+bN <- Ns - SNs + 1
+    
+# Equal-ended 95% credible intervals
+left <- qbeta(alpha/2, aN, bN)
+right <- qbeta(1 - alpha/2, aN, bN)
+
+# HPDs
+resolution <- 10000
+grid <- seq(0, 1, length.out = resolution + 1)
+dist <- (1 - alpha) * resolution
+
+leftHPD <- rightHPD <- rep(NA_real_, length(aN))
+for (i in seq_along(aN)) {
+  qs <- qbeta(grid, aN[i], bN[i])
+  minimizer <- which.min(diff(qs, lag = dist))
+  leftHPD[i] <- qs[minimizer]
+  rightHPD[i] <- qs[minimizer + dist]
+}
+
+res <- cbind(left, right, leftHPD, rightHPD)
+```
+
+All the desired intervals are now stored and can be displayed.
+
+```{r results = 'asis'}
+knitr::kable(round(res, 4))
+```
+
+We can also compare their respective lengths.
+
+```{r results = 'asis'}
+res <- cbind(length = right - left, lengthHPD = rightHPD - leftHPD)
+knitr::kable(round(res, 4))
+```
