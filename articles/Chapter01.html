@@ -201,10 +201,35 @@ graph.</p>
 <span><span class="va">male</span> <span class="op">&lt;-</span> <span class="va">theta0_y</span> <span class="op">/</span> <span class="op">(</span><span class="va">theta0_y</span> <span class="op">+</span> <span class="va">theta1_y</span><span class="op">)</span></span>
 <span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">female</span>, <span class="va">male</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">y</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">res</span>, <span class="fl">3</span><span class="op">)</span></span>
-<span><span class="co">#&gt;            1     2     3     6     8</span></span>
-<span><span class="co">#&gt; female 0.971 0.769 0.509 0.202 0.166</span></span>
-<span><span class="co">#&gt; male   0.029 0.231 0.491 0.798 0.834</span></span></code></pre></div>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">res</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left"></th>
+<th align="right">1</th>
+<th align="right">2</th>
+<th align="right">3</th>
+<th align="right">6</th>
+<th align="right">8</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">female</td>
+<td align="right">0.971</td>
+<td align="right">0.769</td>
+<td align="right">0.509</td>
+<td align="right">0.202</td>
+<td align="right">0.166</td>
+</tr>
+<tr class="even">
+<td align="left">male</td>
+<td align="right">0.029</td>
+<td align="right">0.231</td>
+<td align="right">0.491</td>
+<td align="right">0.798</td>
+<td align="right">0.834</td>
+</tr>
+</tbody>
+</table>
 <p>Visualized.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sum_morepoints</span> <span class="op">&lt;-</span> <span class="va">theta0_y_morepoints</span> <span class="op">+</span> <span class="va">theta1_y_morepoints</span></span>
