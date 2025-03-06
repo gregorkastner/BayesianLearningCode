@@ -79,7 +79,7 @@ for (i in seq_along(probs)) {
 # Section 2.2
 ## Example 2.8: Including Exposures for the Road Safety Data
 
-We now include the exposure at time $t$, $e_t$, to estimate the monthly risk
+We now include the exposure at time $i$, $e_i$, to estimate the monthly risk
 $\lambda$ of children to be killed or seriously injured via the following
 likelihood assumption:
 
