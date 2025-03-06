@@ -69,14 +69,13 @@
 <h2 id="section-3-1">Section 3.1<a class="anchor" aria-label="anchor" href="#section-3-1"></a>
 </h2>
 <div class="section level3">
-<h3 id="figure-3-1">Figure 3.1<a class="anchor" aria-label="anchor" href="#figure-3-1"></a>
+<h3 id="figure-3-1-posteriors-under-the-beta-binomial-model">Figure 3.1: Posteriors under the beta-binomial model<a class="anchor" aria-label="anchor" href="#figure-3-1-posteriors-under-the-beta-binomial-model"></a>
 </h3>
 <p>To reproduce the posteriors in this figure, we simply need to plug in
 respective counts into the expression for the posterior density and
 visualize it accordingly.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="va">trueprop</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">.1</span>, <span class="fl">.5</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">trueprop</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">.1</span>, <span class="fl">.5</span><span class="op">)</span></span>
 <span><span class="va">N</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">400</span><span class="op">)</span></span>
 <span><span class="va">xs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">.001</span><span class="op">)</span></span>
 <span></span>
@@ -89,6 +88,11 @@ visualize it accordingly.</p>
 <span>  <span class="op">}</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p><img src="Chapter03_files/figure-html/unnamed-chunk-3-1.png" width="768"></p>
+</div>
+<div class="section level3">
+<h3 id="table-3-1-posterior-credible-intervals-under-the-beta-binomial-model">Table 3.1: Posterior credible intervals under the beta-binomial
+model<a class="anchor" aria-label="anchor" href="#table-3-1-posterior-credible-intervals-under-the-beta-binomial-model"></a>
+</h3>
 <p>We now proceed to computing credible intervals. Note that R is
 (mostly) vectorized, so we can compute all posterior parameters in one
 line, without the need for a loop.</p>
