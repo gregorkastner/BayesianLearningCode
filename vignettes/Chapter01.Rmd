@@ -143,12 +143,12 @@ Finally, here are the posterior probabilities. Note that each ratio of the pairs
 of corresponding posterior probabilities is the same as each ratio of the
 heights of the vertically corresponding points in the graph.
 
-```{r}
+```{r, results = 'asis'}
 female <- theta1_y / (theta0_y + theta1_y)
 male <- theta0_y / (theta0_y + theta1_y)
 res <- rbind(female, male)
 colnames(res) <- y
-round(res, 3)
+knitr::kable(round(res, 3))
 ```
 
 Visualized.
