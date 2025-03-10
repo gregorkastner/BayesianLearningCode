@@ -122,6 +122,7 @@ theta0_y <- dgamma(y, alpha, beta) * (1 - Prtheta)
 points(y, theta1_y)
 points(y, theta0_y, col = "red")
 
+x <- seq(0, 10, 0.2)
 theta1_y_morepoints <- dexp(x, lambda) * Prtheta
 theta0_y_morepoints <- dgamma(x, alpha, beta) * (1 - Prtheta)
 
