@@ -111,35 +111,123 @@ by using Bayes’ theorem.</p>
 <span><span class="va">PosteriorTheta0Unormalized</span> <span class="op">&lt;-</span> <span class="va">PrFAC</span> <span class="op">^</span> <span class="va">y</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">PrFAC</span><span class="op">)</span> <span class="op">^</span> <span class="op">(</span><span class="va">N</span> <span class="op">-</span> <span class="va">y</span><span class="op">)</span> <span class="op">*</span> <span class="va">PrAC</span></span>
 <span><span class="va">NormalizingConstant</span> <span class="op">&lt;-</span> <span class="va">PosteriorTheta0Unormalized</span> <span class="op">+</span> <span class="va">PosteriorTheta1Unormalized</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">PosteriorTheta1Unormalized</span> <span class="op">/</span> <span class="va">NormalizingConstant</span>, <span class="fl">3</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.993 0.965 0.842 0.505 0.164 0.036 0.007</span></span></code></pre></div>
-<p>Of course, the probabilities of dealing with items from company
+<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">PosteriorTheta1Unormalized</span> <span class="op">/</span> <span class="va">NormalizingConstant</span>,</span>
+<span>             <span class="va">PosteriorTheta0Unormalized</span> <span class="op">/</span> <span class="va">NormalizingConstant</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">y</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"reliable company"</span>, <span class="st">"less reliable company"</span><span class="op">)</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">res</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="34%">
+<col width="9%">
+<col width="9%">
+<col width="9%">
+<col width="9%">
+<col width="9%">
+<col width="9%">
+<col width="9%">
+</colgroup>
+<thead><tr class="header">
+<th align="left"></th>
+<th align="right">0</th>
+<th align="right">1</th>
+<th align="right">2</th>
+<th align="right">3</th>
+<th align="right">4</th>
+<th align="right">5</th>
+<th align="right">6</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">reliable company</td>
+<td align="right">0.993</td>
+<td align="right">0.965</td>
+<td align="right">0.842</td>
+<td align="right">0.505</td>
+<td align="right">0.164</td>
+<td align="right">0.036</td>
+<td align="right">0.007</td>
+</tr>
+<tr class="even">
+<td align="left">less reliable company</td>
+<td align="right">0.007</td>
+<td align="right">0.035</td>
+<td align="right">0.158</td>
+<td align="right">0.495</td>
+<td align="right">0.836</td>
+<td align="right">0.964</td>
+<td align="right">0.993</td>
+</tr>
+</tbody>
+</table>
+<p>Note that, of course, the probabilities of dealing with items from
+company
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>
+and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>A</mi><mi>C</mi></msup><annotation encoding="application/x-tex">A^C</annotation></semantics></math>
 are complementary.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">PosteriorTheta0Unormalized</span> <span class="op">/</span> <span class="va">NormalizingConstant</span>, <span class="fl">3</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.007 0.035 0.158 0.495 0.836 0.964 0.993</span></span></code></pre></div>
 <p>Assuming we don’t have any prior information about the probability of
-occurence of company
+occurrence of company
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>,
 we could simply set
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>A</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>A</mi><mi>C</mi></msup><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mn>0.5</mn></mrow><annotation encoding="application/x-tex">P(A) = P(A^C) = 0.5</annotation></semantics></math>
 and recompute the posterior probabilities.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">PrA</span> <span class="op">&lt;-</span> <span class="fl">0.5</span></span>
 <span><span class="va">PrAC</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="op">-</span> <span class="va">PrA</span></span>
 <span><span class="va">PosteriorTheta1Unormalized</span> <span class="op">&lt;-</span> <span class="va">PrFA</span> <span class="op">^</span> <span class="va">y</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">PrFA</span><span class="op">)</span> <span class="op">^</span> <span class="op">(</span><span class="va">N</span> <span class="op">-</span> <span class="va">y</span><span class="op">)</span> <span class="op">*</span> <span class="va">PrA</span></span>
 <span><span class="va">PosteriorTheta0Unormalized</span> <span class="op">&lt;-</span> <span class="va">PrFAC</span> <span class="op">^</span> <span class="va">y</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">PrFAC</span><span class="op">)</span> <span class="op">^</span> <span class="op">(</span><span class="va">N</span> <span class="op">-</span> <span class="va">y</span><span class="op">)</span> <span class="op">*</span> <span class="va">PrAC</span></span>
 <span><span class="va">NormalizingConstant</span> <span class="op">&lt;-</span> <span class="va">PosteriorTheta0Unormalized</span> <span class="op">+</span> <span class="va">PosteriorTheta1Unormalized</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">PosteriorTheta1Unormalized</span> <span class="op">/</span> <span class="va">NormalizingConstant</span>, <span class="fl">3</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.984 0.922 0.695 0.304 0.077 0.016 0.003</span></span></code></pre></div>
-<p>Again, the probabilities of dealing with items from company
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>A</mi><mi>C</mi></msup><annotation encoding="application/x-tex">A^C</annotation></semantics></math>
-are complementary.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">PosteriorTheta0Unormalized</span> <span class="op">/</span> <span class="va">NormalizingConstant</span>, <span class="fl">3</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.016 0.078 0.305 0.696 0.923 0.984 0.997</span></span></code></pre></div>
+<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">PosteriorTheta1Unormalized</span> <span class="op">/</span> <span class="va">NormalizingConstant</span>,</span>
+<span>             <span class="va">PosteriorTheta0Unormalized</span> <span class="op">/</span> <span class="va">NormalizingConstant</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">y</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"reliable company"</span>, <span class="st">"less reliable company"</span><span class="op">)</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">res</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="34%">
+<col width="9%">
+<col width="9%">
+<col width="9%">
+<col width="9%">
+<col width="9%">
+<col width="9%">
+<col width="9%">
+</colgroup>
+<thead><tr class="header">
+<th align="left"></th>
+<th align="right">0</th>
+<th align="right">1</th>
+<th align="right">2</th>
+<th align="right">3</th>
+<th align="right">4</th>
+<th align="right">5</th>
+<th align="right">6</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">reliable company</td>
+<td align="right">0.984</td>
+<td align="right">0.922</td>
+<td align="right">0.695</td>
+<td align="right">0.304</td>
+<td align="right">0.077</td>
+<td align="right">0.016</td>
+<td align="right">0.003</td>
+</tr>
+<tr class="even">
+<td align="left">less reliable company</td>
+<td align="right">0.016</td>
+<td align="right">0.078</td>
+<td align="right">0.305</td>
+<td align="right">0.696</td>
+<td align="right">0.923</td>
+<td align="right">0.984</td>
+<td align="right">0.997</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section level3">
 <h3 id="example-1-5-classifying-continuous-observations-into-two-states">Example 1.5: Classifying continuous observations into two
@@ -158,7 +246,7 @@ where
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mo>=</mo><mn>5</mn></mrow><annotation encoding="application/x-tex">\alpha = 5</annotation></semantics></math>,
 and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>β</mi><mo>=</mo><mn>5</mn><mi>/</mi><mn>5.5</mn></mrow><annotation encoding="application/x-tex">\beta = 5/5.5</annotation></semantics></math>.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">Prtheta</span> <span class="op">=</span> <span class="fl">0.55</span></span>
 <span><span class="va">lambda</span> <span class="op">=</span> <span class="fl">1</span><span class="op">/</span><span class="fl">2.2</span></span>
 <span><span class="va">alpha</span> <span class="op">=</span> <span class="fl">5</span></span>
@@ -167,11 +255,10 @@ and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>∈</mo><mo stretchy="false" form="prefix">{</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mn>3</mn><mo>,</mo><mn>6</mn><mo>,</mo><mn>8</mn><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">y \in \{1, 2, 3, 6, 8\}</annotation></semantics></math>,
 mark those in the plot, and add lines to visualize the non-normalized
 posteriors.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">10</span>, <span class="fl">0.2</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">x</span>, <span class="fu"><a href="https://rdrr.io/r/stats/Exponential.html" class="external-link">dexp</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">lambda</span><span class="op">)</span>, type <span class="op">=</span> <span class="st">"l"</span>, xlab <span class="op">=</span> <span class="st">"Distance"</span>, ylab <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/title.html" class="external-link">title</a></span><span class="op">(</span><span class="st">"Conditional densities and non-normalized posteriors"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">x</span>, <span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html" class="external-link">dgamma</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">alpha</span>, <span class="va">beta</span><span class="op">)</span>, col <span class="op">=</span> <span class="st">"red"</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/curve.html" class="external-link">curve</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Exponential.html" class="external-link">dexp</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">lambda</span><span class="op">)</span>, from <span class="op">=</span> <span class="fl">0</span>, to <span class="op">=</span> <span class="fl">10</span>, xlab <span class="op">=</span> <span class="st">"Distance"</span>, ylab <span class="op">=</span> <span class="st">""</span>,</span>
+<span>      main <span class="op">=</span> <span class="st">"Conditional densities and non-normalized posteriors"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/curve.html" class="external-link">curve</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html" class="external-link">dgamma</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">alpha</span>, <span class="va">beta</span><span class="op">)</span>, col <span class="op">=</span> <span class="st">"red"</span>, add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">6</span>, <span class="fl">8</span><span class="op">)</span></span>
 <span><span class="va">theta1_y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Exponential.html" class="external-link">dexp</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">lambda</span><span class="op">)</span> <span class="op">*</span> <span class="va">Prtheta</span></span>
@@ -180,23 +267,24 @@ posteriors.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">theta1_y</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">theta0_y</span>, col <span class="op">=</span> <span class="st">"red"</span><span class="op">)</span></span>
 <span></span>
+<span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">10</span>, <span class="fl">0.2</span><span class="op">)</span></span>
 <span><span class="va">theta1_y_morepoints</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Exponential.html" class="external-link">dexp</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">lambda</span><span class="op">)</span> <span class="op">*</span> <span class="va">Prtheta</span></span>
 <span><span class="va">theta0_y_morepoints</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html" class="external-link">dgamma</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">alpha</span>, <span class="va">beta</span><span class="op">)</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">Prtheta</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">x</span>,  <span class="va">theta1_y_morepoints</span>, lty <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">x</span>,  <span class="va">theta0_y_morepoints</span>, lty <span class="op">=</span> <span class="fl">2</span>, col <span class="op">=</span> <span class="st">"red"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">theta1_y_morepoints</span>, lty <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">theta0_y_morepoints</span>, lty <span class="op">=</span> <span class="fl">2</span>, col <span class="op">=</span> <span class="st">"red"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topright"</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Conditional density (female)"</span>,</span>
 <span>                     <span class="st">"Conditional density (male)"</span>,</span>
 <span>                     <span class="st">"Non-normalized posterior (female)"</span>,</span>
 <span>                     <span class="st">"Non-normalized posterior (male)"</span><span class="op">)</span>,</span>
 <span>       col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"black"</span>, <span class="st">"red"</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, each <span class="op">=</span> <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Chapter01_files/figure-html/unnamed-chunk-11-1.png" width="768"></p>
+<p><img src="Chapter01_files/figure-html/unnamed-chunk-9-1.png" width="768"></p>
 <p>Finally, here are the posterior probabilities. Note that each ratio
 of the pairs of corresponding posterior probabilities is the same as
 each ratio of the heights of the vertically corresponding points in the
 graph.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">female</span> <span class="op">&lt;-</span> <span class="va">theta1_y</span> <span class="op">/</span> <span class="op">(</span><span class="va">theta0_y</span> <span class="op">+</span> <span class="va">theta1_y</span><span class="op">)</span></span>
 <span><span class="va">male</span> <span class="op">&lt;-</span> <span class="va">theta0_y</span> <span class="op">/</span> <span class="op">(</span><span class="va">theta0_y</span> <span class="op">+</span> <span class="va">theta1_y</span><span class="op">)</span></span>
 <span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">female</span>, <span class="va">male</span><span class="op">)</span></span>
@@ -231,7 +319,7 @@ graph.</p>
 </tbody>
 </table>
 <p>Visualized.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sum_morepoints</span> <span class="op">&lt;-</span> <span class="va">theta0_y_morepoints</span> <span class="op">+</span> <span class="va">theta1_y_morepoints</span></span>
 <span><span class="va">female_morepoints</span> <span class="op">&lt;-</span> <span class="va">theta1_y_morepoints</span> <span class="op">/</span> <span class="va">sum_morepoints</span></span>
 <span><span class="va">male_morepoints</span> <span class="op">&lt;-</span> <span class="va">theta0_y_morepoints</span> <span class="op">/</span> <span class="va">sum_morepoints</span></span>
@@ -239,7 +327,7 @@ graph.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">x</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html" class="external-link">barplot</a></span><span class="op">(</span><span class="va">res</span>, main <span class="op">=</span> <span class="st">"Posterior probabilities"</span>, </span>
 <span>        col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"black"</span>, <span class="st">"red"</span><span class="op">)</span>, xlab <span class="op">=</span> <span class="st">"Distance"</span>, ylab <span class="op">=</span> <span class="st">"Probabilities"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Chapter01_files/figure-html/unnamed-chunk-13-1.png" width="768"></p>
+<p><img src="Chapter01_files/figure-html/unnamed-chunk-11-1.png" width="768"></p>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
