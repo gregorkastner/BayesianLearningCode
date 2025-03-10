@@ -3,7 +3,7 @@
 \docType{data}
 \name{accidents}
 \alias{accidents}
-\title{Accidents data}
+\title{Accidents Data}
 \format{
 A monthly time series object with 192 rows and 4 columns
 \describe{
@@ -11,7 +11,6 @@ A monthly time series object with 192 rows and 4 columns
 \item{seniors}{senior persons above 65 seriously injured or killed}
 \item{children_exposure}{estimated number of children exposed}
 \item{seniors_exposure}{estimated number of seniors exposed}
-...
 }
 }
 \source{

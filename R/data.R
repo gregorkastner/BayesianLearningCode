@@ -1,4 +1,4 @@
-#' Accidents data
+#' Accidents Data
 #'
 #' Seriously injured or killed pedestrians per month in Linz, Austria, from
 #' January 1987 to December 2002.
@@ -9,7 +9,6 @@
 #'   \item{seniors}{senior persons above 65 seriously injured or killed}
 #'   \item{children_exposure}{estimated number of children exposed}
 #'   \item{seniors_exposure}{estimated number of seniors exposed}
-#'   ...
 #' }
 #' @source TBD
 "accidents"
