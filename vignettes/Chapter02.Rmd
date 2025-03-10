@@ -19,7 +19,7 @@ pdfplots <- FALSE # default: FALSE; set this to TRUE only if you like pdf figure
 ```
 
 ```{r, include = FALSE}
-par(mgp = c(1.6, .6, 0), mar = c(2.5, 2.5, 2.5, .5), lwd = 1)
+par(mgp = c(1.6, .6, 0), mar = c(2.6, 2.6, 2.6, .4), lwd = 1)
 ```
 
 # Section 2.1
@@ -197,9 +197,13 @@ nsamp <- 2000
 mu1 <- rgamma(nsamp, aN1, bN1)
 mu2 <- rgamma(nsamp, aN2, bN2)
 delta1 <- mu2 - mu1
-delta2 <- (mu2 - mu1) / mu1
+delta2 <- 100 * (mu2 - mu1) / mu1
 
-ts.plot(delta1, main = "Trace plot of delta1")
-ts.plot(100*delta2, main = "Trace plot of delta2")
-hist(delta1, breaks = 20, prob = TRUE, xlab = "", ylab = "")
-hist(100*delta2, breaks = 20, prob = TRUE, xlab = "", ylab = "")
+ts.plot(delta1, main = bquote("Trace plot of " ~ delta[1]),
+        ylab = expression(delta[1]), xlab = "Iteration")
+ts.plot(delta2, main = bquote("Trace plot of " ~ delta[2]),
+        ylab = expression(delta[2]), xlab = "Iteration")
+hist(delta1, breaks = 20, prob = TRUE, xlab = expression(delta[1]), ylab = "",
+     main = bquote("Histogram of " ~ delta[1]))
+hist(delta2, breaks = 20, prob = TRUE, xlab = expression(delta[2]), ylab = "",
+     main = bquote("Histogram of " ~ delta[1]))
