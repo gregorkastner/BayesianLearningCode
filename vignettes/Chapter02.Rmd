@@ -199,6 +199,7 @@ mu2 <- rgamma(nsamp, aN2, bN2)
 delta1 <- mu2 - mu1
 delta2 <- 100 * (mu2 - mu1) / mu1
 
+
 ts.plot(delta1, main = bquote("Trace plot of " ~ delta[1]),
         ylab = expression(delta[1]), xlab = "Iteration")
 ts.plot(delta2, main = bquote("Trace plot of " ~ delta[2]),
