@@ -31,8 +31,8 @@ it accordingly.
 
 ```{r, echo=-(1:2)}
 if (pdfplots) {
-  pdf("TODO.pdf", width = 12, height = 8)
-  par(mgp = c(1.6, .6, 0), mar = c(2, 2, 3, .5), lwd = 2)
+  pdf("3-1_1.pdf", width = 8, height = 5)
+  par(mgp = c(1, .5, 0), mar = c(2.2, 1.5, 2, .2), lwd = 2)
 }
 par(mfrow = c(3, 2))
 trueprop <- c(0, .1, .5)
@@ -43,7 +43,7 @@ for (p in trueprop) {
   for (n in N) {
     aN <- n*p + 1
     bN <- n - n*p + 1
-    plot(xs, dbeta(xs, aN, bN), type = "l", xlab = "", ylab = "",
+    plot(xs, dbeta(xs, aN, bN), type = "l", xlab = expression(vartheta), ylab = "",
          main = bquote(N == .(n) ~ "and" ~ S[N] == .(n*p)))
   }
 }
@@ -51,12 +51,13 @@ for (p in trueprop) {
 
 ## Table 3.1: Posterior credible intervals under the beta-binomial model
 
-We now proceed to computing credible intervals. Note that R is (mostly)
+We now proceed to computing credible intervals. Note that R is (generally)
 vectorized, so we can compute all posterior parameters in one line, without
 the need for a loop.
 
 ```{r}
-alpha <- .05
+gamma <- .95
+alpha <- 1 - gamma
 
 Ns <- rep(N, each = length(trueprop))
 SNs <- Ns * rep(trueprop, length(N))
@@ -65,13 +66,13 @@ aN <- SNs + 1
 bN <- Ns - SNs + 1
     
 # Equal-ended 95% credible intervals
-left <- qbeta(alpha/2, aN, bN)
-right <- qbeta(1 - alpha/2, aN, bN)
+leftEE <- qbeta(alpha/2, aN, bN)
+rightEE <- qbeta(1 - alpha/2, aN, bN)
 
 # HPDs
 resolution <- 10000
 grid <- seq(0, 1, length.out = resolution + 1)
-dist <- (1 - alpha) * resolution
+dist <- gamma * resolution
 
 leftHPD <- rightHPD <- rep(NA_real_, length(aN))
 for (i in seq_along(aN)) {
@@ -81,7 +82,7 @@ for (i in seq_along(aN)) {
   rightHPD[i] <- qs[minimizer + dist]
 }
 
-res <- cbind(left, right, leftHPD, rightHPD)
+res <- cbind(leftEE, rightEE, leftHPD, rightHPD)
 ```
 
 All the desired intervals are now stored and can be displayed.
@@ -93,6 +94,36 @@ knitr::kable(round(res, 4))
 We can also compare their lengths.
 
 ```{r results = 'asis'}
-res <- cbind(length = right - left, lengthHPD = rightHPD - leftHPD)
+res <- cbind(length = rightEE - leftEE, lengthHPD = rightHPD - leftHPD)
 knitr::kable(round(res, 4))
 ```
+
+# Figure 3.2: One-sided hypthesis testing
+
+We now move forward to assessing visualizing the posterior probability of
+$\vartheta$ (the proportion of defective items) being less than $1/20 = 0.05$
+for $N = 100$ and $S_N \in \{1,3,6,10\}$.
+
+```{r, echo=-(1:2)}
+if (pdfplots) {
+  pdf("3-1_2.pdf", width = 10, height = 7)
+  par(mgp = c(1, .5, 0), mar = c(2.2, 1.5, 2, .2), lwd = 2)
+}
+par(mfrow = c(2, 2))
+theta <- seq(0, .15, .001)
+N <- 100
+SN <- c(1, 3, 6, 10)
+aN <- SN + 1
+bN <- N - SN + 1
+for (i in seq_along(SN)) {
+  plot(theta, dbeta(theta, aN[i], bN[i]), type = "l", ylim = c(0, 40),
+       xlab = expression(vartheta), ylab = "",
+       main = bquote(N == 100 ~ "and" ~ S[N] == .(SN[i]) ~ "     " ~
+                       P(vartheta <= 0.05 ~ "|" ~ bold(y)) ~ "=" ~
+                       .(round(pbeta(0.05, aN[i], bN[i]), 3))))
+  abline(h = 0, lty = 2)
+  polygon(c(theta[theta <= 0.05], 0.05),
+          c(dbeta(theta[theta <= 0.05], aN[i], bN[i]), 0), col = "red")
+}
+```
+
