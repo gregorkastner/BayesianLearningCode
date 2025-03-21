@@ -87,18 +87,18 @@ res <- cbind(leftEE, rightEE, leftHPD, rightHPD)
 
 All the desired intervals are now stored and can be displayed.
 
-```{r results = 'asis'}
+```{r}
 knitr::kable(round(res, 4))
 ```
 
 We can also compare their lengths.
 
-```{r results = 'asis'}
-res <- cbind(length = rightEE - leftEE, lengthHPD = rightHPD - leftHPD)
+```{r}
+res <- cbind(lengthEE = rightEE - leftEE, lengthHPD = rightHPD - leftHPD)
 knitr::kable(round(res, 4))
 ```
 
-# Figure 3.2: One-sided hypthesis testing
+## Figure 3.2: One-sided hypthesis testing
 
 We now move forward to assessing visualizing the posterior probability of
 $\vartheta$ (the proportion of defective items) being less than $1/20 = 0.05$
@@ -127,3 +127,178 @@ for (i in seq_along(SN)) {
 }
 ```
 
+## Example 3.4: Bag of Words
+### Preparing the Data
+
+After reading in the quote, we do some simple manipulation such as converting
+to lower case, getting rid of newlines, and splitting the string into individual
+words. Finally, we remove potential empty words and display the resulting
+frequencies.
+
+```{r}
+string <- "You can fool some of the people all of the time,
+and all of the people some of the time,
+but you can not fool all of the people all of the time."
+
+tmp <- tolower(string)                  ## convert to lower case
+tmp <- gsub("\n", " ", tmp)             ## replace newlines with spaces
+tmp <- unlist(strsplit(tmp, " |,|\\.")) ## split at spaces, commas, or stops
+dat <- tmp[tmp != ""]                   ## remove empty words
+tab <- table(dat)
+knitr::kable(t(tab))
+```
+
+To define our universe of possible words, we first look at the *words* dataset
+(shipped with this package). It contains 1000 most common English words,
+alongside their frequency of usage among a total of 100 million occurrences
+(cf. <https://www.eapfoundation.com/vocab/general/bnccoca/>).
+
+```{r}
+library(BayesianLearningCode)
+head(words)
+```
+
+For illustration purposes, we only use the top 50 words and
+augmented those with a question mark for all other words. This leaves us with 51
+possible outcomes (our *universe*).
+
+```{r}
+top50 <- tail(words[order(words$frequency),], 50)
+universe <- c("?", sort(top50$word))
+freq <- c(10^8 - sum(top50$frequency), top50$frequency[order(top50$word)])
+universe
+```
+
+Now, we check if there are any words in our data set which are not included
+in our universe (here, only *fool* and *people*) and replace these with a question mark.
+
+```{r}
+dat[!(dat %in% universe)] <- "?"
+knitr::kable(t(table(dat)))
+```
+
+### Computing the Posterior Under the Uniform Prior
+
+Under a uniform prior (i.e., all 51 elements of our universe receive one
+pseudo-count), the posterior mean for each word occurrence probability is given
+by
+$$
+E(\eta_k|\boldsymbol{y}) = \frac{1+N_k}{ 51 + N}, \quad k=1,\ldots,51,
+$$
+where $N_k$ stands for the number of data occurrences of the $k$th word in the
+universe, and $N$ is the sum of all $N_k$s. This can be very easily implemented
+by merging the universe and the data,
+and simply counting the resulting frequencies.
+
+```{r}
+merged <- c(universe, dat)
+post_uniform_unnormalized <- table(merged)
+post_uniform <- post_uniform_unnormalized / sum(post_uniform_unnormalized)
+```
+
+### Computing the Posterior Under a Less Informative Prior
+
+Note that the above strategy implicitly assumes that we have exactly 51
+pseudo-observations. To render the prior less influential, we can rescale
+it to, e.g., 1 pseudo-observation. Then, the posterior expectation is
+$$
+E(\eta_k|\boldsymbol{y}) = \frac{1/51+N_k}{1 + N}, \quad k=1,\ldots,51.
+$$
+To compute this expectation, we can re-use the unnormalized posterior from above
+by first subtracting the old pseudo-counts to retain the data, and then adding
+the new pseudo-counts $\gamma_{0,1}, = \gamma_{0,2} = \dots = \gamma_{0,K} = 1/K$.
+
+```{r}
+N <- length(dat)
+N0 <- 1
+gamma0 <- rep(N0 / N, length(universe))
+post_lessinformative_unnormalized <- post_uniform_unnormalized - 1 + gamma0
+post_lessinformative <-
+  post_lessinformative_unnormalized / sum(post_lessinformative_unnormalized)
+```
+
+Alternatively, we could use a loop.
+
+```{r}
+post_lessinformative_unnormalized2 <- rep(NA_real_, length(universe))
+for (i in seq_along(universe)) {
+  Nk <- sum(dat == universe[i])
+  post_lessinformative_unnormalized2[i] <- gamma0[i] + Nk
+}
+post_lessinformative2 <-
+  post_lessinformative_unnormalized2 / sum(post_lessinformative_unnormalized2)
+```
+
+The results must be numerically equivalent, and we can verify this easily.
+
+```{r}
+all(abs(post_lessinformative - post_lessinformative2) < 1e-10)
+```
+
+### Computing the Posterior Under an Informed Prior
+
+One might consider using yet another prior (which we label *informed*).
+For instance, we might want to fix
+the total number of pseudo-counts $N_0$ to, say, one fifth of the number of
+observations $N$
+(this implies a data/prior ratio of 5 to 1). Each word
+in the universe is then weighted according to its frequency of appearance in the
+English language. Remember that the prior probability for a word outside of the
+top 50 English words is $10^8$ (the total number of words in the corpus)
+minus the sum of the top 50 counts. To compute the posterior, we can again
+add the actual counts and the new pseudo-counts.
+
+```{r}
+N0 <- N/5
+gamma0 <- N0 * freq / 10^8
+
+post_informed_unnormalized <- post_uniform_unnormalized - 1 + gamma0
+post_informed <- post_informed_unnormalized / sum(post_informed_unnormalized)
+```
+
+Alternatively, we might want to prefer heavier smoothing with respect to the
+base rate (here, the overall word distribution in the English language).
+This can simply be accomplished by increasing the total
+number of pseudo-counts $N_0$.
+
+```{r}
+N0 <- 5*N
+gamma0 <- N0 * freq / 10^8
+
+post_informed_unnormalized2 <- post_uniform_unnormalized - 1 + gamma0
+post_informed2 <- post_informed_unnormalized2 / sum(post_informed_unnormalized2)
+```
+
+### Visualizing the Results
+
+To display the results, we use simple bar plots. For didactic purposes,
+we also add the prior probabilities of each word via green circles.
+
+```{r, echo=-(1:2), fig.height = 8}
+if (pdfplots) {
+  pdf("3-3_1.pdf", width = 9, height = 9)
+  par(mgp = c(1, .5, 0), mar = c(2.8, 2.2, 1.5, 0), lwd = 1)
+}
+par(mfrow = c(4, 1))
+midpts <- barplot(post_uniform, las = 2)
+points(midpts, rep(1/51, length(midpts)), col = "green")
+title("Uniform prior")
+
+midpts <- barplot(post_lessinformative, las = 2)
+points(midpts, rep(1/51, length(midpts)), col = "green")
+title("Less informative prior")
+
+midpts <- barplot(post_informed, las = 2)
+points(midpts, freq / 10^8, col = "green")
+title("Informed prior (light smoothing)")
+
+midpts <- barplot(post_informed2, las = 2)
+points(midpts, freq /10^8, col = "green")
+title("Informed prior (heavy smoothing)")
+```
+
+In the top panel (based on the continuous uniform prior), we can nicely see the
+effect of the *add-one smoothing*, whereas the middle panel shows almost no
+smoothing, and unseen words are estimated to be extremely unlikely. The two bottom
+panels show the posterior under the informed prior with light and heavy
+smoothing, respectively.
