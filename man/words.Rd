@@ -5,21 +5,23 @@
 \alias{words}
 \title{Words Data}
 \format{
-A data frame with 100 observations of 2 variables
+A data frame with 1000 observations of 2 variables
 \describe{
-\item{word}{an English word (lemma)}
+\item{word}{an English (head)word}
 \item{frequency}{number of occurrences}
 }
 }
 \source{
-Sourced from \url{https://www.wordfrequency.info} on March 20, 2025
+Sourced from \url{https://www.eapfoundation.com/vocab/general/bnccoca/}
+on March 21, 2025
 }
 \usage{
 words
 }
 \description{
-List of the 100 most common English lemmas (i.e., words whose different
-forms have been grouped together), according to the Corpus of Contemporary
-American English (COCA).
+List of the 1000 most common English headwords (i.e., the dictionary or
+encyclopedia entries under which a set of related words appear) according to
+the British National Corpus and the Corpus of Contemporary American English
+(BNC/COCA).
 }
 \keyword{datasets}
