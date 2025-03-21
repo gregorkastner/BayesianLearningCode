@@ -175,11 +175,11 @@ one line, without the need for a loop.</p>
 </table>
 <p>We can also compare their lengths.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span>length <span class="op">=</span> <span class="va">rightEE</span> <span class="op">-</span> <span class="va">leftEE</span>, lengthHPD <span class="op">=</span> <span class="va">rightHPD</span> <span class="op">-</span> <span class="va">leftHPD</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span>lengthEE <span class="op">=</span> <span class="va">rightEE</span> <span class="op">-</span> <span class="va">leftEE</span>, lengthHPD <span class="op">=</span> <span class="va">rightHPD</span> <span class="op">-</span> <span class="va">leftHPD</span><span class="op">)</span></span>
 <span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">res</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
-<th align="right">length</th>
+<th align="right">lengthEE</th>
 <th align="right">lengthHPD</th>
 </tr></thead>
 <tbody>
@@ -210,10 +210,9 @@ one line, without the need for a loop.</p>
 </tbody>
 </table>
 </div>
-</div>
-<div class="section level2">
-<h2 id="figure-3-2-one-sided-hypthesis-testing">Figure 3.2: One-sided hypthesis testing<a class="anchor" aria-label="anchor" href="#figure-3-2-one-sided-hypthesis-testing"></a>
-</h2>
+<div class="section level3">
+<h3 id="figure-3-2-one-sided-hypthesis-testing">Figure 3.2: One-sided hypthesis testing<a class="anchor" aria-label="anchor" href="#figure-3-2-one-sided-hypthesis-testing"></a>
+</h3>
 <p>We now move forward to assessing visualizing the posterior
 probability of
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϑ</mi><annotation encoding="application/x-tex">\vartheta</annotation></semantics></math>
@@ -240,6 +239,245 @@ and
 <span>          <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Beta.html" class="external-link">dbeta</a></span><span class="op">(</span><span class="va">theta</span><span class="op">[</span><span class="va">theta</span> <span class="op">&lt;=</span> <span class="fl">0.05</span><span class="op">]</span>, <span class="va">aN</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, <span class="va">bN</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span>, <span class="fl">0</span><span class="op">)</span>, col <span class="op">=</span> <span class="st">"red"</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p><img src="Chapter03_files/figure-html/unnamed-chunk-7-1.png" width="768"></p>
+</div>
+<div class="section level3">
+<h3 id="example-3-4-bag-of-words">Example 3.4: Bag of Words<a class="anchor" aria-label="anchor" href="#example-3-4-bag-of-words"></a>
+</h3>
+<div class="section level4">
+<h4 id="preparing-the-data">Preparing the Data<a class="anchor" aria-label="anchor" href="#preparing-the-data"></a>
+</h4>
+<p>After reading in the quote, we do some simple manipulation such as
+converting to lower case, getting rid of newlines, and splitting the
+string into individual words. Finally, we remove potential empty words
+and display the resulting frequencies.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">string</span> <span class="op">&lt;-</span> <span class="st">"You can fool some of the people all of the time,</span></span>
+<span><span class="st">and all of the people some of the time,</span></span>
+<span><span class="st">but you can not fool all of the people all of the time."</span></span>
+<span></span>
+<span><span class="va">tmp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/chartr.html" class="external-link">tolower</a></span><span class="op">(</span><span class="va">string</span><span class="op">)</span>                  <span class="co">## convert to lower case</span></span>
+<span><span class="va">tmp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">gsub</a></span><span class="op">(</span><span class="st">"\n"</span>, <span class="st">" "</span>, <span class="va">tmp</span><span class="op">)</span>             <span class="co">## replace newlines with spaces</span></span>
+<span><span class="va">tmp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/strsplit.html" class="external-link">strsplit</a></span><span class="op">(</span><span class="va">tmp</span>, <span class="st">" |,|\\."</span><span class="op">)</span><span class="op">)</span> <span class="co">## split at spaces, commas, or stops</span></span>
+<span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="va">tmp</span><span class="op">[</span><span class="va">tmp</span> <span class="op">!=</span> <span class="st">""</span><span class="op">]</span>                   <span class="co">## remove empty words</span></span>
+<span><span class="va">tab</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">dat</span><span class="op">)</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="va">tab</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="right">all</th>
+<th align="right">and</th>
+<th align="right">but</th>
+<th align="right">can</th>
+<th align="right">fool</th>
+<th align="right">not</th>
+<th align="right">of</th>
+<th align="right">people</th>
+<th align="right">some</th>
+<th align="right">the</th>
+<th align="right">time</th>
+<th align="right">you</th>
+</tr></thead>
+<tbody><tr class="odd">
+<td align="right">4</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">2</td>
+<td align="right">1</td>
+<td align="right">6</td>
+<td align="right">3</td>
+<td align="right">2</td>
+<td align="right">6</td>
+<td align="right">3</td>
+<td align="right">2</td>
+</tr></tbody>
+</table>
+<p>To define our universe of possible words, we first look at the
+<em>words</em> dataset (shipped with this package). It contains 1000
+most common English words, alongside their frequency of usage among a
+total of 100 million occurrences (cf. <a href="https://www.eapfoundation.com/vocab/general/bnccoca/" class="external-link uri">https://www.eapfoundation.com/vocab/general/bnccoca/</a>).</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gregorkastner.github.io/BayesianLearningCode/">BayesianLearningCode</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">words</span><span class="op">)</span></span>
+<span><span class="co">#&gt;       word frequency</span></span>
+<span><span class="co">#&gt; 1        a   2525253</span></span>
+<span><span class="co">#&gt; 2     able     47760</span></span>
+<span><span class="co">#&gt; 3    about    192168</span></span>
+<span><span class="co">#&gt; 4    above     25370</span></span>
+<span><span class="co">#&gt; 5 absolute      9284</span></span>
+<span><span class="co">#&gt; 6   accept     29026</span></span></code></pre></div>
+<p>For illustration purposes, we only use the top 50 words and augmented
+those with a question mark for all other words. This leaves us with 51
+possible outcomes (our <em>universe</em>).</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">top50</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="va">words</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">words</span><span class="op">$</span><span class="va">frequency</span><span class="op">)</span>,<span class="op">]</span>, <span class="fl">50</span><span class="op">)</span></span>
+<span><span class="va">universe</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"?"</span>, <span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="va">top50</span><span class="op">$</span><span class="va">word</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">freq</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span><span class="op">^</span><span class="fl">8</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">top50</span><span class="op">$</span><span class="va">frequency</span><span class="op">)</span>, <span class="va">top50</span><span class="op">$</span><span class="va">frequency</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">top50</span><span class="op">$</span><span class="va">word</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="va">universe</span></span>
+<span><span class="co">#&gt;  [1] "?"     "a"     "all"   "and"   "as"    "at"    "be"    "but"   "by"   </span></span>
+<span><span class="co">#&gt; [10] "can"   "do"    "for"   "from"  "get"   "go"    "have"  "he"    "i"    </span></span>
+<span><span class="co">#&gt; [19] "if"    "in"    "it"    "make"  "more"  "no"    "not"   "of"    "on"   </span></span>
+<span><span class="co">#&gt; [28] "one"   "or"    "out"   "say"   "she"   "so"    "some"  "that"  "the"  </span></span>
+<span><span class="co">#&gt; [37] "there" "they"  "this"  "time"  "to"    "up"    "we"    "what"  "when" </span></span>
+<span><span class="co">#&gt; [46] "which" "who"   "will"  "with"  "would" "you"</span></span></code></pre></div>
+<p>Now, we check if there are any words in our data set which are not
+included in our universe (here, only <em>fool</em> and <em>people</em>)
+and replace these with a question mark.</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dat</span><span class="op">[</span><span class="op">!</span><span class="op">(</span><span class="va">dat</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">universe</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"?"</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">dat</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="right">?</th>
+<th align="right">all</th>
+<th align="right">and</th>
+<th align="right">but</th>
+<th align="right">can</th>
+<th align="right">not</th>
+<th align="right">of</th>
+<th align="right">some</th>
+<th align="right">the</th>
+<th align="right">time</th>
+<th align="right">you</th>
+</tr></thead>
+<tbody><tr class="odd">
+<td align="right">5</td>
+<td align="right">4</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">1</td>
+<td align="right">6</td>
+<td align="right">2</td>
+<td align="right">6</td>
+<td align="right">3</td>
+<td align="right">2</td>
+</tr></tbody>
+</table>
+</div>
+<div class="section level4">
+<h4 id="computing-the-posterior-under-the-uniform-prior">Computing the Posterior Under the Uniform Prior<a class="anchor" aria-label="anchor" href="#computing-the-posterior-under-the-uniform-prior"></a>
+</h4>
+<p>Under a uniform prior (i.e., all 51 elements of our universe receive
+one pseudo-count), the posterior mean for each word occurrence
+probability is given by
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>η</mi><mi>k</mi></msub><mo stretchy="false" form="prefix">|</mo><mi>𝐲</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mfrac><mrow><mn>1</mn><mo>+</mo><msub><mi>N</mi><mi>k</mi></msub></mrow><mrow><mn>51</mn><mo>+</mo><mi>N</mi></mrow></mfrac><mo>,</mo><mspace width="1.0em"></mspace><mi>k</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><mn>51</mn><mo>,</mo></mrow><annotation encoding="application/x-tex">
+E(\eta_k|\boldsymbol{y}) = \frac{1+N_k}{ 51 + N}, \quad k=1,\ldots,51,
+</annotation></semantics></math> where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>N</mi><mi>k</mi></msub><annotation encoding="application/x-tex">N_k</annotation></semantics></math>
+stands for the number of data occurrences of the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>th
+word in the universe, and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>N</mi><annotation encoding="application/x-tex">N</annotation></semantics></math>
+is the sum of all
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>N</mi><mi>k</mi></msub><annotation encoding="application/x-tex">N_k</annotation></semantics></math>s.
+This can be very easily implemented by merging the universe and the
+data, and simply counting the resulting frequencies.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">merged</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">universe</span>, <span class="va">dat</span><span class="op">)</span></span>
+<span><span class="va">post_uniform_unnormalized</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">merged</span><span class="op">)</span></span>
+<span><span class="va">post_uniform</span> <span class="op">&lt;-</span> <span class="va">post_uniform_unnormalized</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">post_uniform_unnormalized</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level4">
+<h4 id="computing-the-posterior-under-a-less-informative-prior">Computing the Posterior Under a Less Informative Prior<a class="anchor" aria-label="anchor" href="#computing-the-posterior-under-a-less-informative-prior"></a>
+</h4>
+<p>Note that the above strategy implicitly assumes that we have exactly
+51 pseudo-observations. To render the prior less influential, we can
+rescale it to, e.g., 1 pseudo-observation. Then, the posterior
+expectation is
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>η</mi><mi>k</mi></msub><mo stretchy="false" form="prefix">|</mo><mi>𝐲</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mfrac><mrow><mn>1</mn><mi>/</mi><mn>51</mn><mo>+</mo><msub><mi>N</mi><mi>k</mi></msub></mrow><mrow><mn>1</mn><mo>+</mo><mi>N</mi></mrow></mfrac><mo>,</mo><mspace width="1.0em"></mspace><mi>k</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><mn>51</mn><mi>.</mi></mrow><annotation encoding="application/x-tex">
+E(\eta_k|\boldsymbol{y}) = \frac{1/51+N_k}{1 + N}, \quad k=1,\ldots,51.
+</annotation></semantics></math> To compute this expectation, we can
+re-use the unnormalized posterior from above by first subtracting the
+old pseudo-counts to retain the data, and then adding the new
+pseudo-counts
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>γ</mi><mrow><mn>0</mn><mo>,</mo><mn>1</mn></mrow></msub><mo>,</mo><mo>=</mo><msub><mi>γ</mi><mrow><mn>0</mn><mo>,</mo><mn>2</mn></mrow></msub><mo>=</mo><mi>…</mi><mo>=</mo><msub><mi>γ</mi><mrow><mn>0</mn><mo>,</mo><mi>K</mi></mrow></msub><mo>=</mo><mn>1</mn><mi>/</mi><mi>K</mi></mrow><annotation encoding="application/x-tex">\gamma_{0,1}, = \gamma_{0,2} = \dots = \gamma_{0,K} = 1/K</annotation></semantics></math>.</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">N</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">dat</span><span class="op">)</span></span>
+<span><span class="va">N0</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
+<span><span class="va">gamma0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">N0</span> <span class="op">/</span> <span class="va">N</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">universe</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">post_lessinformative_unnormalized</span> <span class="op">&lt;-</span> <span class="va">post_uniform_unnormalized</span> <span class="op">-</span> <span class="fl">1</span> <span class="op">+</span> <span class="va">gamma0</span></span>
+<span><span class="va">post_lessinformative</span> <span class="op">&lt;-</span></span>
+<span>  <span class="va">post_lessinformative_unnormalized</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">post_lessinformative_unnormalized</span><span class="op">)</span></span></code></pre></div>
+<p>Alternatively, we could use a loop.</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">post_lessinformative_unnormalized2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA_real_</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">universe</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">universe</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">Nk</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">dat</span> <span class="op">==</span> <span class="va">universe</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span></span>
+<span>  <span class="va">post_lessinformative_unnormalized2</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">gamma0</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">+</span> <span class="va">Nk</span></span>
+<span><span class="op">}</span></span>
+<span><span class="va">post_lessinformative2</span> <span class="op">&lt;-</span></span>
+<span>  <span class="va">post_lessinformative_unnormalized2</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">post_lessinformative_unnormalized2</span><span class="op">)</span></span></code></pre></div>
+<p>The results must be numerically equivalent, and we can verify this
+easily.</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/all.html" class="external-link">all</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">post_lessinformative</span> <span class="op">-</span> <span class="va">post_lessinformative2</span><span class="op">)</span> <span class="op">&lt;</span> <span class="fl">1e-10</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
+</div>
+<div class="section level4">
+<h4 id="computing-the-posterior-under-an-informed-prior">Computing the Posterior Under an Informed Prior<a class="anchor" aria-label="anchor" href="#computing-the-posterior-under-an-informed-prior"></a>
+</h4>
+<p>One might consider using yet another prior (which we label
+<em>informed</em>). For instance, we might want to fix the total number
+of pseudo-counts
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>N</mi><mn>0</mn></msub><annotation encoding="application/x-tex">N_0</annotation></semantics></math>
+to, say, one fifth of the number of observations
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>N</mi><annotation encoding="application/x-tex">N</annotation></semantics></math>
+(this implies a data/prior ratio of 5 to 1). Each word in the universe
+is then weighted according to its frequency of appearance in the English
+language. Remember that the prior probability for a word outside of the
+top 50 English words is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>10</mn><mn>8</mn></msup><annotation encoding="application/x-tex">10^8</annotation></semantics></math>
+(the total number of words in the corpus) minus the sum of the top 50
+counts. To compute the posterior, we can again add the actual counts and
+the new pseudo-counts.</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">N0</span> <span class="op">&lt;-</span> <span class="va">N</span><span class="op">/</span><span class="fl">5</span></span>
+<span><span class="va">gamma0</span> <span class="op">&lt;-</span> <span class="va">N0</span> <span class="op">*</span> <span class="va">freq</span> <span class="op">/</span> <span class="fl">10</span><span class="op">^</span><span class="fl">8</span></span>
+<span></span>
+<span><span class="va">post_informed_unnormalized</span> <span class="op">&lt;-</span> <span class="va">post_uniform_unnormalized</span> <span class="op">-</span> <span class="fl">1</span> <span class="op">+</span> <span class="va">gamma0</span></span>
+<span><span class="va">post_informed</span> <span class="op">&lt;-</span> <span class="va">post_informed_unnormalized</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">post_informed_unnormalized</span><span class="op">)</span></span></code></pre></div>
+<p>Alternatively, we might want to prefer heavier smoothing with respect
+to the base rate (here, the overall word distribution in the English
+language). This can simply be accomplished by increasing the total
+number of pseudo-counts
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>N</mi><mn>0</mn></msub><annotation encoding="application/x-tex">N_0</annotation></semantics></math>.</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">N0</span> <span class="op">&lt;-</span> <span class="fl">5</span><span class="op">*</span><span class="va">N</span></span>
+<span><span class="va">gamma0</span> <span class="op">&lt;-</span> <span class="va">N0</span> <span class="op">*</span> <span class="va">freq</span> <span class="op">/</span> <span class="fl">10</span><span class="op">^</span><span class="fl">8</span></span>
+<span></span>
+<span><span class="va">post_informed_unnormalized2</span> <span class="op">&lt;-</span> <span class="va">post_uniform_unnormalized</span> <span class="op">-</span> <span class="fl">1</span> <span class="op">+</span> <span class="va">gamma0</span></span>
+<span><span class="va">post_informed2</span> <span class="op">&lt;-</span> <span class="va">post_informed_unnormalized2</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">post_informed_unnormalized2</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level4">
+<h4 id="visualizing-the-results">Visualizing the Results<a class="anchor" aria-label="anchor" href="#visualizing-the-results"></a>
+</h4>
+<p>To display the results, we use simple bar plots. For didactic
+purposes, we also add the prior probabilities of each word via green
+circles.</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">midpts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html" class="external-link">barplot</a></span><span class="op">(</span><span class="va">post_uniform</span>, las <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">midpts</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">/</span><span class="fl">51</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">midpts</span><span class="op">)</span><span class="op">)</span>, col <span class="op">=</span> <span class="st">"green"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/title.html" class="external-link">title</a></span><span class="op">(</span><span class="st">"Uniform prior"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">midpts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html" class="external-link">barplot</a></span><span class="op">(</span><span class="va">post_lessinformative</span>, las <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">midpts</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">/</span><span class="fl">51</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">midpts</span><span class="op">)</span><span class="op">)</span>, col <span class="op">=</span> <span class="st">"green"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/title.html" class="external-link">title</a></span><span class="op">(</span><span class="st">"Less informative prior"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">midpts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html" class="external-link">barplot</a></span><span class="op">(</span><span class="va">post_informed</span>, las <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">midpts</span>, <span class="va">freq</span> <span class="op">/</span> <span class="fl">10</span><span class="op">^</span><span class="fl">8</span>, col <span class="op">=</span> <span class="st">"green"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/title.html" class="external-link">title</a></span><span class="op">(</span><span class="st">"Informed prior (light smoothing)"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">midpts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html" class="external-link">barplot</a></span><span class="op">(</span><span class="va">post_informed2</span>, las <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">midpts</span>, <span class="va">freq</span> <span class="op">/</span><span class="fl">10</span><span class="op">^</span><span class="fl">8</span>, col <span class="op">=</span> <span class="st">"green"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/title.html" class="external-link">title</a></span><span class="op">(</span><span class="st">"Informed prior (heavy smoothing)"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="Chapter03_files/figure-html/unnamed-chunk-18-1.png" width="768"></p>
+<p>In the top panel (based on the continuous uniform prior), we can
+nicely see the effect of the <em>add-one smoothing</em>, whereas the
+middle panel shows almost no smoothing, and unseen words are estimated
+to be extremely unlikely. The two bottom panels show the posterior under
+the informed prior with light and heavy smoothing, respectively.</p>
+</div>
+</div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
