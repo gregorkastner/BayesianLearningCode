@@ -280,7 +280,7 @@ post_informed_unnormalized <- gamma0 + counts
 post_informed <- post_informed_unnormalized / sum(post_informed_unnormalized)
 ```
 
-Alternatively, we might want to prefer heavier smoothing with respect to the
+Alternatively, we might want to prefer heavier shrinkage with respect to the
 base rate (here, the overall word distribution in the English language).
 This can simply be accomplished by increasing the total
 number of pseudo-counts $N_0$.
@@ -319,16 +319,16 @@ points(midpts, rep(1/51, length(midpts)), col = 3, pch = 2)
 title("Less informative prior")
 
 midpts <- barplot(post_informed, las = 2,
-                   ylim = c(0, max(counts/N, post_informed)))
+                   ylim = c(0, max(counts/N, post_informed, freq/10^8)))
 points(midpts, counts/N, col = 2, pch = 1)
 points(midpts, freq / 10^8, col = 3, pch = 2)
-title("Informed prior (light smoothing)")
+title("Informed prior (light shrinkage)")
 
 midpts <- barplot(post_informed2, las = 2,
-                   ylim = c(0, max(counts/N, post_informed2, gamma0/N0)))
+                   ylim = c(0, max(counts/N, post_informed2, freq/10^8)))
 points(midpts, counts/N, col = 2, pch = 1)
 points(midpts, freq /10^8, col = 3, pch = 2)
-title("Informed prior (heavy smoothing)")
+title("Informed prior (heavy shrinkage)")
 ```
 
 In the top panel (based on the uniform prior), we can nicely see the
