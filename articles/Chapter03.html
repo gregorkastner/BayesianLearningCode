@@ -374,7 +374,8 @@ This can be very easily implemented by merging the universe and the
 data, and simply counting the resulting frequencies.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">merged</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">universe</span>, <span class="va">dat</span><span class="op">)</span></span>
-<span><span class="va">post_uniform_unnormalized</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">merged</span><span class="op">)</span></span>
+<span><span class="va">counts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">merged</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span></span>
+<span><span class="va">post_uniform_unnormalized</span> <span class="op">&lt;-</span> <span class="va">counts</span> <span class="op">+</span> <span class="fl">1</span></span>
 <span><span class="va">post_uniform</span> <span class="op">&lt;-</span> <span class="va">post_uniform_unnormalized</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">post_uniform_unnormalized</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level4">
@@ -386,16 +387,14 @@ rescale it to, e.g., 1 pseudo-observation. Then, the posterior
 expectation is
 <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>η</mi><mi>k</mi></msub><mo stretchy="false" form="prefix">|</mo><mi>𝐲</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mfrac><mrow><mn>1</mn><mi>/</mi><mn>51</mn><mo>+</mo><msub><mi>N</mi><mi>k</mi></msub></mrow><mrow><mn>1</mn><mo>+</mo><mi>N</mi></mrow></mfrac><mo>,</mo><mspace width="1.0em"></mspace><mi>k</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><mn>51</mn><mi>.</mi></mrow><annotation encoding="application/x-tex">
 E(\eta_k|\boldsymbol{y}) = \frac{1/51+N_k}{1 + N}, \quad k=1,\ldots,51.
-</annotation></semantics></math> To compute this expectation, we can
-re-use the unnormalized posterior from above by first subtracting the
-old pseudo-counts to retain the data, and then adding the new
-pseudo-counts
+</annotation></semantics></math> To compute this expectation we simply
+add counts and the new pseudo-counts
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>γ</mi><mrow><mn>0</mn><mo>,</mo><mn>1</mn></mrow></msub><mo>,</mo><mo>=</mo><msub><mi>γ</mi><mrow><mn>0</mn><mo>,</mo><mn>2</mn></mrow></msub><mo>=</mo><mi>…</mi><mo>=</mo><msub><mi>γ</mi><mrow><mn>0</mn><mo>,</mo><mi>K</mi></mrow></msub><mo>=</mo><mn>1</mn><mi>/</mi><mi>K</mi></mrow><annotation encoding="application/x-tex">\gamma_{0,1}, = \gamma_{0,2} = \dots = \gamma_{0,K} = 1/K</annotation></semantics></math>.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">N</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">dat</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">K</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">universe</span><span class="op">)</span></span>
 <span><span class="va">N0</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
-<span><span class="va">gamma0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">N0</span> <span class="op">/</span> <span class="va">N</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">universe</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">post_lessinformative_unnormalized</span> <span class="op">&lt;-</span> <span class="va">post_uniform_unnormalized</span> <span class="op">-</span> <span class="fl">1</span> <span class="op">+</span> <span class="va">gamma0</span></span>
+<span><span class="va">gamma0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">N0</span> <span class="op">/</span> <span class="va">K</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">universe</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">post_lessinformative_unnormalized</span> <span class="op">&lt;-</span>  <span class="va">counts</span> <span class="op">+</span> <span class="va">gamma0</span></span>
 <span><span class="va">post_lessinformative</span> <span class="op">&lt;-</span></span>
 <span>  <span class="va">post_lessinformative_unnormalized</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">post_lessinformative_unnormalized</span><span class="op">)</span></span></code></pre></div>
 <p>Alternatively, we could use a loop.</p>
@@ -434,7 +433,7 @@ the new pseudo-counts.</p>
 <code class="sourceCode R"><span><span class="va">N0</span> <span class="op">&lt;-</span> <span class="va">N</span><span class="op">/</span><span class="fl">5</span></span>
 <span><span class="va">gamma0</span> <span class="op">&lt;-</span> <span class="va">N0</span> <span class="op">*</span> <span class="va">freq</span> <span class="op">/</span> <span class="fl">10</span><span class="op">^</span><span class="fl">8</span></span>
 <span></span>
-<span><span class="va">post_informed_unnormalized</span> <span class="op">&lt;-</span> <span class="va">post_uniform_unnormalized</span> <span class="op">-</span> <span class="fl">1</span> <span class="op">+</span> <span class="va">gamma0</span></span>
+<span><span class="va">post_informed_unnormalized</span> <span class="op">&lt;-</span> <span class="va">counts</span> <span class="op">+</span> <span class="va">gamma0</span></span>
 <span><span class="va">post_informed</span> <span class="op">&lt;-</span> <span class="va">post_informed_unnormalized</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">post_informed_unnormalized</span><span class="op">)</span></span></code></pre></div>
 <p>Alternatively, we might want to prefer heavier smoothing with respect
 to the base rate (here, the overall word distribution in the English
@@ -445,7 +444,7 @@ number of pseudo-counts
 <code class="sourceCode R"><span><span class="va">N0</span> <span class="op">&lt;-</span> <span class="fl">5</span><span class="op">*</span><span class="va">N</span></span>
 <span><span class="va">gamma0</span> <span class="op">&lt;-</span> <span class="va">N0</span> <span class="op">*</span> <span class="va">freq</span> <span class="op">/</span> <span class="fl">10</span><span class="op">^</span><span class="fl">8</span></span>
 <span></span>
-<span><span class="va">post_informed_unnormalized2</span> <span class="op">&lt;-</span> <span class="va">post_uniform_unnormalized</span> <span class="op">-</span> <span class="fl">1</span> <span class="op">+</span> <span class="va">gamma0</span></span>
+<span><span class="va">post_informed_unnormalized2</span> <span class="op">&lt;-</span> <span class="va">counts</span> <span class="op">+</span> <span class="va">gamma0</span></span>
 <span><span class="va">post_informed2</span> <span class="op">&lt;-</span> <span class="va">post_informed_unnormalized2</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">post_informed_unnormalized2</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level4">
