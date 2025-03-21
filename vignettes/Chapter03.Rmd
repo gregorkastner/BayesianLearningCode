@@ -192,7 +192,8 @@ and simply counting the resulting frequencies.
 
 ```{r}
 merged <- c(universe, dat)
-post_uniform_unnormalized <- table(merged)
+counts <- table(merged) - 1
+post_uniform_unnormalized <- counts + 1
 post_uniform <- post_uniform_unnormalized / sum(post_uniform_unnormalized)
 ```
 
@@ -204,15 +205,14 @@ it to, e.g., 1 pseudo-observation. Then, the posterior expectation is
 $$
 E(\eta_k|\boldsymbol{y}) = \frac{1/51+N_k}{1 + N}, \quad k=1,\ldots,51.
 $$
-To compute this expectation, we can re-use the unnormalized posterior from above
-by first subtracting the old pseudo-counts to retain the data, and then adding
-the new pseudo-counts $\gamma_{0,1}, = \gamma_{0,2} = \dots = \gamma_{0,K} = 1/K$.
+To compute this expectation we simply add counts and the new pseudo-counts
+$\gamma_{0,1}, = \gamma_{0,2} = \dots = \gamma_{0,K} = 1/K$.
 
 ```{r}
-N <- length(dat)
+K <- length(universe)
 N0 <- 1
-gamma0 <- rep(N0 / N, length(universe))
-post_lessinformative_unnormalized <- post_uniform_unnormalized - 1 + gamma0
+gamma0 <- rep(N0 / K, length(universe))
+post_lessinformative_unnormalized <-  counts + gamma0
 post_lessinformative <-
   post_lessinformative_unnormalized / sum(post_lessinformative_unnormalized)
 ```
@@ -235,6 +235,7 @@ The results must be numerically equivalent, and we can verify this easily.
 all(abs(post_lessinformative - post_lessinformative2) < 1e-10)
 ```
 
+
 ### Computing the Posterior Under an Informed Prior
 
 One might consider using yet another prior (which we label *informed*).
@@ -252,7 +253,7 @@ add the actual counts and the new pseudo-counts.
 N0 <- N/5
 gamma0 <- N0 * freq / 10^8
 
-post_informed_unnormalized <- post_uniform_unnormalized - 1 + gamma0
+post_informed_unnormalized <- counts + gamma0
 post_informed <- post_informed_unnormalized / sum(post_informed_unnormalized)
 ```
 
@@ -265,7 +266,7 @@ number of pseudo-counts $N_0$.
 N0 <- 5*N
 gamma0 <- N0 * freq / 10^8
 
-post_informed_unnormalized2 <- post_uniform_unnormalized - 1 + gamma0
+post_informed_unnormalized2 <- counts + gamma0
 post_informed2 <- post_informed_unnormalized2 / sum(post_informed_unnormalized2)
 ```
 
