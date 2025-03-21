@@ -258,6 +258,7 @@ minus the sum of the top 50 counts. To compute the posterior, we can again
 add the actual counts and the new pseudo-counts.
 
 ```{r}
+N <- length(dat)
 N0 <- N/5
 gamma0 <- N0 * freq / 10^8
 
@@ -285,29 +286,37 @@ we also add the prior probabilities of each word via green circles.
 
 ```{r, echo=-(1:2), fig.height = 8}
 if (pdfplots) {
-  pdf("3-3_1.pdf", width = 9, height = 9)
-  par(mgp = c(1, .5, 0), mar = c(2.8, 2.2, 1.5, 0), lwd = 1)
+  pdf("3-3_1.pdf", width = 7, height = 9)
+  par(mgp = c(1, .6, 0), mar = c(2.8, 2.3, 1.5, 0), lwd = 1)
 }
 par(mfrow = c(4, 1))
-midpts <- barplot(post_uniform, las = 2)
-points(midpts, rep(1/51, length(midpts)), col = "green")
+midpts <- barplot(post_uniform, las = 2,
+                  ylim = c(0, max(counts/N, post_uniform)))
+points(midpts, counts/N, col = 2, pch = 1, xpd = TRUE)
+points(midpts, rep(1/51, length(midpts)), col = 3, pch = 2)
 title("Uniform prior")
+legend("topright", c("Observed frequencies", "Prior expectations"),
+       col = 2:3, pch = 1:2)
 
-midpts <- barplot(post_lessinformative, las = 2)
-points(midpts, rep(1/51, length(midpts)), col = "green")
+midpts <- barplot(post_lessinformative, las = 2,
+                  ylim = c(0, max(counts/N, post_lessinformative)))
+points(midpts, counts/N, col = 2, pch = 1, xpd = TRUE)
+points(midpts, rep(1/51, length(midpts)), col = 3, pch = 2)
 title("Less informative prior")
 
 midpts <- barplot(post_informed, las = 2)
-points(midpts, freq / 10^8, col = "green")
+points(midpts, counts/N, col = 2, pch = 1, xpd = TRUE)
+points(midpts, freq / 10^8, col = 3, pch = 2)
 title("Informed prior (light smoothing)")
 
 midpts <- barplot(post_informed2, las = 2)
-points(midpts, freq /10^8, col = "green")
+points(midpts, counts/N, col = 2, pch = 1, xpd = TRUE)
+points(midpts, freq /10^8, col = 3, pch = 2)
 title("Informed prior (heavy smoothing)")
 ```
 
-In the top panel (based on the continuous uniform prior), we can nicely see the
-effect of the *add-one smoothing*, whereas the middle panel shows almost no
+In the top panel (based on the uniform prior), we can nicely see the
+*add-one smoothing* effect, whereas the middle panel shows almost no
 smoothing, and unseen words are estimated to be extremely unlikely. The two bottom
 panels show the posterior under the informed prior with light and heavy
 smoothing, respectively.
