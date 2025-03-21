@@ -193,7 +193,7 @@ and simply counting the resulting frequencies.
 ```{r}
 merged <- c(universe, dat)
 counts <- table(merged) - 1L
-post_uniform_unnormalized <- counts + 1
+post_uniform_unnormalized <- 1 + counts
 post_uniform <- post_uniform_unnormalized / sum(post_uniform_unnormalized)
 ```
 
@@ -212,7 +212,7 @@ $\gamma_{0,1}, = \gamma_{0,2} = \dots = \gamma_{0,K} = 1/K$.
 K <- length(universe)
 N0 <- 1
 gamma0 <- rep(N0 / K, length(universe))
-post_lessinformative_unnormalized <-  counts + gamma0
+post_lessinformative_unnormalized <-  gamma0 + counts
 post_lessinformative <-
   post_lessinformative_unnormalized / sum(post_lessinformative_unnormalized)
 ```
@@ -238,11 +238,24 @@ all(abs(post_lessinformative - post_lessinformative2) < 1e-10)
 Summing up what we have so far.
 
 ```{r}
-resfull <- cbind(prior_mean = 1/K, rel_freq = counts/sum(counts), post_uniform,
-                 post_lessinformative)
+dirichlet_sd = function(gamma) {
+  mean <- gamma / sum(gamma)
+  sd <- sqrt((mean * (1 - mean)) / (sum(gamma) + 1))
+  sd
+}
+
+resfull <- cbind(prior_mean = rep(1/K, K),
+                 prior_sd_uniform = dirichlet_sd(rep(1, K)),
+                 prior_sd_lessinformative = dirichlet_sd(rep(1/K, K)),
+                 rel_freq = counts / sum(counts),
+                 posterior_mean_uniform = post_uniform,
+                 posterior_sd_uniform = dirichlet_sd(post_uniform),
+                 posterior_mean_lessinformative = post_lessinformative,
+                 posterior_sd_lessinformative = dirichlet_sd(post_lessinformative))
+
 unseen <- counts == 0L
 res <- rbind(resfull[!unseen,], UNSEEN = resfull[which(unseen)[1],])
-knitr::kable(round(res, 4))
+knitr::kable(t(round(res, 4)))
 ```
 
 ### Computing the Posterior Under an Informed Prior
@@ -263,7 +276,7 @@ N <- length(dat)
 N0 <- N/5
 gamma0 <- N0 * freq / 10^8
 
-post_informed_unnormalized <- counts + gamma0
+post_informed_unnormalized <- gamma0 + counts
 post_informed <- post_informed_unnormalized / sum(post_informed_unnormalized)
 ```
 
