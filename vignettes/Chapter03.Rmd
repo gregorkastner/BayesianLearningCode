@@ -192,7 +192,7 @@ and simply counting the resulting frequencies.
 
 ```{r}
 merged <- c(universe, dat)
-counts <- table(merged) - 1
+counts <- table(merged) - 1L
 post_uniform_unnormalized <- counts + 1
 post_uniform <- post_uniform_unnormalized / sum(post_uniform_unnormalized)
 ```
@@ -235,6 +235,14 @@ The results must be numerically equivalent, and we can verify this easily.
 all(abs(post_lessinformative - post_lessinformative2) < 1e-10)
 ```
 
+Summing up what we have so far.
+
+```{r}
+resfull <- cbind(post_uniform, post_lessinformative)
+unseen <- counts == 0L
+res <- rbind(resfull[!unseen,], UNSEEN = resfull[which(unseen)[1],])
+knitr::kable(t(round(res, 3)))
+```
 
 ### Computing the Posterior Under an Informed Prior
 
