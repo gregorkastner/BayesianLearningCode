@@ -238,10 +238,11 @@ all(abs(post_lessinformative - post_lessinformative2) < 1e-10)
 Summing up what we have so far.
 
 ```{r}
-resfull <- cbind(post_uniform, post_lessinformative)
+resfull <- cbind(prior_mean = 1/K, rel_freq = counts/sum(counts), post_uniform,
+                 post_lessinformative)
 unseen <- counts == 0L
 res <- rbind(resfull[!unseen,], UNSEEN = resfull[which(unseen)[1],])
-knitr::kable(t(round(res, 3)))
+knitr::kable(round(res, 4))
 ```
 
 ### Computing the Posterior Under an Informed Prior
@@ -250,7 +251,7 @@ One might consider using yet another prior (which we label *informed*).
 For instance, we might want to fix
 the total number of pseudo-counts $N_0$ to, say, one fifth of the number of
 observations $N$
-(this implies a data/prior ratio of 5 to 1). Each word
+(this implies a data to prior ratio of 5 to 1). Each word
 in the universe is then weighted according to its frequency of appearance in the
 English language. Remember that the prior probability for a word outside of the
 top 50 English words is $10^8$ (the total number of words in the corpus)
