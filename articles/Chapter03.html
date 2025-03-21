@@ -374,7 +374,7 @@ This can be very easily implemented by merging the universe and the
 data, and simply counting the resulting frequencies.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">merged</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">universe</span>, <span class="va">dat</span><span class="op">)</span></span>
-<span><span class="va">counts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">merged</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span></span>
+<span><span class="va">counts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">merged</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1L</span></span>
 <span><span class="va">post_uniform_unnormalized</span> <span class="op">&lt;-</span> <span class="va">counts</span> <span class="op">+</span> <span class="fl">1</span></span>
 <span><span class="va">post_uniform</span> <span class="op">&lt;-</span> <span class="va">post_uniform_unnormalized</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">post_uniform_unnormalized</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -411,6 +411,76 @@ easily.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/all.html" class="external-link">all</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">post_lessinformative</span> <span class="op">-</span> <span class="va">post_lessinformative2</span><span class="op">)</span> <span class="op">&lt;</span> <span class="fl">1e-10</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
+<p>Summing up what we have so far.</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">resfull</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">post_uniform</span>, <span class="va">post_lessinformative</span><span class="op">)</span></span>
+<span><span class="va">unseen</span> <span class="op">&lt;-</span> <span class="va">counts</span> <span class="op">==</span> <span class="fl">0L</span></span>
+<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">resfull</span><span class="op">[</span><span class="op">!</span><span class="va">unseen</span>,<span class="op">]</span>, UNSEEN <span class="op">=</span> <span class="va">resfull</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="va">unseen</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>,<span class="op">]</span><span class="op">)</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">res</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<table style="width:100%;" class="table">
+<colgroup>
+<col width="22%">
+<col width="6%">
+<col width="6%">
+<col width="6%">
+<col width="6%">
+<col width="6%">
+<col width="6%">
+<col width="6%">
+<col width="6%">
+<col width="6%">
+<col width="6%">
+<col width="6%">
+<col width="7%">
+</colgroup>
+<thead><tr class="header">
+<th align="left"></th>
+<th align="right">?</th>
+<th align="right">all</th>
+<th align="right">and</th>
+<th align="right">but</th>
+<th align="right">can</th>
+<th align="right">not</th>
+<th align="right">of</th>
+<th align="right">some</th>
+<th align="right">the</th>
+<th align="right">time</th>
+<th align="right">you</th>
+<th align="right">UNSEEN</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">post_uniform</td>
+<td align="right">0.071</td>
+<td align="right">0.060</td>
+<td align="right">0.024</td>
+<td align="right">0.024</td>
+<td align="right">0.036</td>
+<td align="right">0.024</td>
+<td align="right">0.083</td>
+<td align="right">0.036</td>
+<td align="right">0.083</td>
+<td align="right">0.048</td>
+<td align="right">0.036</td>
+<td align="right">0.012</td>
+</tr>
+<tr class="even">
+<td align="left">post_lessinformative</td>
+<td align="right">0.148</td>
+<td align="right">0.118</td>
+<td align="right">0.030</td>
+<td align="right">0.030</td>
+<td align="right">0.059</td>
+<td align="right">0.030</td>
+<td align="right">0.177</td>
+<td align="right">0.059</td>
+<td align="right">0.177</td>
+<td align="right">0.089</td>
+<td align="right">0.059</td>
+<td align="right">0.001</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section level4">
 <h4 id="computing-the-posterior-under-an-informed-prior">Computing the Posterior Under an Informed Prior<a class="anchor" aria-label="anchor" href="#computing-the-posterior-under-an-informed-prior"></a>
@@ -429,7 +499,7 @@ top 50 English words is
 (the total number of words in the corpus) minus the sum of the top 50
 counts. To compute the posterior, we can again add the actual counts and
 the new pseudo-counts.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">N0</span> <span class="op">&lt;-</span> <span class="va">N</span><span class="op">/</span><span class="fl">5</span></span>
 <span><span class="va">gamma0</span> <span class="op">&lt;-</span> <span class="va">N0</span> <span class="op">*</span> <span class="va">freq</span> <span class="op">/</span> <span class="fl">10</span><span class="op">^</span><span class="fl">8</span></span>
 <span></span>
@@ -440,7 +510,7 @@ to the base rate (here, the overall word distribution in the English
 language). This can simply be accomplished by increasing the total
 number of pseudo-counts
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>N</mi><mn>0</mn></msub><annotation encoding="application/x-tex">N_0</annotation></semantics></math>.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">N0</span> <span class="op">&lt;-</span> <span class="fl">5</span><span class="op">*</span><span class="va">N</span></span>
 <span><span class="va">gamma0</span> <span class="op">&lt;-</span> <span class="va">N0</span> <span class="op">*</span> <span class="va">freq</span> <span class="op">/</span> <span class="fl">10</span><span class="op">^</span><span class="fl">8</span></span>
 <span></span>
@@ -453,7 +523,7 @@ number of pseudo-counts
 <p>To display the results, we use simple bar plots. For didactic
 purposes, we also add the prior probabilities of each word via green
 circles.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">midpts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html" class="external-link">barplot</a></span><span class="op">(</span><span class="va">post_uniform</span>, las <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">midpts</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">/</span><span class="fl">51</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">midpts</span><span class="op">)</span><span class="op">)</span>, col <span class="op">=</span> <span class="st">"green"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/title.html" class="external-link">title</a></span><span class="op">(</span><span class="st">"Uniform prior"</span><span class="op">)</span></span>
@@ -469,7 +539,7 @@ circles.</p>
 <span><span class="va">midpts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html" class="external-link">barplot</a></span><span class="op">(</span><span class="va">post_informed2</span>, las <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">midpts</span>, <span class="va">freq</span> <span class="op">/</span><span class="fl">10</span><span class="op">^</span><span class="fl">8</span>, col <span class="op">=</span> <span class="st">"green"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/title.html" class="external-link">title</a></span><span class="op">(</span><span class="st">"Informed prior (heavy smoothing)"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Chapter03_files/figure-html/unnamed-chunk-18-1.png" width="768"></p>
+<p><img src="Chapter03_files/figure-html/unnamed-chunk-19-1.png" width="768"></p>
 <p>In the top panel (based on the continuous uniform prior), we can
 nicely see the effect of the <em>add-one smoothing</em>, whereas the
 middle panel shows almost no smoothing, and unseen words are estimated
