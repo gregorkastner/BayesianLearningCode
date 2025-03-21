@@ -303,10 +303,10 @@ if (pdfplots) {
   pdf("3-3_1.pdf", width = 7, height = 9)
   par(mgp = c(1, .6, 0), mar = c(2.8, 2.3, 1.5, 0), lwd = 1)
 }
-par(mfrow = c(4, 1))
+par(mfrow = c(4, 1), xpd = TRUE)
 midpts <- barplot(post_uniform, las = 2,
                   ylim = c(0, max(counts/N, post_uniform)))
-points(midpts, counts/N, col = 2, pch = 1, xpd = TRUE)
+points(midpts, counts/N, col = 2, pch = 1)
 points(midpts, rep(1/51, length(midpts)), col = 3, pch = 2)
 title("Uniform prior")
 legend("topright", c("Observed frequencies", "Prior expectations"),
@@ -314,23 +314,25 @@ legend("topright", c("Observed frequencies", "Prior expectations"),
 
 midpts <- barplot(post_lessinformative, las = 2,
                   ylim = c(0, max(counts/N, post_lessinformative)))
-points(midpts, counts/N, col = 2, pch = 1, xpd = TRUE)
+points(midpts, counts/N, col = 2, pch = 1)
 points(midpts, rep(1/51, length(midpts)), col = 3, pch = 2)
 title("Less informative prior")
 
-midpts <- barplot(post_informed, las = 2)
-points(midpts, counts/N, col = 2, pch = 1, xpd = TRUE)
+midpts <- barplot(post_informed, las = 2,
+                   ylim = c(0, max(counts/N, post_informed)))
+points(midpts, counts/N, col = 2, pch = 1)
 points(midpts, freq / 10^8, col = 3, pch = 2)
 title("Informed prior (light smoothing)")
 
-midpts <- barplot(post_informed2, las = 2)
-points(midpts, counts/N, col = 2, pch = 1, xpd = TRUE)
+midpts <- barplot(post_informed2, las = 2,
+                   ylim = c(0, max(counts/N, post_informed2, gamma0/N0)))
+points(midpts, counts/N, col = 2, pch = 1)
 points(midpts, freq /10^8, col = 3, pch = 2)
 title("Informed prior (heavy smoothing)")
 ```
 
 In the top panel (based on the uniform prior), we can nicely see the
-*add-one smoothing* effect, whereas the middle panel shows almost no
+*add-one smoothing* effect, whereas the second panel shows almost no
 smoothing, and unseen words are estimated to be extremely unlikely. The two bottom
-panels show the posterior under the informed prior with light and heavy
-smoothing, respectively.
+panels show the posteriors under the informed priors, one with with light and
+one heavy shrinkage.
