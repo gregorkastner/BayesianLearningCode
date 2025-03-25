@@ -77,14 +77,14 @@ visualize it accordingly.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">trueprop</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">.1</span>, <span class="fl">.5</span><span class="op">)</span></span>
 <span><span class="va">N</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">400</span><span class="op">)</span></span>
-<span><span class="va">xs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">.001</span><span class="op">)</span></span>
+<span><span class="va">theta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">.001</span><span class="op">)</span></span>
 <span></span>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">p</span> <span class="kw">in</span> <span class="va">trueprop</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="kw">for</span> <span class="op">(</span><span class="va">n</span> <span class="kw">in</span> <span class="va">N</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="va">aN</span> <span class="op">&lt;-</span> <span class="va">n</span><span class="op">*</span><span class="va">p</span> <span class="op">+</span> <span class="fl">1</span></span>
 <span>    <span class="va">bN</span> <span class="op">&lt;-</span> <span class="va">n</span> <span class="op">-</span> <span class="va">n</span><span class="op">*</span><span class="va">p</span> <span class="op">+</span> <span class="fl">1</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">xs</span>, <span class="fu"><a href="https://rdrr.io/r/stats/Beta.html" class="external-link">dbeta</a></span><span class="op">(</span><span class="va">xs</span>, <span class="va">aN</span>, <span class="va">bN</span><span class="op">)</span>, type <span class="op">=</span> <span class="st">"l"</span>, xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">vartheta</span><span class="op">)</span>, ylab <span class="op">=</span> <span class="st">""</span>,</span>
-<span>         main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/bquote.html" class="external-link">bquote</a></span><span class="op">(</span><span class="va">N</span> <span class="op">==</span> <span class="fu">.</span><span class="op">(</span><span class="va">n</span><span class="op">)</span> <span class="op">~</span> <span class="st">"and"</span> <span class="op">~</span> <span class="va">S</span><span class="op">[</span><span class="va">N</span><span class="op">]</span> <span class="op">==</span> <span class="fu">.</span><span class="op">(</span><span class="va">n</span><span class="op">*</span><span class="va">p</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">theta</span>, <span class="fu"><a href="https://rdrr.io/r/stats/Beta.html" class="external-link">dbeta</a></span><span class="op">(</span><span class="va">theta</span>, <span class="va">aN</span>, <span class="va">bN</span><span class="op">)</span>, type <span class="op">=</span> <span class="st">"l"</span>, xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">vartheta</span><span class="op">)</span>,</span>
+<span>         ylab <span class="op">=</span> <span class="st">""</span>, main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/bquote.html" class="external-link">bquote</a></span><span class="op">(</span><span class="va">N</span> <span class="op">==</span> <span class="fu">.</span><span class="op">(</span><span class="va">n</span><span class="op">)</span> <span class="op">~</span> <span class="st">"and"</span> <span class="op">~</span> <span class="va">S</span><span class="op">[</span><span class="va">N</span><span class="op">]</span> <span class="op">==</span> <span class="fu">.</span><span class="op">(</span><span class="va">n</span><span class="op">*</span><span class="va">p</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="op">}</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p><img src="Chapter03_files/figure-html/unnamed-chunk-3-1.png" width="768"></p>
@@ -241,10 +241,10 @@ and
 <p><img src="Chapter03_files/figure-html/unnamed-chunk-7-1.png" width="768"></p>
 </div>
 <div class="section level3">
-<h3 id="example-3-4-bag-of-words">Example 3.4: Bag of Words<a class="anchor" aria-label="anchor" href="#example-3-4-bag-of-words"></a>
+<h3 id="example-3-4-bag-of-words">Example 3.4: Bag of words<a class="anchor" aria-label="anchor" href="#example-3-4-bag-of-words"></a>
 </h3>
 <div class="section level4">
-<h4 id="preparing-the-data">Preparing the Data<a class="anchor" aria-label="anchor" href="#preparing-the-data"></a>
+<h4 id="preparing-the-data">Preparing the data<a class="anchor" aria-label="anchor" href="#preparing-the-data"></a>
 </h4>
 <p>After reading in the quote, we do some simple manipulation such as
 converting to lower case, getting rid of newlines, and splitting the
@@ -355,7 +355,7 @@ and replace these with a question mark.</p>
 </table>
 </div>
 <div class="section level4">
-<h4 id="computing-the-posterior-under-the-uniform-prior">Computing the Posterior Under the Uniform Prior<a class="anchor" aria-label="anchor" href="#computing-the-posterior-under-the-uniform-prior"></a>
+<h4 id="computing-the-posterior-under-the-uniform-prior">Computing the posterior under the uniform prior<a class="anchor" aria-label="anchor" href="#computing-the-posterior-under-the-uniform-prior"></a>
 </h4>
 <p>Under a uniform prior (i.e., all 51 elements of our universe receive
 one pseudo-count), the posterior mean for each word occurrence
@@ -379,7 +379,8 @@ data, and simply counting the resulting frequencies.</p>
 <span><span class="va">post_uniform</span> <span class="op">&lt;-</span> <span class="va">post_uniform_unnormalized</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">post_uniform_unnormalized</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level4">
-<h4 id="computing-the-posterior-under-a-less-informative-prior">Computing the Posterior Under a Less Informative Prior<a class="anchor" aria-label="anchor" href="#computing-the-posterior-under-a-less-informative-prior"></a>
+<h4 id="computing-the-posterior-under-a-less-informative-indifference-prior">Computing the posterior under a less informative indifference
+prior<a class="anchor" aria-label="anchor" href="#computing-the-posterior-under-a-less-informative-indifference-prior"></a>
 </h4>
 <p>Note that the above strategy implicitly assumes that we have exactly
 51 pseudo-observations. To render the prior less influential, we can
@@ -587,7 +588,7 @@ easily.</p>
 </table>
 </div>
 <div class="section level4">
-<h4 id="computing-the-posterior-under-an-informed-prior">Computing the Posterior Under an Informed Prior<a class="anchor" aria-label="anchor" href="#computing-the-posterior-under-an-informed-prior"></a>
+<h4 id="computing-the-posterior-under-an-informed-prior">Computing the posterior under an informed prior<a class="anchor" aria-label="anchor" href="#computing-the-posterior-under-an-informed-prior"></a>
 </h4>
 <p>One might consider using yet another prior (which we label
 <em>informed</em>). For instance, we might want to fix the total number
@@ -623,7 +624,7 @@ number of pseudo-counts
 <span><span class="va">post_informed2</span> <span class="op">&lt;-</span> <span class="va">post_informed_unnormalized2</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">post_informed_unnormalized2</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level4">
-<h4 id="visualizing-the-results">Visualizing the Results<a class="anchor" aria-label="anchor" href="#visualizing-the-results"></a>
+<h4 id="visualizing-the-results">Visualizing the results<a class="anchor" aria-label="anchor" href="#visualizing-the-results"></a>
 </h4>
 <p>To display the results, we use simple bar plots. For didactic
 purposes, we also add the prior probabilities of each word via green
