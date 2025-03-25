@@ -295,8 +295,9 @@ post_informed2 <- post_informed_unnormalized2 / sum(post_informed_unnormalized2)
 
 ### Visualizing the results
 
-To display the results, we use simple bar plots. For didactic purposes,
-we also add the prior probabilities of each word via green circles.
+To display the results, we use bar plots. We also add the prior probabilities
+of each word via green triangles and the observed relative frequencies via
+red circles.
 
 ```{r, echo=-(1:2), fig.height = 8}
 if (pdfplots) {
