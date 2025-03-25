@@ -37,14 +37,14 @@ if (pdfplots) {
 par(mfrow = c(3, 2))
 trueprop <- c(0, .1, .5)
 N <- c(100, 400)
-xs <- seq(0, 1, .001)
+theta <- seq(0, 1, .001)
 
 for (p in trueprop) {
   for (n in N) {
     aN <- n*p + 1
     bN <- n - n*p + 1
-    plot(xs, dbeta(xs, aN, bN), type = "l", xlab = expression(vartheta), ylab = "",
-         main = bquote(N == .(n) ~ "and" ~ S[N] == .(n*p)))
+    plot(theta, dbeta(theta, aN, bN), type = "l", xlab = expression(vartheta),
+         ylab = "", main = bquote(N == .(n) ~ "and" ~ S[N] == .(n*p)))
   }
 }
 ```
@@ -127,8 +127,8 @@ for (i in seq_along(SN)) {
 }
 ```
 
-## Example 3.4: Bag of Words
-### Preparing the Data
+## Example 3.4: Bag of words
+### Preparing the data
 
 After reading in the quote, we do some simple manipulation such as converting
 to lower case, getting rid of newlines, and splitting the string into individual
@@ -177,7 +177,7 @@ dat[!(dat %in% universe)] <- "?"
 knitr::kable(t(table(dat)))
 ```
 
-### Computing the Posterior Under the Uniform Prior
+### Computing the posterior under the uniform prior
 
 Under a uniform prior (i.e., all 51 elements of our universe receive one
 pseudo-count), the posterior mean for each word occurrence probability is given
@@ -197,7 +197,7 @@ post_uniform_unnormalized <- 1 + counts
 post_uniform <- post_uniform_unnormalized / sum(post_uniform_unnormalized)
 ```
 
-### Computing the Posterior Under a Less Informative Prior
+### Computing the posterior under a less informative indifference prior
 
 Note that the above strategy implicitly assumes that we have exactly 51
 pseudo-observations. To render the prior less influential, we can rescale
@@ -258,7 +258,7 @@ res <- rbind(resfull[!unseen,], UNSEEN = resfull[which(unseen)[1],])
 knitr::kable(t(round(res, 4)))
 ```
 
-### Computing the Posterior Under an Informed Prior
+### Computing the posterior under an informed prior
 
 One might consider using yet another prior (which we label *informed*).
 For instance, we might want to fix
@@ -293,7 +293,7 @@ post_informed_unnormalized2 <- counts + gamma0
 post_informed2 <- post_informed_unnormalized2 / sum(post_informed_unnormalized2)
 ```
 
-### Visualizing the Results
+### Visualizing the results
 
 To display the results, we use simple bar plots. For didactic purposes,
 we also add the prior probabilities of each word via green circles.
