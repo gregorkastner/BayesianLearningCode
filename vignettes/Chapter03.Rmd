@@ -316,7 +316,7 @@ midpts <- barplot(post_lessinformative, las = 2,
                   ylim = c(0, max(counts/N, post_lessinformative)))
 points(midpts, counts/N, col = 2, pch = 1)
 points(midpts, rep(1/51, length(midpts)), col = 3, pch = 2)
-title("Less informative prior")
+title("Less informative indifference prior")
 
 midpts <- barplot(post_informed, las = 2,
                    ylim = c(0, max(counts/N, post_informed, freq/10^8)))
