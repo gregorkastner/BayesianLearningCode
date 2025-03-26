@@ -1,0 +1,88 @@
+---
+title: "Chapter 5"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Chapter 5}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 8,
+  fig.height = 6
+)
+knitr::opts_knit$set(global.par = TRUE)
+pdfplots <- FALSE # default: FALSE; set this to TRUE only if you like pdf figures
+```
+
+```{r, include = FALSE}
+par(mgp = c(1.6, .6, 0), mar = c(2.6, 2.6, 2.6, .4), lwd = 1)
+```
+
+# Section 5.4
+## Figure 5.1: Bayesian asymptotics
+
+To reproduce this figure, we simply re-use the theory from Chapter 3 (the
+beta-binomial model).
+
+```{r, echo=-(1:2)}
+if (pdfplots) {
+  pdf("5-5_1.pdf", width = 8, height = 5)
+  par(mgp = c(1, .5, 0), mar = c(2.2, 1.5, 2, .2), lwd = 2)
+}
+par(mfrow = c(3, 2))
+thetatrue <- c(0.02, 0.25)
+N <- c(25, 100, 400)
+theta <- seq(0, 1, .0005)
+
+for (n in N) {
+  for (p in thetatrue) {
+    aN <- n*p + 1
+    bN <- n - n*p + 1
+    plot(theta, dbeta(theta, aN, bN), type = "l", xlab = expression(vartheta),
+         ylab = "", main = bquote(vartheta[true] == .(p) ~ "and" ~ N == .(n)),
+         xlim = c(0, 1.1*sqrt(p)), ylim = c(0, 9.5/sqrt(p + 0.008)))
+    
+    aN <- n*p + 2
+    bN <- n - n*p + 4
+    lines(theta, dbeta(theta, aN, bN), lty = 2, col = 2)
+    
+    legend("topright", c("Beta(1,1)", "Beta(2,4)"), lty = c(1, 2),
+           col = 1:2)
+  }
+}
+```
+
+```{r, echo=-(1:2)}
+if (pdfplots) {
+  pdf("5-5_3.pdf", width = 8, height = 5)
+  par(mgp = c(1.35, .5, 0), mar = c(2.2, 1.5, 2, .2), lwd = 2)
+}
+par(mfrow = c(3, 2))
+
+for (n in N) {
+  for (p in thetatrue) {
+    aN <- n*p + 1
+    bN <- n - n*p + 1
+    asySD <- sqrt(p * (1 - p) / n)
+    theta <- seq(max(0.001, p - 2*asySD), p + 2*asySD, .0005)
+    plot(theta, dbeta(theta, aN, bN), type = "l", xlab = expression(vartheta),
+         ylab = "", main = bquote(vartheta[true] == .(p) ~ "and" ~ N == .(n)),
+         log = "y")
+    
+    approx <- function(theta, thetastar, n, log = FALSE) {
+      res <- dbeta(thetastar, aN, bN, log = TRUE) -
+        0.5 * n * 1 / (thetastar * (1 - thetastar)) * (theta - thetastar)^2
+      if (log) res else exp(res)
+    }
+    
+    lines(theta, approx(theta, p, n), col = 2, lty = 2)
+    
+    legend("bottom", c("Posterior", "Approximation"),
+           lty = c(1, 2), col = 1:2)
+  }
+}
+```
