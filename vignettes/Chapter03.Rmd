@@ -297,7 +297,7 @@ post_informed2 <- post_informed_unnormalized2 / sum(post_informed_unnormalized2)
 
 To display the results, we use bar plots. We also add the prior probabilities
 of each word via green triangles and the observed relative frequencies via
-red circles.
+red circles. Sorting is done via frequency counts.
 
 ```{r, echo=-(1:2), fig.height = 8}
 if (pdfplots) {
@@ -305,35 +305,37 @@ if (pdfplots) {
   par(mgp = c(1, .6, 0), mar = c(2.8, 2.3, 1.5, 0), lwd = 1)
 }
 par(mfrow = c(4, 1), xpd = TRUE)
-midpts <- barplot(post_uniform, las = 2,
+ord <- order(counts, decreasing = TRUE)
+midpts <- barplot(post_uniform[ord], las = 2,
                   ylim = c(0, max(counts/N, post_uniform)))
-points(midpts, counts/N, col = 2, pch = 1)
+points(midpts, counts[ord]/N, col = 2, pch = 1)
 points(midpts, rep(1/51, length(midpts)), col = 3, pch = 2)
-title("Uniform prior")
+title("Indifference prior (uniform)")
 legend("topright", c("Observed frequencies", "Prior expectations"),
        col = 2:3, pch = 1:2)
 
-midpts <- barplot(post_lessinformative, las = 2,
+midpts <- barplot(post_lessinformative[ord], las = 2,
                   ylim = c(0, max(counts/N, post_lessinformative)))
-points(midpts, counts/N, col = 2, pch = 1)
+points(midpts, counts[ord]/N, col = 2, pch = 1)
 points(midpts, rep(1/51, length(midpts)), col = 3, pch = 2)
-title("Less informative indifference prior")
+title("Indifference prior (light shrinkage)")
 
-midpts <- barplot(post_informed, las = 2,
+midpts <- barplot(post_informed[ord], las = 2,
                    ylim = c(0, max(counts/N, post_informed, freq/10^8)))
-points(midpts, counts/N, col = 2, pch = 1)
-points(midpts, freq / 10^8, col = 3, pch = 2)
+points(midpts, counts[ord]/N, col = 2, pch = 1)
+points(midpts, freq[ord] / 10^8, col = 3, pch = 2)
 title("Informed prior (light shrinkage)")
 
-midpts <- barplot(post_informed2, las = 2,
+midpts <- barplot(post_informed2[ord], las = 2,
                    ylim = c(0, max(counts/N, post_informed2, freq/10^8)))
-points(midpts, counts/N, col = 2, pch = 1)
-points(midpts, freq /10^8, col = 3, pch = 2)
+points(midpts, counts[ord]/N, col = 2, pch = 1)
+points(midpts, freq[ord] /10^8, col = 3, pch = 2)
 title("Informed prior (heavy shrinkage)")
 ```
 
 In the top panel (based on the uniform prior), we can nicely see the
-*add-one smoothing* effect, whereas the second panel shows almost no
-smoothing, and unseen words are estimated to be extremely unlikely. The two bottom
-panels show the posteriors under the informed priors, one with with light and
-one heavy shrinkage.
+*add-one smoothing* effect, i.e., strong shrinkage towards the uniform prior,
+whereas the second panel shows almost no
+smoothing/shrinkage, and unseen words are estimated to be extremely unlikely.
+The two bottom panels show the posteriors under the informed priors, one with
+light and one heavy shrinkage towards the prior.
