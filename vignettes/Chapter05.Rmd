@@ -124,7 +124,7 @@ for (p in thetatrue) {
 
 
 ## Figure 5.4: Bayesian asymptotics 3
-We now want to approximate the log posteriors via a quadratic polynomials and
+We now want to approximate the log posteriors via quadratic polynomials and
 visualize these.
 
 ```{r, echo=-(1:2)}
@@ -133,7 +133,6 @@ if (pdfplots) {
   par(mgp = c(1.35, .5, 0), mar = c(2.2, 1.5, 2, .2), lwd = 2)
 }
 par(mfrow = c(3, 2))
-
 for (n in N) {
   for (p in thetatrue) {
     aN <- n*p + 1
