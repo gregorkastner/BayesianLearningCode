@@ -159,11 +159,10 @@ beta-binomial model from earlier.</p>
 <div class="section level3">
 <h3 id="figure-5-4-bayesian-asymptotics-3">Figure 5.4: Bayesian asymptotics 3<a class="anchor" aria-label="anchor" href="#figure-5-4-bayesian-asymptotics-3"></a>
 </h3>
-<p>We now want to approximate the log posteriors via a quadratic
+<p>We now want to approximate the log posteriors via quadratic
 polynomials and visualize these.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="kw">for</span> <span class="op">(</span><span class="va">n</span> <span class="kw">in</span> <span class="va">N</span><span class="op">)</span> <span class="op">{</span></span>
+<code class="sourceCode R"><span><span class="kw">for</span> <span class="op">(</span><span class="va">n</span> <span class="kw">in</span> <span class="va">N</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="kw">for</span> <span class="op">(</span><span class="va">p</span> <span class="kw">in</span> <span class="va">thetatrue</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="va">aN</span> <span class="op">&lt;-</span> <span class="va">n</span><span class="op">*</span><span class="va">p</span> <span class="op">+</span> <span class="fl">1</span></span>
 <span>    <span class="va">bN</span> <span class="op">&lt;-</span> <span class="va">n</span> <span class="op">-</span> <span class="va">n</span><span class="op">*</span><span class="va">p</span> <span class="op">+</span> <span class="fl">1</span></span>
