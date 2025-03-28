@@ -23,10 +23,10 @@ par(mgp = c(1.6, .6, 0), mar = c(2.6, 2.6, 2.6, .4), lwd = 1)
 ```
 
 # Section 5.2
-## The adaptive nature of Bayesian learning
+## Figure 5.1: The adaptive nature of Bayesian learning
 
 We illustrate the adaptive nature of Bayesian learning (also referred to
-as *sequential updating* or *on-line learning*) via the beta binomial model
+as *sequential updating* or *on-line learning*) via the beta-binomial model
 from earlier.
 
 ```{r, echo=-(1:2)}
@@ -47,21 +47,23 @@ for (i in seq_along(thetatrue)) {
   plot(theta, dbeta(theta, a0, b0), type = 'l', ylim = c(0, 11),
        col = rgb(0, 0, 0, .2), xlab = expression(vartheta), ylab = '',
        main = bquote(vartheta[true] == .(thetatrue[i])))
-  legend('topright', paste("N =", c(0, 20, 40, 60, 80, 100)), lty = 1,
-         col = rgb(0, 0, 0, .2 + .4*c(0, 20, 40, 60, 80, 100)/N))
+  
   succ <- fail <- 0L
   for (j in seq_len(N)) {
     if (rbinom(1, 1, thetatrue[i])) succ <- succ + 1L else fail <- fail + 1L
     lines(theta, dbeta(theta, a0 + succ, b0 + fail), col = rgb(0, 0, 0, .2 + .4*j/N))
   }
+  
+  legend('topright', paste("N =", c(0, 20, 40, 60, 80, 100)), lty = 1,
+         col = rgb(0, 0, 0, .2 + .4*c(0, 20, 40, 60, 80, 100)/N))
 }
 ```
 
 
 # Section 5.4
-## Figure 5.1: Bayesian asymptotics
+## Figure 5.2: Bayesian asymptotics 1
 
-To reproduce this figure, we simply re-use the theory from Chapter 3 (the
+To reproduce this figure, we again re-use the theory from Chapter 3 (the
 beta-binomial model).
 
 ```{r, echo=-(1:2)}
@@ -92,6 +94,39 @@ for (n in N) {
 }
 ```
 
+## Figure 5.3: Bayesian asymptotics 2
+As above, just with higher sample size.
+
+```{r, echo=-(1:2)}
+if (pdfplots) {
+  pdf("5-5_3.pdf", width = 12, height = 5)
+  par(mgp = c(1.4, .5, 0), mar = c(2.3, 1.5, 2, .2), lwd = 2)
+}
+par(mfrow = c(1, 2))
+n <- 1000000
+
+for (p in thetatrue) {
+  aN <- n*p + 1
+  bN <- n - n*p + 1
+  asySD <- sqrt(p * (1 - p) / n)
+  theta <- seq(p - 25*asySD, p + 25*asySD, length.out = 333)
+  plot(theta, dbeta(theta, aN, bN), type = "l", xlab = expression(vartheta),
+       ylab = "", main = bquote(vartheta[true] == .(p)))
+    
+  aN <- n*p + 2
+  bN <- n - n*p + 4
+  lines(theta, dbeta(theta, aN, bN), lty = 2, col = 2)
+    
+  legend("topright", c("Beta(1,1)", "Beta(2,4)"), lty = c(1, 2),
+         col = 1:2)
+}
+```
+
+
+## Figure 5.4: Bayesian asymptotics 3
+We now want to approximate the log posteriors via a quadratic polynomials and
+visualize these.
+
 ```{r, echo=-(1:2)}
 if (pdfplots) {
   pdf("5-5_4.pdf", width = 8, height = 5)
@@ -104,7 +139,7 @@ for (n in N) {
     aN <- n*p + 1
     bN <- n - n*p + 1
     asySD <- sqrt(p * (1 - p) / n)
-    theta <- seq(max(0.001, p - 2*asySD), p + 2*asySD, .0005)
+    theta <- seq(max(0.001, p - 2*asySD), p + 2*asySD, length.out = 222)
     plot(theta, dbeta(theta, aN, bN), type = "l", xlab = expression(vartheta),
          ylab = "", main = bquote(vartheta[true] == .(p) ~ "and" ~ N == .(n)),
          log = "y")
