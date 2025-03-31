@@ -1,8 +1,8 @@
 ---
-title: "Chapter 3"
+title: "Chapter 3: A First Bayesian Analysis of Unknown Probabilities"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Chapter 3}
+  %\VignetteIndexEntry{Chapter 3: A First Bayesian Analysis of Unknown Probabilities}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -22,7 +22,7 @@ pdfplots <- FALSE # default: FALSE; set this to TRUE only if you like pdf figure
 par(mgp = c(1.6, .6, 0), mar = c(2.6, 2.6, 2.6, .4), lwd = 1)
 ```
 
-# Section 3.1
+# Section 3.1: Data arising from a homogeneous population: The beta-binomial model
 ## Figure 3.1: Posteriors under the beta-binomial model
 
 To reproduce the posteriors in this figure, we simply need to plug in
@@ -65,9 +65,9 @@ SNs <- Ns * rep(trueprop, length(N))
 aN <- SNs + 1    
 bN <- Ns - SNs + 1
     
-# Equal-ended 95% credible intervals
-leftEE <- qbeta(alpha/2, aN, bN)
-rightEE <- qbeta(1 - alpha/2, aN, bN)
+# Equal-tails 95% credible intervals
+leftET <- qbeta(alpha/2, aN, bN)
+rightET <- qbeta(1 - alpha/2, aN, bN)
 
 # HPDs
 resolution <- 10000
@@ -82,7 +82,7 @@ for (i in seq_along(aN)) {
   rightHPD[i] <- qs[minimizer + dist]
 }
 
-res <- cbind(leftEE, rightEE, leftHPD, rightHPD)
+res <- cbind(leftET, rightET, leftHPD, rightHPD)
 ```
 
 All the desired intervals are now stored and can be displayed.
@@ -94,7 +94,7 @@ knitr::kable(round(res, 4))
 We can also compare their lengths.
 
 ```{r}
-res <- cbind(lengthEE = rightEE - leftEE, lengthHPD = rightHPD - leftHPD)
+res <- cbind(lengthET = rightET - leftET, lengthHPD = rightHPD - leftHPD)
 knitr::kable(round(res, 4))
 ```
 
