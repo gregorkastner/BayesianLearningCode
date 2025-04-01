@@ -95,42 +95,40 @@ if (pdfplots) {
 par(mfcol = c(2, 2))
 left <- cbind(leftET, leftHPD)
 right <- cbind(rightET, rightHPD)
+
 for (i in seq_along(aN)) {
   for (j in seq_len(ncol(left))) {
-  len <- right[i,j] - left[i,j]
-  theta <- seq(0, right[i,j] + 1.2 * len, length.out = 100)
+    len <- right[i,j] - left[i,j]
+    theta <- seq(0, right[i,j] + 1.2 * len, length.out = 100)
   
-  plot(theta, dbeta(theta, aN[i], bN[i]), type = "l",
-       xlab = expression(vartheta), ylab = "",
-       main = bquote(.(names(aN[i])) * ":" ~
-                     Pr({.(round(left[i,j], 4)) <= vartheta} <=
-                     .(round(right[i,j], 4))) == .(gamma)))
+    plot(theta, dbeta(theta, aN[i], bN[i]), type = "l",
+         xlab = expression(vartheta), ylab = "",
+         main = bquote(.(names(aN[i])) * ":" ~ Pr(.(round(left[i,j], 4)) <=
+                       {vartheta <= .(round(right[i,j], 4))}) == .(gamma)))
+    abline(h = 0, lty = 2)
   
-  abline(h = 0, lty = 2)
-  
-  polygon(c(left[i,j], left[i,j],
-            theta[theta > left[i,j] & theta < right[i,j]],
-            right[i,j], right[i,j]),
-          c(0, dbeta(left[i,j], aN[i], bN[i]),
-            dbeta(theta[theta >= left[i,j] & theta <= right[i,j]], aN[i], bN[i]),
-            dbeta(right[i,j], aN[i], bN[i]), 0),
+    polygon(c(left[i,j], left[i,j],
+              theta[theta > left[i,j] & theta < right[i,j]],
+              right[i,j], right[i,j]),
+            c(0, dbeta(left[i,j], aN[i], bN[i]),
+              dbeta(theta[theta >= left[i,j] & theta <= right[i,j]], aN[i], bN[i]),
+              dbeta(right[i,j], aN[i], bN[i]), 0),
           col = "red")
-  
-  arrows(x0 <- max(left[i,j] - .5 * len, 0.001),
-         y0 <- .3 * diff(par("usr")[3:4]),
-         x1 <- left[i,j] - .03 * len,
-         y1 <- .03 * diff(par("usr")[3:4]),
-         length = .05)
-  text(x0, y0, paste0(round(100 * pbeta(left[i,j], aN[i], bN[i]), 1), "%"),
-       pos = 3)
-  
-  arrows(x0 <- right[i,j] + .5 * len,
-         y0 <- .3 * diff(par("usr")[3:4]),
-         x1 <- right[i,j] + .05 * len,
-         y1 <- .03 * diff(par("usr")[3:4]),
-         length = .05)
-  text(x0, y0, paste0(round(100 * (1 - pbeta(right[i,j], aN[i], bN[i])), 1), "%"),
-       pos = 3)
+    arrows(x0 <- max(left[i,j] - .5 * len, 0.001),
+           y0 <- .3 * diff(par("usr")[3:4]),
+           x1 <- left[i,j] - .03 * len,
+           y1 <- .03 * diff(par("usr")[3:4]),
+           length = .05)
+    text(x0, y0, paste0(round(100 * pbeta(left[i,j], aN[i], bN[i]), 1), "%"),
+         pos = 3)
+    
+    arrows(x0 <- right[i,j] + .5 * len,
+           y0 <- .3 * diff(par("usr")[3:4]),
+           x1 <- right[i,j] + .05 * len,
+           y1 <- .03 * diff(par("usr")[3:4]),
+           length = .05)
+    text(x0, y0, paste0(round(100 * (1 - pbeta(right[i,j], aN[i], bN[i])), 1), "%"),
+         pos = 3)
   }
 }
 ```
@@ -147,11 +145,11 @@ SNs <- Ns * rep(trueprop, length(N))
 aN <- SNs + 1    
 bN <- Ns - SNs + 1
     
-# Equal-tails 95% credible intervals
+# Equal-tails credible intervals
 leftET <- qbeta(alpha/2, aN, bN)
 rightET <- qbeta(1 - alpha/2, aN, bN)
 
-# HPDs
+# HPD intervals
 resolution <- 10000
 grid <- seq(0, 1, length.out = resolution + 1)
 dist <- gamma * resolution
