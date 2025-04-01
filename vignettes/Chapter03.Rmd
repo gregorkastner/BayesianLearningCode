@@ -49,16 +49,98 @@ for (p in trueprop) {
 }
 ```
 
-## Table 3.1: Posterior credible intervals under the beta-binomial model
+## Example 3.1 / Figure 3.2: Uncertainty quantification for market shares
 
-We now proceed to computing credible intervals. Note that R is (generally)
-vectorized, so we can compute all posterior parameters in one line, without
-the need for a loop.
+In city A, 40 out of 400 questioned people would purchase a certain product, in
+a rural community, only 4 out of 400. Assuming a uniform prior, we now compute
+equal-tails intervals and highest posterior density (HPD) intervals. Note that R
+is (generally) vectorized, so we can compute the equal-tails intervals without
+using a loop.
 
 ```{r}
+a <- 1
+b <- 1
+aN <- c(40 + a, 4 + b)
+bN <- c(400 - 40 + a, 400 - 4 + b)
+names(aN) <- names(bN) <- c("City A", "Rural area")
+
 gamma <- .95
 alpha <- 1 - gamma
 
+# Equal-tails credible intervals
+leftET <- qbeta(alpha/2, aN, bN)
+rightET <- qbeta(1 - alpha/2, aN, bN)
+
+# HPD intervals
+resolution <- 10000
+grid <- seq(0, 1, length.out = resolution + 1)
+dist <- gamma * resolution
+
+leftHPD <- rightHPD <- rep(NA_real_, length(aN))
+for (i in seq_along(aN)) {
+  qs <- qbeta(grid, aN[i], bN[i])
+  minimizer <- which.min(diff(qs, lag = dist))
+  leftHPD[i] <- qs[minimizer]
+  rightHPD[i] <- qs[minimizer + dist]
+}
+```
+
+Now we visualize our findings.
+
+```{r, echo=-(1:2)}
+if (pdfplots) {
+  pdf("3-1_2.pdf", width = 8, height = 5)
+  par(mgp = c(1, .5, 0), mar = c(2.2, 1.5, 2, .2), lwd = 2)
+}
+par(mfcol = c(2, 2))
+left <- cbind(leftET, leftHPD)
+right <- cbind(rightET, rightHPD)
+for (i in seq_along(aN)) {
+  for (j in seq_len(ncol(left))) {
+  len <- right[i,j] - left[i,j]
+  theta <- seq(0, right[i,j] + 1.2 * len, length.out = 100)
+  
+  plot(theta, dbeta(theta, aN[i], bN[i]), type = "l",
+       xlab = expression(vartheta), ylab = "",
+       main = bquote(.(names(aN[i])) * ":" ~
+                     Pr({.(round(left[i,j], 4)) <= vartheta} <=
+                     .(round(right[i,j], 4))) == .(gamma)))
+  
+  abline(h = 0, lty = 2)
+  
+  polygon(c(left[i,j], left[i,j],
+            theta[theta > left[i,j] & theta < right[i,j]],
+            right[i,j], right[i,j]),
+          c(0, dbeta(left[i,j], aN[i], bN[i]),
+            dbeta(theta[theta >= left[i,j] & theta <= right[i,j]], aN[i], bN[i]),
+            dbeta(right[i,j], aN[i], bN[i]), 0),
+          col = "red")
+  
+  arrows(x0 <- max(left[i,j] - .5 * len, 0.001),
+         y0 <- .3 * diff(par("usr")[3:4]),
+         x1 <- left[i,j] - .03 * len,
+         y1 <- .03 * diff(par("usr")[3:4]),
+         length = .05)
+  text(x0, y0, paste0(round(100 * pbeta(left[i,j], aN[i], bN[i]), 1), "%"),
+       pos = 3)
+  
+  arrows(x0 <- right[i,j] + .5 * len,
+         y0 <- .3 * diff(par("usr")[3:4]),
+         x1 <- right[i,j] + .05 * len,
+         y1 <- .03 * diff(par("usr")[3:4]),
+         length = .05)
+  text(x0, y0, paste0(round(100 * (1 - pbeta(right[i,j], aN[i], bN[i])), 1), "%"),
+       pos = 3)
+  }
+}
+```
+
+
+## Example 3.2 / Table 3.1: Posterior credible intervals under the beta-binomial model
+
+We now proceed to computing credible intervals for the synthetic example.
+
+```{r}
 Ns <- rep(N, each = length(trueprop))
 SNs <- Ns * rep(trueprop, length(N))
 
