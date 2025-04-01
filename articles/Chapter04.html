@@ -105,11 +105,11 @@ p(\mu, \sigma^2) \propto \frac{1}{\sigma^2},
 p(\mu,\sigma^2|\mathbf y) =
 f_N\left(\mu;\bar{y},\frac{\sigma^2}{N}\right)
 f_{\mathcal{G}^{-1}}\left(\sigma^2;\frac{N-1}{2},\frac{N s_y^2}{2}\right).
-</annotation></semantics></math> We can plot this (not that base R does
-not ship the density function of the inverse gamma, so we define it
-ourselves using the transformation law of densities). Note that in R,
-the Gaussian distribution is parametrized in terms of mean and standard
-deviation (not variance).</p>
+</annotation></semantics></math> We can now plot this. Note that base R
+does not ship the density function of the inverse gamma, so we define it
+ourselves using the transformation law of densities. Also note that in
+R, the Gaussian distribution is parameterized in terms of mean and
+standard deviation (not mean and variance).</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dinvgamma</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">a</span>, <span class="va">b</span>, <span class="va">log</span> <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">logdens</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html" class="external-link">dgamma</a></span><span class="op">(</span><span class="fl">1</span><span class="op">/</span><span class="va">x</span>, <span class="va">a</span>, <span class="va">b</span>, log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">-</span> <span class="fl">2</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
@@ -120,12 +120,12 @@ deviation (not variance).</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">dnorm</a></span><span class="op">(</span><span class="va">mu</span>, <span class="va">ybar</span>, <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">sigma2</span> <span class="op">/</span> <span class="va">N</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="fu">dinvgamma</span><span class="op">(</span><span class="va">sigma2</span>, <span class="op">(</span><span class="va">N</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span>, <span class="va">N</span> <span class="op">*</span> <span class="va">s2</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span></span>
-<span><span class="va">mu</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="op">-</span><span class="fl">.3</span>, <span class="fl">.2</span>, length.out <span class="op">=</span> <span class="fl">30</span><span class="op">)</span></span>
-<span><span class="va">sigma2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">.4</span>, <span class="fl">.8</span>, length.out <span class="op">=</span> <span class="fl">30</span><span class="op">)</span></span>
+<span><span class="va">mu</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="op">-</span><span class="fl">.25</span>, <span class="fl">.25</span>, length.out <span class="op">=</span> <span class="fl">30</span><span class="op">)</span></span>
+<span><span class="va">sigma2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">.4</span>, <span class="fl">.7</span>, length.out <span class="op">=</span> <span class="fl">30</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Generate the desired number of colors from a palette</span></span>
-<span><span class="va">nbcol</span> <span class="op">&lt;-</span> <span class="fl">10</span></span>
-<span><span class="va">color</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/palettes.html" class="external-link">hcl.colors</a></span><span class="op">(</span><span class="fl">10</span>, <span class="st">"YlOrRd"</span><span class="op">)</span></span>
+<span><span class="va">nbcol</span> <span class="op">&lt;-</span> <span class="fl">20</span></span>
+<span><span class="va">color</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/palettes.html" class="external-link">topo.colors</a></span><span class="op">(</span><span class="va">nbcol</span><span class="op">)</span></span>
 <span></span>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">n</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">500</span>, <span class="fl">1000</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">ytmp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">n</span><span class="op">)</span></span>
