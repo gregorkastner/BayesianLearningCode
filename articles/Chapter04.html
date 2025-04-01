@@ -67,8 +67,88 @@
 
     
     
-
-  </main>
+<div class="section level2">
+<h2 id="swiss-franc-versus-us-dollar">Swiss franc versus US dollar<a class="anchor" aria-label="anchor" href="#swiss-franc-versus-us-dollar"></a>
+</h2>
+<div class="section level3">
+<h3 id="example-4-1-the-data">Example 4.1: The data<a class="anchor" aria-label="anchor" href="#example-4-1-the-data"></a>
+</h3>
+<p>We use exchange rate data contained in the package <em>stochvol</em>,
+covering the period from January 3, 2000, until April 4, 2012. We are
+interested in the percentage log returns of the the Swiss franc (CHF)
+against the US dollar (USD).</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">exrates</span>, package <span class="op">=</span> <span class="st">"stochvol"</span><span class="op">)</span></span>
+<span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fl">100</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/diff.html" class="external-link">diff</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">exrates</span><span class="op">$</span><span class="va">USD</span> <span class="op">/</span> <span class="va">exrates</span><span class="op">$</span><span class="va">CHF</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">y</span>, breaks <span class="op">=</span> <span class="fl">50</span>, main <span class="op">=</span> <span class="st">"Histogram"</span>, xlab <span class="op">=</span> <span class="st">"CHF/USD log returns"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/ts.plot.html" class="external-link">ts.plot</a></span><span class="op">(</span><span class="va">y</span>, main <span class="op">=</span> <span class="st">"Time series plot"</span>, ylab <span class="op">=</span> <span class="st">"CHF/USD log returns"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="Chapter04_files/figure-html/unnamed-chunk-3-1.png" width="768"></p>
+</div>
+<div class="section level3">
+<h3 id="example-4-2-a-first-posterior">Example 4.2: A first posterior<a class="anchor" aria-label="anchor" href="#example-4-2-a-first-posterior"></a>
+</h3>
+<p>For a first joint inference on
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>μ</mi><annotation encoding="application/x-tex">\mu</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>σ</mi><mn>2</mn></msup><annotation encoding="application/x-tex">\sigma^2</annotation></semantics></math>,
+we assume a Gaussian likelihood,
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>𝐲</mi><mo stretchy="false" form="prefix">|</mo><mi>μ</mi><mo>,</mo><msup><mi>σ</mi><mn>2</mn></msup><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><munderover><mo>∏</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>N</mi></munderover><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>y</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">|</mo><mi>μ</mi><mo>,</mo><msup><mi>σ</mi><mn>2</mn></msup><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mn>1</mn><mrow><mn>2</mn><mi>π</mi><msup><mi>σ</mi><mn>2</mn></msup></mrow></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mi>N</mi><mi>/</mi><mn>2</mn></mrow></msup><mo>exp</mo><mrow><mo stretchy="true" form="prefix">(</mo><mo>−</mo><mfrac><mn>1</mn><msup><mi>σ</mi><mn>2</mn></msup></mfrac><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>N</mi></munderover><mfrac><msup><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>y</mi><mi>i</mi></msub><mo>−</mo><mi>μ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mn>2</mn></msup><mn>2</mn></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">
+p(\mathbf y|\mu,\sigma^2) = \prod_{i=1}^N p(y_i|\mu, \sigma^2)=
+   \left(\frac{1}{2 \pi \sigma^2}\right)^{N/2}  \exp
+\left( - \frac{1}{\sigma^2} \sum_{i=1}^{N} \frac{(y_i-\mu)^2}{2} \right).
+</annotation></semantics></math></p>
+<p>In addition, we assume the improper prior
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>μ</mi><mo>,</mo><msup><mi>σ</mi><mn>2</mn></msup><mo stretchy="true" form="postfix">)</mo></mrow><mo>∝</mo><mfrac><mn>1</mn><msup><mi>σ</mi><mn>2</mn></msup></mfrac><mo>,</mo></mrow><annotation encoding="application/x-tex">
+p(\mu, \sigma^2) \propto \frac{1}{\sigma^2},
+</annotation></semantics></math> yielding the posterior
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>μ</mi><mo>,</mo><msup><mi>σ</mi><mn>2</mn></msup><mo stretchy="false" form="prefix">|</mo><mi>𝐲</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><msub><mi>f</mi><mi>N</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>μ</mi><mo>;</mo><mover><mi>y</mi><mo accent="true">‾</mo></mover><mo>,</mo><mfrac><msup><mi>σ</mi><mn>2</mn></msup><mi>N</mi></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><msub><mi>f</mi><msup><mi>𝒢</mi><mrow><mo>−</mo><mn>1</mn></mrow></msup></msub><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>σ</mi><mn>2</mn></msup><mo>;</mo><mfrac><mrow><mi>N</mi><mo>−</mo><mn>1</mn></mrow><mn>2</mn></mfrac><mo>,</mo><mfrac><mrow><mi>N</mi><msubsup><mi>s</mi><mi>y</mi><mn>2</mn></msubsup></mrow><mn>2</mn></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">
+p(\mu,\sigma^2|\mathbf y) =
+f_N\left(\mu;\bar{y},\frac{\sigma^2}{N}\right)
+f_{\mathcal{G}^{-1}}\left(\sigma^2;\frac{N-1}{2},\frac{N s_y^2}{2}\right).
+</annotation></semantics></math> We can plot this (not that base R does
+not ship the density function of the inverse gamma, so we define it
+ourselves using the transformation law of densities). Note that in R,
+the Gaussian distribution is parametrized in terms of mean and standard
+deviation (not variance).</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dinvgamma</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">a</span>, <span class="va">b</span>, <span class="va">log</span> <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">logdens</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html" class="external-link">dgamma</a></span><span class="op">(</span><span class="fl">1</span><span class="op">/</span><span class="va">x</span>, <span class="va">a</span>, <span class="va">b</span>, log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">-</span> <span class="fl">2</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
+<span>  <span class="kw">if</span> <span class="op">(</span><span class="va">log</span><span class="op">)</span> <span class="va">logdens</span> <span class="kw">else</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">logdens</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="va">posterior</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">mu</span>, <span class="va">sigma2</span>, <span class="va">ybar</span>, <span class="va">s2</span>, <span class="va">N</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">dnorm</a></span><span class="op">(</span><span class="va">mu</span>, <span class="va">ybar</span>, <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">sigma2</span> <span class="op">/</span> <span class="va">N</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="fu">dinvgamma</span><span class="op">(</span><span class="va">sigma2</span>, <span class="op">(</span><span class="va">N</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span>, <span class="va">N</span> <span class="op">*</span> <span class="va">s2</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="va">mu</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="op">-</span><span class="fl">.3</span>, <span class="fl">.2</span>, length.out <span class="op">=</span> <span class="fl">30</span><span class="op">)</span></span>
+<span><span class="va">sigma2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">.4</span>, <span class="fl">.8</span>, length.out <span class="op">=</span> <span class="fl">30</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Generate the desired number of colors from a palette</span></span>
+<span><span class="va">nbcol</span> <span class="op">&lt;-</span> <span class="fl">10</span></span>
+<span><span class="va">color</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/palettes.html" class="external-link">hcl.colors</a></span><span class="op">(</span><span class="fl">10</span>, <span class="st">"YlOrRd"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">n</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">500</span>, <span class="fl">1000</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">ytmp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">n</span><span class="op">)</span></span>
+<span>  <span class="va">z</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/outer.html" class="external-link">outer</a></span><span class="op">(</span><span class="va">mu</span>, <span class="va">sigma2</span>, <span class="va">posterior</span>,</span>
+<span>             ybar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">ytmp</span><span class="op">)</span>, s2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">var</a></span><span class="op">(</span><span class="va">ytmp</span><span class="op">)</span> <span class="op">*</span> <span class="op">(</span><span class="va">n</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">/</span> <span class="va">n</span>, N <span class="op">=</span> <span class="va">n</span><span class="op">)</span></span>
+<span></span>
+<span>  <span class="va">nrz</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">z</span><span class="op">)</span></span>
+<span>  <span class="va">ncz</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">z</span><span class="op">)</span></span>
+<span></span>
+<span>  <span class="co"># Compute the z-value at the facet centres</span></span>
+<span>  <span class="va">zfacet</span> <span class="op">&lt;-</span> <span class="va">z</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1</span><span class="op">]</span> <span class="op">+</span> <span class="va">z</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span>, <span class="op">-</span><span class="va">ncz</span><span class="op">]</span> <span class="op">+</span> <span class="va">z</span><span class="op">[</span><span class="op">-</span><span class="va">nrz</span>, <span class="op">-</span><span class="fl">1</span><span class="op">]</span> <span class="op">+</span> <span class="va">z</span><span class="op">[</span><span class="op">-</span><span class="va">nrz</span>, <span class="op">-</span><span class="va">ncz</span><span class="op">]</span></span>
+<span></span>
+<span>  <span class="co"># Recode facet z-values into color indices</span></span>
+<span>  <span class="va">facetcol</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cut.html" class="external-link">cut</a></span><span class="op">(</span><span class="va">zfacet</span>, <span class="va">nbcol</span><span class="op">)</span></span>
+<span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/persp.html" class="external-link">persp</a></span><span class="op">(</span><span class="va">mu</span>, <span class="va">sigma2</span>, <span class="va">z</span>, col <span class="op">=</span> <span class="va">color</span><span class="op">[</span><span class="va">facetcol</span><span class="op">]</span>, ticktype <span class="op">=</span> <span class="st">"detailed"</span>, zlab <span class="op">=</span> <span class="st">""</span>,</span>
+<span>        xlab <span class="op">=</span> <span class="st">"mu"</span>, ylab <span class="op">=</span> <span class="st">"sigma2"</span>, phi <span class="op">=</span> <span class="fl">30</span>, theta <span class="op">=</span> <span class="op">-</span><span class="fl">40</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+<p><img src="Chapter04_files/figure-html/unnamed-chunk-4-1.png" width="768"></p>
+</div>
+</div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside>
 </div>
 
 
