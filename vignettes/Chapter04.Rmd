@@ -71,9 +71,9 @@ of mean and standard deviation (not mean and variance).
 ```{r, echo=-(1:2)}
 if (pdfplots) {
   pdf("4-1_2.pdf", width = 8, height = 5)
-  par(mar = c(2.2, 1.6, 1.6, .2), mgp = c(1.2, .5, 0))
-}
-par(mfrow = c(2,2))
+  par(mar = c(1.2, 2, .9, 0), xpd = NA)
+} else par(mar = c(1.2, 1, .9, 0), xpd = NA)
+par(mfrow = c(2, 3))
 dinvgamma <- function(x, a, b, log = FALSE) {
   logdens <- dgamma(1/x, a, b, log = TRUE) - 2 * log(x)
   if (log) logdens else exp(logdens)
@@ -90,21 +90,32 @@ sigma2 <- seq(.4, .7, length.out = 30)
 nbcol <- 20
 color <- topo.colors(nbcol)
 
-for (n in c(100, 500, 1000, length(y))) {
+# Plot for different sample sizes
+for (n in c(50, 100, 200, 500, 1000, length(y))) {
   ytmp <- head(y, n)
   z <- outer(mu, sigma2, posterior,
              ybar = mean(ytmp), s2 = var(ytmp) * (n - 1) / n, N = n)
 
-  nrz <- nrow(z)
-  ncz <- ncol(z)
-
-  # Compute the z-value at the facet centres
-  zfacet <- z[-1, -1] + z[-1, -ncz] + z[-nrz, -1] + z[-nrz, -ncz]
+  # Compute the z-values at the facet centers
+  zfacet <- z[-1, -1] + z[-1, -ncol(z)] + z[-nrow(z), -1] + z[-nrow(z), -ncol(z)]
 
   # Recode facet z-values into color indices
   facetcol <- cut(zfacet, nbcol)
 
-  persp(mu, sigma2, z, col = color[facetcol], ticktype = "detailed", zlab = "",
-        xlab = "mu", ylab = "sigma2", phi = 30, theta = -40)
+  # Perspective plot
+  pmat <- persp(mu, sigma2, z, col = color[facetcol], ticktype = "detailed",
+                main = paste0("N = ", n), nticks = 4, zlab = "", xlab = "",
+                ylab = "", phi = 20, theta = -30, r = 100)
+  
+  # Add axis labels (done manually because persp() does not support expressions)
+  loc <- trans3d(mean(mu) - .15 * diff(range(mu)),
+                 min(sigma2) - .4 * diff(range(sigma2)),
+                 0, pmat = pmat)
+  text(loc$x, loc$y, expression(mu), cex = 1.3)
+  
+  loc <- trans3d(min(mu) - .35 * diff(range(mu)),
+                 mean(sigma2) - .1 * diff(range(sigma2)),
+                 0, pmat = pmat)
+  text(loc$x, loc$y, expression(sigma^2), cex = 1.3)
 }
 ```
