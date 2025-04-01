@@ -1,0 +1,23 @@
+---
+title: "Chapter 4: A First Bayesian Analysis of Continuous Data"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Chapter 4: A First Bayesian Analysis of Continuous Data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 8,
+  fig.height = 6
+)
+knitr::opts_knit$set(global.par = TRUE)
+pdfplots <- FALSE # default: FALSE; set this to TRUE only if you like pdf figures
+```
+
+```{r, include = FALSE}
+par(mgp = c(1.6, .6, 0), mar = c(2.6, 2.6, 2.6, .4), lwd = 1)
+```
