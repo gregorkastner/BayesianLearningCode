@@ -63,10 +63,10 @@ p(\mu,\sigma^2|\mathbf y) =
 f_N\left(\mu;\bar{y},\frac{\sigma^2}{N}\right)
 f_{\mathcal{G}^{-1}}\left(\sigma^2;\frac{N-1}{2},\frac{N s_y^2}{2}\right).
 $$
-We can plot this (not that base R does not ship the density function of the
+We can now plot this. Note that base R does not ship the density function of the
 inverse gamma, so we define it ourselves using the transformation law of
-densities). Note that in R, the Gaussian distribution is parametrized in terms
-of mean and standard deviation (not variance).
+densities. Also note that in R, the Gaussian distribution is parameterized in terms
+of mean and standard deviation (not mean and variance).
 
 ```{r, echo=-(1:2)}
 if (pdfplots) {
@@ -83,12 +83,12 @@ posterior <- function(mu, sigma2, ybar, s2, N) {
   dnorm(mu, ybar, sqrt(sigma2 / N)) * dinvgamma(sigma2, (N - 1) / 2, N * s2 / 2)
 }
 
-mu <- seq(-.3, .2, length.out = 30)
-sigma2 <- seq(.4, .8, length.out = 30)
+mu <- seq(-.25, .25, length.out = 30)
+sigma2 <- seq(.4, .7, length.out = 30)
 
 # Generate the desired number of colors from a palette
-nbcol <- 10
-color <- hcl.colors(10, "YlOrRd")
+nbcol <- 20
+color <- topo.colors(nbcol)
 
 for (n in c(100, 500, 1000, length(y))) {
   ytmp <- head(y, n)
