@@ -58,11 +58,14 @@ is (generally) vectorized, so we can compute the equal-tails intervals without
 using a loop.
 
 ```{r}
-a <- 1
-b <- 1
-aN <- c(40 + a, 4 + b)
-bN <- c(400 - 40 + a, 400 - 4 + b)
-names(aN) <- names(bN) <- c("City A", "Rural area")
+m0 <- 0.1
+N0 <- 2
+a <- N0 * m0
+b <- N0 * (1 - m0)
+N <- 400
+SN <- c("City A" = 40, "Rural area" = 4)
+aN <- SN + a
+bN <- N - SN + b
 
 gamma <- .95
 alpha <- 1 - gamma
@@ -105,7 +108,8 @@ for (i in seq_along(aN)) {
          xlab = expression(vartheta), ylab = "",
          main = bquote(.(names(aN[i])) * ":" ~ Pr(.(round(left[i,j], 4)) <=
                        {vartheta <= .(round(right[i,j], 4))}) == .(gamma)))
-    abline(h = 0, lty = 2)
+    lines(theta, dbeta(theta, a, b), lty = 2)
+    abline(h = 0, lty = 3)
   
     polygon(c(left[i,j], left[i,j],
               theta[theta > left[i,j] & theta < right[i,j]],
@@ -178,7 +182,7 @@ res <- cbind(lengthET = rightET - leftET, lengthHPD = rightHPD - leftHPD)
 knitr::kable(round(res, 4))
 ```
 
-## Figure 3.2: One-sided hypthesis testing
+## Figure 3.3: One-sided hypthesis testing
 
 We now move forward to assessing visualizing the posterior probability of
 $\vartheta$ (the proportion of defective items) being less than $1/20 = 0.05$
@@ -201,7 +205,7 @@ for (i in seq_along(SN)) {
        main = bquote(N == 100 ~ "and" ~ S[N] == .(SN[i]) ~ "     " ~
                        P(vartheta <= 0.05 ~ "|" ~ bold(y)) ~ "=" ~
                        .(round(pbeta(0.05, aN[i], bN[i]), 3))))
-  abline(h = 0, lty = 2)
+  abline(h = 0, lty = 3)
   polygon(c(theta[theta <= 0.05], 0.05),
           c(dbeta(theta[theta <= 0.05], aN[i], bN[i]), 0), col = "red")
 }
