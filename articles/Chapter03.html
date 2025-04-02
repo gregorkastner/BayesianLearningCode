@@ -102,11 +102,14 @@ prior, we now compute equal-tails intervals and highest posterior
 density (HPD) intervals. Note that R is (generally) vectorized, so we
 can compute the equal-tails intervals without using a loop.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">a</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
-<span><span class="va">b</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
-<span><span class="va">aN</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">40</span> <span class="op">+</span> <span class="va">a</span>, <span class="fl">4</span> <span class="op">+</span> <span class="va">b</span><span class="op">)</span></span>
-<span><span class="va">bN</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">400</span> <span class="op">-</span> <span class="fl">40</span> <span class="op">+</span> <span class="va">a</span>, <span class="fl">400</span> <span class="op">-</span> <span class="fl">4</span> <span class="op">+</span> <span class="va">b</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">aN</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">bN</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"City A"</span>, <span class="st">"Rural area"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">m0</span> <span class="op">&lt;-</span> <span class="fl">0.1</span></span>
+<span><span class="va">N0</span> <span class="op">&lt;-</span> <span class="fl">2</span></span>
+<span><span class="va">a</span> <span class="op">&lt;-</span> <span class="va">N0</span> <span class="op">*</span> <span class="va">m0</span></span>
+<span><span class="va">b</span> <span class="op">&lt;-</span> <span class="va">N0</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">m0</span><span class="op">)</span></span>
+<span><span class="va">N</span> <span class="op">&lt;-</span> <span class="fl">400</span></span>
+<span><span class="va">SN</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"City A"</span> <span class="op">=</span> <span class="fl">40</span>, <span class="st">"Rural area"</span> <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span>
+<span><span class="va">aN</span> <span class="op">&lt;-</span> <span class="va">SN</span> <span class="op">+</span> <span class="va">a</span></span>
+<span><span class="va">bN</span> <span class="op">&lt;-</span> <span class="va">N</span> <span class="op">-</span> <span class="va">SN</span> <span class="op">+</span> <span class="va">b</span></span>
 <span></span>
 <span><span class="va">gamma</span> <span class="op">&lt;-</span> <span class="fl">.95</span></span>
 <span><span class="va">alpha</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="op">-</span> <span class="va">gamma</span></span>
@@ -141,7 +144,8 @@ can compute the equal-tails intervals without using a loop.</p>
 <span>         xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">vartheta</span><span class="op">)</span>, ylab <span class="op">=</span> <span class="st">""</span>,</span>
 <span>         main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/bquote.html" class="external-link">bquote</a></span><span class="op">(</span><span class="fu">.</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">aN</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="st">":"</span> <span class="op">~</span> <span class="fu">Pr</span><span class="op">(</span><span class="fu">.</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">left</span><span class="op">[</span><span class="va">i</span>,<span class="va">j</span><span class="op">]</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span> <span class="op">&lt;=</span></span>
 <span>                       <span class="op">{</span><span class="va">vartheta</span> <span class="op">&lt;=</span> <span class="fu">.</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">right</span><span class="op">[</span><span class="va">i</span>,<span class="va">j</span><span class="op">]</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span><span class="op">}</span><span class="op">)</span> <span class="op">==</span> <span class="fu">.</span><span class="op">(</span><span class="va">gamma</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>h <span class="op">=</span> <span class="fl">0</span>, lty <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">theta</span>, <span class="fu"><a href="https://rdrr.io/r/stats/Beta.html" class="external-link">dbeta</a></span><span class="op">(</span><span class="va">theta</span>, <span class="va">a</span>, <span class="va">b</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>h <span class="op">=</span> <span class="fl">0</span>, lty <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
 <span>  </span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/graphics/polygon.html" class="external-link">polygon</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">left</span><span class="op">[</span><span class="va">i</span>,<span class="va">j</span><span class="op">]</span>, <span class="va">left</span><span class="op">[</span><span class="va">i</span>,<span class="va">j</span><span class="op">]</span>,</span>
 <span>              <span class="va">theta</span><span class="op">[</span><span class="va">theta</span> <span class="op">&gt;</span> <span class="va">left</span><span class="op">[</span><span class="va">i</span>,<span class="va">j</span><span class="op">]</span> <span class="op">&amp;</span> <span class="va">theta</span> <span class="op">&lt;</span> <span class="va">right</span><span class="op">[</span><span class="va">i</span>,<span class="va">j</span><span class="op">]</span><span class="op">]</span>,</span>
@@ -212,36 +216,18 @@ example.</p>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td align="right">0.0003</td>
-<td align="right">0.0359</td>
-<td align="right">0.0000</td>
-<td align="right">0.0292</td>
-</tr>
-<tr class="even">
-<td align="right">0.0556</td>
-<td align="right">0.1746</td>
-<td align="right">0.0515</td>
-<td align="right">0.1687</td>
-</tr>
-<tr class="odd">
-<td align="right">0.4036</td>
-<td align="right">0.5964</td>
-<td align="right">0.4036</td>
-<td align="right">0.5964</td>
-</tr>
-<tr class="even">
 <td align="right">0.0001</td>
 <td align="right">0.0092</td>
 <td align="right">0.0000</td>
 <td align="right">0.0074</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="right">0.0744</td>
 <td align="right">0.1334</td>
 <td align="right">0.0732</td>
 <td align="right">0.1319</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="right">0.4512</td>
 <td align="right">0.5488</td>
 <td align="right">0.4512</td>
@@ -260,26 +246,14 @@ example.</p>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td align="right">0.0356</td>
-<td align="right">0.0292</td>
-</tr>
-<tr class="even">
-<td align="right">0.1189</td>
-<td align="right">0.1172</td>
-</tr>
-<tr class="odd">
-<td align="right">0.1927</td>
-<td align="right">0.1927</td>
-</tr>
-<tr class="even">
 <td align="right">0.0091</td>
 <td align="right">0.0074</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="right">0.0590</td>
 <td align="right">0.0587</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="right">0.0976</td>
 <td align="right">0.0976</td>
 </tr>
@@ -287,7 +261,7 @@ example.</p>
 </table>
 </div>
 <div class="section level3">
-<h3 id="figure-3-2-one-sided-hypthesis-testing">Figure 3.2: One-sided hypthesis testing<a class="anchor" aria-label="anchor" href="#figure-3-2-one-sided-hypthesis-testing"></a>
+<h3 id="figure-3-3-one-sided-hypthesis-testing">Figure 3.3: One-sided hypthesis testing<a class="anchor" aria-label="anchor" href="#figure-3-3-one-sided-hypthesis-testing"></a>
 </h3>
 <p>We now move forward to assessing visualizing the posterior
 probability of
@@ -310,7 +284,7 @@ and
 <span>       main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/bquote.html" class="external-link">bquote</a></span><span class="op">(</span><span class="va">N</span> <span class="op">==</span> <span class="fl">100</span> <span class="op">~</span> <span class="st">"and"</span> <span class="op">~</span> <span class="va">S</span><span class="op">[</span><span class="va">N</span><span class="op">]</span> <span class="op">==</span> <span class="fu">.</span><span class="op">(</span><span class="va">SN</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span> <span class="op">~</span> <span class="st">"     "</span> <span class="op">~</span></span>
 <span>                       <span class="fu">P</span><span class="op">(</span><span class="va">vartheta</span> <span class="op">&lt;=</span> <span class="fl">0.05</span> <span class="op">~</span> <span class="st">"|"</span> <span class="op">~</span> <span class="fu">bold</span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">)</span> <span class="op">~</span> <span class="st">"="</span> <span class="op">~</span></span>
 <span>                       <span class="fu">.</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Beta.html" class="external-link">pbeta</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="va">aN</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, <span class="va">bN</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>h <span class="op">=</span> <span class="fl">0</span>, lty <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>h <span class="op">=</span> <span class="fl">0</span>, lty <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/graphics/polygon.html" class="external-link">polygon</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">theta</span><span class="op">[</span><span class="va">theta</span> <span class="op">&lt;=</span> <span class="fl">0.05</span><span class="op">]</span>, <span class="fl">0.05</span><span class="op">)</span>,</span>
 <span>          <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Beta.html" class="external-link">dbeta</a></span><span class="op">(</span><span class="va">theta</span><span class="op">[</span><span class="va">theta</span> <span class="op">&lt;=</span> <span class="fl">0.05</span><span class="op">]</span>, <span class="va">aN</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, <span class="va">bN</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span>, <span class="fl">0</span><span class="op">)</span>, col <span class="op">=</span> <span class="st">"red"</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
