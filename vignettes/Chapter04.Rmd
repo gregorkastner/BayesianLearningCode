@@ -219,3 +219,95 @@ for (i in seq_along(probs)) {
 mtext(round(qs, 3), side = 1, line = -1, at = qs, cex = .5)
 mtext(probs, side = 2, at = probs, cex = .5)
 ```
+
+## Example 4.4: Fitting a t distribution with known mean and known degrees of freedom
+
+We first define a function for the unnormalized posterior density of $\sigma^2$.
+Note that this function is not vectorized in its argument, $\sigma^2$. Rather,
+it expects a scalar sigma2 and a data vector $\mathbf{y}$. Albeit not very fast,
+we can vectorize this function using *Vectorize*.
+
+```{r, echo=-(1:2)}
+if (pdfplots) {
+  pdf("4-2_1.pdf", width = 8, height = 5)
+  par(mar = c(2.4, 1.4, 1.4, .2), mgp = c(1.5, .5, 0))
+}
+par(mfrow = c(1, 2))
+nu <- 8
+
+post_unnormalized_nonvec <- function(sigma2, dat, nu, log = FALSE) {
+  logdens <- -length(y) / 2 * log(sigma2) -
+    (nu + 1) / 2 * sum(log(1 + dat^2 / (nu * sigma2))) - log(sigma2)
+  if (log) logdens else exp(logdens)
+}
+post_unnormalized <- Vectorize(post_unnormalized_nonvec, "sigma2")
+
+sigma2 <- seq(0.1, 1, length.out = 3000)
+pdf_u <- post_unnormalized(sigma2, dat = y, nu = nu)
+
+plot(sigma2, pdf_u, type = "l", xlab = expression(sigma^2),
+     ylab = "", main = "Unnormalised posterior")
+abline(h = 0, lty = 3)
+
+cdf_u <- cumsum(pdf_u)
+plot(sigma2, cdf_u, type = "l", xlab = expression(sigma^2),
+     ylab = "", main = "Cumulative unnormalized posterior")
+abline(h = c(0, cdf_u[length(cdf_u)]), lty = 3)
+```
+
+## Example 4.5: Bayesian learning of quantiles
+
+For the Gaussian model, we simulate from $\mathcal{G}^{-1}(c_N, C_N)$ and then,
+conditionally on these draws, from $\mathcal{N}(\bar{y}, \sigma^2 / N)$. Note,
+again, that R's vectorization ability comes in handy. Here, in particular,
+*rnorm*, can handle the so-called *varying parameter case*.
+
+```{r}
+set.seed(42)
+alpha <- 0.005
+ndraws <- 10000
+sigma2draws <- 1/rgamma(ndraws, cN, CN)
+mudraws <- rnorm(ndraws, mean(y), sigma2draws/length(y))
+qnormdraws <- qnorm(0.01, mudraws, sqrt(sigma2draws))
+```
+
+For the $t_4$ model, we can use inverse transform sampling. First, we draw
+uniformly from the interval spanned by 0 and the maximum of the nonnormalized
+cumulative posterior. Then, for each draw, we find the interval of our pointwise
+cdf approximation of the posterior, and interpolate linearly between the
+interval boundaries.
+
+```{r}
+unifdraws <- runif(ndraws, 0, cdf_u[length(cdf_u)])
+leftind <- findInterval(unifdraws, cdf_u)
+rightind <- leftind + 1L
+distprop <- (unifdraws - cdf_u[leftind]) / (cdf_u[rightind] - cdf_u[leftind])
+sigma2draws <- sigma2[leftind] + distprop * (sigma2[rightind] - sigma2[leftind])
+```
+
+Let's do a quick graphical check whether the draws and our pdf align.
+
+```{r}
+myhist <- hist(sigma2draws, breaks = 100, xlab = expression(sigma^2),
+               main = "Histogram of draws and nonnormalized pdf")
+lines(sigma2, max(myhist$counts) / max(pdf_u) * pdf_u, col = 2)
+```
+
+Now, we can draw from the quantile distribution and plot these draws.
+
+```{r, echo=-(1:2)}
+if (pdfplots) {
+  pdf("4-2_1.pdf", width = 8, height = 5)
+  par(mar = c(2.4, 1.4, 1.4, .2), mgp = c(1.5, .5, 0))
+}
+par(mfrow = c(2, 1))
+qtdraws <- sqrt(sigma2draws) * qt(alpha, df = nu)
+minmax <- range(qnormdraws, qtdraws, quantile(y, alpha))
+mybreaks <- seq(minmax[1] - .01 * diff(minmax),
+                minmax[2] + .01 * diff(minmax),
+                length.out = 100)
+hist(qnormdraws, breaks = mybreaks)
+points(quantile(y, alpha), 0, col = 2)
+hist(qtdraws, breaks = mybreaks)
+points(quantile(y, alpha), 0, col = 2)
+```
