@@ -34,7 +34,7 @@ percentage log returns of the the Swiss franc (CHF) against the US dollar (USD).
 ```{r, echo=-(1:2)}
 if (pdfplots) {
   pdf("4-1_1.pdf", width = 8, height = 5)
-  par(mar = c(2.2, 1.6, 1.6, .2), mgp = c(1.2, .5, 0))
+  par(mar = c(2.4, 2.3, 1.5, .2), mgp = c(1.4, .5, 0))
 }
 par(mfrow = c(1, 2))
 data(exrates, package = "stochvol")
@@ -65,18 +65,28 @@ f_{\mathcal{G}^{-1}}\left(\sigma^2;\frac{N-1}{2},\frac{N s_y^2}{2}\right).
 $$
 We can now plot this. Note that base R does not ship the density function of the
 inverse gamma, so we define it ourselves using the transformation law of
-densities. Also note that in R, the Gaussian distribution is parameterized in terms
+densities. We also add the cumulative distribution function and the quantile
+function, which we will need later.
+Also note that in R, the Gaussian distribution is parameterized in terms
 of mean and standard deviation (not mean and variance).
 
 ```{r, echo=-(1:2)}
 if (pdfplots) {
   pdf("4-1_2.pdf", width = 8, height = 5)
-  par(mar = c(1.2, 2, .9, 0), xpd = NA)
-} else par(mar = c(1.2, 1, .9, 0), xpd = NA)
+  par(mar = c(1.2, 2, .9, 0))
+} else par(mar = c(1.2, 1, .9, 0))
 par(mfrow = c(2, 3))
 dinvgamma <- function(x, a, b, log = FALSE) {
   logdens <- dgamma(1/x, a, b, log = TRUE) - 2 * log(x)
   if (log) logdens else exp(logdens)
+}
+
+pinvgamma <- function(q, a, b) {
+  1 - pgamma(1 / q, a, b)
+}
+
+qinvgamma <- function(p, a, b) {
+  1 / qgamma(1 - p, a, b)
 }
 
 posterior <- function(mu, sigma2, ybar, s2, N) {
@@ -90,6 +100,7 @@ sigma2 <- seq(.4, .7, length.out = 30)
 nbcol <- 20
 color <- topo.colors(nbcol)
 
+mypar <- par(xpd = NA)
 # Plot for different sample sizes
 for (n in c(50, 100, 200, 500, 1000, length(y))) {
   ytmp <- head(y, n)
@@ -118,20 +129,21 @@ for (n in c(50, 100, 200, 500, 1000, length(y))) {
                  0, pmat = pmat)
   text(loc$x, loc$y, expression(sigma^2), cex = 1.3)
 }
+par(xpd = FALSE)
 ```
 
 ## Example 4.3: Posterior marginals
 
-We now want to visualize the marginals of the bivariate posterior. Note that
-R does not natively cater for the generalized Student's t distribution, so
-we first define its (cumulative) density and quantile functions.
+We now want to visualize the univariate marginals of the bivariate posterior.
+Note that R does not natively cater for the generalized Student's t distribution,
+so we first define its (cumulative) density and quantile functions.
 
 ```{r, echo=-(1:2)}
 if (pdfplots) {
-  pdf("4-1_2.pdf", width = 10, height = 8)
-  par(mgp = c(1.6, .6, 0), mar = c(2, 2, 3, .5), lwd = 2)
+  pdf("4-1_3.pdf", width = 10, height = 8)
+  par(lwd = 2)
 }
-par(mfrow = c(2, 2))
+par(mfrow = c(2, 2), mgp = c(1.2, .4, 0), mar = c(2.1, 1.4, 1.5, .2))
 
 dstudt <- function(x, location = 0, scale = 1, df, log = FALSE) {
   logdens <- dt((x - location)/scale, df = df, log = TRUE) - log(scale)
@@ -150,33 +162,60 @@ N <- length(y)
 location <- mean(y)
 scale <- sqrt(var(y) / N)
 df <- N - 1
+probs <- c(0.05, .5, .95)
 
 mu <- seq(-.06, .06, length.out = 300)
 plot(mu, dstudt(mu, location, scale, df), type = "l", xlab = expression(mu),
      ylab = "", main = "Posterior density and quantiles")
 abline(h = 0, lty = 3)
 
-probs <- c(0.05, .5, .95)
 qs <- qstudt(probs, location, scale, df)
 ds <- dstudt(qs, location, scale, df)
 
-xpd <- par(xpd = NA)
-
 for (i in seq_along(probs)) {
-  lines(c(qs[i], qs[i]), c(-1, ds[i]), lty = 2)
-  text(qs[i], -2, round(qs[i], 3), cex = .8)
+  lines(c(qs[i], qs[i]), c(0, ds[i]), lty = 2)
 }
+mtext(round(qs, 3), side = 1, line = -1, at = qs, cex = .5)
 
-par(xpd = FALSE)
-
-plot(mu, pstudt(mu, location, scale, df), type = "l", xlab = "", ylab = "",
-     main = "Posterior cdf and quantiles")
+plot(mu, pstudt(mu, location, scale, df), type = "l", xlab = expression(mu),
+     ylab = "", main = "Posterior cdf and quantiles")
 abline(h = c(0, 1), lty = 3)
 
-myxlim <- par("usr")[1] - .1*diff(par("usr")[1:2])
+myxlim <- par("usr")[1] - .1 * diff(par("usr")[1:2])
 
 for (i in seq_along(probs)) {
   lines(c(myxlim, qs[i]), c(probs[i], probs[i]), lty = 2)
-  lines(c(qs[i], qs[i]), c(probs[i], -1), lty = 2)
+  lines(c(qs[i], qs[i]), c(probs[i], 0), lty = 2)
 }
+mtext(round(qs, 3), side = 1, line = -1, at = qs, cex = .5)
+mtext(probs, side = 2, at = probs, cex = .5)
+
+cN <- (N - 1) / 2
+CN <- var(y) * (N - 1) / 2
+
+sigma2 <- seq(0.45, .6, length.out = 300)
+plot(sigma2, dinvgamma(sigma2, cN, CN), type = "l", xlab = expression(sigma^2),
+     ylab = "", main = "Posterior density and quantiles")
+abline(h = 0, lty = 3)
+
+qs <- qinvgamma(probs, cN, CN)
+ds <- dinvgamma(qs, cN, CN)
+
+for (i in seq_along(probs)) {
+  lines(c(qs[i], qs[i]), c(0, ds[i]), lty = 2)
+}
+mtext(round(qs, 3), side = 1, line = -1, at = qs, cex = .5)
+
+plot(sigma2, pinvgamma(sigma2, cN, CN), type = "l", xlab = expression(sigma^2),
+     ylab = "", main = "Posterior cdf and quantiles")
+abline(h = c(0, 1), lty = 3)
+
+myxlim <- par("usr")[1] - .1 * diff(par("usr")[1:2])
+
+for (i in seq_along(probs)) {
+  lines(c(myxlim, qs[i]), c(probs[i], probs[i]), lty = 2)
+  lines(c(qs[i], qs[i]), c(probs[i], 0), lty = 2)
+}
+mtext(round(qs, 3), side = 1, line = -1, at = qs, cex = .5)
+mtext(probs, side = 2, at = probs, cex = .5)
 ```
