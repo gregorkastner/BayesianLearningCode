@@ -21,6 +21,18 @@
 #' @source Escobar & West (1998)
 "eyetracking"
 
+#' Movie Open Box Office Data
+#'
+#' TBD
+#'
+#' @format A data frame with 94 observations of 30 variables
+#' \describe{
+#'   \item{title}{The title of the movie (anonymized)}
+#'   \item{...}{etc. etc.}
+#' }
+#' @source TBD: \url{https://doi.org/10.7910/DVN/JS3AVM}
+"movie"
+
 #' Words Data
 #'
 #' List of the 1000 most common English headwords (i.e., the dictionary or
