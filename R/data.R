@@ -14,6 +14,13 @@
 #' @source TBD
 "accidents"
 
+#' Eye Tracking Data
+#'
+#' Count data on eye tracking anomalies in 101 schizophrenic patients
+#'
+#' @source Escobar & West (1998)
+"eyetracking"
+
 #' Words Data
 #'
 #' List of the 1000 most common English headwords (i.e., the dictionary or
