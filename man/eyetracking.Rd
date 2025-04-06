@@ -5,7 +5,7 @@
 \alias{eyetracking}
 \title{Eye Tracking Data}
 \format{
-An object of class \code{integer} of length 192.
+An object of class \code{data.frame} with 101 rows and 1 columns.
 }
 \source{
 Escobar & West (1998)
