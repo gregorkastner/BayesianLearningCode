@@ -5,7 +5,10 @@
 \alias{eyetracking}
 \title{Eye Tracking Data}
 \format{
-An object of class \code{data.frame} with 101 rows and 1 columns.
+A data frame with 101 observations of 1 variable
+\describe{
+\item{anomalies}{number of eye tracking anomalies}
+}
 }
 \source{
 Escobar & West (1998)
@@ -14,6 +17,7 @@ Escobar & West (1998)
 eyetracking
 }
 \description{
-Count data on eye tracking anomalies in 101 schizophrenic patients
+Count data on eye tracking anomalies in 101 schizophrenic patients,
+sorted by size
 }
 \keyword{datasets}

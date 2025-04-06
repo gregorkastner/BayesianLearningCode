@@ -16,7 +16,13 @@
 
 #' Eye Tracking Data
 #'
-#' Count data on eye tracking anomalies in 101 schizophrenic patients
+#' Count data on eye tracking anomalies in 101 schizophrenic patients,
+#' sorted by size
+#'
+#' @format A data frame with 101 observations of 1 variable
+#' \describe{
+#'   \item{anomalies}{number of eye tracking anomalies}
+#' }
 #'
 #' @source Escobar & West (1998)
 "eyetracking"
