@@ -1,10 +1,12 @@
 ---
-title: "Chapter 2"
+title: "Chapter 2: A First Bayesian Analysis of Count Data"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Chapter 2}
-  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{Chapter 2: A First Bayesian Analysis of Count Data}
   %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r, include = FALSE}
@@ -24,17 +26,26 @@ par(mgp = c(1.6, .6, 0), mar = c(2.6, 2.6, 2.6, .4), lwd = 1)
 
 # Section 2.1
 ## Example 2.2: Road Safety Data
-Let's first take a look at the data.
+Let us first take a look at the data.
 
 ```{r, echo=-1}
 if (pdfplots) {
-  pdf("TODO.pdf", width = 12, height = 8)
+  pdf("2-1_1.pdf", width = 12, height = 8)
   par(mgp = c(1.6, .6, 0), mar = c(2, 2, 3, .5), lwd = 2)
 }
 library(BayesianLearningCode)
 summary(accidents)
-plot(accidents[,c(1,3)], main = "Road accidents involving pedestrian children")
-plot(accidents[,c(2,4)], main = "Road accidents involving pedestrian seniors")
+plot(accidents[,1:2], mar = c(0, 0, 0, 0), oma = c(3, 3, 1.5, .1),
+     main = "", xlab = "", ylab = "", ann = FALSE)
+title("Road accidents involving pedestrian children", line = 1.7)
+mtext(c("Accidents", "Exposure"), side = 2, line = 1.5, adj = c(0.77, 0.29))
+mtext("Time", side = 1, line = 1.5, at = 1995.6)
+
+plot(accidents[,3:4], mar = c(0, 0, 0, 0), oma = c(3, 3, 1.5, .1),
+     main = "", xlab = "", ylab = "", ann = FALSE)
+title("Road accidents involving pedestrian seniors", line = 1.7)
+mtext(c("Accidents", "Exposure"), side = 2, line = 1.5, adj = c(0.77, 0.29))
+mtext("Time", side = 1, line = 1.5, at = 1995.6)
 ```
 
 ## Example 2.4: Posterior inference for the Road Safety Data
@@ -47,11 +58,11 @@ and the 0.95-quantile.
 
 ```{r, echo=-(1:2)}
 if (pdfplots) {
-  pdf("TODO.pdf", width = 12, height = 8)
+  pdf("2-1_2.pdf", width = 12, height = 8)
   par(mgp = c(1.6, .6, 0), mar = c(2, 2, 3, .5), lwd = 2)
 }
 par(mfrow = c(1, 2))
-y <- accidents[,"seniors"]
+y <- accidents[,"seniors_accidents"]
 aN <- sum(y) + 1
 bN <- length(y)
 
@@ -92,11 +103,11 @@ prior hyperparameter choices.
 
 ```{r, echo = -(1:2)}
 if (pdfplots) {
-  pdf("TODO.pdf", width = 12, height = 8)
+  pdf("2-1_3.pdf", width = 12, height = 8)
   par(mgp = c(1.6, .6, 0), mar = c(2, 2, 3, .5), lwd = 2)
 }
 par(mfrow = c(1, 1))
-y <- accidents[, "children"]
+y <- accidents[, "children_accidents"]
 exp <- accidents[, "children_exposure"]
 lambdahat <- mean(y)/mean(exp)
 a0 <- c(1, 0.5, 1, 2)
@@ -107,12 +118,12 @@ bN <- b0 + sum(exp)
 x <- seq(0.00016, 0.00026, by = .000001)
 plot(x, dgamma(x, aN[1], bN[1]), type = "l", xlab = "", ylab = "",
      main = "Posterior densities for various priors")
-for (i in 2:length(aN)) lines(x, dgamma(x, aN[i], bN[i]), lty = i)
+for (i in 2:length(aN)) lines(x, dgamma(x, aN[i], bN[i]), lty = i, col = i)
 
 hyperparams <- paste0("a0 = ", formatC(a0, 1, format = "f"),
                       ", ", "b0 = ", round(b0))
 
-legend("topright", hyperparams, lty = 1:4)
+legend("topright", hyperparams, lty = 1:4, col = 1:4)
 ```
 
 For all our data-driven priors, we get the same posterior mean. The credible
@@ -136,7 +147,7 @@ two time frames.
 
 ```{r, echo = -(1:2), fig.width = 8, fig.height = 4}
 if (pdfplots) {
-  pdf("TODO.pdf", width = 12, height = 8)
+  pdf("2-1_4.pdf", width = 12, height = 8)
   par(mgp = c(1.6, .6, 0), mar = c(2, 2, 3, .5), lwd = 2)
 }
 par(mfrow = c(1, 2))
@@ -146,10 +157,10 @@ accidents2 <- window(accidents, start = c(1994, 10))
 a01 <- a02 <- 1
 b01 <- b02 <- 0
 
-aN1 <- a01 + sum(accidents1[, "children"])
-aN2 <- a02 + sum(accidents2[, "children"])
-bN1 <- b01 + length(accidents1[, "children"])
-bN2 <- b02 + length(accidents2[, "children"])
+aN1 <- a01 + sum(accidents1[, "children_accidents"])
+aN2 <- a02 + sum(accidents2[, "children_accidents"])
+bN1 <- b01 + length(accidents1[, "children_accidents"])
+bN2 <- b02 + length(accidents2[, "children_accidents"])
 
 post <- function(x1, x2, aN1, aN2, bN1, bN2) {
   dgamma(x1, aN1, bN1) * dgamma(x2, aN2, bN2)
@@ -163,8 +174,8 @@ nrz <- nrow(z)
 ncz <- ncol(z)
 
 # Generate the desired number of colors from this palette
-nbcol <- 10
-color <- hcl.colors(10, "YlOrRd")
+nbcol <- 20
+color <- topo.colors(nbcol)
 
 # Compute the z-value at the facet centres
 
@@ -187,7 +198,7 @@ of the posterior.
 
 ```{r, echo = -(1:2), fig.width = 8, fig.height = 4}
 if (pdfplots) {
-  pdf("TODO.pdf", width = 12, height = 8)
+  pdf("2-1_5.pdf", width = 12, height = 8)
   par(mgp = c(1.6, .6, 0), mar = c(2, 2, 3, .5), lwd = 2)
 }
 par(mfrow = c(2, 2))
