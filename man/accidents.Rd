@@ -5,12 +5,12 @@
 \alias{accidents}
 \title{Accidents Data}
 \format{
-A monthly time series object with 192 rows and 4 columns
+A data frame with 192 monthly observations of 4 variables
 \describe{
-\item{children}{number of children aged 6 to 10 years seriously injured or
+\item{children_accidents}{number of children aged 6 to 10 years seriously injured or
 killed}
-\item{seniors}{senior persons above 65 seriously injured or killed}
 \item{children_exposure}{estimated number of children exposed}
+\item{seniors_accidents}{senior persons above 65 seriously injured or killed}
 \item{seniors_exposure}{estimated number of seniors exposed}
 }
 }
