@@ -39,8 +39,10 @@ if (pdfplots) {
 par(mfrow = c(1, 2))
 data(exrates, package = "stochvol")
 y <- 100 * diff(log(exrates$USD / exrates$CHF))
-hist(y, breaks = 50, main = "Histogram", xlab = "CHF/USD log returns")
-ts.plot(y, main = "Time series plot", ylab = "CHF/USD log returns")
+N <- length(y)
+hist(y, breaks = 50, main = "Histogram", xlab = "CHF/USD percentage log returns")
+ts.plot(y, main = "Time series plot", ylab = "CHF/USD percentage log returns",
+        xlab = "Time (days)")
 ```
 
 ## Example 4.2: A first posterior
@@ -63,19 +65,13 @@ p(\mu,\sigma^2|\mathbf y) =
 f_N\left(\mu;\bar{y},\frac{\sigma^2}{N}\right)
 f_{\mathcal{G}^{-1}}\left(\sigma^2;\frac{N-1}{2},\frac{N s_y^2}{2}\right).
 $$
-We can now plot this. Note that base R does not ship the density function of the
-inverse gamma, so we define it ourselves using the transformation law of
+Before being able to visualize the posterior, we need to do a little bit of
+preparation work. As base R does not ship the density function of the
+inverse gamma distribution, we define it ourselves using the transformation law of
 densities. We also add the cumulative distribution function and the quantile
 function, which we will need later.
-Also note that in R, the Gaussian distribution is parameterized in terms
-of mean and standard deviation (not mean and variance).
 
-```{r, echo=-(1:2)}
-if (pdfplots) {
-  pdf("4-1_2.pdf", width = 8, height = 5)
-  par(mar = c(1.2, 2, .9, 0))
-} else par(mar = c(1.2, 1, .9, 0))
-par(mfrow = c(2, 3))
+```{r}
 dinvgamma <- function(x, a, b, log = FALSE) {
   logdens <- dgamma(1/x, a, b, log = TRUE) - 2 * log(x)
   if (log) logdens else exp(logdens)
@@ -88,11 +84,25 @@ pinvgamma <- function(q, a, b) {
 qinvgamma <- function(p, a, b) {
   1 / qgamma(1 - p, a, b)
 }
+```
 
+We can now define the posterior density function. Note that in R, the Gaussian
+distribution is parameterized in terms of mean and *standard deviation* (not mean
+and variance).
+
+```{r}
 posterior <- function(mu, sigma2, ybar, s2, N) {
   dnorm(mu, ybar, sqrt(sigma2 / N)) * dinvgamma(sigma2, (N - 1) / 2, N * s2 / 2)
 }
+```
 
+Now we can visualize.
+
+```{r, echo=-(1:2)}
+if (pdfplots) {
+  pdf("4-1_2.pdf", width = 8, height = 5)
+}
+par(mfrow = c(2, 3), mar = c(1.2, 1, .9, 0), xpd = NA)
 mu <- seq(-.25, .25, length.out = 30)
 sigma2 <- seq(.4, .7, length.out = 30)
 
@@ -100,17 +110,16 @@ sigma2 <- seq(.4, .7, length.out = 30)
 nbcol <- 20
 color <- topo.colors(nbcol)
 
-mypar <- par(xpd = NA)
 # Plot for different sample sizes
-for (n in c(50, 100, 200, 500, 1000, length(y))) {
+for (n in c(50, 100, 200, 500, 1000, N)) {
   ytmp <- head(y, n)
-  z <- outer(mu, sigma2, posterior,
-             ybar = mean(ytmp), s2 = var(ytmp) * (n - 1) / n, N = n)
+  z <- outer(mu, sigma2, posterior, ybar = mean(ytmp),
+             s2 = var(ytmp) * (n - 1) / n, N = n)
 
-  # Compute the z-values at the facet centers
+  # Compute the density values at the facet centers
   zfacet <- z[-1, -1] + z[-1, -ncol(z)] + z[-nrow(z), -1] + z[-nrow(z), -ncol(z)]
 
-  # Recode facet z-values into color indices
+  # Recode facet density values into color indices
   facetcol <- cut(zfacet, nbcol)
 
   # Perspective plot
@@ -118,7 +127,7 @@ for (n in c(50, 100, 200, 500, 1000, length(y))) {
                 main = paste0("N = ", n), nticks = 4, zlab = "", xlab = "",
                 ylab = "", phi = 20, theta = -30, r = 100)
   
-  # Add axis labels (done manually because persp() does not support expressions)
+  # Add axis labels (done manually because persp does not support expressions)
   loc <- trans3d(mean(mu) - .15 * diff(range(mu)),
                  min(sigma2) - .4 * diff(range(sigma2)),
                  0, pmat = pmat)
@@ -129,24 +138,18 @@ for (n in c(50, 100, 200, 500, 1000, length(y))) {
                  0, pmat = pmat)
   text(loc$x, loc$y, expression(sigma^2), cex = 1.3)
 }
-par(xpd = FALSE)
 ```
 
 ## Example 4.3: Posterior marginals
 
 We now want to visualize the univariate marginals of the bivariate posterior.
-Note that R does not natively cater for the generalized Student's t distribution,
-so we first define its (cumulative) density and quantile functions.
+Again, we need to do some preparations, as R does not natively cater for the
+generalized Student's t distribution. So we first define its (cumulative)
+density and quantile functions via the original Student's t distribution.
 
-```{r, echo=-(1:2)}
-if (pdfplots) {
-  pdf("4-1_3.pdf", width = 10, height = 8)
-  par(lwd = 2)
-}
-par(mfrow = c(2, 2), mgp = c(1.2, .4, 0), mar = c(2.1, 1.4, 1.5, .2))
-
+```{r}
 dstudt <- function(x, location = 0, scale = 1, df, log = FALSE) {
-  logdens <- dt((x - location)/scale, df = df, log = TRUE) - log(scale)
+  logdens <- dt((x - location) / scale, df = df, log = TRUE) - log(scale)
   if (log) logdens else exp(logdens)
 }
 
@@ -157,8 +160,16 @@ pstudt <- function(x, location = 0, scale = 1, df) {
 qstudt <- function(p, location = 0, scale = 1, df) {
   location + scale * qt(p, df = df)
 }
+```
 
-N <- length(y)
+Now we visualize the marginals and some quantiles thereof.
+
+```{r, echo=-(1:2)}
+if (pdfplots) {
+  pdf("4-1_3.pdf", width = 10, height = 8)
+  par(lwd = 2)
+}
+par(mfrow = c(2, 2), mgp = c(1.2, .4, 0), mar = c(2.1, 1.4, 1.5, .2), xpd = FALSE)
 location <- mean(y)
 scale <- sqrt(var(y) / N)
 df <- N - 1
@@ -182,7 +193,6 @@ plot(mu, pstudt(mu, location, scale, df), type = "l", xlab = expression(mu),
 abline(h = c(0, 1), lty = 3)
 
 myxlim <- par("usr")[1] - .1 * diff(par("usr")[1:2])
-
 for (i in seq_along(probs)) {
   lines(c(myxlim, qs[i]), c(probs[i], probs[i]), lty = 2)
   lines(c(qs[i], qs[i]), c(probs[i], 0), lty = 2)
@@ -222,10 +232,23 @@ mtext(probs, side = 2, at = probs, cex = .5)
 
 ## Example 4.4: Fitting a t distribution with known mean and known degrees of freedom
 
-We first define a function for the unnormalized posterior density of $\sigma^2$.
-Note that this function is not vectorized in its argument, $\sigma^2$. Rather,
-it expects a scalar sigma2 and a data vector $\mathbf{y}$. Albeit not very fast,
-we can vectorize this function using *Vectorize*.
+We first define *post_unnormalized_nonvec*, a function evaluating the
+unnormalized posterior density of $\sigma^2$.
+This function is not vectorized in its first argument, $\sigma^2$. Rather,
+it expects a scalar *sigma2* and a data vector $\mathbf{y}$. We can, however,
+vectorize it using *Vectorize* (this is not the fasted of all methods in R,
+but will do just fine for our use-case).
+
+```{r}
+post_unnormalized_nonvec <- function(sigma2, y, nu, log = FALSE) {
+  logdens <- -length(y) / 2 * log(sigma2) -
+    (nu + 1) / 2 * sum(log(1 + y^2 / (nu * sigma2))) - log(sigma2)
+  if (log) logdens else exp(logdens)
+}
+post_unnormalized <- Vectorize(post_unnormalized_nonvec, "sigma2")
+```
+
+Now we can plot.
 
 ```{r, echo=-(1:2)}
 if (pdfplots) {
@@ -233,16 +256,8 @@ if (pdfplots) {
   par(mar = c(2.4, 1.4, 1.4, .2), mgp = c(1.5, .5, 0))
 }
 par(mfrow = c(1, 2))
-nu <- 4
-
-post_unnormalized_nonvec <- function(sigma2, y, nu, log = FALSE) {
-  logdens <- -length(y) / 2 * log(sigma2) -
-    (nu + 1) / 2 * sum(log(1 + y^2 / (nu * sigma2))) - log(sigma2)
-  if (log) logdens else exp(logdens)
-}
-post_unnormalized <- Vectorize(post_unnormalized_nonvec, "sigma2")
-
-sigma2 <- seq(0.1, 1, length.out = 3000)
+nu <- 7
+sigma2 <- seq(0.27, 0.38, length.out = 3000)
 pdf_u <- post_unnormalized(sigma2, y = y, nu = nu)
 
 plot(sigma2, pdf_u, type = "l", xlab = expression(sigma^2),
@@ -257,21 +272,24 @@ abline(h = c(0, cdf_u[length(cdf_u)]), lty = 3)
 
 ## Example 4.5: Bayesian learning of quantiles
 
-For the Gaussian model, we simulate from $\mathcal{G}^{-1}(c_N, C_N)$ and then,
-conditionally on these draws, from $\mathcal{N}(\bar{y}, \sigma^2 / N)$. Note,
-again, that R's vectorization ability comes in handy. Here, in particular,
-*rnorm*, can handle the so-called *varying parameter case*.
+To learn about the distribution of a certain low quantile, the Value-at-Risk (VaR),
+we can generate draws from it. For the Gaussian model, we simulate from
+$\mathcal{G}^{-1}(c_N, C_N)$
+and then, conditionally on these draws, from
+$\mathcal{N}(\bar{y}, \sigma^2 / N)$.
+Note, again, that R's vectorization ability comes in handy. Here, in particular,
+*rnorm* can handle the so-called *varying parameter case*.
 
 ```{r}
 set.seed(42)
-alpha <- 0.05
-ndraws <- 10000
+alpha <- 0.005
+ndraws <- 100000
 sigma2draws <- 1 / rgamma(ndraws, cN, CN)
 mudraws <- rnorm(ndraws, mean(y), sqrt(sigma2draws / N))
 qnormdraws <- qnorm(alpha, mudraws, sqrt(sigma2draws))
 ```
 
-For the $t_4$ model, we can use inverse transform sampling. First, we draw
+For the $t$ model, we can use inverse transform sampling. First, we draw
 uniformly from the interval spanned by 0 and the maximum of the nonnormalized
 cumulative posterior. Then, for each draw, we find the interval of our pointwise
 cdf approximation of the posterior, and interpolate linearly between the
@@ -285,11 +303,12 @@ distprop <- (unifdraws - cdf_u[leftind]) / (cdf_u[rightind] - cdf_u[leftind])
 sigma2draws <- sigma2[leftind] + distprop * (sigma2[rightind] - sigma2[leftind])
 ```
 
-Let's do a quick graphical check whether the draws and our pdf align.
+Let us do a quick graphical check whether the draws and our pdf align.
 
-```{r}
+```{r, echo=-1}
+par(mfrow = c(1, 1))
 myhist <- hist(sigma2draws, breaks = 100, xlab = expression(sigma^2),
-               main = "Histogram of draws and nonnormalized pdf")
+               ylab = "", main = "Histogram of draws and nonnormalized pdf")
 lines(sigma2, max(myhist$counts) / max(pdf_u) * pdf_u, col = 2)
 ```
 
@@ -306,8 +325,12 @@ minmax <- range(qnormdraws, qtdraws, quantile(y, alpha))
 mybreaks <- seq(minmax[1] - .01 * diff(minmax),
                 minmax[2] + .01 * diff(minmax),
                 length.out = 100)
-hist(qnormdraws, breaks = mybreaks)
+hist(qnormdraws, breaks = mybreaks, ylab = "", xlab = bquote(Q[.(alpha)]),
+     main = bquote("Histogram of" ~ .(100 * alpha) * "%-VaR draws under the" ~
+                     N(0, sigma^2) ~ "likelihood assumption."))
 points(quantile(y, alpha), 0, col = 2)
-hist(qtdraws, breaks = mybreaks)
+hist(qtdraws, breaks = mybreaks, ylab = "", xlab = bquote(Q[.(alpha)]),
+     main = bquote("Histogram of" ~ .(100 * alpha) * "%-VaR draws under the" ~
+                     t[.(nu)](0, sigma^2) ~ "likelihood assumption."))
 points(quantile(y, alpha), 0, col = 2)
 ```
