@@ -264,11 +264,11 @@ again, that R's vectorization ability comes in handy. Here, in particular,
 
 ```{r}
 set.seed(42)
-alpha <- 0.001
+alpha <- 0.05
 ndraws <- 10000
-sigma2draws <- 1/rgamma(ndraws, cN, CN)
-mudraws <- rnorm(ndraws, mean(y), sigma2draws/length(y))
-qnormdraws <- qnorm(0.01, mudraws, sqrt(sigma2draws))
+sigma2draws <- 1 / rgamma(ndraws, cN, CN)
+mudraws <- rnorm(ndraws, mean(y), sqrt(sigma2draws / N))
+qnormdraws <- qnorm(alpha, mudraws, sqrt(sigma2draws))
 ```
 
 For the $t_4$ model, we can use inverse transform sampling. First, we draw
