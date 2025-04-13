@@ -235,7 +235,7 @@ mtext(probs, side = 2, at = probs, cex = .5)
 We first define *post_unnormalized_nonvec*, a function evaluating the
 unnormalized posterior density of $\sigma^2$.
 This function is not vectorized in its first argument, $\sigma^2$. Rather,
-it expects a scalar *sigma2* and a data vector $\mathbf{y}$. We can, however,
+it expects a scalar *sigma2* and a data vector $y$. We can, however,
 vectorize it using *Vectorize* (this is not the fasted of all methods in R,
 but will do just fine for our use-case).
 
@@ -257,7 +257,7 @@ if (pdfplots) {
 }
 par(mfrow = c(1, 2))
 nu <- 7
-sigma2 <- seq(0.27, 0.38, length.out = 3000)
+sigma2 <- seq(0.25, 0.4, length.out = 3000)
 pdf_u <- post_unnormalized(sigma2, y = y, nu = nu)
 
 plot(sigma2, pdf_u, type = "l", xlab = expression(sigma^2),
@@ -316,7 +316,7 @@ Now, we can draw from the quantile distribution and plot these draws.
 
 ```{r, echo=-(1:2)}
 if (pdfplots) {
-  pdf("4-2_1.pdf", width = 8, height = 5)
+  pdf("4-3_1.pdf", width = 8, height = 5)
   par(mar = c(2.4, 1.4, 1.4, .2), mgp = c(1.5, .5, 0))
 }
 par(mfrow = c(2, 1))
@@ -327,10 +327,10 @@ mybreaks <- seq(minmax[1] - .01 * diff(minmax),
                 length.out = 100)
 hist(qnormdraws, breaks = mybreaks, ylab = "", xlab = bquote(Q[.(alpha)]),
      main = bquote("Histogram of" ~ .(100 * alpha) * "%-VaR draws under the" ~
-                     N(0, sigma^2) ~ "likelihood assumption."))
+                     N(0, sigma^2) ~ "likelihood assumption"))
 points(quantile(y, alpha), 0, col = 2)
 hist(qtdraws, breaks = mybreaks, ylab = "", xlab = bquote(Q[.(alpha)]),
      main = bquote("Histogram of" ~ .(100 * alpha) * "%-VaR draws under the" ~
-                     t[.(nu)](0, sigma^2) ~ "likelihood assumption."))
+                     t[.(nu)](0, sigma^2) ~ "likelihood assumption"))
 points(quantile(y, alpha), 0, col = 2)
 ```
