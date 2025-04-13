@@ -112,7 +112,8 @@ posterior, we need to do a little bit of preparation work. As base R
 does not ship the density function of the inverse gamma distribution, we
 define it ourselves using the transformation law of densities. We also
 add the cumulative distribution function and the quantile function,
-which we will need later.</p>
+which we will need later. Note that drawing inverse gamma variates
+amounts to drawing gamma variates and taking their reciprocal.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dinvgamma</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">a</span>, <span class="va">b</span>, <span class="va">log</span> <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">logdens</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html" class="external-link">dgamma</a></span><span class="op">(</span><span class="fl">1</span><span class="op">/</span><span class="va">x</span>, <span class="va">a</span>, <span class="va">b</span>, log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">-</span> <span class="fl">2</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
@@ -125,6 +126,10 @@ which we will need later.</p>
 <span></span>
 <span><span class="va">qinvgamma</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">p</span>, <span class="va">a</span>, <span class="va">b</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fl">1</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html" class="external-link">qgamma</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">p</span>, <span class="va">a</span>, <span class="va">b</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="va">rinvgamma</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">ndraws</span>, <span class="va">a</span>, <span class="va">b</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fl">1</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html" class="external-link">rgamma</a></span><span class="op">(</span><span class="va">ndraws</span>, <span class="va">a</span>, <span class="va">b</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>We can now define the posterior density function. Note that in R, the
 Gaussian distribution is parameterized in terms of mean and <em>standard
@@ -307,7 +312,7 @@ parameter case</em>.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span>
 <span><span class="va">alpha</span> <span class="op">&lt;-</span> <span class="fl">0.005</span></span>
 <span><span class="va">ndraws</span> <span class="op">&lt;-</span> <span class="fl">100000</span></span>
-<span><span class="va">sigma2draws</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html" class="external-link">rgamma</a></span><span class="op">(</span><span class="va">ndraws</span>, <span class="va">cN</span>, <span class="va">CN</span><span class="op">)</span></span>
+<span><span class="va">sigma2draws</span> <span class="op">&lt;-</span> <span class="fu">rinvgamma</span><span class="op">(</span><span class="va">ndraws</span>, <span class="va">cN</span>, <span class="va">CN</span><span class="op">)</span></span>
 <span><span class="va">mudraws</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">ndraws</span>, <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">sigma2draws</span> <span class="op">/</span> <span class="va">N</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">qnormdraws</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">qnorm</a></span><span class="op">(</span><span class="va">alpha</span>, <span class="va">mudraws</span>, <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">sigma2draws</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>For the
