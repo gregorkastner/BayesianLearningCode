@@ -69,7 +69,8 @@ Before being able to visualize the posterior, we need to do a little bit of
 preparation work. As base R does not ship the density function of the
 inverse gamma distribution, we define it ourselves using the transformation law of
 densities. We also add the cumulative distribution function and the quantile
-function, which we will need later.
+function, which we will need later. Note that drawing inverse gamma variates
+amounts to drawing gamma variates and taking their reciprocal.
 
 ```{r}
 dinvgamma <- function(x, a, b, log = FALSE) {
@@ -83,6 +84,10 @@ pinvgamma <- function(q, a, b) {
 
 qinvgamma <- function(p, a, b) {
   1 / qgamma(1 - p, a, b)
+}
+
+rinvgamma <- function(ndraws, a, b) {
+  1 / rgamma(ndraws, a, b)
 }
 ```
 
@@ -284,7 +289,7 @@ Note, again, that R's vectorization ability comes in handy. Here, in particular,
 set.seed(42)
 alpha <- 0.005
 ndraws <- 100000
-sigma2draws <- 1 / rgamma(ndraws, cN, CN)
+sigma2draws <- rinvgamma(ndraws, cN, CN)
 mudraws <- rnorm(ndraws, mean(y), sqrt(sigma2draws / N))
 qnormdraws <- qnorm(alpha, mudraws, sqrt(sigma2draws))
 ```
