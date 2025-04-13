@@ -262,11 +262,11 @@ if (pdfplots) {
 }
 par(mfrow = c(1, 2))
 nu <- 7
-sigma2 <- seq(0.25, 0.4, length.out = 3000)
+sigma2 <- seq(0.3, 0.4, length.out = 3000)
 pdf_u <- post_unnormalized(sigma2, y = y, nu = nu)
 
 plot(sigma2, pdf_u, type = "l", xlab = expression(sigma^2),
-     ylab = "", main = "Unnormalised posterior")
+     ylab = "", main = "Unnormalized posterior")
 abline(h = 0, lty = 3)
 
 cdf_u <- cumsum(pdf_u)
@@ -331,11 +331,11 @@ mybreaks <- seq(minmax[1] - .01 * diff(minmax),
                 minmax[2] + .01 * diff(minmax),
                 length.out = 100)
 hist(qnormdraws, breaks = mybreaks, ylab = "", xlab = bquote(Q[.(alpha)]),
-     main = bquote("Histogram of" ~ .(100 * alpha) * "%-VaR draws under the" ~
-                     N(0, sigma^2) ~ "likelihood assumption"))
-points(quantile(y, alpha), 0, col = 2)
+     main = bquote("Histogram of posterior" ~ .(100 * alpha) * "%-VaR draws under the" ~
+                   N(0, sigma^2) ~ "likelihood assumption"), prob = TRUE)
+points(quantile(y, alpha), 0, col = 2, lwd = 2)
 hist(qtdraws, breaks = mybreaks, ylab = "", xlab = bquote(Q[.(alpha)]),
-     main = bquote("Histogram of" ~ .(100 * alpha) * "%-VaR draws under the" ~
-                     t[.(nu)](0, sigma^2) ~ "likelihood assumption"))
-points(quantile(y, alpha), 0, col = 2)
+     main = bquote("Histogram of posterior" ~ .(100 * alpha) * "%-VaR draws under the" ~
+                   t[.(nu)](0, sigma^2) ~ "likelihood assumption"), prob = TRUE)
+points(quantile(y, alpha), 0, col = 2, lwd = 2)
 ```
