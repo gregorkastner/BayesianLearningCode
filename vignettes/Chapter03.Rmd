@@ -58,8 +58,8 @@ is (generally) vectorized, so we can compute the equal-tails intervals without
 using a loop.
 
 ```{r}
-m0 <- 0.1
-N0 <- 2
+m0 <- 0.05
+N0 <- 40
 a <- N0 * m0
 b <- N0 * (1 - m0)
 N <- 400
