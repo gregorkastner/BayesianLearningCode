@@ -102,8 +102,8 @@ prior, we now compute equal-tails intervals and highest posterior
 density (HPD) intervals. Note that R is (generally) vectorized, so we
 can compute the equal-tails intervals without using a loop.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">m0</span> <span class="op">&lt;-</span> <span class="fl">0.1</span></span>
-<span><span class="va">N0</span> <span class="op">&lt;-</span> <span class="fl">2</span></span>
+<code class="sourceCode R"><span><span class="va">m0</span> <span class="op">&lt;-</span> <span class="fl">0.05</span></span>
+<span><span class="va">N0</span> <span class="op">&lt;-</span> <span class="fl">40</span></span>
 <span><span class="va">a</span> <span class="op">&lt;-</span> <span class="va">N0</span> <span class="op">*</span> <span class="va">m0</span></span>
 <span><span class="va">b</span> <span class="op">&lt;-</span> <span class="va">N0</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">m0</span><span class="op">)</span></span>
 <span><span class="va">N</span> <span class="op">&lt;-</span> <span class="fl">400</span></span>
