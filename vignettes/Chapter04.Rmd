@@ -261,7 +261,7 @@ if (pdfplots) {
   par(mar = c(2.4, 1.4, 1.4, .2), mgp = c(1.5, .5, 0))
 }
 par(mfrow = c(1, 2))
-nu <- 7
+nu <- 6
 sigma2 <- seq(0.3, 0.4, length.out = 3000)
 pdf_u <- post_unnormalized(sigma2, y = y, nu = nu)
 
@@ -287,7 +287,7 @@ Note, again, that R's vectorization ability comes in handy. Here, in particular,
 
 ```{r}
 set.seed(42)
-alpha <- 0.005
+alpha <- 0.001
 ndraws <- 100000
 sigma2draws <- rinvgamma(ndraws, cN, CN)
 mudraws <- rnorm(ndraws, mean(y), sqrt(sigma2draws / N))
