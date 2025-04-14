@@ -181,7 +181,7 @@ par(mfrow = c(2, 2), mgp = c(1.2, .4, 0), mar = c(2.1, 1.4, 1.5, .2), xpd = FALS
 location <- mean(y)
 scale <- sqrt(var(y) / N)
 df <- N - 1
-probs <- c(0.05, .5, .95)
+probs <- c(0.025, .5, .975)
 
 mu <- seq(-.06, .06, length.out = 300)
 plot(mu, dstudt(mu, location, scale, df), type = "l", xlab = expression(mu),
@@ -236,6 +236,19 @@ for (i in seq_along(probs)) {
 }
 mtext(round(qs, 3), side = 1, line = -1, at = qs, cex = .5)
 mtext(probs, side = 2, at = probs, cex = .5)
+```
+
+To find the HPD of $\sigma^2|\mathbf{y}$, we can use a grid search.
+
+```{r}
+resolution <- 10000
+grid <- seq(0, 1, length.out = resolution + 1)
+dist <- 0.95 * resolution
+
+qs <- qinvgamma(grid, cN, CN)
+minimizer <- which.min(diff(qs, lag = dist))
+HPD <- qs[c(minimizer, minimizer + dist)]
+round(HPD, 4)
 ```
 
 ## Example 4.4: Fitting a t distribution with known mean and known degrees of freedom
