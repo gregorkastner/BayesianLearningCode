@@ -40,7 +40,8 @@ par(mfrow = c(1, 2))
 data(exrates, package = "stochvol")
 y <- 100 * diff(log(exrates$USD / exrates$CHF))
 N <- length(y)
-hist(y, breaks = 50, main = "Histogram", xlab = "CHF/USD percentage log returns")
+hist(y, breaks = 50, main = "Histogram",
+     xlab = "CHF/USD percentage log returns")
 ts.plot(y, main = "Time series plot", ylab = "CHF/USD percentage log returns",
         xlab = "Time (days)")
 ```
@@ -97,7 +98,8 @@ and variance).
 
 ```{r}
 posterior <- function(mu, sigma2, ybar, s2, N) {
-  dnorm(mu, ybar, sqrt(sigma2 / N)) * dinvgamma(sigma2, (N - 1) / 2, N * s2 / 2)
+  dnorm(mu, ybar, sqrt(sigma2 / N)) *
+    dinvgamma(sigma2, (N - 1) / 2, N * s2 / 2)
 }
 ```
 
@@ -122,7 +124,8 @@ for (n in c(50, 100, 200, 500, 1000, N)) {
              s2 = var(ytmp) * (n - 1) / n, N = n)
 
   # Compute the density values at the facet centers
-  zfacet <- z[-1, -1] + z[-1, -ncol(z)] + z[-nrow(z), -1] + z[-nrow(z), -ncol(z)]
+  zfacet <- z[-1, -1] + z[-1, -ncol(z)] + z[-nrow(z), -1] +
+    z[-nrow(z), -ncol(z)]
 
   # Recode facet density values into color indices
   facetcol <- cut(zfacet, nbcol)
@@ -305,7 +308,8 @@ unifdraws <- runif(ndraws, 0, cdf_u[length(cdf_u)])
 leftind <- findInterval(unifdraws, cdf_u)
 rightind <- leftind + 1L
 distprop <- (unifdraws - cdf_u[leftind]) / (cdf_u[rightind] - cdf_u[leftind])
-sigma2draws <- sigma2[leftind] + distprop * (sigma2[rightind] - sigma2[leftind])
+sigma2draws <- sigma2[leftind] + distprop *
+  (sigma2[rightind] - sigma2[leftind])
 ```
 
 Let us do a quick graphical check whether the draws and our pdf align.
@@ -331,11 +335,13 @@ mybreaks <- seq(minmax[1] - .01 * diff(minmax),
                 minmax[2] + .01 * diff(minmax),
                 length.out = 100)
 hist(qnormdraws, breaks = mybreaks, ylab = "", xlab = bquote(Q[.(alpha)]),
-     main = bquote("Histogram of posterior" ~ .(100 * alpha) * "%-VaR draws under the" ~
-                   N(mu, sigma^2) ~ "likelihood assumption"), prob = TRUE)
+     main = bquote("Histogram of posterior" ~ .(100 * alpha) *
+                   "%-VaR draws under the" ~ N(mu, sigma^2) ~
+                   "likelihood assumption"), prob = TRUE)
 points(quantile(y, alpha), 0, col = 2, pch = 16, cex = 1.5)
 hist(qtdraws, breaks = mybreaks, ylab = "", xlab = bquote(Q[.(alpha)]),
-     main = bquote("Histogram of posterior" ~ .(100 * alpha) * "%-VaR draws under the" ~
-                   t[.(nu)](0, sigma^2) ~ "likelihood assumption"), prob = TRUE)
+     main = bquote("Histogram of posterior" ~ .(100 * alpha) *
+                   "%-VaR draws under the" ~ t[.(nu)](0, sigma^2) ~
+                   "likelihood assumption"), prob = TRUE)
 points(quantile(y, alpha), 0, col = 2, pch = 16, cex = 1.5)
 ```
