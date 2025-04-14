@@ -281,10 +281,10 @@ abline(h = c(0, cdf_u[length(cdf_u)]), lty = 3)
 ## Example 4.5: Bayesian learning of quantiles
 
 To learn about the distribution of a certain low quantile, the Value-at-Risk (VaR),
-we can generate draws from it. For the Gaussian model, we simulate from
-$\mathcal{G}^{-1}(c_N, C_N)$
-and then, conditionally on these draws, from
-$\mathcal{N}(\bar{y}, \sigma^2 / N)$.
+we can generate draws from it. For the Gaussian model with mean zero and
+$p(\sigma^2) \propto \sigma^{-2}$, we simulate from
+$\mathcal{G}^{-1}(N/2, \sum{y_i^2}/2)$ and then, conditionally on these draws,
+compute the quantiles of interest from $\mathcal{N}(0, \sigma^2)$.
 Note, again, that R's vectorization ability comes in handy. Here, in particular,
 *rnorm* can handle the so-called *varying parameter case*.
 
@@ -292,9 +292,8 @@ Note, again, that R's vectorization ability comes in handy. Here, in particular,
 set.seed(42)
 alpha <- 0.005
 ndraws <- 100000
-sigma2draws <- rinvgamma(ndraws, cN, CN)
-mudraws <- rnorm(ndraws, mean(y), sqrt(sigma2draws / N))
-qnormdraws <- qnorm(alpha, mudraws, sqrt(sigma2draws))
+sigma2draws <- rinvgamma(ndraws, N / 2, sum(y^2) / 2)
+qnormdraws <- qnorm(alpha, 0, sqrt(sigma2draws))
 ```
 
 For the $t$ model, we can use inverse transform sampling. First, we draw
@@ -336,7 +335,7 @@ mybreaks <- seq(minmax[1] - .01 * diff(minmax),
                 length.out = 100)
 hist(qnormdraws, breaks = mybreaks, ylab = "", xlab = bquote(Q[.(alpha)]),
      main = bquote("Histogram of posterior" ~ .(100 * alpha) *
-                   "%-VaR draws under the" ~ N(mu, sigma^2) ~
+                   "%-VaR draws under the" ~ N(0, sigma^2) ~
                    "likelihood assumption"), prob = TRUE)
 points(quantile(y, alpha), 0, col = 2, pch = 16, cex = 1.5)
 hist(qtdraws, breaks = mybreaks, ylab = "", xlab = bquote(Q[.(alpha)]),
