@@ -282,7 +282,7 @@ fasted of all methods in R, but will do just fine for our use-case).</p>
 <span><span class="va">post_unnormalized</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Vectorize.html" class="external-link">Vectorize</a></span><span class="op">(</span><span class="va">post_unnormalized_nonvec</span>, <span class="st">"sigma2"</span><span class="op">)</span></span></code></pre></div>
 <p>Now we can plot.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">nu</span> <span class="op">&lt;-</span> <span class="fl">7</span></span>
+<code class="sourceCode R"><span><span class="va">nu</span> <span class="op">&lt;-</span> <span class="fl">6</span></span>
 <span><span class="va">sigma2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.3</span>, <span class="fl">0.4</span>, length.out <span class="op">=</span> <span class="fl">3000</span><span class="op">)</span></span>
 <span><span class="va">pdf_u</span> <span class="op">&lt;-</span> <span class="fu">post_unnormalized</span><span class="op">(</span><span class="va">sigma2</span>, y <span class="op">=</span> <span class="va">y</span>, nu <span class="op">=</span> <span class="va">nu</span><span class="op">)</span></span>
 <span></span>
@@ -310,7 +310,7 @@ particular, <em>rnorm</em> can handle the so-called <em>varying
 parameter case</em>.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span>
-<span><span class="va">alpha</span> <span class="op">&lt;-</span> <span class="fl">0.005</span></span>
+<span><span class="va">alpha</span> <span class="op">&lt;-</span> <span class="fl">0.001</span></span>
 <span><span class="va">ndraws</span> <span class="op">&lt;-</span> <span class="fl">100000</span></span>
 <span><span class="va">sigma2draws</span> <span class="op">&lt;-</span> <span class="fu">rinvgamma</span><span class="op">(</span><span class="va">ndraws</span>, <span class="va">cN</span>, <span class="va">CN</span><span class="op">)</span></span>
 <span><span class="va">mudraws</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">ndraws</span>, <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">sigma2draws</span> <span class="op">/</span> <span class="va">N</span><span class="op">)</span><span class="op">)</span></span>
