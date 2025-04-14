@@ -332,7 +332,7 @@ mybreaks <- seq(minmax[1] - .01 * diff(minmax),
                 length.out = 100)
 hist(qnormdraws, breaks = mybreaks, ylab = "", xlab = bquote(Q[.(alpha)]),
      main = bquote("Histogram of posterior" ~ .(100 * alpha) * "%-VaR draws under the" ~
-                   N(0, sigma^2) ~ "likelihood assumption"), prob = TRUE)
+                   N(mu, sigma^2) ~ "likelihood assumption"), prob = TRUE)
 points(quantile(y, alpha), 0, col = 2, pch = 16, cex = 1.5)
 hist(qtdraws, breaks = mybreaks, ylab = "", xlab = bquote(Q[.(alpha)]),
      main = bquote("Histogram of posterior" ~ .(100 * alpha) * "%-VaR draws under the" ~
