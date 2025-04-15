@@ -242,7 +242,15 @@ mtext(round(qs, 3), side = 1, line = -1, at = qs, cex = .5)
 mtext(probs, side = 2, at = probs, cex = .5, adj = c(0, .5, 1))
 ```
 
-To find the HPD of $\sigma^2|\mathbf{y}$, we can use a grid search.
+Posterior expectation and the equal-tailed 95\% Bayesian CI of
+$\sigma^2|\mathbf{y}$ are easily computed.
+
+```{r}
+round(CN / (cN - 1), 3)
+round(qinvgamma(c(.025, .975), cN, CN), 4)
+```
+
+To find the HPD we can use a grid search.
 
 ```{r}
 resolution <- 10000
@@ -290,14 +298,39 @@ pdf_u <- post_unnormalized(sigma2, y = y, nu = nu)
 pdf_u <- pdf_u / max(pdf_u)
 
 plot(sigma2, pdf_u, type = "l", xlab = expression(sigma^2),
-     ylab = "", main = "Unnormalized posterior")
+     ylab = "", main = "Unnormalized densities")
 abline(h = 0, lty = 3)
 lines(sigma2, 0.05 * 1/sigma2, lty = 2, col = 2)
+legend("topright", c("Posterior", "Prior"), col = 1:2, lty = 1:2)
 
 cdf_u <- cumsum(pdf_u) / sum(pdf_u)
 plot(sigma2, cdf_u, type = "l", xlab = expression(sigma^2),
      ylab = "", main = "Cumulative posterior")
 abline(h = c(0, cdf_u[length(cdf_u)]), lty = 3)
+```
+
+To determine the normalizing constant $C$, we can perform numerical integration
+via the trapezoid rule.
+
+```{r}
+resolution <- 100
+grid <- seq(0.25, 0.45, length.out = resolution + 1)
+integrand <- post_unnormalized(grid, y = y, nu = nu)
+C <- sum(diff(grid) * .5 * (head(integrand, -1) + tail(integrand, -1)))
+```
+
+Now we can numerically approximate the posterior expectation and standard
+deviation, again using the trapezoid rule.
+
+```{r}
+integrand2 <- grid * integrand
+e <- sum(diff(grid) * .5 * (head(integrand2, -1) + tail(integrand2, -1))) / C
+round(e, 3)
+
+integrand3 <- grid^2 * integrand
+m2 <- sum(diff(grid) * .5 * (head(integrand3, -1) + tail(integrand3, -1))) / C
+v <- m2 - e^2
+round(sqrt(v), 3)
 ```
 
 ## Example 4.5: Bayesian learning of quantiles
@@ -311,7 +344,7 @@ Note, again, that R's vectorization ability comes in handy. Here, in particular,
 *rnorm* can handle the so-called *varying parameter case*.
 
 ```{r}
-set.seed(42)
+set.seed(2)
 alpha <- 0.005
 ndraws <- 100000
 sigma2draws <- rinvgamma(ndraws, N / 2, sum(y^2) / 2)
@@ -365,4 +398,11 @@ hist(qtdraws, breaks = mybreaks, ylab = "", xlab = bquote(Q[.(alpha)]),
                    "%-VaR draws under the" ~ t[.(nu)](0, sigma^2) ~
                    "likelihood assumption"), prob = TRUE)
 points(quantile(y, alpha), 0, col = 2, pch = 16, cex = 1.5)
+```
+
+To conclude, let us compute point and interval estimates for our VaR.
+
+```{r}
+round(mean(qtdraws), 3)
+round(quantile(qtdraws, c(.025, .975)), 3)
 ```
