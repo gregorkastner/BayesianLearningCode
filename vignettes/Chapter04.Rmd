@@ -27,8 +27,8 @@ par(mgp = c(1.6, .6, 0), mar = c(2.6, 2.6, 2.6, .4), lwd = 1)
 # Swiss franc versus US dollar
 ## Example 4.1: The data
 
-We use exchange rate data contained in  the package *stochvol*, covering the
-period from January 3, 2000, until April 4, 2012. We are interested in the
+We use daily exchange rate data contained in  the package *stochvol*, covering
+the period from January 3, 2000, until April 4, 2012. We are interested in the
 percentage log returns of the the Swiss franc (CHF) against the US dollar (USD).
 
 ```{r, echo=-(1:2)}
@@ -168,6 +168,10 @@ pstudt <- function(x, location = 0, scale = 1, df) {
 qstudt <- function(p, location = 0, scale = 1, df) {
   location + scale * qt(p, df = df)
 }
+
+rstudt <- function(n, location = 0, scale = 1, df) {
+  location + scale * rt(n, df = df)
+}
 ```
 
 Now we visualize the marginals and some quantiles thereof.
@@ -206,7 +210,7 @@ for (i in seq_along(probs)) {
   lines(c(qs[i], qs[i]), c(probs[i], 0), lty = 2)
 }
 mtext(round(qs, 3), side = 1, line = -1, at = qs, cex = .5)
-mtext(probs, side = 2, at = probs, cex = .5)
+mtext(probs, side = 2, at = probs, cex = .5, adj = c(0, .5, 1))
 
 cN <- (N - 1) / 2
 CN <- var(y) * (N - 1) / 2
@@ -235,7 +239,7 @@ for (i in seq_along(probs)) {
   lines(c(qs[i], qs[i]), c(probs[i], 0), lty = 2)
 }
 mtext(round(qs, 3), side = 1, line = -1, at = qs, cex = .5)
-mtext(probs, side = 2, at = probs, cex = .5)
+mtext(probs, side = 2, at = probs, cex = .5, adj = c(0, .5, 1))
 ```
 
 To find the HPD of $\sigma^2|\mathbf{y}$, we can use a grid search.
@@ -269,7 +273,10 @@ post_unnormalized_nonvec <- function(sigma2, y, nu, log = FALSE) {
 post_unnormalized <- Vectorize(post_unnormalized_nonvec, "sigma2")
 ```
 
-Now we can plot.
+Now we can plot. Note that we (arbitrarily) standardize the unnormalized
+posterior to have a maximum of one. In addition, we visualize an unnormalized
+version of the prior. Concerning the cumulative distribution function, we simply
+divide by the highest (last) value to achieve normalization.
 
 ```{r, echo=-(1:2)}
 if (pdfplots) {
@@ -278,16 +285,18 @@ if (pdfplots) {
 }
 par(mfrow = c(1, 2))
 nu <- 7
-sigma2 <- seq(0.3, 0.4, length.out = 3000)
+sigma2 <- seq(0.25, 0.45, length.out = 3000)
 pdf_u <- post_unnormalized(sigma2, y = y, nu = nu)
+pdf_u <- pdf_u / max(pdf_u)
 
 plot(sigma2, pdf_u, type = "l", xlab = expression(sigma^2),
      ylab = "", main = "Unnormalized posterior")
 abline(h = 0, lty = 3)
+lines(sigma2, 0.05 * 1/sigma2, lty = 2, col = 2)
 
-cdf_u <- cumsum(pdf_u)
+cdf_u <- cumsum(pdf_u) / sum(pdf_u)
 plot(sigma2, cdf_u, type = "l", xlab = expression(sigma^2),
-     ylab = "", main = "Cumulative unnormalized posterior")
+     ylab = "", main = "Cumulative posterior")
 abline(h = c(0, cdf_u[length(cdf_u)]), lty = 3)
 ```
 
