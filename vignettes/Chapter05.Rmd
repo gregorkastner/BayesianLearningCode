@@ -1,10 +1,12 @@
 ---
-title: "Chapter 5"
+title: "Chapter 5: Learning More About Bayesian Learning"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Chapter 5}
-  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{Chapter 5: Learning More About Bayesian Learning}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r, include = FALSE}
@@ -59,6 +61,53 @@ for (i in seq_along(thetatrue)) {
 }
 ```
 
+# Section 5.3
+
+Recap posterior from Chapter 4.
+```{r}
+dinvgamma <- function(x, a, b, log = FALSE) {
+  logdens <- dgamma(1/x, a, b, log = TRUE) - 2 * log(x)
+  if (log) logdens else exp(logdens)
+}
+
+posterior <- function(mu, sigma2, ybar, s2, N) {
+  dnorm(mu, ybar, sqrt(sigma2 / N)) *
+    dinvgamma(sigma2, (N - 1) / 2, N * s2 / 2)
+}
+```
+
+Read in data again, and simulate from the posterior by Monte Carlo.
+
+```{r}
+alpha <- 0.05
+ndraws <- 100000
+data(exrates, package = "stochvol")
+y <- 100 * diff(log(exrates$USD / exrates$CHF))
+N <- length(y)
+ybar <- mean(y)
+s2 <- var(y) * (N - 1) / N
+sigma2draws <- 1 / rgamma(ndraws, (N - 1) / 2, N * s2 / 2)
+mudraws <- rnorm(ndraws, mean(y), sqrt(sigma2draws / N))
+draws <- data.frame(mu = mudraws, sigma2draws = sigma2draws)
+```
+
+Obtain the functional values and keep the top `r 100 * (1 - alpha)` percent.
+
+```{r}
+dens <- posterior(draws$mu, draws$sigma2, ybar, s2, N)
+HPDdraws <- draws[rank(dens) > floor(ndraws * alpha),]
+```
+
+To visualize, we compute the convex hull of the remaining draws. Note that we
+randomly exclude some draws for visualization only in order to avoid plotting
+too many overlapping points.
+
+```{r}
+toplot <- sample.int(nrow(HPDdraws), 10000)
+plot(draws[toplot,], pch = 16, col = rgb(0, 0, 0, .05), cex = 2)
+hullind <- chull(HPDdraws)
+polygon(HPDdraws[hullind,], col = rgb(1, 0, 0, .2))
+```
 
 # Section 5.4
 ## Figure 5.2: Bayesian asymptotics 1
