@@ -290,15 +290,15 @@ are easily computed.</p>
 <h3 id="example-4-4-fitting-a-t-distribution-with-known-mean-and-known-degrees-of-freedom">Example 4.4: Fitting a t distribution with known mean and known
 degrees of freedom<a class="anchor" aria-label="anchor" href="#example-4-4-fitting-a-t-distribution-with-known-mean-and-known-degrees-of-freedom"></a>
 </h3>
-<p>We first define <em>post_unnormalized_nonvec</em>, a function
+<p>We first define <code>post_unnormalized_nonvec</code>, a function
 evaluating the unnormalized posterior density of
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>σ</mi><mn>2</mn></msup><annotation encoding="application/x-tex">\sigma^2</annotation></semantics></math>.
 This function is not vectorized in its first argument,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>σ</mi><mn>2</mn></msup><annotation encoding="application/x-tex">\sigma^2</annotation></semantics></math>.
-Rather, it expects a scalar <em>sigma2</em> and a data vector
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>.
-We can, however, vectorize it using <em>Vectorize</em> (this is not the
-fasted of all methods in R, but will do just fine for our use-case).</p>
+Rather, it expects a scalar <code>sigma2</code> and a data vector
+<code>y</code>. We can, however, vectorize it using
+<code>Vectorize</code> (this is not the fasted of all methods in R, but
+will do just fine for our use-case).</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">post_unnormalized_nonvec</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">sigma2</span>, <span class="va">y</span>, <span class="va">nu</span>, <span class="va">log</span> <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">logdens</span> <span class="op">&lt;-</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">sigma2</span><span class="op">)</span> <span class="op">-</span></span>
