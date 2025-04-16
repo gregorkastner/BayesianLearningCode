@@ -265,11 +265,11 @@ round(HPD, 4)
 
 ## Example 4.4: Fitting a t distribution with known mean and known degrees of freedom
 
-We first define *post_unnormalized_nonvec*, a function evaluating the
+We first define `post_unnormalized_nonvec`, a function evaluating the
 unnormalized posterior density of $\sigma^2$.
 This function is not vectorized in its first argument, $\sigma^2$. Rather,
-it expects a scalar *sigma2* and a data vector $y$. We can, however,
-vectorize it using *Vectorize* (this is not the fasted of all methods in R,
+it expects a scalar `sigma2` and a data vector `y`. We can, however,
+vectorize it using `Vectorize` (this is not the fasted of all methods in R,
 but will do just fine for our use-case).
 
 ```{r}
