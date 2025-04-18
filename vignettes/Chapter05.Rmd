@@ -64,6 +64,7 @@ for (i in seq_along(thetatrue)) {
 # Section 5.3
 
 Recap posterior from Chapter 4.
+
 ```{r}
 dinvgamma <- function(x, a, b, log = FALSE) {
   logdens <- dgamma(1/x, a, b, log = TRUE) - 2 * log(x)
@@ -79,7 +80,7 @@ posterior <- function(mu, sigma2, ybar, s2, N) {
 Read in data again, and simulate from the posterior by Monte Carlo.
 
 ```{r}
-alpha <- 0.05
+alpha <- c(.01, .05, .1)
 ndraws <- 100000
 data(exrates, package = "stochvol")
 y <- 100 * diff(log(exrates$USD / exrates$CHF))
@@ -91,22 +92,34 @@ mudraws <- rnorm(ndraws, mean(y), sqrt(sigma2draws / N))
 draws <- data.frame(mu = mudraws, sigma2draws = sigma2draws)
 ```
 
-Obtain the functional values and keep the top `r 100 * (1 - alpha)` percent.
+Obtain the functional values and keep the top `r 100 * (1 - alpha)` percent,
+respectively.
 
 ```{r}
 dens <- posterior(draws$mu, draws$sigma2, ybar, s2, N)
-HPDdraws <- draws[rank(dens) > floor(ndraws * alpha),]
+HPDdraws <- vector("list", length(alpha))
+for (i in seq_along(alpha)) {
+ HPDdraws[[i]] <- draws[rank(dens) > floor(ndraws * alpha[i]),]
+}
 ```
 
 To visualize, we compute the convex hull of the remaining draws. Note that we
 randomly exclude some draws for visualization only in order to avoid plotting
 too many overlapping points.
 
-```{r}
-toplot <- sample.int(nrow(HPDdraws), 10000)
-plot(draws[toplot,], pch = 16, col = rgb(0, 0, 0, .05), cex = 2)
-hullind <- chull(HPDdraws)
-polygon(HPDdraws[hullind,], col = rgb(1, 0, 0, .2))
+```{r, echo=-(1:2)}
+if (pdfplots) {
+  pdf("5-3_1.pdf", width = 8, height = 5)
+  par(mar = c(2.2, 2.2, 1.6, .2), mgp = c(1.2, .5, 0))
+}
+par(mfrow = c(1, 1))
+toplot <- sample.int(nrow(draws), 1000)
+plot(draws[toplot,], pch = 16, col = rgb(0, 0, 0, .3), cex = 2,
+     xlab = expression(mu), ylab = expression(sigma^2))
+for (i in seq_along(alpha)) {
+ hullind <- chull(HPDdraws[[i]])
+ polygon(HPDdraws[[i]][hullind,], col = rgb(1, 0, 0, .2))
+}
 ```
 
 # Section 5.4
@@ -121,8 +134,11 @@ if (pdfplots) {
   par(mgp = c(1, .5, 0), mar = c(2.2, 1.5, 2, .2), lwd = 2)
 }
 par(mfrow = c(3, 2))
+set.seed(2)
 thetatrue <- c(0.02, 0.25)
 N <- c(25, 100, 400)
+settings <- expand.grid(N = N, thetatrue = thetatrue)
+rbinom(6, settings$N, settings$thetatrue)
 theta <- seq(0, 1, .0005)
 
 for (n in N) {
@@ -204,4 +220,20 @@ for (n in N) {
            lty = c(1, 2), col = 1:2)
   }
 }
+```
+
+## Table 5.1: Point estimates
+We now compute various point estimates under several settings.
+
+```{r}
+a0 <- c(0.5, 2)
+set <- expand.grid(N = N, thetatrue = thetatrue, a0 = a0)
+set$b0 <- c(rep(0.5, 6), rep(4, 6))
+aN <- set$N * set$thetatrue + set$a0
+bN <- set$N * (1 - set$thetatrue) + set$b0
+posteriormean <- aN / (aN + bN)
+posteriormode <- (aN - 1) / (aN + bN - 2)
+res <- cbind(mean = posteriormean, mode = posteriormode)
+rownames(res) <- set$N
+knitr::kable(t(round(res, 4)))
 ```
