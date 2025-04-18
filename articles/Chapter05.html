@@ -119,7 +119,7 @@ beta-binomial model from earlier.</p>
 <p>Read in data again, and simulate from the posterior by Monte
 Carlo.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">alpha</span> <span class="op">&lt;-</span> <span class="fl">0.05</span></span>
+<code class="sourceCode R"><span><span class="va">alpha</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.01</span>, <span class="fl">.05</span>, <span class="fl">.1</span><span class="op">)</span></span>
 <span><span class="va">ndraws</span> <span class="op">&lt;-</span> <span class="fl">100000</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">exrates</span>, package <span class="op">=</span> <span class="st">"stochvol"</span><span class="op">)</span></span>
 <span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fl">100</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/diff.html" class="external-link">diff</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">exrates</span><span class="op">$</span><span class="va">USD</span> <span class="op">/</span> <span class="va">exrates</span><span class="op">$</span><span class="va">CHF</span><span class="op">)</span><span class="op">)</span></span>
@@ -129,18 +129,25 @@ Carlo.</p>
 <span><span class="va">sigma2draws</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html" class="external-link">rgamma</a></span><span class="op">(</span><span class="va">ndraws</span>, <span class="op">(</span><span class="va">N</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span>, <span class="va">N</span> <span class="op">*</span> <span class="va">s2</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="va">mudraws</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">ndraws</span>, <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">sigma2draws</span> <span class="op">/</span> <span class="va">N</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">draws</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>mu <span class="op">=</span> <span class="va">mudraws</span>, sigma2draws <span class="op">=</span> <span class="va">sigma2draws</span><span class="op">)</span></span></code></pre></div>
-<p>Obtain the functional values and keep the top 95 percent.</p>
+<p>Obtain the functional values and keep the top 99, 95, 90 percent,
+respectively.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dens</span> <span class="op">&lt;-</span> <span class="fu">posterior</span><span class="op">(</span><span class="va">draws</span><span class="op">$</span><span class="va">mu</span>, <span class="va">draws</span><span class="op">$</span><span class="va">sigma2</span>, <span class="va">ybar</span>, <span class="va">s2</span>, <span class="va">N</span><span class="op">)</span></span>
-<span><span class="va">HPDdraws</span> <span class="op">&lt;-</span> <span class="va">draws</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/rank.html" class="external-link">rank</a></span><span class="op">(</span><span class="va">dens</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">floor</a></span><span class="op">(</span><span class="va">ndraws</span> <span class="op">*</span> <span class="va">alpha</span><span class="op">)</span>,<span class="op">]</span></span></code></pre></div>
+<span><span class="va">HPDdraws</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/vector.html" class="external-link">vector</a></span><span class="op">(</span><span class="st">"list"</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">alpha</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">alpha</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span> <span class="va">HPDdraws</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">draws</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/rank.html" class="external-link">rank</a></span><span class="op">(</span><span class="va">dens</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">floor</a></span><span class="op">(</span><span class="va">ndraws</span> <span class="op">*</span> <span class="va">alpha</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span>,<span class="op">]</span></span>
+<span><span class="op">}</span></span></code></pre></div>
 <p>To visualize, we compute the convex hull of the remaining draws. Note
 that we randomly exclude some draws for visualization only in order to
 avoid plotting too many overlapping points.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">toplot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample.int</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">HPDdraws</span><span class="op">)</span>, <span class="fl">10000</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">draws</span><span class="op">[</span><span class="va">toplot</span>,<span class="op">]</span>, pch <span class="op">=</span> <span class="fl">16</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/rgb.html" class="external-link">rgb</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">.05</span><span class="op">)</span>, cex <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="va">hullind</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/chull.html" class="external-link">chull</a></span><span class="op">(</span><span class="va">HPDdraws</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/polygon.html" class="external-link">polygon</a></span><span class="op">(</span><span class="va">HPDdraws</span><span class="op">[</span><span class="va">hullind</span>,<span class="op">]</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/rgb.html" class="external-link">rgb</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">.2</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">toplot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample.int</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">draws</span><span class="op">)</span>, <span class="fl">1000</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">draws</span><span class="op">[</span><span class="va">toplot</span>,<span class="op">]</span>, pch <span class="op">=</span> <span class="fl">16</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/rgb.html" class="external-link">rgb</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">.3</span><span class="op">)</span>, cex <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>     xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">mu</span><span class="op">)</span>, ylab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">sigma</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">alpha</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span> <span class="va">hullind</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/chull.html" class="external-link">chull</a></span><span class="op">(</span><span class="va">HPDdraws</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
+<span> <span class="fu"><a href="https://rdrr.io/r/graphics/polygon.html" class="external-link">polygon</a></span><span class="op">(</span><span class="va">HPDdraws</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="va">hullind</span>,<span class="op">]</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/rgb.html" class="external-link">rgb</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">.2</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
 <p><img src="Chapter05_files/figure-html/unnamed-chunk-7-1.png" width="768"></p>
 </div>
 <div class="section level2">
@@ -152,8 +159,12 @@ avoid plotting too many overlapping points.</p>
 <p>To reproduce this figure, we again re-use the theory from Chapter 3
 (the beta-binomial model).</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">thetatrue</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.02</span>, <span class="fl">0.25</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span>
+<span><span class="va">thetatrue</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.02</span>, <span class="fl">0.25</span><span class="op">)</span></span>
 <span><span class="va">N</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">25</span>, <span class="fl">100</span>, <span class="fl">400</span><span class="op">)</span></span>
+<span><span class="va">settings</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span>N <span class="op">=</span> <span class="va">N</span>, thetatrue <span class="op">=</span> <span class="va">thetatrue</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/Binomial.html" class="external-link">rbinom</a></span><span class="op">(</span><span class="fl">6</span>, <span class="va">settings</span><span class="op">$</span><span class="va">N</span>, <span class="va">settings</span><span class="op">$</span><span class="va">thetatrue</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1]   0   3   8   4  32 110</span></span>
 <span><span class="va">theta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">.0005</span><span class="op">)</span></span>
 <span></span>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">n</span> <span class="kw">in</span> <span class="va">N</span><span class="op">)</span> <span class="op">{</span></span>
@@ -227,6 +238,86 @@ polynomials and visualize these.</p>
 <span>  <span class="op">}</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p><img src="Chapter05_files/figure-html/unnamed-chunk-10-1.png" width="768"></p>
+</div>
+<div class="section level3">
+<h3 id="table-5-1-point-estimates">Table 5.1: Point estimates<a class="anchor" aria-label="anchor" href="#table-5-1-point-estimates"></a>
+</h3>
+<p>We now compute various point estimates under several settings.</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">a0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="va">set</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span>N <span class="op">=</span> <span class="va">N</span>, thetatrue <span class="op">=</span> <span class="va">thetatrue</span>, a0 <span class="op">=</span> <span class="va">a0</span><span class="op">)</span></span>
+<span><span class="va">set</span><span class="op">$</span><span class="va">b0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">6</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fl">6</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">aN</span> <span class="op">&lt;-</span> <span class="va">set</span><span class="op">$</span><span class="va">N</span> <span class="op">*</span> <span class="va">set</span><span class="op">$</span><span class="va">thetatrue</span> <span class="op">+</span> <span class="va">set</span><span class="op">$</span><span class="va">a0</span></span>
+<span><span class="va">bN</span> <span class="op">&lt;-</span> <span class="va">set</span><span class="op">$</span><span class="va">N</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">set</span><span class="op">$</span><span class="va">thetatrue</span><span class="op">)</span> <span class="op">+</span> <span class="va">set</span><span class="op">$</span><span class="va">b0</span></span>
+<span><span class="va">posteriormean</span> <span class="op">&lt;-</span> <span class="va">aN</span> <span class="op">/</span> <span class="op">(</span><span class="va">aN</span> <span class="op">+</span> <span class="va">bN</span><span class="op">)</span></span>
+<span><span class="va">posteriormode</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">aN</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="va">aN</span> <span class="op">+</span> <span class="va">bN</span> <span class="op">-</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span>mean <span class="op">=</span> <span class="va">posteriormean</span>, mode <span class="op">=</span> <span class="va">posteriormode</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">set</span><span class="op">$</span><span class="va">N</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">res</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<table style="width:100%;" class="table">
+<colgroup>
+<col width="5%">
+<col width="7%">
+<col width="7%">
+<col width="7%">
+<col width="7%">
+<col width="7%">
+<col width="7%">
+<col width="7%">
+<col width="7%">
+<col width="7%">
+<col width="7%">
+<col width="7%">
+<col width="7%">
+</colgroup>
+<thead><tr class="header">
+<th align="left"></th>
+<th align="right">25</th>
+<th align="right">100</th>
+<th align="right">400</th>
+<th align="right">25</th>
+<th align="right">100</th>
+<th align="right">400</th>
+<th align="right">25</th>
+<th align="right">100</th>
+<th align="right">400</th>
+<th align="right">25</th>
+<th align="right">100</th>
+<th align="right">400</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">mean</td>
+<td align="right">0.0385</td>
+<td align="right">0.0248</td>
+<td align="right">0.0212</td>
+<td align="right">0.2596</td>
+<td align="right">0.2525</td>
+<td align="right">0.2506</td>
+<td align="right">0.0806</td>
+<td align="right">0.0377</td>
+<td align="right">0.0246</td>
+<td align="right">0.2661</td>
+<td align="right">0.2547</td>
+<td align="right">0.2512</td>
+</tr>
+<tr class="even">
+<td align="left">mode</td>
+<td align="right">0.0000</td>
+<td align="right">0.0152</td>
+<td align="right">0.0188</td>
+<td align="right">0.2396</td>
+<td align="right">0.2475</td>
+<td align="right">0.2494</td>
+<td align="right">0.0517</td>
+<td align="right">0.0288</td>
+<td align="right">0.0223</td>
+<td align="right">0.2500</td>
+<td align="right">0.2500</td>
+<td align="right">0.2500</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
