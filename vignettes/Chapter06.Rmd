@@ -30,7 +30,7 @@ G or PG.
 
 ```{r, echo=-(1:2)}
 
-
+library(BayesianLearningCode)
 require(dplyr)
 load("moviedata.RData")
 
