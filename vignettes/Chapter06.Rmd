@@ -260,7 +260,7 @@ if (pdfplots) {
 tau2.res<-tau2s[burnin+(1:M),]
 
 require(graphics)
-boxplot.matrix(tau2.res,ylim=c(0,100))
+boxplot(tau2.res,ylim=c(0,100))
 ```
 
 The residuals of the model are however not normally distributed.
