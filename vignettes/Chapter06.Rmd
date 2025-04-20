@@ -28,8 +28,7 @@ We use movie data provided as "movie.xls" to   Bayesian analysis of a regression
 First of all, as there is only one film of genre G, we set the baseline for the categorical covariate genre to 
 G or PG. 
 
-```{r, echo=-(1:2)}
-
+```{r}
 library(BayesianLearningCode)
 require(dplyr)
 load("moviedata.RData")
@@ -40,14 +39,8 @@ movies <- movies %>%
 
 Next we prepare the variables for regression analysis. We define the response variable OpenBoxOffice as y and center the covariates at zero. 
 
-```{r, echo=-(1:2)}
-
-
+```{r}
 y<- movies[, "OpenBoxOffice"]
-
-#v2 <- c("Vol-21-27","Vol-14-20","Vol-7-13","Vol-4-6","Vol-1-3")
-#movies[,v2] <- log(movies[,v2])
-
 data.cen <- movies[,-1]
 vbin<- c("Action","Adventure","Animation","Comedy","Crime", 
   "Drama", "Family","Fantasy", "Mystery", "Romance",
@@ -67,9 +60,7 @@ d=dim(X)[2]-1 # regression effects except the intercept
 
 We first estimate the parameters of the regression model under a rather flat  semi-conjugate prior.
 
-```{r, echo=-(1:2)}
-
-
+```{r}
 # define prior parameters
 B0.inv=diag(c(0,rep(1/100,d)), nrow=d+1)
 b0=rep(0,d+1)
@@ -112,9 +103,7 @@ for (m in 1:(burnin+M)){
 }
 ```
 To summarize the results nicely we  compute equal tailed 95% confidence intervals. 
-```{r, echo=-(1:2)}
-
-
+```{r}
 eq.tails<-function(x)c(quantile(x,0.025), quantile(x,0.975))
 
 beta.res1<- betas[burnin+(1:M),]
@@ -131,9 +120,7 @@ print(round(c(mean(sigma2.res1), eq.tails(sigma2.res1)),3))
 Next we use the horseshoe prior to analyse the data. We use 
 the same prior on the intercept but specify the horseshoe prior via latent Inverse Gamma parameters. 
 
-```{r, echo=-(1:2)}
-
-
+```{r,echo=-(1:2)}
 par(mfrow = c(1, 3))
 set.seed(42)
 
@@ -203,8 +190,7 @@ for (m in 1:(burnin+M)){
 Again we compose a table with posterior mean estimates and
 equal tailed 95% credibility intervals
 
-```{r, echo=-(1:2)}
-
+```{r}
 beta.res2<- betas[burnin+(1:M),]
 beta.eq2<-t(apply(beta.res2,2,eq.tails))
 res2 <- cbind(colMeans(beta.res2), beta.eq2)
@@ -276,4 +262,3 @@ qqnorm(res1)
 qqnorm(res2)
 
 ```
-
