@@ -24,14 +24,13 @@ par(mgp = c(1.6, .6, 0), mar = c(2.6, 2.6, 2.6, .4), lwd = 1)
 # Example 6.1
 # Movie data 
 
-We use movie data provided as "movie.xls" to   Bayesian analysis of a regression model. The data set is a preprocessed version of the one provided by Lehrer and Xi ().
+We use movie data provided as "movies.rda" to show Bayesian analysis of a regression model. The data set is a preprocessed version of the one provided by Lehrer and Xi (2017).
 First of all, as there is only one film of genre G, we set the baseline for the categorical covariate genre to 
 G or PG. 
 
 ```{r}
 library(BayesianLearningCode)
 require(dplyr)
-load("moviedata.RData")
 
 movies <- movies %>%
   dplyr::select(-PG) 
@@ -41,6 +40,7 @@ Next we prepare the variables for regression analysis. We define the response va
 
 ```{r}
 y<- movies[, "OpenBoxOffice"]
+
 data.cen <- movies[,-1]
 vbin<- c("Action","Adventure","Animation","Comedy","Crime", 
   "Drama", "Family","Fantasy", "Mystery", "Romance",
@@ -58,11 +58,11 @@ X=cbind(rep(1,N),as.matrix(data.cen)) # Regressor matrix
 d=dim(X)[2]-1 # regression effects except the intercept
 ```
 
-We first estimate the parameters of the regression model under a rather flat  semi-conjugate prior.
+We first estimate the parameters of the regression model under a rather flat semi-conjugate prior.
 
 ```{r}
 # define prior parameters
-B0.inv=diag(c(0,rep(1/100,d)), nrow=d+1)
+B0.inv=diag(c(1/10000,rep(1/100,d)), nrow=d+1)
 b0=rep(0,d+1)
 
 c0=2.5 
@@ -124,7 +124,7 @@ the same prior on the intercept but specify the horseshoe prior via latent Inver
 par(mfrow = c(1, 3))
 set.seed(42)
 
-B0inv.intcpt=0
+B0inv.intcpt=1/10000
 b0=rep(0,d+1)
 
 c0=2.5 
