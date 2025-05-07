@@ -123,6 +123,8 @@ along with the 0.025-, the 0.5-, and the 0.975-quantile.</p>
 <span></span>
 <span><span class="va">probs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.025</span>, <span class="fl">.5</span>, <span class="fl">.975</span><span class="op">)</span></span>
 <span><span class="va">qs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html" class="external-link">qgamma</a></span><span class="op">(</span><span class="va">probs</span>, <span class="va">aN</span>, <span class="va">bN</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">qs</span>, digits <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 4.936 5.253 5.584</span></span>
 <span><span class="va">ds</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html" class="external-link">dgamma</a></span><span class="op">(</span><span class="va">qs</span>, <span class="va">aN</span>, <span class="va">bN</span><span class="op">)</span></span>
 <span></span>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">probs</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
@@ -157,20 +159,111 @@ and
 gives the improper prior from above.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">m0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">Inf</span>, <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span>, <span class="fl">0.5</span>, <span class="fl">3</span>, <span class="fl">10</span><span class="op">)</span></span>
-<span><span class="va">a0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0.5</span>, <span class="fl">3</span>, <span class="fl">10</span>, <span class="fl">3</span>, <span class="fl">3</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="va">a0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0.5</span>, <span class="fl">2</span>, <span class="fl">10</span>, <span class="fl">3</span>, <span class="fl">3</span>, <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">mu</span>, <span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html" class="external-link">dgamma</a></span><span class="op">(</span><span class="va">mu</span>, <span class="va">a0</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span>, <span class="va">a0</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">/</span><span class="va">m0</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">)</span>, type <span class="op">=</span> <span class="st">"l"</span>,</span>
 <span>     xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">mu</span><span class="op">)</span>, ylab <span class="op">=</span> <span class="st">""</span>, main <span class="op">=</span> <span class="st">"Posterior density"</span><span class="op">)</span></span>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">2</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">mu</span>, <span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html" class="external-link">dgamma</a></span><span class="op">(</span><span class="va">mu</span>, <span class="va">a0</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span>, <span class="va">a0</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">/</span><span class="va">m0</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>        col <span class="op">=</span> <span class="va">i</span>, lty <span class="op">=</span> <span class="va">i</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topright"</span>, legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"a0 = "</span>, <span class="va">a0</span><span class="op">[</span><span class="fl">2</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span><span class="op">)</span>, <span class="st">"improper"</span><span class="op">)</span>,</span>
+<span>       col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span><span class="op">:</span><span class="fl">4</span>, <span class="fl">1</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span><span class="op">:</span><span class="fl">4</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">mu</span>, <span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html" class="external-link">dgamma</a></span><span class="op">(</span><span class="va">mu</span>, <span class="va">a0</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span>, <span class="va">a0</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">/</span><span class="va">m0</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">)</span>, type <span class="op">=</span> <span class="st">"l"</span>,</span>
 <span>     xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">mu</span><span class="op">)</span>, ylab <span class="op">=</span> <span class="st">""</span>, main <span class="op">=</span> <span class="st">"Posterior density"</span><span class="op">)</span></span>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">5</span><span class="op">:</span><span class="fl">7</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">mu</span>, <span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html" class="external-link">dgamma</a></span><span class="op">(</span><span class="va">mu</span>, <span class="va">a0</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span>, <span class="va">a0</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">/</span><span class="va">m0</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>        col <span class="op">=</span> <span class="va">i</span> <span class="op">-</span> <span class="fl">3</span>, lty <span class="op">=</span> <span class="va">i</span> <span class="op">-</span> <span class="fl">3</span><span class="op">)</span></span>
-<span><span class="op">}</span></span></code></pre></div>
+<span><span class="op">}</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topright"</span>, legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"m0 = "</span>, <span class="va">m0</span><span class="op">[</span><span class="fl">5</span><span class="op">:</span><span class="fl">7</span><span class="op">]</span><span class="op">)</span>, <span class="st">"improper"</span><span class="op">)</span>,</span>
+<span>       col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span><span class="op">:</span><span class="fl">7</span> <span class="op">-</span> <span class="fl">3</span>, <span class="fl">1</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span><span class="op">:</span><span class="fl">7</span> <span class="op">-</span> <span class="fl">3</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="Chapter02_files/figure-html/unnamed-chunk-5-1.png" width="768"></p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">b0</span> <span class="op">&lt;-</span> <span class="va">a0</span> <span class="op">/</span> <span class="va">m0</span></span>
+<span><span class="va">aN</span> <span class="op">&lt;-</span> <span class="va">a0</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span></span>
+<span><span class="va">bN</span> <span class="op">&lt;-</span> <span class="va">b0</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span></span>
+<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span>a0 <span class="op">=</span> <span class="va">a0</span>, b0 <span class="op">=</span> <span class="va">b0</span>, m0 <span class="op">=</span> <span class="va">m0</span>,</span>
+<span>             postmean <span class="op">=</span> <span class="va">aN</span> <span class="op">/</span> <span class="va">bN</span>,</span>
+<span>             postSD <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">aN</span> <span class="op">/</span> <span class="va">bN</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span>,</span>
+<span>             leftpostquant <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html" class="external-link">qgamma</a></span><span class="op">(</span><span class="fl">0.025</span>, <span class="va">aN</span>, <span class="va">bN</span><span class="op">)</span>,</span>
+<span>             rightpostquant <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html" class="external-link">qgamma</a></span><span class="op">(</span><span class="fl">0.975</span>, <span class="va">aN</span>, <span class="va">bN</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">res</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="right">a0</th>
+<th align="right">b0</th>
+<th align="right">m0</th>
+<th align="right">postmean</th>
+<th align="right">postSD</th>
+<th align="right">leftpostquant</th>
+<th align="right">rightpostquant</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="right">1.0</td>
+<td align="right">0.000</td>
+<td align="right">Inf</td>
+<td align="right">5.255</td>
+<td align="right">0.165</td>
+<td align="right">4.936</td>
+<td align="right">5.584</td>
+</tr>
+<tr class="even">
+<td align="right">0.5</td>
+<td align="right">0.095</td>
+<td align="right">5.25</td>
+<td align="right">5.250</td>
+<td align="right">0.165</td>
+<td align="right">4.931</td>
+<td align="right">5.579</td>
+</tr>
+<tr class="odd">
+<td align="right">2.0</td>
+<td align="right">0.381</td>
+<td align="right">5.25</td>
+<td align="right">5.250</td>
+<td align="right">0.165</td>
+<td align="right">4.931</td>
+<td align="right">5.579</td>
+</tr>
+<tr class="even">
+<td align="right">10.0</td>
+<td align="right">1.905</td>
+<td align="right">5.25</td>
+<td align="right">5.250</td>
+<td align="right">0.165</td>
+<td align="right">4.932</td>
+<td align="right">5.577</td>
+</tr>
+<tr class="odd">
+<td align="right">3.0</td>
+<td align="right">6.000</td>
+<td align="right">0.50</td>
+<td align="right">5.106</td>
+<td align="right">0.161</td>
+<td align="right">4.796</td>
+<td align="right">5.426</td>
+</tr>
+<tr class="even">
+<td align="right">3.0</td>
+<td align="right">1.000</td>
+<td align="right">3.00</td>
+<td align="right">5.238</td>
+<td align="right">0.165</td>
+<td align="right">4.920</td>
+<td align="right">5.566</td>
+</tr>
+<tr class="odd">
+<td align="right">3.0</td>
+<td align="right">0.300</td>
+<td align="right">10.00</td>
+<td align="right">5.257</td>
+<td align="right">0.165</td>
+<td align="right">4.938</td>
+<td align="right">5.586</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 <div class="section level2">
@@ -192,7 +285,7 @@ y_i \sim \mathcal P(\lambda e_i), \quad i = 1,\dots,N.
 is independently (but not identically!) distributed. We proceed by
 computing and visualizing the posterior for different prior
 hyperparameter choices.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="va">accidents</span><span class="op">[</span>, <span class="st">"children_accidents"</span><span class="op">]</span></span>
 <span><span class="va">exp</span> <span class="op">&lt;-</span> <span class="va">accidents</span><span class="op">[</span>, <span class="st">"children_exposure"</span><span class="op">]</span></span>
 <span><span class="va">lambdahat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">exp</span><span class="op">)</span></span>
@@ -211,10 +304,10 @@ hyperparameter choices.</p>
 <span>                      <span class="st">", "</span>, <span class="st">"b0 = "</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">b0</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topright"</span>, <span class="va">hyperparams</span>, lty <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">4</span>, col <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Chapter02_files/figure-html/unnamed-chunk-6-1.png" width="768"></p>
+<p><img src="Chapter02_files/figure-html/unnamed-chunk-7-1.png" width="768"></p>
 <p>For all our data-driven priors, we get the same posterior mean. The
 credible intervals differ slightly.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">postmean</span> <span class="op">&lt;-</span> <span class="va">aN</span><span class="op">/</span><span class="va">bN</span></span>
 <span><span class="va">leftpostquant</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html" class="external-link">qgamma</a></span><span class="op">(</span><span class="fl">.025</span>, <span class="va">aN</span>, <span class="va">bN</span><span class="op">)</span></span>
 <span><span class="va">rightpostquant</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html" class="external-link">qgamma</a></span><span class="op">(</span><span class="fl">.975</span>, <span class="va">aN</span>, <span class="va">bN</span><span class="op">)</span></span>
@@ -237,7 +330,7 @@ at
 (that is, in October 1994). Because the data is stored as a time series
 (ts) object, we can use the window function to conveniently extract the
 two time frames.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">accidents1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/window.html" class="external-link">window</a></span><span class="op">(</span><span class="va">accidents</span>, end <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1994</span>, <span class="fl">9</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">accidents2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/window.html" class="external-link">window</a></span><span class="op">(</span><span class="va">accidents</span>, start <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1994</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -276,7 +369,7 @@ two time frames.</p>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/contour.html" class="external-link">contour</a></span><span class="op">(</span><span class="va">mu1</span>, <span class="va">mu2</span>, <span class="va">z</span>, col <span class="op">=</span> <span class="va">color</span>, xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/bquote.html" class="external-link">bquote</a></span><span class="op">(</span><span class="va">mu</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>, ylab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/bquote.html" class="external-link">bquote</a></span><span class="op">(</span><span class="va">mu</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Chapter02_files/figure-html/unnamed-chunk-8-1.png" width="768"></p>
+<p><img src="Chapter02_files/figure-html/unnamed-chunk-9-1.png" width="768"></p>
 </div>
 <div class="section level3">
 <h3 id="example-2-10-obtaining-posterior-draws-for-the-road-safety-data">Example 2.10: Obtaining posterior draws for the Road Safety
@@ -284,7 +377,7 @@ Data<a class="anchor" aria-label="anchor" href="#example-2-10-obtaining-posterio
 </h3>
 <p>We now proceed with simple Monte Carlo approximation of (nonlinear)
 functionals of the posterior.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">nsamp</span> <span class="op">&lt;-</span> <span class="fl">2000</span></span>
@@ -302,7 +395,7 @@ functionals of the posterior.</p>
 <span>     main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/bquote.html" class="external-link">bquote</a></span><span class="op">(</span><span class="st">"Histogram of "</span> <span class="op">~</span> <span class="va">delta</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">delta2</span>, breaks <span class="op">=</span> <span class="fl">20</span>, prob <span class="op">=</span> <span class="cn">TRUE</span>, xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">delta</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span>, ylab <span class="op">=</span> <span class="st">""</span>,</span>
 <span>     main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/bquote.html" class="external-link">bquote</a></span><span class="op">(</span><span class="st">"Histogram of "</span> <span class="op">~</span> <span class="va">delta</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Chapter02_files/figure-html/unnamed-chunk-9-1.png" width="768"></p>
+<p><img src="Chapter02_files/figure-html/unnamed-chunk-10-1.png" width="768"></p>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
