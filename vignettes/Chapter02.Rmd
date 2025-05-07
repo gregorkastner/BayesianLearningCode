@@ -33,15 +33,17 @@ if (pdfplots) {
   pdf("2-1_1.pdf", width = 12, height = 8)
   par(mgp = c(1.6, .6, 0), mar = c(2, 2, 3, .5), lwd = 2)
 }
-library(BayesianLearningCode)
+data("accidents", package = "BayesianLearningCode")
 summary(accidents)
-plot(accidents[,c("children_accidents", "children_exposure")], mar = c(0, 0, 0, 0), oma = c(3, 3, 1.5, .1),
+plot(accidents[, c("children_accidents", "children_exposure")],
+     mar = c(0, 0, 0, 0), oma = c(3, 3, 1.5, .1),
      main = "", xlab = "", ylab = "", ann = FALSE)
 title("Road accidents involving pedestrian children", line = 1.7)
 mtext(c("Accidents", "Exposure"), side = 2, line = 1.5, adj = c(0.77, 0.29))
 mtext("Time", side = 1, line = 1.5, at = 1995.6)
 
-plot(accidents[,c("seniors_accidents", "seniors_exposure")], mar = c(0, 0, 0, 0), oma = c(3, 3, 1.5, .1),
+plot(accidents[, c("seniors_accidents", "seniors_exposure")],
+     mar = c(0, 0, 0, 0), oma = c(3, 3, 1.5, .1),
      main = "", xlab = "", ylab = "", ann = FALSE)
 title("Road accidents involving pedestrian seniors", line = 1.7)
 mtext(c("Accidents", "Exposure"), side = 2, line = 1.5, adj = c(0.77, 0.29))
@@ -63,7 +65,7 @@ if (pdfplots) {
   par(mgp = c(1.6, .6, 0), mar = c(2, 2, 3, .5), lwd = 2)
 }
 par(mfrow = c(1, 2))
-y <- accidents[,"seniors_accidents"]
+y <- accidents[, "seniors_accidents"]
 aN <- sum(y) + 1
 bN <- length(y)
 
@@ -123,7 +125,7 @@ for (i in 5:7) {
 
 
 # Section 2.2
-## Example 2.8: Including Exposures for the Road Safety Data
+## Example 2.8: Including exposures for the Road Safety Data
 
 We now include the exposure at time $i$, $e_i$, to estimate the monthly risk
 $\lambda$ of children to be killed or seriously injured via the following
@@ -150,7 +152,8 @@ aN <- a0 + sum(y)
 bN <- b0 + sum(exp)
 
 lambda <- seq(0.00016, 0.00026, by = .000001)
-plot(lambda, dgamma(lambda, aN[1], bN[1]), type = "l", xlab = "", ylab = "",
+plot(lambda, dgamma(lambda, aN[1], bN[1]), type = "l",
+     xlab = expression(lambda), ylab = "",
      main = "Posterior densities for various priors")
 for (i in 2:length(aN)) lines(lambda, dgamma(lambda, aN[i], bN[i]), lty = i, col = i)
 

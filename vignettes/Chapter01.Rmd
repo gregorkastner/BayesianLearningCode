@@ -109,7 +109,7 @@ We now plot the conditional densities for $y \in [0,10]$. Then, we compute the
 non-normalized posteriors for $y \in \{1, 2, 3, 6, 8\}$, mark those in the plot,
 and add lines to visualize the non-normalized posteriors.
 
-```{r, echo=-2}
+```{r, echo=-1}
 if (pdfplots) {
   pdf("1-3_1.pdf", width = 9, height = 6)
   par(mgp = c(1, .6, 0), mar = c(2, 1.5, 1.5, .1), lwd = 2)
@@ -153,7 +153,8 @@ colnames(res) <- y
 knitr::kable(round(res, 3))
 ```
 
-Visualized.
+We also plot the posterior probabilities for distance values $y$
+ranging from 0 to 10 in steps of 0.2 in a stacked barplot.
 
 ```{r, echo=-1}
 if (pdfplots) {
