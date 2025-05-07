@@ -29,7 +29,8 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 URL: https://gregorkastner.github.io/BayesianLearningCode/
 Imports:
-    stochvol
+    stochvol,
+    mvtnorm
 Suggests: 
     knitr,
     rmarkdown
