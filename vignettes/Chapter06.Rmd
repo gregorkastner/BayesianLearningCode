@@ -3,8 +3,10 @@ title: "Chapter 6"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Chapter 6}
-  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r, include = FALSE}
@@ -15,7 +17,7 @@ knitr::opts_chunk$set(
   fig.height = 6
 )
 knitr::opts_knit$set(global.par = TRUE)
-pdfplots <- TRUE # default: FALSE; set this to TRUE only if you like pdf figures
+pdfplots <- FALSE # default: FALSE; set this to TRUE only if you like pdf figures
 ```
 
 ```{r, include = FALSE}
@@ -27,14 +29,11 @@ par(mgp = c(1.6, .6, 0), mar = c(2.6, 2.6, 2.6, .4), lwd = 1)
 We use movie data provided as "movies.rda" to illustrate Bayesian analysis of a regression model. The data set is 
 a preprocessed version of the one provided by Lehrer and Xi (2017).
 First of all, as there is only one film of genre G, we set the baseline for the categorical covariate genre to 
-G or PG. 
+G or PG by removing PG from the data set. 
 
 ```{r}
-library(BayesianLearningCode)
-require(dplyr)
-
-movies <- movies %>%
-  dplyr::select(-PG) 
+data("movies", package = "BayesianLearningCode")
+movies["PG"] <- NULL
 ```
 
 Next we prepare the variables for regression analysis. We define the response variable OpenBoxOffice as y and center the covariates at zero. 
