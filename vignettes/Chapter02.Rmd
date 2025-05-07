@@ -48,7 +48,8 @@ mtext(c("Accidents", "Exposure"), side = 2, line = 1.5, adj = c(0.77, 0.29))
 mtext("Time", side = 1, line = 1.5, at = 1995.6)
 ```
 
-## Example 2.4: Posterior inference for the Road Safety Data
+## Example 2.3: Posterior inference for the Road Safety Data (flat prior)
+
 The posterior under a flat prior is
 $$
 \mu|\mathbf{y} \sim \mathcal G(N\bar y + 1, N),
@@ -66,8 +67,8 @@ y <- accidents[,"seniors_accidents"]
 aN <- sum(y) + 1
 bN <- length(y)
 
-x <- seq(4.5, 6, by = 0.01)
-plot(x, dgamma(x, aN, bN), type = "l", xlab = expression(mu), ylab = "",
+mu <- seq(4.5, 6, by = 0.01)
+plot(mu, dgamma(mu, aN, bN), type = "l", xlab = expression(mu), ylab = "",
      main = "Posterior density and quantiles")
 abline(h = 0, lty = 3)
 
@@ -80,17 +81,46 @@ for (i in seq_along(probs)) {
 }
 mtext(round(qs, 3), side = 1, at = qs, line = -1, cex = 0.8, col = "dimgrey")
 
-plot(x, pgamma(x, aN, bN), type = "l", xlab = expression(mu), ylab = "",
+plot(mu, pgamma(mu, aN, bN), type = "l", xlab = expression(mu), ylab = "",
      main = "Posterior cdf and quantiles")
 abline(h = c(0, 1), lty = 3)
 mtext(round(probs, 3), side = 2, at = probs, adj = c(0, .5, 1), cex = .8, col = "dimgrey")
 mtext(round(qs, 3), side = 1, at = qs, line = -1, cex = 0.8, col = "dimgrey")
 
 for (i in seq_along(probs)) {
-  lines(c(.9*min(x), qs[i]), c(probs[i], probs[i]), lty = 2, col = "dimgrey")
+  lines(c(.9 * min(mu), qs[i]), c(probs[i], probs[i]), lty = 2, col = "dimgrey")
   lines(c(qs[i], qs[i]), c(probs[i], 0), lty = 2, col = "dimgrey")
 }
 ```
+
+
+## Example 2.4: Posterior inference for the Road Safety Data (gamma prior)
+
+We choose several values for $m_0$ and $a_0$. Note that, formally, choosing
+$m_0 = \infty$ and $a_0 = 1$ gives the improper prior from above.
+
+```{r, echo=-(1:2)}
+if (pdfplots) {
+  pdf("2-1_3.pdf", width = 12, height = 8)
+  par(mgp = c(1.6, .6, 0), mar = c(2, 2, 3, .5), lwd = 2)
+}
+par(mfrow = c(1, 2))
+m0 <- c(Inf, mean(y), mean(y), mean(y), 0.5, 3, 10)
+a0 <- c(1, 0.5, 3, 10, 3, 3, 3)
+plot(mu, dgamma(mu, a0[1] + sum(y), a0[1]/m0[1] + length(y)), type = "l",
+     xlab = expression(mu), ylab = "", main = "Posterior density")
+for (i in 2:4) {
+  lines(mu, dgamma(mu, a0[i] + sum(y), a0[i]/m0[i] + length(y)),
+        col = i, lty = i)
+}
+plot(mu, dgamma(mu, a0[1] + sum(y), a0[1]/m0[1] + length(y)), type = "l",
+     xlab = expression(mu), ylab = "", main = "Posterior density")
+for (i in 5:7) {
+  lines(mu, dgamma(mu, a0[i] + sum(y), a0[i]/m0[i] + length(y)),
+        col = i - 3, lty = i - 3)
+}
+```
+
 
 # Section 2.2
 ## Example 2.8: Including Exposures for the Road Safety Data
@@ -106,12 +136,11 @@ Note that we still assume that the data is independently (but not identically!)
 distributed. We proceed by computing and visualizing the posterior for different
 prior hyperparameter choices.
 
-```{r, echo = -(1:2)}
+```{r, echo = -1}
 if (pdfplots) {
-  pdf("2-1_3.pdf", width = 12, height = 8)
+  pdf("2-2_1.pdf", width = 12, height = 8)
   par(mgp = c(1.6, .6, 0), mar = c(2, 2, 3, .5), lwd = 2)
 }
-par(mfrow = c(1, 1))
 y <- accidents[, "children_accidents"]
 exp <- accidents[, "children_exposure"]
 lambdahat <- mean(y)/mean(exp)
@@ -120,10 +149,10 @@ b0 <- c(0, a0[-1]/lambdahat)
 aN <- a0 + sum(y)
 bN <- b0 + sum(exp)
 
-x <- seq(0.00016, 0.00026, by = .000001)
-plot(x, dgamma(x, aN[1], bN[1]), type = "l", xlab = "", ylab = "",
+lambda <- seq(0.00016, 0.00026, by = .000001)
+plot(lambda, dgamma(lambda, aN[1], bN[1]), type = "l", xlab = "", ylab = "",
      main = "Posterior densities for various priors")
-for (i in 2:length(aN)) lines(x, dgamma(x, aN[i], bN[i]), lty = i, col = i)
+for (i in 2:length(aN)) lines(lambda, dgamma(lambda, aN[i], bN[i]), lty = i, col = i)
 
 hyperparams <- paste0("a0 = ", formatC(a0, 1, format = "f"),
                       ", ", "b0 = ", round(b0))
@@ -152,7 +181,7 @@ two time frames.
 
 ```{r, echo = -(1:2), fig.width = 8, fig.height = 4}
 if (pdfplots) {
-  pdf("2-1_4.pdf", width = 12, height = 8)
+  pdf("2-2_2.pdf", width = 12, height = 8)
   par(mgp = c(1.6, .6, 0), mar = c(2, 2, 3, .5), lwd = 2)
 }
 par(mfrow = c(1, 2))
@@ -203,7 +232,7 @@ of the posterior.
 
 ```{r, echo = -(1:2), fig.width = 8, fig.height = 4}
 if (pdfplots) {
-  pdf("2-1_5.pdf", width = 12, height = 8)
+  pdf("2-2_3.pdf", width = 12, height = 8)
   par(mgp = c(1.6, .6, 0), mar = c(2, 2, 3, .5), lwd = 2)
 }
 par(mfrow = c(2, 2))
