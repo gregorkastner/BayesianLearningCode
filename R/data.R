@@ -31,13 +31,13 @@
 #'
 #' TBD
 #'
-#' @format A data frame with 94 observations of 30 variables
+#' @format A data frame with 94 observations of 29 variables
 #' \describe{
 #'   \item{title}{The title of the movie (anonymized)}
 #'   \item{...}{etc. etc.}
 #' }
 #' @source TBD: \url{https://doi.org/10.7910/DVN/JS3AVM}
-"movie"
+"movies"
 
 #' Words Data
 #'
