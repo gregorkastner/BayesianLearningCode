@@ -38,6 +38,7 @@
     <li><a class="dropdown-item" href="../articles/Chapter03.html">Chapter 3: A First Bayesian Analysis of Unknown Probabilities</a></li>
     <li><a class="dropdown-item" href="../articles/Chapter04.html">Chapter 4: A First Bayesian Analysis of Continuous Data</a></li>
     <li><a class="dropdown-item" href="../articles/Chapter05.html">Chapter 5: Learning More About Bayesian Learning</a></li>
+    <li><a class="dropdown-item" href="../articles/Chapter06.html">Chapter 6</a></li>
   </ul>
 </li>
       </ul>
@@ -114,7 +115,7 @@ beta-binomial model from earlier.</p>
 <span></span>
 <span><span class="va">posterior</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">mu</span>, <span class="va">sigma2</span>, <span class="va">ybar</span>, <span class="va">s2</span>, <span class="va">N</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">dnorm</a></span><span class="op">(</span><span class="va">mu</span>, <span class="va">ybar</span>, <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">sigma2</span> <span class="op">/</span> <span class="va">N</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span></span>
-<span>    <span class="fu">dinvgamma</span><span class="op">(</span><span class="va">sigma2</span>, <span class="op">(</span><span class="va">N</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span>, <span class="va">N</span> <span class="op">*</span> <span class="va">s2</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="../reference/InvGammaDist.html">dinvgamma</a></span><span class="op">(</span><span class="va">sigma2</span>, <span class="op">(</span><span class="va">N</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span>, <span class="va">N</span> <span class="op">*</span> <span class="va">s2</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>Read in data again, and simulate from the posterior by Monte
 Carlo.</p>
@@ -331,7 +332,7 @@ polynomials and visualize these.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
 </div>
 
     </footer>
