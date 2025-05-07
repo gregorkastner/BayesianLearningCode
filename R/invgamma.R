@@ -1,5 +1,9 @@
+#' The Inverse Gamma Distribution
+#'
 #' Density, distribution function, quantile function and random generation for
 #' the inverse gamma distribution with parameters a and b.
+#'
+#' For details, please see \code{\link[stats]{GammaDist}}.
 #'
 #' @param x vector of quantiles.
 #' @param q vector of quantiles.

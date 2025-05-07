@@ -6,8 +6,7 @@
 \alias{pinvgamma}
 \alias{qinvgamma}
 \alias{rinvgamma}
-\title{Density, distribution function, quantile function and random generation for
-the inverse gamma distribution with parameters a and b.}
+\title{The Inverse Gamma Distribution}
 \usage{
 dinvgamma(x, a, b, log = FALSE)
 
@@ -40,4 +39,7 @@ distribution function, \code{qinvgamma} gives the quantile function, and
 \description{
 Density, distribution function, quantile function and random generation for
 the inverse gamma distribution with parameters a and b.
+}
+\details{
+For details, please see \code{\link[stats]{GammaDist}}.
 }
