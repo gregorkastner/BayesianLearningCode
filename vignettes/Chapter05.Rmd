@@ -24,8 +24,8 @@ pdfplots <- FALSE # default: FALSE; set this to TRUE only if you like pdf figure
 par(mgp = c(1.6, .6, 0), mar = c(2.6, 2.6, 2.6, .4), lwd = 1)
 ```
 
-# Section 5.2
-## Figure 5.1: The adaptive nature of Bayesian learning
+# Section 5.2: Conjugate or non-conjugate?
+## Example 5.3 / Figure 5.1: The adaptive nature of Bayesian learning
 
 We illustrate the adaptive nature of Bayesian learning (also referred to
 as *sequential updating* or *on-line learning*) via the beta-binomial model
@@ -61,38 +61,49 @@ for (i in seq_along(thetatrue)) {
 }
 ```
 
-# Section 5.3
+# Section 5.3.2: Uncertainty quantification
+## Example 5.5: Quantifying and visualizing posterior uncertainty for the mean and the variance of a normal distribution
 
-Recap posterior from Chapter 4.
+We re-use the posterior established in Chapter 4, where we modeled the CHF/USD
+exchange rate as a normal distribution with unknown mean and variance.
 
 ```{r}
-dinvgamma <- function(x, a, b, log = FALSE) {
-  logdens <- dgamma(1/x, a, b, log = TRUE) - 2 * log(x)
-  if (log) logdens else exp(logdens)
-}
-
+library(BayesianLearningCode)
 posterior <- function(mu, sigma2, ybar, s2, N) {
   dnorm(mu, ybar, sqrt(sigma2 / N)) *
     dinvgamma(sigma2, (N - 1) / 2, N * s2 / 2)
 }
 ```
 
-Read in data again, and simulate from the posterior by Monte Carlo.
+First, we read in the data once more.
 
 ```{r}
-alpha <- c(.01, .05, .1)
-ndraws <- 100000
 data(exrates, package = "stochvol")
 y <- 100 * diff(log(exrates$USD / exrates$CHF))
 N <- length(y)
 ybar <- mean(y)
 s2 <- var(y) * (N - 1) / N
-sigma2draws <- 1 / rgamma(ndraws, (N - 1) / 2, N * s2 / 2)
-mudraws <- rnorm(ndraws, mean(y), sqrt(sigma2draws / N))
-draws <- data.frame(mu = mudraws, sigma2draws = sigma2draws)
 ```
 
-Obtain the functional values and keep the top `r 100 * (1 - alpha)` percent,
+Now, we simulate from the posterior by Monte Carlo,
+i.e., we draw many times from the marginal posterior $\sigma^2|\mathbf{y}$,
+and then, conditioning on these draws, from $\mu|\sigma^2,\mathbf{y}$.
+
+```{r}
+ndraws <- 100000
+sigma2draws <- rinvgamma(ndraws, (N - 1) / 2, N * s2 / 2)
+mudraws <- rnorm(ndraws, ybar, sqrt(sigma2draws / N))
+draws <- data.frame(mu = mudraws, sigma2 = sigma2draws)
+```
+
+Next, we need to fix $\alpha$.
+
+```{r}
+alpha <- c(.01, .05, .1)
+```
+
+To approximate the bivariate HPD regions for our posterior, we obtain the
+functional values and keep the top `r 100 * (1 - alpha)` percent,
 respectively.
 
 ```{r}
@@ -105,22 +116,32 @@ for (i in seq_along(alpha)) {
 
 To visualize, we compute the convex hull of the remaining draws. Note that we
 randomly exclude some draws for visualization only in order to avoid plotting
-too many overlapping points.
+too many overlapping points. We also visualize the projections on the two axes.
 
 ```{r, echo=-(1:2)}
 if (pdfplots) {
-  pdf("5-3_1.pdf", width = 8, height = 5)
+  pdf("5-3_1.pdf", width = 8, height = 6)
   par(mar = c(2.2, 2.2, 1.6, .2), mgp = c(1.2, .5, 0))
 }
 par(mfrow = c(1, 1))
 toplot <- sample.int(nrow(draws), 1000)
 plot(draws[toplot,], pch = 16, col = rgb(0, 0, 0, .3), cex = 2,
      xlab = expression(mu), ylab = expression(sigma^2))
+#rug(draws[toplot, "mu"])
+#rug(draws[toplot, "sigma2"], side = 2)
 for (i in seq_along(alpha)) {
  hullind <- chull(HPDdraws[[i]])
  polygon(HPDdraws[[i]][hullind,], col = rgb(1, 0, 0, .2))
+ rect(min(HPDdraws[[i]]$mu), par("usr")[3],
+      max(HPDdraws[[i]]$mu), par("usr")[3] + .03 * diff(par("usr")[3:4]),
+      col = rgb(1, 0, 0, .2))
+ rect(par("usr")[1], min(HPDdraws[[i]]$sigma2), 
+      par("usr")[1] + .03 * 6 / 8 * diff(par("usr")[1:2]), max(HPDdraws[[i]]$sigma2),
+      col = rgb(1, 0, 0, .2))
 }
 ```
+
+
 
 # Section 5.4
 ## Figure 5.2: Bayesian asymptotics 1
