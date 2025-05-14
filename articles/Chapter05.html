@@ -152,8 +152,9 @@ respectively.</p>
 <span><span class="op">}</span></span></code></pre></div>
 <p>To visualize, we compute the convex hull of the remaining draws. Note
 that we randomly exclude some draws for visualization only in order to
-avoid plotting too many overlapping points. We also visualize the
-projections on the two axes.</p>
+avoid plotting too many overlapping points. We also draw the projections
+on the two axes, yielding the corresponding univariate regions
+(intervals).</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">toplot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample.int</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">draws</span><span class="op">)</span>, <span class="fl">1000</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">draws</span><span class="op">[</span><span class="va">toplot</span>,<span class="op">]</span>, pch <span class="op">=</span> <span class="fl">16</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/rgb.html" class="external-link">rgb</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">.3</span><span class="op">)</span>, cex <span class="op">=</span> <span class="fl">2</span>,</span>
