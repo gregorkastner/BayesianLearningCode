@@ -91,15 +91,20 @@ zero.</p>
 <code class="sourceCode R"><span><span class="va">y</span><span class="op">&lt;-</span> <span class="va">movies</span><span class="op">[</span>, <span class="st">"OpenBoxOffice"</span><span class="op">]</span></span>
 <span></span>
 <span><span class="va">data.cen</span> <span class="op">&lt;-</span> <span class="va">movies</span><span class="op">[</span>,<span class="op">-</span><span class="fl">1</span><span class="op">]</span></span>
+<span><span class="co">#vbin&lt;- c("Action","Adventure","Animation","Comedy","Crime", </span></span>
+<span><span class="co">#  "Drama", "Family","Fantasy", "Mystery", "Romance",</span></span>
+<span><span class="co">#  "Sci-Fi", "Thriller", "PG13", "R") </span></span>
 <span><span class="va">vbin</span><span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Action"</span>,<span class="st">"Adventure"</span>,<span class="st">"Animation"</span>,<span class="st">"Comedy"</span>,<span class="st">"Crime"</span>, </span>
 <span>  <span class="st">"Drama"</span>, <span class="st">"Family"</span>,<span class="st">"Fantasy"</span>, <span class="st">"Mystery"</span>, <span class="st">"Romance"</span>,</span>
-<span>  <span class="st">"Sci-Fi"</span>, <span class="st">"Thriller"</span>, <span class="st">"PG13"</span>, <span class="st">"R"</span><span class="op">)</span> </span>
+<span>  <span class="st">"Sci-Fi"</span>, <span class="st">"Thriller"</span>, <span class="st">"PG13"</span>, <span class="st">"R"</span><span class="op">)</span></span>
 <span><span class="va">data.cen</span><span class="op">[</span>,<span class="va">vbin</span><span class="op">]</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/base/scale.html" class="external-link">scale</a></span><span class="op">(</span><span class="va">movies</span><span class="op">[</span>,<span class="va">vbin</span><span class="op">]</span>,scale<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
+<span><span class="co">#vmetr&lt;- c("Budget", "Weeks", "Screens", </span></span>
+<span><span class="co">#          "S-21-27","S-14-20","S-7-13","S-4-6","S-1-3",</span></span>
+<span><span class="co">#          "Vol-21-27","Vol-14-20","Vol-7-13","Vol-4-6",</span></span>
+<span><span class="co">#         "Vol-1-3")</span></span>
 <span><span class="va">vmetr</span><span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Budget"</span>, <span class="st">"Weeks"</span>, <span class="st">"Screens"</span>, </span>
-<span>          <span class="st">"S-21-27"</span>,<span class="st">"S-14-20"</span>,<span class="st">"S-7-13"</span>,<span class="st">"S-4-6"</span>,<span class="st">"S-1-3"</span>,</span>
-<span>          <span class="st">"Vol-21-27"</span>,<span class="st">"Vol-14-20"</span>,<span class="st">"Vol-7-13"</span>,<span class="st">"Vol-4-6"</span>,</span>
-<span>          <span class="st">"Vol-1-3"</span><span class="op">)</span></span>
+<span>          <span class="st">"S-4-6"</span>,<span class="st">"S-1-3"</span>,  <span class="st">"Vol-4-6"</span>, <span class="st">"Vol-1-3"</span><span class="op">)</span></span>
 <span><span class="va">data.cen</span><span class="op">[</span>,<span class="va">vmetr</span><span class="op">]</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/base/scale.html" class="external-link">scale</a></span><span class="op">(</span><span class="va">movies</span><span class="op">[</span>,<span class="va">vmetr</span><span class="op">]</span>,scale<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">N</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span>  <span class="co"># number of Observations</span></span>
@@ -160,40 +165,40 @@ confidence intervals.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">res1</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Intercept"</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">data.cen</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">res1</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"post.mean"</span>, <span class="st">"2.5%"</span>, <span class="st">"97.5"</span> <span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">res1</span>,<span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt;           post.mean    2.5%   97.5</span></span>
-<span><span class="co">#&gt; Intercept    19.109  17.500 20.650</span></span>
-<span><span class="co">#&gt; Action       -1.690  -6.663  3.442</span></span>
-<span><span class="co">#&gt; Adventure     3.855  -1.314  8.854</span></span>
-<span><span class="co">#&gt; Animation    -9.893 -17.349 -2.470</span></span>
-<span><span class="co">#&gt; Comedy        1.978  -3.288  7.251</span></span>
-<span><span class="co">#&gt; Crime         2.182  -2.318  6.687</span></span>
-<span><span class="co">#&gt; Drama        -2.657  -7.718  2.552</span></span>
-<span><span class="co">#&gt; Family        9.518   1.645 17.325</span></span>
-<span><span class="co">#&gt; Fantasy       4.924  -1.918 11.785</span></span>
-<span><span class="co">#&gt; Mystery       2.598  -3.674  8.790</span></span>
-<span><span class="co">#&gt; Romance      -0.180  -5.941  5.008</span></span>
-<span><span class="co">#&gt; Sci-Fi       -0.005  -6.052  6.295</span></span>
-<span><span class="co">#&gt; Thriller      1.185  -3.971  6.475</span></span>
-<span><span class="co">#&gt; PG13         -0.069  -6.372  6.167</span></span>
-<span><span class="co">#&gt; R             3.885  -2.523 10.279</span></span>
-<span><span class="co">#&gt; Budget        0.119   0.021  0.216</span></span>
-<span><span class="co">#&gt; Weeks         0.547   0.156  0.933</span></span>
-<span><span class="co">#&gt; Screens       0.931   0.525  1.330</span></span>
-<span><span class="co">#&gt; S-21-27      -0.422  -1.667  0.760</span></span>
-<span><span class="co">#&gt; S-14-20       0.056  -1.800  1.910</span></span>
-<span><span class="co">#&gt; S-7-13        0.483  -2.392  3.387</span></span>
-<span><span class="co">#&gt; S-4-6        -1.501  -5.193  2.194</span></span>
-<span><span class="co">#&gt; S-1-3         2.695  -1.237  6.450</span></span>
-<span><span class="co">#&gt; Vol-21-27    -7.500 -23.644  8.529</span></span>
-<span><span class="co">#&gt; Vol-14-20    -0.764 -17.584 15.673</span></span>
-<span><span class="co">#&gt; Vol-7-13     -4.518 -21.705 12.399</span></span>
-<span><span class="co">#&gt; Vol-4-6      -5.716 -21.147  8.860</span></span>
-<span><span class="co">#&gt; Vol-1-3      20.997  17.173 24.841</span></span>
+<span><span class="co">#&gt;           post.mean     2.5%    97.5</span></span>
+<span><span class="co">#&gt; Intercept     7.184 -134.862 146.019</span></span>
+<span><span class="co">#&gt; Action       -1.672   -6.622   3.396</span></span>
+<span><span class="co">#&gt; Adventure     3.857   -1.305   8.846</span></span>
+<span><span class="co">#&gt; Animation    -9.910  -17.336  -2.481</span></span>
+<span><span class="co">#&gt; Comedy        1.997   -3.254   7.280</span></span>
+<span><span class="co">#&gt; Crime         2.170   -2.296   6.652</span></span>
+<span><span class="co">#&gt; Drama        -2.666   -7.689   2.532</span></span>
+<span><span class="co">#&gt; Family        9.519    1.710  17.336</span></span>
+<span><span class="co">#&gt; Fantasy       4.902   -1.976  11.683</span></span>
+<span><span class="co">#&gt; Mystery       2.605   -3.651   8.766</span></span>
+<span><span class="co">#&gt; Romance      -0.169   -5.844   5.017</span></span>
+<span><span class="co">#&gt; Sci-Fi        0.022   -5.973   6.242</span></span>
+<span><span class="co">#&gt; Thriller      1.196   -3.958   6.474</span></span>
+<span><span class="co">#&gt; PG13         -0.079   -6.373   6.154</span></span>
+<span><span class="co">#&gt; R             3.895   -2.514  10.323</span></span>
+<span><span class="co">#&gt; Budget        0.119    0.021   0.216</span></span>
+<span><span class="co">#&gt; Weeks         0.549    0.158   0.929</span></span>
+<span><span class="co">#&gt; Screens       0.931    0.529   1.332</span></span>
+<span><span class="co">#&gt; S-21-27      -0.424   -1.659   0.738</span></span>
+<span><span class="co">#&gt; S-14-20       0.059   -1.748   1.880</span></span>
+<span><span class="co">#&gt; S-7-13        0.555   -1.649   2.803</span></span>
+<span><span class="co">#&gt; S-4-6        -1.527   -5.143   2.045</span></span>
+<span><span class="co">#&gt; S-1-3         2.659   -1.085   6.349</span></span>
+<span><span class="co">#&gt; Vol-21-27    -7.507  -23.604   8.582</span></span>
+<span><span class="co">#&gt; Vol-14-20    -0.696  -17.347  15.770</span></span>
+<span><span class="co">#&gt; Vol-7-13     -4.498  -21.552  12.278</span></span>
+<span><span class="co">#&gt; Vol-4-6      -5.786  -21.153   8.729</span></span>
+<span><span class="co">#&gt; Vol-1-3      21.003   17.185  24.836</span></span>
 <span></span>
 <span><span class="va">sigma2.res1</span><span class="op">&lt;-</span> <span class="va">sigma2s</span><span class="op">[</span><span class="va">burnin</span><span class="op">+</span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="va">M</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">sigma2.res1</span><span class="op">)</span>, <span class="fu">eq.tails</span><span class="op">(</span><span class="va">sigma2.res1</span><span class="op">)</span><span class="op">)</span>,<span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;          2.5%  97.5% </span></span>
-<span><span class="co">#&gt; 60.375 43.676 83.717</span></span></code></pre></div>
+<span><span class="co">#&gt; 59.957 43.510 82.945</span></span></code></pre></div>
 <p>Next we use the horseshoe prior to analyse the data. We use the same
 prior on the intercept but specify the horseshoe prior via latent
 Inverse Gamma parameters.</p>
@@ -271,40 +276,40 @@ tailed 95% credibility intervals</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">res2</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"post.mean"</span>, <span class="st">"2.5%"</span>, <span class="st">"97.5"</span> <span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">res2</span>,<span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt;           post.mean    2.5%   97.5</span></span>
-<span><span class="co">#&gt; Intercept    19.118  17.566 20.682</span></span>
-<span><span class="co">#&gt; Action       -0.608  -5.157  3.241</span></span>
-<span><span class="co">#&gt; Adventure     1.988  -1.995  7.020</span></span>
-<span><span class="co">#&gt; Animation    -6.541 -15.589  0.639</span></span>
-<span><span class="co">#&gt; Comedy        0.967  -2.957  5.490</span></span>
-<span><span class="co">#&gt; Crime         1.117  -2.320  5.183</span></span>
-<span><span class="co">#&gt; Drama        -1.798  -6.344  1.819</span></span>
-<span><span class="co">#&gt; Family        5.619  -1.184 14.902</span></span>
-<span><span class="co">#&gt; Fantasy       2.735  -2.515  9.486</span></span>
-<span><span class="co">#&gt; Mystery       1.246  -3.443  7.105</span></span>
-<span><span class="co">#&gt; Romance      -0.340  -4.756  3.900</span></span>
-<span><span class="co">#&gt; Sci-Fi        0.161  -4.891  5.384</span></span>
-<span><span class="co">#&gt; Thriller      0.515  -3.366  4.752</span></span>
-<span><span class="co">#&gt; PG13         -1.157  -5.906  3.652</span></span>
-<span><span class="co">#&gt; R             2.244  -2.043  7.532</span></span>
-<span><span class="co">#&gt; Budget        0.124   0.031  0.218</span></span>
-<span><span class="co">#&gt; Weeks         0.498   0.098  0.898</span></span>
-<span><span class="co">#&gt; Screens       0.950   0.551  1.381</span></span>
-<span><span class="co">#&gt; S-21-27      -0.336  -1.425  0.734</span></span>
-<span><span class="co">#&gt; S-14-20       0.003  -1.659  1.652</span></span>
-<span><span class="co">#&gt; S-7-13        0.441  -2.091  2.993</span></span>
-<span><span class="co">#&gt; S-4-6        -0.590  -4.034  2.273</span></span>
-<span><span class="co">#&gt; S-1-3         1.729  -1.209  5.300</span></span>
-<span><span class="co">#&gt; Vol-21-27    -7.355 -29.362  4.704</span></span>
-<span><span class="co">#&gt; Vol-14-20    -2.714 -19.453 11.672</span></span>
-<span><span class="co">#&gt; Vol-7-13     -2.527 -23.094 14.962</span></span>
-<span><span class="co">#&gt; Vol-4-6      -4.778 -21.352  7.586</span></span>
-<span><span class="co">#&gt; Vol-1-3      20.087  11.323 25.089</span></span>
+<span><span class="co">#&gt;           post.mean     2.5%    97.5</span></span>
+<span><span class="co">#&gt; Intercept     9.192 -118.417 135.768</span></span>
+<span><span class="co">#&gt; Action       -0.599   -5.121   3.258</span></span>
+<span><span class="co">#&gt; Adventure     1.990   -1.999   7.050</span></span>
+<span><span class="co">#&gt; Animation    -6.551  -15.578   0.649</span></span>
+<span><span class="co">#&gt; Comedy        0.977   -2.935   5.514</span></span>
+<span><span class="co">#&gt; Crime         1.110   -2.329   5.170</span></span>
+<span><span class="co">#&gt; Drama        -1.803   -6.307   1.783</span></span>
+<span><span class="co">#&gt; Family        5.618   -1.210  14.812</span></span>
+<span><span class="co">#&gt; Fantasy       2.723   -2.484   9.507</span></span>
+<span><span class="co">#&gt; Mystery       1.250   -3.420   7.080</span></span>
+<span><span class="co">#&gt; Romance      -0.335   -4.737   3.906</span></span>
+<span><span class="co">#&gt; Sci-Fi        0.170   -4.824   5.338</span></span>
+<span><span class="co">#&gt; Thriller      0.520   -3.312   4.765</span></span>
+<span><span class="co">#&gt; PG13         -1.163   -5.920   3.629</span></span>
+<span><span class="co">#&gt; R             2.250   -2.027   7.506</span></span>
+<span><span class="co">#&gt; Budget        0.123    0.031   0.218</span></span>
+<span><span class="co">#&gt; Weeks         0.498    0.100   0.897</span></span>
+<span><span class="co">#&gt; Screens       0.951    0.547   1.379</span></span>
+<span><span class="co">#&gt; S-21-27      -0.336   -1.426   0.713</span></span>
+<span><span class="co">#&gt; S-14-20       0.011   -1.603   1.642</span></span>
+<span><span class="co">#&gt; S-7-13        0.487   -1.371   2.460</span></span>
+<span><span class="co">#&gt; S-4-6        -0.600   -3.935   2.151</span></span>
+<span><span class="co">#&gt; S-1-3         1.692   -1.140   5.121</span></span>
+<span><span class="co">#&gt; Vol-21-27    -7.354  -29.155   4.631</span></span>
+<span><span class="co">#&gt; Vol-14-20    -2.693  -19.488  11.735</span></span>
+<span><span class="co">#&gt; Vol-7-13     -2.517  -23.152  15.040</span></span>
+<span><span class="co">#&gt; Vol-4-6      -4.808  -21.148   7.471</span></span>
+<span><span class="co">#&gt; Vol-1-3      20.092   11.413  25.064</span></span>
 <span></span>
 <span><span class="va">sigma2.res2</span><span class="op">&lt;-</span> <span class="va">sigma2s</span><span class="op">[</span><span class="va">burnin</span><span class="op">+</span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="va">M</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">sigma2.res2</span><span class="op">)</span>, <span class="fu">eq.tails</span><span class="op">(</span><span class="va">sigma2.res2</span><span class="op">)</span><span class="op">)</span>,<span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;          2.5%  97.5% </span></span>
-<span><span class="co">#&gt; 62.952 44.696 92.083</span></span></code></pre></div>
+<span><span class="co">#&gt; 62.681 44.512 91.320</span></span></code></pre></div>
 <p>We next have a look at the posterior distributions: first under the
 semi-conjugate priors and then under the Horseshoe prior</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
