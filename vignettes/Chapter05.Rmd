@@ -116,7 +116,8 @@ for (i in seq_along(alpha)) {
 
 To visualize, we compute the convex hull of the remaining draws. Note that we
 randomly exclude some draws for visualization only in order to avoid plotting
-too many overlapping points. We also visualize the projections on the two axes.
+too many overlapping points. We also draw the projections on the two axes,
+yielding the corresponding univariate regions (intervals).
 
 ```{r, echo=-(1:2)}
 if (pdfplots) {
