@@ -43,15 +43,20 @@ Next we prepare the variables for regression analysis. We define the response va
 y<- movies[, "OpenBoxOffice"]
 
 data.cen <- movies[,-1]
+#vbin<- c("Action","Adventure","Animation","Comedy","Crime", 
+#  "Drama", "Family","Fantasy", "Mystery", "Romance",
+#  "Sci-Fi", "Thriller", "PG13", "R") 
 vbin<- c("Action","Adventure","Animation","Comedy","Crime", 
   "Drama", "Family","Fantasy", "Mystery", "Romance",
-  "Sci-Fi", "Thriller", "PG13", "R") 
+  "Sci-Fi", "Thriller", "PG13", "R")
 data.cen[,vbin]<-scale(movies[,vbin],scale=FALSE)
 
+#vmetr<- c("Budget", "Weeks", "Screens", 
+#          "S-21-27","S-14-20","S-7-13","S-4-6","S-1-3",
+#          "Vol-21-27","Vol-14-20","Vol-7-13","Vol-4-6",
+#         "Vol-1-3")
 vmetr<- c("Budget", "Weeks", "Screens", 
-          "S-21-27","S-14-20","S-7-13","S-4-6","S-1-3",
-          "Vol-21-27","Vol-14-20","Vol-7-13","Vol-4-6",
-          "Vol-1-3")
+          "S-4-6","S-1-3",  "Vol-4-6", "Vol-1-3")
 data.cen[,vmetr]<-scale(movies[,vmetr],scale=FALSE)
 
 N=length(y)  # number of Observations
