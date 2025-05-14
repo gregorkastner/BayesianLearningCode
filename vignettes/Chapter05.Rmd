@@ -126,18 +126,21 @@ if (pdfplots) {
 par(mfrow = c(1, 1))
 toplot <- sample.int(nrow(draws), 1000)
 plot(draws[toplot,], pch = 16, col = rgb(0, 0, 0, .3), cex = 2,
-     xlab = expression(mu), ylab = expression(sigma^2))
+     xlab = expression(mu), ylab = expression(sigma^2),
+     main = paste0("Credible regions"))
+legend("topright", paste0(100 * (1 - alpha), "%"),
+       fill = rgb(1, 0, 0, c(.2, .4, .6)), border = NA)
 #rug(draws[toplot, "mu"])
 #rug(draws[toplot, "sigma2"], side = 2)
 for (i in seq_along(alpha)) {
  hullind <- chull(HPDdraws[[i]])
- polygon(HPDdraws[[i]][hullind,], col = rgb(1, 0, 0, .2))
+ polygon(HPDdraws[[i]][hullind,], col = rgb(1, 0, 0, .2), border = NA)
  rect(min(HPDdraws[[i]]$mu), par("usr")[3],
       max(HPDdraws[[i]]$mu), par("usr")[3] + .03 * diff(par("usr")[3:4]),
-      col = rgb(1, 0, 0, .2))
+      col = rgb(1, 0, 0, .2), border = NA)
  rect(par("usr")[1], min(HPDdraws[[i]]$sigma2), 
       par("usr")[1] + .03 * 6 / 8 * diff(par("usr")[1:2]), max(HPDdraws[[i]]$sigma2),
-      col = rgb(1, 0, 0, .2))
+      col = rgb(1, 0, 0, .2), border = NA)
 }
 ```
 
