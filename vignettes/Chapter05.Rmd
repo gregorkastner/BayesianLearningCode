@@ -122,13 +122,12 @@ yielding the corresponding univariate regions (intervals).
 ```{r, echo=-(1:2)}
 if (pdfplots) {
   pdf("5-3_1.pdf", width = 8, height = 6)
-  par(mar = c(2.2, 2.2, 1.6, .2), mgp = c(1.2, .5, 0))
+  par(mar = c(2.3, 2.3, .2, .6), mgp = c(1.2, .5, 0))
 }
 par(mfrow = c(1, 1))
 toplot <- sample.int(nrow(draws), 1000)
 plot(draws[toplot,], pch = 16, col = rgb(0, 0, 0, .3), cex = 2,
-     xlab = expression(mu), ylab = expression(sigma^2),
-     main = paste0("Credible regions"))
+     xlab = expression(mu), ylab = expression(sigma^2))
 legend("topright", paste0(100 * (1 - alpha), "%"),
        fill = rgb(1, 0, 0, c(.2, .4, .6)), border = NA)
 #rug(draws[toplot, "mu"])
