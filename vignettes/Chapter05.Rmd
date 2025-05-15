@@ -276,19 +276,21 @@ set.seed(2)
 thetatrue <- c(0.02, 0.25)
 N <- c(25, 100, 400)
 settings <- expand.grid(N = N, thetatrue = thetatrue)
-rbinom(6, settings$N, settings$thetatrue)
+SN <- matrix(rbinom(6, settings$N, settings$thetatrue), nrow = 3, ncol = 2)
 theta <- seq(0, 1, .0005)
 
-for (n in N) {
-  for (p in thetatrue) {
-    aN <- n*p + 1
-    bN <- n - n*p + 1
+for (i in seq_along(N)) {
+  for (j in seq_along(thetatrue)) {
+    aN <- SN[i,j] + 1
+    bN <- N[i] - SN[i,j] + 1
     plot(theta, dbeta(theta, aN, bN), type = "l", xlab = expression(vartheta),
-         ylab = "", main = bquote(vartheta[true] == .(p) ~ "and" ~ N == .(n)),
-         xlim = c(0, 1.1*sqrt(p)), ylim = c(0, 9.5/sqrt(p + 0.008)))
+         ylab = "", main = bquote(vartheta[true] == .(thetatrue[j]) ~
+                                  "and" ~ N == .(N[i]): ~ S[N] == .(SN[i,j])),
+         xlim = c(0, 1.1 * sqrt(thetatrue[j])),
+         ylim = c(0, 9.5 / sqrt(thetatrue[j] + 0.008)))
     
-    aN <- n*p + 2
-    bN <- n - n*p + 4
+    aN <- SN[i,j] + 2
+    bN <- N[i] - SN[i,j] + 4
     lines(theta, dbeta(theta, aN, bN), lty = 2, col = 2)
     
     legend("topright", c("Beta(1,1)", "Beta(2,4)"), lty = c(1, 2),
@@ -302,26 +304,29 @@ As above, just with higher sample size.
 
 ```{r, echo=-(1:2)}
 if (pdfplots) {
-  pdf("5-4_2.pdf", width = 12, height = 5)
+  pdf("5-4_2.pdf", width = 10, height = 4)
   par(mgp = c(1.4, .5, 0), mar = c(2.3, 1.5, 2, .2), lwd = 2)
 }
 par(mfrow = c(1, 2))
-n <- 1000000
+bigN <- 1000000
+SbigN <- rbinom(2, bigN, thetatrue)
 
-for (p in thetatrue) {
-  aN <- n*p + 1
-  bN <- n - n*p + 1
-  asySD <- sqrt(p * (1 - p) / n)
-  theta <- seq(p - 25*asySD, p + 25*asySD, length.out = 333)
+for (i in seq_along(thetatrue)) {
+  aN <- SbigN[i] + 1
+  bN <- bigN - SbigN[i] + 1
+  asySD <- sqrt(thetatrue[i] * (1 - thetatrue[i]) / bigN)
+  theta <- seq(SbigN[i] / bigN - 25 * asySD, SbigN[i] / bigN + 25 * asySD,
+               length.out = 333)
   plot(theta, dbeta(theta, aN, bN), type = "l", xlab = expression(vartheta),
-       ylab = "", main = bquote(vartheta[true] == .(p)))
+       ylab = "",
+       main = bquote(vartheta[true] == .(thetatrue[i]) ~ "and" ~ N ==
+                     .(format(bigN, scientific = FALSE)): ~ S[N] == .(SbigN[i])))
     
-  aN <- n*p + 2
-  bN <- n - n*p + 4
+  aN <- SbigN[i] + 2
+  bN <- bigN - SbigN[i] + 4
   lines(theta, dbeta(theta, aN, bN), lty = 2, col = 2)
     
-  legend("topright", c("Beta(1,1)", "Beta(2,4)"), lty = c(1, 2),
-         col = 1:2)
+  legend("topright", c("Beta(1,1)", "Beta(2,4)"), lty = c(1, 2), col = 1:2)
 }
 ```
 
@@ -336,14 +341,17 @@ if (pdfplots) {
   par(mgp = c(1.35, .5, 0), mar = c(2.2, 1.5, 2, .2), lwd = 2)
 }
 par(mfrow = c(3, 2))
-for (n in N) {
-  for (p in thetatrue) {
-    aN <- n*p + 1
-    bN <- n - n*p + 1
-    asySD <- sqrt(p * (1 - p) / n)
-    theta <- seq(max(0.001, p - 2*asySD), p + 2*asySD, length.out = 222)
+for (i in seq_along(N)) {
+  for (j in seq_along(thetatrue)) {
+    aN <- SN[i,j] + 1
+    bN <- N[i] - SN[i,j] + 1
+    asySD <- sqrt(thetatrue[j] * (1 - thetatrue[j]) / N[i])
+    theta <- seq(max(0.001, SN[i,j] / N[i] - 2 * asySD),
+                 SN[i,j] / N[i] + 2 * asySD,
+                 length.out = 222)
     plot(theta, dbeta(theta, aN, bN), type = "l", xlab = expression(vartheta),
-         ylab = "", main = bquote(vartheta[true] == .(p) ~ "and" ~ N == .(n)),
+         ylab = "", main = bquote(vartheta[true] == .(thetatrue[j]) ~
+                                  "and" ~ N == .(N[i]): ~ S[N] == .(SN[i,j])),
          log = "y")
     
     approx <- function(theta, thetastar, n, log = FALSE) {
@@ -352,10 +360,13 @@ for (n in N) {
       if (log) res else exp(res)
     }
     
-    lines(theta, approx(theta, p, n), col = 2, lty = 2)
+    lines(theta, approx(theta, SN[i,j] / N[i], N[i]), col = 2, lty = 2)
     
-    legend("bottom", c("Posterior", "Approximation"),
-           lty = c(1, 2), col = 1:2)
+    if (i == 1L && j == 1L) {
+      legend("bottom", "Posterior", lty = 1)
+    } else {
+      legend("bottom", c("Posterior", "Approximation"), lty = c(1, 2), col = 1:2)
+    }
   }
 }
 ```
