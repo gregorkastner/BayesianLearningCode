@@ -144,6 +144,84 @@ for (i in seq_along(alpha)) {
 }
 ```
 
+## Example 5.6: The law of large numbers in a Bayesian context
+
+We again revisit the CHF-USD exchange rate data from the previous chapter.
+We assumed that
+$$
+y_t \sim t_7(0, \sigma^2),
+$$
+and implemented an unnormalized version of $\sigma^2|\mathbf{y}$.
+
+```{r}
+post_unnormalized_nonvec <- function(sigma2, y, nu, log = FALSE) {
+  logdens <- -length(y) / 2 * log(sigma2) -
+    (nu + 1) / 2 * sum(log(1 + y^2 / (nu * sigma2))) - log(sigma2)
+  if (log) logdens else exp(logdens)
+}
+post_unnormalized <- Vectorize(post_unnormalized_nonvec, "sigma2")
+
+nu <- 7
+sigma2 <- seq(0.25, 0.45, length.out = 3000)
+pdf_u <- post_unnormalized(sigma2, y = y, nu = nu)
+pdf_u <- pdf_u / max(pdf_u)
+cdf <- cumsum(pdf_u) / sum(pdf_u)
+```
+
+To compute the normalizing constant $C$, we again use the trapezoid rule. In
+addition, we compute the posterior expectation.
+
+```{r}
+resolution <- 100
+grid <- seq(0.25, 0.45, length.out = resolution + 1)
+integrand <- post_unnormalized(grid, y = y, nu = nu)
+C <- sum(diff(grid) * .5 * (head(integrand, -1) + tail(integrand, -1)))
+
+integrand2 <- grid * integrand
+e <- sum(diff(grid) * .5 * (head(integrand2, -1) + tail(integrand2, -1))) / C
+```
+
+Now we show that the histogram of the posterior draws converges to the
+posterior density, and the sample average of the posterior draws converges to
+the posterior expectation. First, we obtain posterior draws, as in the
+previous chapter.
+
+```{r}
+Mtotal <- 10000
+unifdraws <- runif(Mtotal, 0, cdf[length(cdf)])
+leftind <- findInterval(unifdraws, cdf)
+rightind <- leftind + 1L
+distprop <- (unifdraws - cdf[leftind]) / (cdf[rightind] - cdf[leftind])
+sigma2draws <- sigma2[leftind] + distprop *
+  (sigma2[rightind] - sigma2[leftind])
+```
+
+Now, we visualize batches of these draws.
+
+```{r, echo=-(1:2)}
+if (pdfplots) {
+  pdf("5-3_2.pdf", width = 8, height = 5)
+  par(mgp = c(1.5, .5, 0), mar = c(2.4, 2.4, 1.4, .2), lwd = 2)
+}
+layout(matrix(c(1,2,3,4,4,4), nrow = 2, ncol = 3, byrow = TRUE))
+for (M in c(100, 1000, 10000)) {
+  hist(sigma2draws[seq_len(M)], probability = TRUE, xlab = expression(sigma^2),
+       ylab = "", main = paste0("M = ", M),
+       breaks = seq(0.29, 0.41, length.out = 42))
+  lines(sigma2, post_unnormalized(sigma2, y, nu = nu) / C)
+}
+
+nlines <- 10
+M <- Mtotal / nlines
+plot(seq_len(M), NULL, ylim = c(0.33, 0.37), xlab = "M", ylab = "Sample mean",
+     log = "x", main = paste("Posterior sample means for", nlines,
+                             "Monte Carlo iterations and", M, "draws each"))
+for (i in seq_len(nlines)) {
+  indices <- seq(1 + (i - 1) * M, i * M)
+  lines(seq_len(M), cumsum(sigma2draws[indices]) / seq_len(M), col = i + 1)
+}
+abline(h = e, lty = 2)
+```
 
 
 # Section 5.4
