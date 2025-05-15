@@ -69,7 +69,7 @@ exchange rate as a normal distribution with unknown mean and variance.
 
 ```{r}
 library("BayesianLearningCode")
-posterior <- function(mu, sigma2, ybar, s2, N) {
+posteriorjoint <- function(mu, sigma2, ybar, s2, N) {
   dnorm(mu, ybar, sqrt(sigma2 / N)) *
     dinvgamma(sigma2, (N - 1) / 2, N * s2 / 2)
 }
@@ -107,17 +107,18 @@ functional values and keep the top `r 100 * (1 - alpha)` percent,
 respectively.
 
 ```{r}
-dens <- posterior(draws$mu, draws$sigma2, ybar, s2, N)
-HPDdraws <- vector("list", length(alpha))
+densjoint <- posteriorjoint(draws$mu, draws$sigma2, ybar, s2, N)
+HPDdrawsjoint <- vector("list", length(alpha))
 for (i in seq_along(alpha)) {
-  HPDdraws[[i]] <- draws[rank(dens) > floor(ndraws * alpha[i]),]
+  HPDdrawsjoint[[i]] <- draws[rank(densjoint) > floor(ndraws * alpha[i]),]
 }
 ```
 
 To visualize, we compute the convex hull of the remaining draws. Note that we
 randomly exclude some draws for visualization only in order to avoid plotting
 too many overlapping points. We also draw the projections on the two axes,
-yielding the corresponding univariate regions (intervals).
+yielding the corresponding univariate regions (intervals). In addition, we
+also draw the univariate regions (intervals) from the corresponding marginals.
 
 ```{r, echo=-(1:2)}
 if (pdfplots) {
@@ -129,19 +130,55 @@ toplot <- sample.int(nrow(draws), 1000)
 plot(draws[toplot,], pch = 16, col = rgb(0, 0, 0, .3), cex = 2,
      xlab = expression(mu), ylab = expression(sigma^2))
 legend("topright", paste0(100 * (1 - alpha), "%"),
-       fill = rgb(1, 0, 0, c(.2, .4, .6)), border = NA)
-# rug(draws[toplot, "mu"])
-# rug(draws[toplot, "sigma2"], side = 2)
+       fill = rgb(1, 0, 0, c(.2, .4, .6)), border = NA, bty = "n")
+legend("topright", rep("          ", 3),
+       fill = rgb(0, 0, 1, c(.2, .4, .6)), border = NA, bty = "n")
+
 for (i in seq_along(alpha)) {
-  hullind <- chull(HPDdraws[[i]])
-  polygon(HPDdraws[[i]][hullind,], col = rgb(1, 0, 0, .2), border = NA)
-  rect(min(HPDdraws[[i]]$mu), par("usr")[3],
-       max(HPDdraws[[i]]$mu), par("usr")[3] + .03 * diff(par("usr")[3:4]),
+  hullind <- chull(HPDdrawsjoint[[i]])
+  
+  polygon(HPDdrawsjoint[[i]][hullind,], col = rgb(1, 0, 0, .2), border = NA)
+  
+  rect(min(HPDdrawsjoint[[i]]$mu),
+       par("usr")[3] + .03 * diff(par("usr")[3:4]),
+       max(HPDdrawsjoint[[i]]$mu),
+       par("usr")[3] + .06 * diff(par("usr")[3:4]),
        col = rgb(1, 0, 0, .2), border = NA)
-  rect(par("usr")[1], min(HPDdraws[[i]]$sigma2),
-       par("usr")[1] + .03 * 6 / 8 * diff(par("usr")[1:2]), max(HPDdraws[[i]]$sigma2),
+  
+  rect(par("usr")[1] + .03 * 6 / 8 * diff(par("usr")[1:2]),
+       min(HPDdrawsjoint[[i]]$sigma2),
+       par("usr")[1] + .06 * 6 / 8 * diff(par("usr")[1:2]),
+       max(HPDdrawsjoint[[i]]$sigma2),
        col = rgb(1, 0, 0, .2), border = NA)
 }
+
+posteriormu <- function(mu, ybar, s2, N) {
+  dstudt(mu, ybar, sqrt(s2 / (N - 1)), N - 1)
+}
+
+posteriorsigma2 <- function(sigma2, s2, N) {
+  dinvgamma(sigma2, (N - 1) / 2, N * s2 / 2)
+}
+
+HPDdrawsmu <- HPDdrawssigma2 <- vector("list", length(alpha))
+for (i in seq_along(alpha)) {
+  densmu <- posteriormu(draws$mu, ybar, s2, N)
+  HPDdrawsmu[[i]] <- draws$mu[rank(densmu) > floor(ndraws * alpha[i])]
+  rect(min(HPDdrawsmu[[i]]),
+       par("usr")[3],
+       max(HPDdrawsmu[[i]]),
+       par("usr")[3] + .03 * diff(par("usr")[3:4]),
+       col = rgb(0, 0, 1, .2), border = NA) 
+  
+  denssigma2 <- posteriorsigma2(draws$sigma2, s2, N)
+  HPDdrawssigma2[[i]] <- draws$sigma2[rank(denssigma2) > floor(ndraws * alpha[i])]
+  rect(par("usr")[1],
+       min(HPDdrawssigma2[[i]]),
+       par("usr")[1] + .03 * 6 / 8 * diff(par("usr")[1:2]),
+       max(HPDdrawssigma2[[i]]),
+       col = rgb(0, 0, 1, .2), border = NA)
+}
+
 ```
 
 ## Example 5.6: The law of large numbers in a Bayesian context
