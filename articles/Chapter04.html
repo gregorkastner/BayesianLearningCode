@@ -79,7 +79,7 @@
 4, 2012. We are interested in the percentage log returns of the the
 Swiss franc (CHF) against the US dollar (USD).</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">exrates</span>, package <span class="op">=</span> <span class="st">"stochvol"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"exrates"</span>, package <span class="op">=</span> <span class="st">"stochvol"</span><span class="op">)</span></span>
 <span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fl">100</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/diff.html" class="external-link">diff</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">exrates</span><span class="op">$</span><span class="va">USD</span> <span class="op">/</span> <span class="va">exrates</span><span class="op">$</span><span class="va">CHF</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">N</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">y</span>, breaks <span class="op">=</span> <span class="fl">50</span>, main <span class="op">=</span> <span class="st">"Histogram"</span>,</span>
@@ -186,9 +186,12 @@ deviation</em> (not mean and variance).</p>
 </h3>
 <p>We now want to visualize the univariate marginals of the bivariate
 posterior. Again, we need to do some preparations, as R does not
-natively cater for the generalized Student’s t distribution. So we first
-define its (cumulative) density and quantile functions via the original
-Student’s t distribution.</p>
+natively cater for the generalized
+Student-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
+distribution. So we first define its (cumulative) density and quantile
+functions via the original
+Student-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
+distribution.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dstudt</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">location</span> <span class="op">=</span> <span class="fl">0</span>, <span class="va">scale</span> <span class="op">=</span> <span class="fl">1</span>, <span class="va">df</span>, <span class="va">log</span> <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">logdens</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/TDist.html" class="external-link">dt</a></span><span class="op">(</span><span class="op">(</span><span class="va">x</span> <span class="op">-</span> <span class="va">location</span><span class="op">)</span> <span class="op">/</span> <span class="va">scale</span>, df <span class="op">=</span> <span class="va">df</span>, log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">scale</span><span class="op">)</span></span>
@@ -288,11 +291,12 @@ are easily computed.</p>
 <span><span class="co">#&gt; [1] 0.5025 0.5548</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="example-4-4-fitting-a-t-distribution-with-known-mean-and-known-degrees-of-freedom">Example 4.4: Fitting a t distribution with known mean and known
-degrees of freedom<a class="anchor" aria-label="anchor" href="#example-4-4-fitting-a-t-distribution-with-known-mean-and-known-degrees-of-freedom"></a>
+<h3 id="example-4-4-fitting-a-student-t-distribution-with-known-mean-and-known-degrees-of-freedom">Example 4.4: Fitting a
+Student-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
+distribution with known mean and known degrees of freedom<a class="anchor" aria-label="anchor" href="#example-4-4-fitting-a-student-t-distribution-with-known-mean-and-known-degrees-of-freedom"></a>
 </h3>
-<p>We first define <code>post_unnormalized_nonvec</code>, a function
-evaluating the unnormalized posterior density of
+<p>We first define <code>post_nonnormalized_nonvec</code>, a function
+evaluating the non-normalized posterior density of
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>σ</mi><mn>2</mn></msup><annotation encoding="application/x-tex">\sigma^2</annotation></semantics></math>.
 This function is not vectorized in its first argument,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>σ</mi><mn>2</mn></msup><annotation encoding="application/x-tex">\sigma^2</annotation></semantics></math>.
@@ -301,25 +305,25 @@ Rather, it expects a scalar <code>sigma2</code> and a data vector
 <code>Vectorize</code> (this is not the fasted of all methods in R, but
 will do just fine for our use-case).</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">post_unnormalized_nonvec</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">sigma2</span>, <span class="va">y</span>, <span class="va">nu</span>, <span class="va">log</span> <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
+<code class="sourceCode R"><span><span class="va">post_nonnormalized_nonvec</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">sigma2</span>, <span class="va">y</span>, <span class="va">nu</span>, <span class="va">log</span> <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">logdens</span> <span class="op">&lt;-</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">sigma2</span><span class="op">)</span> <span class="op">-</span></span>
 <span>    <span class="op">(</span><span class="va">nu</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="va">y</span><span class="op">^</span><span class="fl">2</span> <span class="op">/</span> <span class="op">(</span><span class="va">nu</span> <span class="op">*</span> <span class="va">sigma2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">sigma2</span><span class="op">)</span></span>
 <span>  <span class="kw">if</span> <span class="op">(</span><span class="va">log</span><span class="op">)</span> <span class="va">logdens</span> <span class="kw">else</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">logdens</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
-<span><span class="va">post_unnormalized</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Vectorize.html" class="external-link">Vectorize</a></span><span class="op">(</span><span class="va">post_unnormalized_nonvec</span>, <span class="st">"sigma2"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">post_nonnormalized</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Vectorize.html" class="external-link">Vectorize</a></span><span class="op">(</span><span class="va">post_nonnormalized_nonvec</span>, <span class="st">"sigma2"</span><span class="op">)</span></span></code></pre></div>
 <p>Now we can plot. Note that we (arbitrarily) standardize the
-unnormalized posterior to have a maximum of one. In addition, we
-visualize an unnormalized version of the prior. Concerning the
+non-normalized posterior to have a maximum of one. In addition, we
+visualize a non-normalized version of the prior. Concerning the
 cumulative distribution function, we simply divide by the highest (last)
 value to achieve normalization.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">nu</span> <span class="op">&lt;-</span> <span class="fl">7</span></span>
 <span><span class="va">sigma2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.25</span>, <span class="fl">0.45</span>, length.out <span class="op">=</span> <span class="fl">3000</span><span class="op">)</span></span>
-<span><span class="va">pdf_u</span> <span class="op">&lt;-</span> <span class="fu">post_unnormalized</span><span class="op">(</span><span class="va">sigma2</span>, y <span class="op">=</span> <span class="va">y</span>, nu <span class="op">=</span> <span class="va">nu</span><span class="op">)</span></span>
+<span><span class="va">pdf_u</span> <span class="op">&lt;-</span> <span class="fu">post_nonnormalized</span><span class="op">(</span><span class="va">sigma2</span>, y <span class="op">=</span> <span class="va">y</span>, nu <span class="op">=</span> <span class="va">nu</span><span class="op">)</span></span>
 <span><span class="va">pdf_u</span> <span class="op">&lt;-</span> <span class="va">pdf_u</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">pdf_u</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">sigma2</span>, <span class="va">pdf_u</span>, type <span class="op">=</span> <span class="st">"l"</span>, xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">sigma</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span>,</span>
-<span>     ylab <span class="op">=</span> <span class="st">""</span>, main <span class="op">=</span> <span class="st">"Unnormalized densities"</span><span class="op">)</span></span>
+<span>     ylab <span class="op">=</span> <span class="st">""</span>, main <span class="op">=</span> <span class="st">"Non-normalized densities"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>h <span class="op">=</span> <span class="fl">0</span>, lty <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">sigma2</span>, <span class="fl">0.05</span> <span class="op">*</span> <span class="fl">1</span><span class="op">/</span><span class="va">sigma2</span>, lty <span class="op">=</span> <span class="fl">2</span>, col <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topright"</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Posterior"</span>, <span class="st">"Prior"</span><span class="op">)</span>, col <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, lty <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span></span>
@@ -335,7 +339,7 @@ we can perform numerical integration via the trapezoid rule.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">resolution</span> <span class="op">&lt;-</span> <span class="fl">100</span></span>
 <span><span class="va">grid</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.25</span>, <span class="fl">0.45</span>, length.out <span class="op">=</span> <span class="va">resolution</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span></span>
-<span><span class="va">integrand</span> <span class="op">&lt;-</span> <span class="fu">post_unnormalized</span><span class="op">(</span><span class="va">grid</span>, y <span class="op">=</span> <span class="va">y</span>, nu <span class="op">=</span> <span class="va">nu</span><span class="op">)</span></span>
+<span><span class="va">integrand</span> <span class="op">&lt;-</span> <span class="fu">post_nonnormalized</span><span class="op">(</span><span class="va">grid</span>, y <span class="op">=</span> <span class="va">y</span>, nu <span class="op">=</span> <span class="va">nu</span><span class="op">)</span></span>
 <span><span class="va">C</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diff.html" class="external-link">diff</a></span><span class="op">(</span><span class="va">grid</span><span class="op">)</span> <span class="op">*</span> <span class="fl">.5</span> <span class="op">*</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">integrand</span>, <span class="op">-</span><span class="fl">1</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="va">integrand</span>, <span class="op">-</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Now we can numerically approximate the posterior expectation and
 standard deviation, again using the trapezoid rule.</p>
@@ -373,9 +377,9 @@ parameter case</em>.</p>
 <span><span class="va">sigma2draws</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvGammaDist.html">rinvgamma</a></span><span class="op">(</span><span class="va">ndraws</span>, <span class="va">N</span> <span class="op">/</span> <span class="fl">2</span>, <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">y</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="va">qnormdraws</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">qnorm</a></span><span class="op">(</span><span class="va">alpha</span>, <span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">sigma2draws</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>For the
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
+Student-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
 model, we can use inverse transform sampling. First, we draw uniformly
-from the interval spanned by 0 and the maximum of the nonnormalized
+from the interval spanned by 0 and the maximum of the non-normalized
 cumulative posterior. Then, for each draw, we find the interval of our
 pointwise cdf approximation of the posterior, and interpolate linearly
 between the interval boundaries.</p>
@@ -390,7 +394,7 @@ between the interval boundaries.</p>
 align.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">myhist</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">sigma2draws</span>, breaks <span class="op">=</span> <span class="fl">100</span>, xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">sigma</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span>,</span>
-<span>               ylab <span class="op">=</span> <span class="st">""</span>, main <span class="op">=</span> <span class="st">"Histogram of draws and nonnormalized pdf"</span><span class="op">)</span></span>
+<span>               ylab <span class="op">=</span> <span class="st">""</span>, main <span class="op">=</span> <span class="st">"Histogram of draws and non-normalized pdf"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">sigma2</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">myhist</span><span class="op">$</span><span class="va">counts</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">pdf_u</span><span class="op">)</span> <span class="op">*</span> <span class="va">pdf_u</span>, col <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <p><img src="Chapter04_files/figure-html/unnamed-chunk-17-1.png" width="768"></p>
 <p>Now, we can draw from the quantile distribution and plot these
