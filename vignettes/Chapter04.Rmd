@@ -27,7 +27,7 @@ par(mgp = c(1.6, .6, 0), mar = c(2.6, 2.6, 2.6, .4), lwd = 1)
 # Swiss franc versus US dollar
 ## Example 4.1: The data
 
-We use daily exchange rate data contained in  the package *stochvol*, covering
+We use daily exchange rate data contained in the package *stochvol*, covering
 the period from January 3, 2000, until April 4, 2012. We are interested in the
 percentage log returns of the the Swiss franc (CHF) against the US dollar (USD).
 
@@ -37,7 +37,7 @@ if (pdfplots) {
   par(mar = c(2.4, 2.3, 1.5, .2), mgp = c(1.4, .5, 0))
 }
 par(mfrow = c(1, 2))
-data(exrates, package = "stochvol")
+data("exrates", package = "stochvol")
 y <- 100 * diff(log(exrates$USD / exrates$CHF))
 N <- length(y)
 hist(y, breaks = 50, main = "Histogram",
@@ -152,8 +152,8 @@ for (n in c(50, 100, 200, 500, 1000, N)) {
 
 We now want to visualize the univariate marginals of the bivariate posterior.
 Again, we need to do some preparations, as R does not natively cater for the
-generalized Student's t distribution. So we first define its (cumulative)
-density and quantile functions via the original Student's t distribution.
+generalized Student-$t$ distribution. So we first define its (cumulative)
+density and quantile functions via the original Student-$t$ distribution.
 
 ```{r}
 dstudt <- function(x, location = 0, scale = 1, df, log = FALSE) {
@@ -263,26 +263,26 @@ HPD <- qs[c(minimizer, minimizer + dist)]
 round(HPD, 4)
 ```
 
-## Example 4.4: Fitting a t distribution with known mean and known degrees of freedom
+## Example 4.4: Fitting a Student-$t$ distribution with known mean and known degrees of freedom
 
-We first define `post_unnormalized_nonvec`, a function evaluating the
-unnormalized posterior density of $\sigma^2$.
+We first define `post_nonnormalized_nonvec`, a function evaluating the
+non-normalized posterior density of $\sigma^2$.
 This function is not vectorized in its first argument, $\sigma^2$. Rather,
 it expects a scalar `sigma2` and a data vector `y`. We can, however,
 vectorize it using `Vectorize` (this is not the fasted of all methods in R,
 but will do just fine for our use-case).
 
 ```{r}
-post_unnormalized_nonvec <- function(sigma2, y, nu, log = FALSE) {
+post_nonnormalized_nonvec <- function(sigma2, y, nu, log = FALSE) {
   logdens <- -length(y) / 2 * log(sigma2) -
     (nu + 1) / 2 * sum(log(1 + y^2 / (nu * sigma2))) - log(sigma2)
   if (log) logdens else exp(logdens)
 }
-post_unnormalized <- Vectorize(post_unnormalized_nonvec, "sigma2")
+post_nonnormalized <- Vectorize(post_nonnormalized_nonvec, "sigma2")
 ```
 
-Now we can plot. Note that we (arbitrarily) standardize the unnormalized
-posterior to have a maximum of one. In addition, we visualize an unnormalized
+Now we can plot. Note that we (arbitrarily) standardize the non-normalized
+posterior to have a maximum of one. In addition, we visualize a non-normalized
 version of the prior. Concerning the cumulative distribution function, we simply
 divide by the highest (last) value to achieve normalization.
 
@@ -294,11 +294,11 @@ if (pdfplots) {
 par(mfrow = c(1, 2))
 nu <- 7
 sigma2 <- seq(0.25, 0.45, length.out = 3000)
-pdf_u <- post_unnormalized(sigma2, y = y, nu = nu)
+pdf_u <- post_nonnormalized(sigma2, y = y, nu = nu)
 pdf_u <- pdf_u / max(pdf_u)
 
 plot(sigma2, pdf_u, type = "l", xlab = expression(sigma^2),
-     ylab = "", main = "Unnormalized densities")
+     ylab = "", main = "Non-normalized densities")
 abline(h = 0, lty = 3)
 lines(sigma2, 0.05 * 1/sigma2, lty = 2, col = 2)
 legend("topright", c("Posterior", "Prior"), col = 1:2, lty = 1:2)
@@ -315,7 +315,7 @@ via the trapezoid rule.
 ```{r}
 resolution <- 100
 grid <- seq(0.25, 0.45, length.out = resolution + 1)
-integrand <- post_unnormalized(grid, y = y, nu = nu)
+integrand <- post_nonnormalized(grid, y = y, nu = nu)
 C <- sum(diff(grid) * .5 * (head(integrand, -1) + tail(integrand, -1)))
 ```
 
@@ -351,8 +351,8 @@ sigma2draws <- rinvgamma(ndraws, N / 2, sum(y^2) / 2)
 qnormdraws <- qnorm(alpha, 0, sqrt(sigma2draws))
 ```
 
-For the $t$ model, we can use inverse transform sampling. First, we draw
-uniformly from the interval spanned by 0 and the maximum of the nonnormalized
+For the Student-$t$ model, we can use inverse transform sampling. First, we draw
+uniformly from the interval spanned by 0 and the maximum of the non-normalized
 cumulative posterior. Then, for each draw, we find the interval of our pointwise
 cdf approximation of the posterior, and interpolate linearly between the
 interval boundaries.
@@ -371,7 +371,7 @@ Let us do a quick graphical check whether the draws and our pdf align.
 ```{r, echo=-1}
 par(mfrow = c(1, 1))
 myhist <- hist(sigma2draws, breaks = 100, xlab = expression(sigma^2),
-               ylab = "", main = "Histogram of draws and nonnormalized pdf")
+               ylab = "", main = "Histogram of draws and non-normalized pdf")
 lines(sigma2, max(myhist$counts) / max(pdf_u) * pdf_u, col = 2)
 ```
 
