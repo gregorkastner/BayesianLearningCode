@@ -122,7 +122,7 @@ also draw the univariate regions (intervals) from the corresponding marginals.
 
 ```{r, echo=-(1:2)}
 if (pdfplots) {
-  pdf("5-3_1.pdf", width = 8, height = 6)
+  pdf("5-3_1.pdf", width = 8, height = 5)
   par(mar = c(2.3, 2.3, .2, .6), mgp = c(1.2, .5, 0))
 }
 par(mfrow = c(1, 1))
@@ -145,9 +145,9 @@ for (i in seq_along(alpha)) {
        par("usr")[3] + .06 * diff(par("usr")[3:4]),
        col = rgb(1, 0, 0, .2), border = NA)
   
-  rect(par("usr")[1] + .03 * 6 / 8 * diff(par("usr")[1:2]),
+  rect(par("usr")[1] + .03 * 5 / 8 * diff(par("usr")[1:2]),
        min(HPDdrawsjoint[[i]]$sigma2),
-       par("usr")[1] + .06 * 6 / 8 * diff(par("usr")[1:2]),
+       par("usr")[1] + .06 * 5 / 8 * diff(par("usr")[1:2]),
        max(HPDdrawsjoint[[i]]$sigma2),
        col = rgb(1, 0, 0, .2), border = NA)
 }
@@ -174,7 +174,7 @@ for (i in seq_along(alpha)) {
   HPDdrawssigma2[[i]] <- draws$sigma2[rank(denssigma2) > floor(ndraws * alpha[i])]
   rect(par("usr")[1],
        min(HPDdrawssigma2[[i]]),
-       par("usr")[1] + .03 * 6 / 8 * diff(par("usr")[1:2]),
+       par("usr")[1] + .03 * 5 / 8 * diff(par("usr")[1:2]),
        max(HPDdrawssigma2[[i]]),
        col = rgb(0, 0, 1, .2), border = NA)
 }
