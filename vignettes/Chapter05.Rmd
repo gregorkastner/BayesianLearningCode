@@ -186,7 +186,7 @@ for (i in seq_along(alpha)) {
 We again revisit the CHF-USD exchange rate data from the previous chapter.
 We assumed that
 $$
-y_t \sim t_7(0, \sigma^2),
+y_i \sim t_7(0, \sigma^2),
 $$
 and implemented an unnormalized version of $\sigma^2|\mathbf{y}$.
 
