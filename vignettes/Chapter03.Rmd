@@ -26,8 +26,8 @@ par(mgp = c(1.6, .6, 0), mar = c(2.6, 2.6, 2.6, .4), lwd = 1)
 ## Figure 3.1: Posteriors under the beta-binomial model
 
 To reproduce the posteriors in this figure, we simply need to plug in
-respective counts into the expression for the posterior density and visualize
-it accordingly.
+the respective counts into the expression for the posterior density
+and visualize it accordingly.
 
 ```{r, echo=-(1:2)}
 if (pdfplots) {
@@ -53,8 +53,8 @@ for (p in trueprop) {
 
 In city A, 40 out of 400 questioned people would purchase a certain product, in
 a rural community, only 4 out of 400. Assuming a uniform prior, we now compute
-equal-tails intervals and highest posterior density (HPD) intervals. Note that R
-is (generally) vectorized, so we can compute the equal-tails intervals without
+equal-tailed intervals and highest posterior density (HPD) intervals. Note that R
+is (generally) vectorized, so we can compute the equal-tailed intervals without
 using a loop.
 
 ```{r}
@@ -70,7 +70,7 @@ bN <- N - SN + b
 gamma <- .95
 alpha <- 1 - gamma
 
-# Equal-tails credible intervals
+# Equal-tailed credible intervals
 leftET <- qbeta(alpha/2, aN, bN)
 rightET <- qbeta(1 - alpha/2, aN, bN)
 
@@ -182,7 +182,7 @@ res <- cbind(lengthET = rightET - leftET, lengthHPD = rightHPD - leftHPD)
 knitr::kable(round(res, 4))
 ```
 
-## Figure 3.3: One-sided hypthesis testing
+## Figure 3.3: One-sided hypothesis testing
 
 We now move forward to assessing visualizing the posterior probability of
 $\vartheta$ (the proportion of defective items) being less than $1/20 = 0.05$
@@ -238,7 +238,7 @@ alongside their frequency of usage among a total of 100 million occurrences
 (cf. <https://www.eapfoundation.com/vocab/general/bnccoca/>).
 
 ```{r}
-library(BayesianLearningCode)
+data("words", package = "BayesianLearningCode")
 head(words)
 ```
 
@@ -322,7 +322,7 @@ all(abs(post_lessinformative - post_lessinformative2) < 1e-10)
 Summing up what we have so far.
 
 ```{r}
-dirichlet_sd = function(gamma) {
+dirichlet_sd <- function(gamma) {
   mean <- gamma / sum(gamma)
   sd <- sqrt((mean * (1 - mean)) / (sum(gamma) + 1))
   sd
