@@ -588,6 +588,93 @@ as before.</p>
 </tbody>
 </table>
 </div>
+<div class="section level3">
+<h3 id="table-5-3-coverage-probabilities">Table 5.3: Coverage probabilities<a class="anchor" aria-label="anchor" href="#table-5-3-coverage-probabilities"></a>
+</h3>
+<p>For an analysis of the (frequentist) coverage probabilities, we
+simulate many data sets for each of the parameter configurations and
+check how often the intervals contain the true parameter.</p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">nrep</span> <span class="op">&lt;-</span> <span class="fl">10000</span></span>
+<span><span class="va">resolution</span> <span class="op">&lt;-</span> <span class="fl">1000</span></span>
+<span><span class="va">grid</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, length.out <span class="op">=</span> <span class="va">resolution</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span>,</span>
+<span>               nrow <span class="op">=</span> <span class="va">resolution</span> <span class="op">+</span> <span class="fl">1</span>,</span>
+<span>               ncol <span class="op">=</span> <span class="va">nrep</span><span class="op">)</span></span>
+<span><span class="va">dist</span> <span class="op">&lt;-</span> <span class="fl">0.95</span> <span class="op">*</span> <span class="va">resolution</span></span>
+<span><span class="va">inconf</span> <span class="op">&lt;-</span> <span class="va">inHPD</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="va">nrep</span>, <span class="fl">6</span><span class="op">)</span></span>
+<span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">SN</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Binomial.html" class="external-link">rbinom</a></span><span class="op">(</span><span class="va">nrep</span>, <span class="va">set</span><span class="op">$</span><span class="va">N</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, <span class="va">set</span><span class="op">$</span><span class="va">thetatrue</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span></span>
+<span>  <span class="va">aN</span> <span class="op">&lt;-</span> <span class="va">SN</span> <span class="op">+</span> <span class="va">set</span><span class="op">$</span><span class="va">a0</span><span class="op">[</span><span class="va">i</span><span class="op">]</span></span>
+<span>  <span class="va">bN</span> <span class="op">&lt;-</span> <span class="va">set</span><span class="op">$</span><span class="va">N</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">-</span> <span class="va">SN</span> <span class="op">+</span> <span class="va">set</span><span class="op">$</span><span class="va">b0</span><span class="op">[</span><span class="va">i</span><span class="op">]</span></span>
+<span>  <span class="va">thetaML</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">aN</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="va">aN</span> <span class="op">+</span> <span class="va">bN</span> <span class="op">-</span> <span class="fl">2</span><span class="op">)</span></span>
+<span></span>
+<span>  <span class="co"># Asymptotic intervals  </span></span>
+<span>  <span class="va">leftconf</span> <span class="op">&lt;-</span> <span class="va">thetaML</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">qnorm</a></span><span class="op">(</span><span class="fl">.975</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">thetaML</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">thetaML</span><span class="op">)</span> <span class="op">/</span> <span class="va">set</span><span class="op">$</span><span class="va">N</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span></span>
+<span>  <span class="va">rightconf</span> <span class="op">&lt;-</span> <span class="va">thetaML</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">qnorm</a></span><span class="op">(</span><span class="fl">.975</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">thetaML</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">thetaML</span><span class="op">)</span> <span class="op">/</span> <span class="va">set</span><span class="op">$</span><span class="va">N</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span></span>
+<span>  <span class="va">inconf</span><span class="op">[</span>, <span class="va">i</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">leftconf</span> <span class="op">&lt;=</span> <span class="va">set</span><span class="op">$</span><span class="va">thetatrue</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">&amp;</span> <span class="va">set</span><span class="op">$</span><span class="va">thetatrue</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">&lt;=</span> <span class="va">rightconf</span></span>
+<span>  </span>
+<span>  <span class="co"># HPD intervals</span></span>
+<span>  <span class="va">leftHPD</span> <span class="op">&lt;-</span> <span class="va">rightHPD</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA_real_</span>, <span class="va">nrep</span><span class="op">)</span></span>
+<span>  <span class="va">qs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Beta.html" class="external-link">qbeta</a></span><span class="op">(</span><span class="va">grid</span>,</span>
+<span>              <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">aN</span>, each <span class="op">=</span> <span class="va">resolution</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">bN</span>, each <span class="op">=</span> <span class="va">resolution</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">minimizer</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diff.html" class="external-link">diff</a></span><span class="op">(</span><span class="va">qs</span>, lag <span class="op">=</span> <span class="va">dist</span><span class="op">)</span>, <span class="fl">2</span>, <span class="va">which.min</span><span class="op">)</span></span>
+<span>  <span class="co"># minimizer &lt;- max.col(-t(diff(qs, lag = dist))) # chooses at random in case of ties</span></span>
+<span>  <span class="va">selector</span> <span class="op">&lt;-</span> <span class="va">minimizer</span> <span class="op">+</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">minimizer</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">*</span> <span class="op">(</span><span class="va">resolution</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span></span>
+<span>  <span class="va">leftHPD</span> <span class="op">&lt;-</span> <span class="va">qs</span><span class="op">[</span><span class="va">selector</span><span class="op">]</span></span>
+<span>  <span class="va">rightHPD</span> <span class="op">&lt;-</span> <span class="va">qs</span><span class="op">[</span><span class="va">selector</span> <span class="op">+</span> <span class="va">dist</span><span class="op">]</span></span>
+<span>  <span class="va">inHPD</span><span class="op">[</span>, <span class="va">i</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">leftHPD</span> <span class="op">&lt;=</span> <span class="va">set</span><span class="op">$</span><span class="va">thetatrue</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">&amp;</span> <span class="va">set</span><span class="op">$</span><span class="va">thetatrue</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">&lt;=</span> <span class="va">rightHPD</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">res</span><span class="op">[</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span>, asymptotic <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colMeans</a></span><span class="op">(</span><span class="va">inconf</span><span class="op">)</span>, HPD <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colMeans</a></span><span class="op">(</span><span class="va">inHPD</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">res</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="right">thetatrue</th>
+<th align="right">N</th>
+<th align="right">asymptotic</th>
+<th align="right">HPD</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="right">0.02</td>
+<td align="right">25</td>
+<td align="right">0.40</td>
+<td align="right">0.99</td>
+</tr>
+<tr class="even">
+<td align="right"></td>
+<td align="right">100</td>
+<td align="right">0.86</td>
+<td align="right">0.98</td>
+</tr>
+<tr class="odd">
+<td align="right"></td>
+<td align="right">400</td>
+<td align="right">0.90</td>
+<td align="right">0.94</td>
+</tr>
+<tr class="even">
+<td align="right">0.25</td>
+<td align="right">25</td>
+<td align="right">0.89</td>
+<td align="right">0.94</td>
+</tr>
+<tr class="odd">
+<td align="right"></td>
+<td align="right">100</td>
+<td align="right">0.94</td>
+<td align="right">0.95</td>
+</tr>
+<tr class="even">
+<td align="right"></td>
+<td align="right">400</td>
+<td align="right">0.94</td>
+<td align="right">0.95</td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
