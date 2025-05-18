@@ -372,17 +372,57 @@ for (i in seq_along(N)) {
 ```
 
 ## Table 5.1: Point estimates
-We now compute various point estimates under several settings.
+We now compute various point estimates under several settings. Note that we
+use the same number of 1s ($S_N$) as before.
 
 ```{r}
-a0 <- c(0.5, 2)
+options(knitr.kable.NA = '')
+a0 <- c(1, 2)
+b0 <- c(1, 4)
 set <- expand.grid(N = N, thetatrue = thetatrue, a0 = a0)
-set$b0 <- c(rep(0.5, 6), rep(4, 6))
-aN <- set$N * set$thetatrue + set$a0
-bN <- set$N * (1 - set$thetatrue) + set$b0
-posteriormean <- aN / (aN + bN)
-posteriormode <- (aN - 1) / (aN + bN - 2)
-res <- cbind(mean = posteriormean, mode = posteriormode)
-rownames(res) <- set$N
-knitr::kable(t(round(res, 4)))
+set$b0 <- rep(b0, each = nrow(set) / 2)
+set$SN <- rep(SN, 2)
+
+set$aN <- set$SN + set$a0
+set$bN <- set$N - set$SN + set$b0
+postmean <- set$aN / (set$aN + set$bN)
+postmode <- (set$aN - 1) / (set$aN + set$bN - 2)
+thetaML <- postmode[1:6]
+
+res <- cbind(thetatrue = c(thetatrue[1], NA, NA, thetatrue[2], NA, NA),
+             N = rep(N, 2),
+             SN = as.vector(SN),
+             thetaML = thetaML,
+             thetameanB11 = postmean[1:6],
+             thetamodeB11 = postmode[1:6],
+             thetameanB42 = postmean[7:12],
+             thetamodeB42 = postmode[7:12])
+
+knitr::kable(round(res, 3))
+```
+
+## Table 5.2: Interval estimates
+We now compute frequentist and Bayesian CIs.
+
+```{r}
+# Confidence intervals
+leftconf <- thetaML - qnorm(.975) * sqrt(thetaML * (1 - thetaML) / set$N[1:6])
+rightconf <- thetaML + qnorm(.975) * sqrt(thetaML * (1 - thetaML) / set$N[1:6])
+
+# HPD intervals
+resolution <- 10000
+grid <- seq(0, 1, length.out = resolution + 1)
+dist <- 0.95 * resolution
+
+leftHPD <- rightHPD <- rep(NA_real_, 6)
+for (i in 1:6) {
+  qs <- qbeta(grid, set$aN[i], set$bN[i])
+  minimizer <- which.min(diff(qs, lag = dist))
+  leftHPD[i] <- qs[minimizer]
+  rightHPD[i] <- qs[minimizer + dist]
+}
+
+res <- cbind(res[,1:3], leftconf, rightconf, leftHPD, rightHPD)
+
+knitr::kable(round(res, 3))
 ```
