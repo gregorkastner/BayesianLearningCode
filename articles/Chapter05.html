@@ -382,79 +382,208 @@ polynomials and visualize these.</p>
 <div class="section level3">
 <h3 id="table-5-1-point-estimates">Table 5.1: Point estimates<a class="anchor" aria-label="anchor" href="#table-5-1-point-estimates"></a>
 </h3>
-<p>We now compute various point estimates under several settings.</p>
+<p>We now compute various point estimates under several settings. Note
+that we use the same number of 1s
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>S</mi><mi>N</mi></msub><annotation encoding="application/x-tex">S_N</annotation></semantics></math>)
+as before.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">a0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">2</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>knitr.kable.NA <span class="op">=</span> <span class="st">''</span><span class="op">)</span></span>
+<span><span class="va">a0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="va">b0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">4</span><span class="op">)</span></span>
 <span><span class="va">set</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span>N <span class="op">=</span> <span class="va">N</span>, thetatrue <span class="op">=</span> <span class="va">thetatrue</span>, a0 <span class="op">=</span> <span class="va">a0</span><span class="op">)</span></span>
-<span><span class="va">set</span><span class="op">$</span><span class="va">b0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">6</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fl">6</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">aN</span> <span class="op">&lt;-</span> <span class="va">set</span><span class="op">$</span><span class="va">N</span> <span class="op">*</span> <span class="va">set</span><span class="op">$</span><span class="va">thetatrue</span> <span class="op">+</span> <span class="va">set</span><span class="op">$</span><span class="va">a0</span></span>
-<span><span class="va">bN</span> <span class="op">&lt;-</span> <span class="va">set</span><span class="op">$</span><span class="va">N</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">set</span><span class="op">$</span><span class="va">thetatrue</span><span class="op">)</span> <span class="op">+</span> <span class="va">set</span><span class="op">$</span><span class="va">b0</span></span>
-<span><span class="va">posteriormean</span> <span class="op">&lt;-</span> <span class="va">aN</span> <span class="op">/</span> <span class="op">(</span><span class="va">aN</span> <span class="op">+</span> <span class="va">bN</span><span class="op">)</span></span>
-<span><span class="va">posteriormode</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">aN</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="va">aN</span> <span class="op">+</span> <span class="va">bN</span> <span class="op">-</span> <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span>mean <span class="op">=</span> <span class="va">posteriormean</span>, mode <span class="op">=</span> <span class="va">posteriormode</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">set</span><span class="op">$</span><span class="va">N</span></span>
-<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">res</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">set</span><span class="op">$</span><span class="va">b0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">b0</span>, each <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">set</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="va">set</span><span class="op">$</span><span class="va">SN</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">SN</span>, <span class="fl">2</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">set</span><span class="op">$</span><span class="va">aN</span> <span class="op">&lt;-</span> <span class="va">set</span><span class="op">$</span><span class="va">SN</span> <span class="op">+</span> <span class="va">set</span><span class="op">$</span><span class="va">a0</span></span>
+<span><span class="va">set</span><span class="op">$</span><span class="va">bN</span> <span class="op">&lt;-</span> <span class="va">set</span><span class="op">$</span><span class="va">N</span> <span class="op">-</span> <span class="va">set</span><span class="op">$</span><span class="va">SN</span> <span class="op">+</span> <span class="va">set</span><span class="op">$</span><span class="va">b0</span></span>
+<span><span class="va">postmean</span> <span class="op">&lt;-</span> <span class="va">set</span><span class="op">$</span><span class="va">aN</span> <span class="op">/</span> <span class="op">(</span><span class="va">set</span><span class="op">$</span><span class="va">aN</span> <span class="op">+</span> <span class="va">set</span><span class="op">$</span><span class="va">bN</span><span class="op">)</span></span>
+<span><span class="va">postmode</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">set</span><span class="op">$</span><span class="va">aN</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="va">set</span><span class="op">$</span><span class="va">aN</span> <span class="op">+</span> <span class="va">set</span><span class="op">$</span><span class="va">bN</span> <span class="op">-</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="va">thetaML</span> <span class="op">&lt;-</span> <span class="va">postmode</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span></span>
+<span></span>
+<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span>thetatrue <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">thetatrue</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="cn">NA</span>, <span class="cn">NA</span>, <span class="va">thetatrue</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, <span class="cn">NA</span>, <span class="cn">NA</span><span class="op">)</span>,</span>
+<span>             N <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">N</span>, <span class="fl">2</span><span class="op">)</span>,</span>
+<span>             SN <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/vector.html" class="external-link">as.vector</a></span><span class="op">(</span><span class="va">SN</span><span class="op">)</span>,</span>
+<span>             thetaML <span class="op">=</span> <span class="va">thetaML</span>,</span>
+<span>             thetameanB11 <span class="op">=</span> <span class="va">postmean</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span>,</span>
+<span>             thetamodeB11 <span class="op">=</span> <span class="va">postmode</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span>,</span>
+<span>             thetameanB42 <span class="op">=</span> <span class="va">postmean</span><span class="op">[</span><span class="fl">7</span><span class="op">:</span><span class="fl">12</span><span class="op">]</span>,</span>
+<span>             thetamodeB42 <span class="op">=</span> <span class="va">postmode</span><span class="op">[</span><span class="fl">7</span><span class="op">:</span><span class="fl">12</span><span class="op">]</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">res</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <table style="width:100%;" class="table">
 <colgroup>
+<col width="12%">
 <col width="5%">
-<col width="7%">
-<col width="7%">
-<col width="7%">
-<col width="7%">
-<col width="7%">
-<col width="7%">
-<col width="7%">
-<col width="7%">
-<col width="7%">
-<col width="7%">
-<col width="7%">
-<col width="7%">
+<col width="5%">
+<col width="10%">
+<col width="16%">
+<col width="16%">
+<col width="16%">
+<col width="16%">
 </colgroup>
 <thead><tr class="header">
-<th align="left"></th>
-<th align="right">25</th>
-<th align="right">100</th>
-<th align="right">400</th>
-<th align="right">25</th>
-<th align="right">100</th>
-<th align="right">400</th>
-<th align="right">25</th>
-<th align="right">100</th>
-<th align="right">400</th>
-<th align="right">25</th>
-<th align="right">100</th>
-<th align="right">400</th>
+<th align="right">thetatrue</th>
+<th align="right">N</th>
+<th align="right">SN</th>
+<th align="right">thetaML</th>
+<th align="right">thetameanB11</th>
+<th align="right">thetamodeB11</th>
+<th align="right">thetameanB42</th>
+<th align="right">thetamodeB42</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td align="left">mean</td>
-<td align="right">0.0385</td>
-<td align="right">0.0248</td>
-<td align="right">0.0212</td>
-<td align="right">0.2596</td>
-<td align="right">0.2525</td>
-<td align="right">0.2506</td>
-<td align="right">0.0806</td>
-<td align="right">0.0377</td>
-<td align="right">0.0246</td>
-<td align="right">0.2661</td>
-<td align="right">0.2547</td>
-<td align="right">0.2512</td>
+<td align="right">0.02</td>
+<td align="right">25</td>
+<td align="right">0</td>
+<td align="right">0.000</td>
+<td align="right">0.037</td>
+<td align="right">0.000</td>
+<td align="right">0.065</td>
+<td align="right">0.034</td>
 </tr>
 <tr class="even">
-<td align="left">mode</td>
-<td align="right">0.0000</td>
-<td align="right">0.0152</td>
-<td align="right">0.0188</td>
-<td align="right">0.2396</td>
-<td align="right">0.2475</td>
-<td align="right">0.2494</td>
-<td align="right">0.0517</td>
-<td align="right">0.0288</td>
-<td align="right">0.0223</td>
-<td align="right">0.2500</td>
-<td align="right">0.2500</td>
-<td align="right">0.2500</td>
+<td align="right"></td>
+<td align="right">100</td>
+<td align="right">3</td>
+<td align="right">0.030</td>
+<td align="right">0.039</td>
+<td align="right">0.030</td>
+<td align="right">0.047</td>
+<td align="right">0.038</td>
+</tr>
+<tr class="odd">
+<td align="right"></td>
+<td align="right">400</td>
+<td align="right">8</td>
+<td align="right">0.020</td>
+<td align="right">0.022</td>
+<td align="right">0.020</td>
+<td align="right">0.025</td>
+<td align="right">0.022</td>
+</tr>
+<tr class="even">
+<td align="right">0.25</td>
+<td align="right">25</td>
+<td align="right">4</td>
+<td align="right">0.160</td>
+<td align="right">0.185</td>
+<td align="right">0.160</td>
+<td align="right">0.194</td>
+<td align="right">0.172</td>
+</tr>
+<tr class="odd">
+<td align="right"></td>
+<td align="right">100</td>
+<td align="right">32</td>
+<td align="right">0.320</td>
+<td align="right">0.324</td>
+<td align="right">0.320</td>
+<td align="right">0.321</td>
+<td align="right">0.317</td>
+</tr>
+<tr class="even">
+<td align="right"></td>
+<td align="right">400</td>
+<td align="right">110</td>
+<td align="right">0.275</td>
+<td align="right">0.276</td>
+<td align="right">0.275</td>
+<td align="right">0.276</td>
+<td align="right">0.275</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section level3">
+<h3 id="table-5-2-interval-estimates">Table 5.2: Interval estimates<a class="anchor" aria-label="anchor" href="#table-5-2-interval-estimates"></a>
+</h3>
+<p>We now compute frequentist and Bayesian CIs.</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Confidence intervals</span></span>
+<span><span class="va">leftconf</span> <span class="op">&lt;-</span> <span class="va">thetaML</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">qnorm</a></span><span class="op">(</span><span class="fl">.975</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">thetaML</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">thetaML</span><span class="op">)</span> <span class="op">/</span> <span class="va">set</span><span class="op">$</span><span class="va">N</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="va">rightconf</span> <span class="op">&lt;-</span> <span class="va">thetaML</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">qnorm</a></span><span class="op">(</span><span class="fl">.975</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">thetaML</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">thetaML</span><span class="op">)</span> <span class="op">/</span> <span class="va">set</span><span class="op">$</span><span class="va">N</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># HPD intervals</span></span>
+<span><span class="va">resolution</span> <span class="op">&lt;-</span> <span class="fl">10000</span></span>
+<span><span class="va">grid</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, length.out <span class="op">=</span> <span class="va">resolution</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">dist</span> <span class="op">&lt;-</span> <span class="fl">0.95</span> <span class="op">*</span> <span class="va">resolution</span></span>
+<span></span>
+<span><span class="va">leftHPD</span> <span class="op">&lt;-</span> <span class="va">rightHPD</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA_real_</span>, <span class="fl">6</span><span class="op">)</span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">qs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Beta.html" class="external-link">qbeta</a></span><span class="op">(</span><span class="va">grid</span>, <span class="va">set</span><span class="op">$</span><span class="va">aN</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, <span class="va">set</span><span class="op">$</span><span class="va">bN</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span></span>
+<span>  <span class="va">minimizer</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.min.html" class="external-link">which.min</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diff.html" class="external-link">diff</a></span><span class="op">(</span><span class="va">qs</span>, lag <span class="op">=</span> <span class="va">dist</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">leftHPD</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">qs</span><span class="op">[</span><span class="va">minimizer</span><span class="op">]</span></span>
+<span>  <span class="va">rightHPD</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">qs</span><span class="op">[</span><span class="va">minimizer</span> <span class="op">+</span> <span class="va">dist</span><span class="op">]</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">res</span><span class="op">[</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span>, <span class="va">leftconf</span>, <span class="va">rightconf</span>, <span class="va">leftHPD</span>, <span class="va">rightHPD</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">res</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="right">thetatrue</th>
+<th align="right">N</th>
+<th align="right">SN</th>
+<th align="right">leftconf</th>
+<th align="right">rightconf</th>
+<th align="right">leftHPD</th>
+<th align="right">rightHPD</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="right">0.02</td>
+<td align="right">25</td>
+<td align="right">0</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+<td align="right">0.000</td>
+<td align="right">0.109</td>
+</tr>
+<tr class="even">
+<td align="right"></td>
+<td align="right">100</td>
+<td align="right">3</td>
+<td align="right">-0.003</td>
+<td align="right">0.063</td>
+<td align="right">0.007</td>
+<td align="right">0.077</td>
+</tr>
+<tr class="odd">
+<td align="right"></td>
+<td align="right">400</td>
+<td align="right">8</td>
+<td align="right">0.006</td>
+<td align="right">0.034</td>
+<td align="right">0.009</td>
+<td align="right">0.037</td>
+</tr>
+<tr class="even">
+<td align="right">0.25</td>
+<td align="right">25</td>
+<td align="right">4</td>
+<td align="right">0.016</td>
+<td align="right">0.304</td>
+<td align="right">0.054</td>
+<td align="right">0.330</td>
+</tr>
+<tr class="odd">
+<td align="right"></td>
+<td align="right">100</td>
+<td align="right">32</td>
+<td align="right">0.229</td>
+<td align="right">0.411</td>
+<td align="right">0.234</td>
+<td align="right">0.414</td>
+</tr>
+<tr class="even">
+<td align="right"></td>
+<td align="right">400</td>
+<td align="right">110</td>
+<td align="right">0.231</td>
+<td align="right">0.319</td>
+<td align="right">0.233</td>
+<td align="right">0.320</td>
 </tr>
 </tbody>
 </table>
