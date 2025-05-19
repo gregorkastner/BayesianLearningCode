@@ -112,7 +112,9 @@ To summarize the results nicely we  compute equal tailed 95% confidence interval
 ```{r}
 res.mcmc<-function(x) c(quantile(x,0.025),mean(x), quantile(x,0.975))
 
-res_beta.sc<- t(apply(betas.sc[burnin+(1:M),],2,res.mcmc))
+beta.sc <- betas.sc[burnin+(1:M),]
+
+res_beta.sc<- t(apply(beta.sc,2,res.mcmc))
 colnames(res_beta.sc) <- c("2.5%","post.mean", "97.5%") 
 rownames(res_beta.sc) <- c("Intercept",covs)
 
@@ -192,12 +194,12 @@ rownames(res_beta.hs)<- c("Intercept", covs)
 print(round(res_beta.hs,3))
 
 # Error variance estimate with horseshoe prior
-sigma2.hs<-sigma2s.hs[burnin+(1:M)]
+res_sigma2.hs=res.mcmc(sigma2s.hs[burnin+(1:M)])
+names(res_sigma2.hs) <- c("2.5%","post.mean", "97.5%")
 
-res_sigma2.hs=res.mcmc(sigma2.hs)
 print(round(res_sigma2.hs,3))
 ```
-We next have a look at the posterior distributions: first under the semi-conjugate priors and then under the Horseshoe prior
+We next have a look at the posterior distributions: first under the semi-conjugate priors and then under the Horseshoe prior.
 ```{r, echo=-(1:2)}
 if (pdfplots) {
   pdf("6-4_1.pdf", width = 8, height = 5)
@@ -242,10 +244,11 @@ if (pdfplots) {
   par(mar = c(2.2, 1.6, 1.6, .2), mgp = c(1.2, .5, 0))
 }
 
-tau2<-tau2s[burnin+(1:M),]
+tau2.hs<-tau2s.hs[burnin+(1:M),]
 
 require(graphics)
 par(mfrow=c(1,1))
-boxplot(tau2,ylim=c(0,800))
+
+boxplot(tau2.hs,ylim=c(0,1000))
 ```
 
