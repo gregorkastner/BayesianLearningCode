@@ -40,168 +40,154 @@ movies["PG"] <- NULL
 Next we prepare the variables for regression analysis. We define the response variable OpenBoxOffice as y and center the covariates at zero. 
 
 ```{r}
-y<- movies[, "OpenBoxOffice"]
+y <- movies[, "OpenBoxOffice"]
 
-data.cen <- movies[,-1]
- vbin<- c("Action","Adventure","Animation","Comedy","Crime", 
-   "Drama", "Family","Fantasy", "Mystery", "Romance",
-   "Sci-Fi", "Thriller", "PG13", "R") 
-data.cen[,vbin]<-scale(movies[,vbin],scale=FALSE)
+covs <- c("Comedy", "Thriller","PG13", "R",
+          "Budget", "Weeks", "Screens", 
+          "S-4-6","S-1-3", "Vol-4-6", "Vol-1-3")
+ covs.cen<-scale(movies[,covs] ,scale=FALSE)
+  
 
- vmetr<- c("Budget", "Weeks", "Screens", 
-           "S-21-27","S-14-20","S-7-13","S-4-6","S-1-3",
-            "Vol-21-27","Vol-14-20","Vol-7-13","Vol-4-6",
-          "Vol-1-3")
- 
-data.cen[,vmetr]<-scale(movies[,vmetr],scale=FALSE)
+N <- length(y)  # number of Observations
+X <- cbind(rep(1,N),as.matrix(covs.cen)) # regressor matrix
+varnames <- c("Intercept", covs)
 
-N=length(y)  # number of Observations
-X=cbind(rep(1,N),as.matrix(data.cen)) # Regressor matrix
-d=dim(X)[2]-1 # regression effects except the intercept
+d <- dim(X)[2] # number regression effects 
+p <- d-1 # number of regression effects without intercept
 ```
 
 We first estimate the parameters of the regression model under a rather flat semi-conjugate prior.
 
 ```{r}
-# define prior parameters
-B0.inv=diag(c(1/10000,rep(1/100,d)), nrow=d+1)
-b0=rep(0,d+1)
+set.seed(421)
 
-c0=2.5 
-C0=1.5
+# define prior parameters of semi-conjugate prior
+B0.inv <- diag(rep(1/10000,d), nrow=d)
+b0 <- rep(0,d)
+
+c0 <- 2.5 
+C0 <- 1.5
 
 # define quantities for the Gibbs sampler
 XX <- crossprod(X)
-Xy<- t(X)%*%y
-cN=c0+N/2
+Xy <- t(X)%*%y
+cN <- c0+N/2
 
 #define burnin and M
-burnin=1000
-M=5000
+burnin <- 1000
+M <- 5000
 
 # prepare storing of results
-betas=matrix(NA, nrow=burnin+M, ncol=d+1)
-sigma2s=rep(NA,burnin+M )
+betas <- matrix(NA, nrow=burnin+M, ncol=d)
+sigma2s <- rep(NA,burnin+M )
 
 require("mvtnorm")
 
 # starting value for sigma2
-sigma2=var(y)/2
+sigma2 <- var(y)/2
 
 for (m in 1:(burnin+M)){
     # sample  beta from the full conditional
     Bn <- solve(B0.inv+XX/sigma2) 
     bn <- Bn%*%(B0.inv%*%b0+Xy/sigma2)
-    beta=t(rmvnorm(n=1,mean=bn,sigma=Bn))
-    
-    # sample sigma^2 from its full conditional
-    eps<-y-X%*%beta
-    CN<-C0+ crossprod(eps)/2
-    sigma2<-rinvgamma(1,cN,CN)
-    
-    betas[m,]<-beta
-    sigma2s[m]<- sigma2
-}
-```
-To summarize the results nicely we  compute equal tailed 95% confidence intervals. 
-```{r}
-eq.tails<-function(x)c(quantile(x,0.025), quantile(x,0.975))
-
-beta.res1<- betas[burnin+(1:M),]
-beta.eq1<-t(apply(beta.res1,2,eq.tails))
-
-res1 <- cbind(colMeans(beta.res1), beta.eq1)
-rownames(res1) <- c("Intercept", colnames(data.cen))
-colnames(res1) <- c("post.mean", "2.5%", "97.5" )
-print(round(res1,3))
-
-sigma2.res1<- sigma2s[burnin+(1:M)]
-print(round(c(mean(sigma2.res1), eq.tails(sigma2.res1)),3))
-```
-Next we use the horseshoe prior to analyse the data. We use 
-the same prior on the intercept but specify the horseshoe prior via latent Inverse Gamma parameters. 
-
-```{r,echo=-(1:2)}
-par(mfrow = c(1, 3))
-set.seed(42)
-
-B0inv.intcpt=1/10000
-b0=rep(0,d+1)
-
-c0=2.5 
-C0=1.5
-
-# define quantities for the Gibbs sampler
-XX <- crossprod(X)
-Xy<- t(X)%*%y
-cN=c0+N/2
-
-#define burnin and M
-burnin=1000
-M=5000
-
-# prepare storing of results
-betas=matrix(NA, nrow=burnin+M, ncol=d+1)
-lambda2s=rep(NA, burnin+M)
-nus=rep(NA, burnin+M)
-tau2s=matrix(NA, nrow=burnin+M, ncol=d)
-xis=matrix(NA, nrow=burnin+M, ncol=d)
-sigma2s=rep(NA,burnin+M)
-
-# starting value for sigma2
-sigma2=var(y)/2
-
-lambda2<- 1
-xi<-1
-
-tau2<-rep(1,d)
-nu<- rep(1,d)
-
-for (m in 1:(burnin+M)){
-    # sample  beta from the full conditional
-    B0.inv=diag(c(B0inv.intcpt, 1/(lambda2*tau2)))
-    Bn <- solve(B0.inv+XX/sigma2) 
-    bn <- Bn%*%(B0.inv%*%b0+Xy/sigma2)
-    beta=t(rmvnorm(n=1,mean=bn,sigma=Bn))
-    
-    # sample lambda2 and nu
-    lambda2=rinvgamma(1,d/2,
-                      1/xi+sum(beta[-1]^2/(2*lambda2)))
-    nu=rinvgamma(1,1,1+1/lambda2)
-    
-    #sample tau2 and xi
-    tau2 <- rinvgamma(d,1,
-                   1/nu+(beta[-1]^2)/(2*tau2))
-    xi <- rinvgamma(d,1,1+1/tau2)
+    beta <- t(rmvnorm(n=1,mean=bn,sigma=Bn))
     
     # sample sigma^2 from its full conditional
     eps <- y-X%*%beta
     CN <- C0+ crossprod(eps)/2
     sigma2 <- rinvgamma(1,cN,CN)
     
-    # Save the draws
-    betas[m,]<-beta
-    lambda2s[m] <- lambda2
-    nus[m]<- nu
-    tau2s[m,]<- tau2
-    xis[m,] <- xi
-    sigma2s[m]<- sigma2
+    betas[m,] <- beta
+    sigma2s[m] <- sigma2
 }
 ```
-Again we compose a table with posterior mean estimates and
-equal tailed 95% credibility intervals
+To summarize the results nicely we  compute equal tailed 95% confidence intervals. 
+```{r}
+res.mcmc<-function(x) c(quantile(x,0.025),mean(x), quantile(x,0.975))
+
+res_beta.sc<- t(apply(betas.sc[burnin+(1:M),],2,res.mcmc))
+colnames(res_beta.sc) <- c("2.5%","post.mean", "97.5%") 
+rownames(res_beta.sc) <- c("Intercept",covs)
+
+print(round(res_beta.sc,3))
+
+# Error variance estimate with semi-conjugate prior
+res_sigma2.sc=res.mcmc(sigma2s.sc[burnin+(1:M)])
+names(res_sigma2.sc) <- c("2.5%","post.mean", "97.5%")
+
+print(round(res_sigma2.sc,3))
+```
+Next we use the horseshoe prior to analyse the data. We use 
+the same prior on the intercept and the error variance as above  but specify a horseshoe prior on the  regression effects. 
+
+```{r,echo=-(1:2)}
+B00.inv=1/10000 # prior precision for the intercept
+
+#define burnin and M
+burnin=1000
+M=5000
+
+# prepare storing of results
+betas.hs=matrix(NA, nrow=burnin+M, ncol=d)
+sigma2s.hs=rep(NA,burnin+M)
+
+tau2s.hs=matrix(NA, nrow=burnin+M, ncol=p)
+lambda2s.hs=rep(NA,burnin+M)
+
+# set starting values 
+sigma2=var(y)/2
+tau2=rep(1,p)
+lambda2=1
+
+for (m in 1:(burnin+M)){
+  # sample  beta from the full conditional
+  B0.inv=diag(c(B00.inv,1/(lambda2*tau2)))
+  Bn <- solve(B0.inv+XX/sigma2) 
+  bn <- Bn%*%(B0.inv%*%b0+Xy/sigma2)
+  
+  beta=t(rmvnorm(n=1,mean=bn,sigma=Bn))
+  beta.star=beta[2:d]
+  
+  # sample sigma^2 from its full conditional
+  eps<-y-X%*%beta
+  CN<-C0+ crossprod(eps)/2
+  sigma2<-rinvgamma(1,cN,CN)
+  
+  # sample tau^2
+  xi=rexp(p,rate=1+1/tau2)
+  tau2=rinvgamma(p,1,xi+0.5*beta.star^2/lambda2)
+  
+  # sample lambda^2
+  zeta=rexp(1,rate=1+1/lambda2)
+  lambda2=rinvgamma(1,(p+1)/2,rate=zeta+0.5*sum(beta.star^2/tau2))
+  
+  # store results
+  betas.hs[m,]<-beta
+  sigma2s.hs[m]<- sigma2
+  
+  tau2s.hs[m,]<-tau2
+  lambda2s.hs[m]<- lambda2
+
+}
+```
+Again we show the  posterior mean estimates and
+equal tailed 95% credibility intervals in a table.
+
 
 ```{r}
-beta.res2<- betas[burnin+(1:M),]
-beta.eq2<-t(apply(beta.res2,2,eq.tails))
-res2 <- cbind(colMeans(beta.res2), beta.eq2)
-rownames(res2) <- c("Intercept", colnames(data.cen))
-colnames(res2) <- c("post.mean", "2.5%", "97.5" )
+# Regression effects estimates with horseshoe prior
+beta.hs<- betas.hs[burnin+(1:M),]
+res_beta.hs <- t(apply(beta.hs,2,res.mcmc))
 
-print(round(res2,3))
+colnames(res_beta.hs) <- c("2.5%","post.mean", "97.5" )
+rownames(res_beta.hs)<- c("Intercept", covs)
+print(round(res_beta.hs,3))
 
-sigma2.res2<- sigma2s[burnin+(1:M)]
-print(round(c(mean(sigma2.res2), eq.tails(sigma2.res2)),3))
+# Error variance estimate with horseshoe prior
+sigma2.hs<-sigma2s.hs[burnin+(1:M)]
+
+res_sigma2.hs=res.mcmc(sigma2.hs)
+print(round(res_sigma2.hs,3))
 ```
 We next have a look at the posterior distributions: first under the semi-conjugate priors and then under the Horseshoe prior
 ```{r, echo=-(1:2)}
@@ -209,13 +195,15 @@ if (pdfplots) {
   pdf("6-4_1.pdf", width = 8, height = 5)
   par(mar = c(2.2, 1.6, 1.6, .2), mgp = c(1.2, .5, 0))
 }
-par(mfrow=c(7,4))
-for (i in 1:(d+1)){
- hist(beta.res1[,i])
+
+par(mfrow=c(3,4))
+
+for (i in 1:d){
+  hist(beta.sc[,i], main=varnames[i])
 }
 
-for (i in 1:(d+1)){
- hist(beta.res2[,i])
+for (i in 1:d){
+ hist(beta.hs[,i], main=varnames[i])
 } 
 
 ```
@@ -227,13 +215,15 @@ if (pdfplots) {
   pdf("6-4_2.pdf", width = 8, height = 5)
   par(mar = c(2.2, 1.6, 1.6, .2), mgp = c(1.2, .5, 0))
 }
-par(mfrow=c(7,4))
-for (i in 1:(d+1)){
- plot(beta.res1[,i], type="l")
+
+par(mfrow=c(3,4))
+
+for (i in 1:d){
+ plot(beta.sc[,i], type="l")
 }
 
 for (i in 1:(d+1)){
- plot(beta.res2[,i], type="l")
+ plot(beta.hs[,i], type="l")
 } 
 ```
 Finally have a look at boxplots of the posterior distributions of the local shrinkage parameters $\tau_j$under the horseshoe prior  
@@ -247,19 +237,7 @@ if (pdfplots) {
 tau2.res<-tau2s[burnin+(1:M),]
 
 require(graphics)
-boxplot(tau2.res,ylim=c(0,100))
+par(mfrow=c(1,1))
+boxplot(tau2.res,ylim=c(0,800))
 ```
 
-The residuals of the model are however not normally distributed.
-```{r, echo=-(1:2)}
-if (pdfplots) {
-  pdf("6-4_4.pdf", width = 8, height = 5)
-  par(mar = c(2.2, 1.6, 1.6, .2), mgp = c(1.2, .5, 0))
-}
-res1=y-X%*%colMeans(beta.res1)
-res2=y-X%*%colMeans(beta.res2)
-par(mfrow=c(1,2))
-qqnorm(res1)
-qqnorm(res2)
-
-```
