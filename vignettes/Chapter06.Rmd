@@ -38,8 +38,10 @@ First of all, as there is only one film of genre G, we set the baseline for the 
 G or PG by removing PG from the data set.
 
 ```{r}
+
 # Example 2
 movies["PG"] <- NULL
+
 ```
 
 Next we prepare the variables for regression analysis. We define the response variable OpenBoxOffice as y and center the covariates at zero. 
@@ -123,7 +125,8 @@ names(res_sigma2.sc) <- c("2.5%","post.mean", "97.5%")
 print(round(res_sigma2.sc,3))
 ```
 Next we use the horseshoe prior to analyse the data. We use 
-the same prior on the intercept and the error variance as above  but specify a horseshoe prior on the  regression effects. 
+the same prior on the intercept and the error variance as above but specify a horseshoe prior on the  regression effects. 
+The prior variance of the intercept is set to the same value as in the semi-conjugate prior.
 
 ```{r,echo=-(1:2)}
 B00.inv=1/10000 # prior precision for the intercept
@@ -155,16 +158,16 @@ for (m in 1:(burnin+M)){
   
   # sample sigma^2 from its full conditional
   eps<-y-X%*%beta
-  CN<-C0+ crossprod(eps)/2
-  sigma2<-rinvgamma(1,cN,CN)
+  CN <- C0 + crossprod(eps)/2
+  sigma2 <- rinvgamma(1,cN,CN)
   
   # sample tau^2
-  xi=rexp(p,rate=1+1/tau2)
-  tau2=rinvgamma(p,1,xi+0.5*beta.star^2/lambda2)
+  xi  <- rexp(p,rate=1+1/tau2)
+  tau2 <- rinvgamma(p,1,xi+0.5*beta.star^2/lambda2)
   
   # sample lambda^2
-  zeta=rexp(1,rate=1+1/lambda2)
-  lambda2=rinvgamma(1,(p+1)/2,rate=zeta+0.5*sum(beta.star^2/tau2))
+  zeta <- rexp(1,rate=1+1/lambda2)
+  lambda2 <- rinvgamma(1,(p+1)/2,rate=zeta+0.5*sum(beta.star^2/tau2))
   
   # store results
   betas.hs[m,]<-beta
@@ -175,9 +178,9 @@ for (m in 1:(burnin+M)){
 
 }
 ```
+
 Again we show the  posterior mean estimates and
 equal tailed 95% credibility intervals in a table.
-
 
 ```{r}
 # Regression effects estimates with horseshoe prior
@@ -224,19 +227,21 @@ if (pdfplots) {
 par(mfrow=c(3,4))
 
 for (i in 1:d){
- plot(beta.sc[,i], type="l")
+    plot(beta.sc[,i], type="l")
 }
 
 for (i in 1:(d+1)){
- plot(beta.hs[,i], type="l")
+    plot(beta.hs[,i], type="l")
 } 
 ```
-Finally have a look at boxplots of the posterior distributions of the local shrinkage parameters $\tau_j$ under the horseshoe prior  
+Finally have a look at boxplots of the posterior distributions of the local shrinkage parameters $\tau_j$ under the horseshoe prior.
+
 ```{r, echo=-(1:2)}
 if (pdfplots) {
   pdf("6-4_3.pdf", width = 8, height = 5)
   par(mar = c(2.2, 1.6, 1.6, .2), mgp = c(1.2, .5, 0))
 }
+
 tau2<-tau2s[burnin+(1:M),]
 
 require(graphics)
