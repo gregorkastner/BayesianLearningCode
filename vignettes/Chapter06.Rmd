@@ -28,12 +28,17 @@ par(mgp = c(1.6, .6, 0), mar = c(2.6, 2.6, 2.6, .4), lwd = 1)
 
 We use movie data provided as "movies.rda" to illustrate Bayesian analysis of a regression model. The data set is 
 a preprocessed version of the one provided by Lehrer and Xi (2017).
-First of all, as there is only one film of genre G, we set the baseline for the categorical covariate genre to 
-G or PG by removing PG from the data set. 
+ 
 
 ```{r}
 library("BayesianLearningCode")
 data("movies", package = "BayesianLearningCode")
+```
+First of all, as there is only one film of genre G, we set the baseline for the categorical covariate genre to 
+G or PG by removing PG from the data set.
+
+```{r}
+# Example 2
 movies["PG"] <- NULL
 ```
 
@@ -226,18 +231,16 @@ for (i in 1:(d+1)){
  plot(beta.hs[,i], type="l")
 } 
 ```
-Finally have a look at boxplots of the posterior distributions of the local shrinkage parameters $\tau_j$under the horseshoe prior  
-
-
+Finally have a look at boxplots of the posterior distributions of the local shrinkage parameters $\tau_j$ under the horseshoe prior  
 ```{r, echo=-(1:2)}
 if (pdfplots) {
   pdf("6-4_3.pdf", width = 8, height = 5)
   par(mar = c(2.2, 1.6, 1.6, .2), mgp = c(1.2, .5, 0))
 }
-tau2.res<-tau2s[burnin+(1:M),]
+tau2<-tau2s[burnin+(1:M),]
 
 require(graphics)
 par(mfrow=c(1,1))
-boxplot(tau2.res,ylim=c(0,800))
+boxplot(tau2,ylim=c(0,800))
 ```
 
