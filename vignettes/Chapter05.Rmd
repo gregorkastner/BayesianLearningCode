@@ -427,14 +427,13 @@ res <- cbind(res[,1:3], leftconf, rightconf, leftHPD, rightHPD)
 knitr::kable(round(res, 3))
 ```
 
-## Table 5.3: Coverage probabilities
+## Example 2.10 / Table 5.3: Coverage probabilities under the beta-Bernoulli model
 For an analysis of the (frequentist) coverage probabilities, we simulate
 many data sets for each of the parameter configurations and check how often
 the intervals contain the true parameter.
 
 ```{r}
 alpha <- 0.05
-cutoff <- (1 - alpha / 2)
 nrep <- 10000
 resolution <- 1000
 grid <- matrix(seq(0, 1, length.out = resolution + 1),
@@ -451,8 +450,10 @@ for (i in 1:6) {
   thetaML <- (aN - 1) / (aN + bN - 2)
 
   # Asymptotic intervals
-  leftconf <- thetaML - qnorm(cutoff) * sqrt(thetaML * (1 - thetaML) / set$N[i])
-  rightconf <- thetaML + qnorm(cutoff) * sqrt(thetaML * (1 - thetaML) / set$N[i])
+  leftconf <- thetaML - qnorm(1 - alpha / 2) *
+    sqrt(thetaML * (1 - thetaML) / set$N[i])
+  rightconf <- thetaML + qnorm(1 - alpha / 2) *
+    sqrt(thetaML * (1 - thetaML) / set$N[i])
   inconf[, i] <- leftconf <= set$thetatrue[i] & set$thetatrue[i] <= rightconf
   lenconf[, i] <- rightconf - leftconf
   
@@ -469,8 +470,8 @@ for (i in 1:6) {
   lenHPD[, i] <- rightHPD - leftHPD
   
   # equal-tailed intervals
-  leftequal <- qbeta(1 - cutoff, aN, bN)
-  rightequal <- qbeta(cutoff, aN, bN)
+  leftequal <- qbeta(alpha / 2, aN, bN)
+  rightequal <- qbeta(1 - alpha / 2, aN, bN)
   inequal[, i] <- leftequal <= set$thetatrue[i] & set$thetatrue[i] <= rightequal
   lenequal[, i] <- rightequal - leftequal
 }
@@ -483,6 +484,52 @@ res <- cbind(res[,1:2],
              HPD_length = colMeans(lenHPD),
              equal_length = colMeans(lenequal))
 knitr::kable(round(res, 2))
+```
+
+## Example 2.11: Coverage probabilities under Poisson-gamma model
+
+As above, but for data from a $\mathcal{P}(5)$-distribution. We
+estimate the mean from $N = 24$ data points and construct CIs.
+Recall that the posterior under a flat prior is
+$$
+\mu|\mathbf{y} \sim \mathcal G(N\bar y + 1, N),
+$$
+
+```{r}
+mutrue <- 5
+N <- 24
+dat <- matrix(rpois(N * nrep, mutrue), nrep, N)
+means <- rowMeans(dat)
+vars <- apply(dat, 1, var)
+
+# asymptotic intervals based on sample means
+leftconf1 <- means - qnorm(1 - alpha / 2) * sqrt(means / N)
+rightconf1 <- means + qnorm(1 - alpha / 2) * sqrt(means / N)
+inconf1 <- leftconf1 <= mutrue & mutrue <= rightconf1
+
+# asymptotic intervals based on sample means and variances
+leftconf2 <- means - qnorm(1 - alpha / 2) * sqrt(vars / N)
+rightconf2 <- means + qnorm(1 - alpha / 2) * sqrt(vars / N)
+inconf2 <- leftconf2 <= mutrue & mutrue <= rightconf2
+
+# equal-tailed Bayesian intervals under a flat prior
+leftequal <- qgamma(alpha / 2, N * means + 1, N)
+rightequal <- qgamma(1 - alpha / 2, N * means + 1, N)
+inequal <- leftequal <= mutrue & mutrue <= rightequal
+
+# HPD intervals under a flat prior
+qs <- qgamma(grid, rep(N * means + 1, each = resolution + 1), N)
+minimizer <- apply(diff(qs, lag = dist), 2, which.min)
+selector <- minimizer + (seq_along(minimizer) - 1) * (resolution + 1)
+leftHPD <- qs[selector]
+rightHPD <- qs[selector + dist]
+inHPD <- leftHPD <= mutrue & mutrue <= rightHPD
+
+res <- cbind(asy_mean_coverage = mean(inconf1),
+             asy_var_coverage = mean(inconf2),
+             equal_coverage = mean(inequal),
+             HPD_coverage = mean(inHPD))
+knitr::kable(t(round(res, 2)))
 ```
 
 
