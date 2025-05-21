@@ -433,13 +433,16 @@ many data sets for each of the parameter configurations and check how often
 the intervals contain the true parameter.
 
 ```{r}
+alpha <- 0.05
+cutoff <- (1 - alpha / 2)
 nrep <- 10000
 resolution <- 1000
 grid <- matrix(seq(0, 1, length.out = resolution + 1),
                nrow = resolution + 1,
                ncol = nrep)
-dist <- 0.95 * resolution
-inconf <- inHPD <- matrix(NA, nrep, 6)
+dist <- (1 - alpha) * resolution
+inconf <- inHPD <- inequal <- lenconf <- lenHPD <- lenequal <-
+  matrix(NA, nrep, 6)
 
 for (i in 1:6) {
   SN <- rbinom(nrep, set$N[i], set$thetatrue[i])
@@ -447,10 +450,11 @@ for (i in 1:6) {
   bN <- set$N[i] - SN + set$b0[i]
   thetaML <- (aN - 1) / (aN + bN - 2)
 
-  # Asymptotic intervals  
-  leftconf <- thetaML - qnorm(.975) * sqrt(thetaML * (1 - thetaML) / set$N[i])
-  rightconf <- thetaML + qnorm(.975) * sqrt(thetaML * (1 - thetaML) / set$N[i])
+  # Asymptotic intervals
+  leftconf <- thetaML - qnorm(cutoff) * sqrt(thetaML * (1 - thetaML) / set$N[i])
+  rightconf <- thetaML + qnorm(cutoff) * sqrt(thetaML * (1 - thetaML) / set$N[i])
   inconf[, i] <- leftconf <= set$thetatrue[i] & set$thetatrue[i] <= rightconf
+  lenconf[, i] <- rightconf - leftconf
   
   # HPD intervals
   leftHPD <- rightHPD <- rep(NA_real_, nrep)
@@ -462,9 +466,22 @@ for (i in 1:6) {
   leftHPD <- qs[selector]
   rightHPD <- qs[selector + dist]
   inHPD[, i] <- leftHPD <= set$thetatrue[i] & set$thetatrue[i] <= rightHPD
+  lenHPD[, i] <- rightHPD - leftHPD
+  
+  # equal-tailed intervals
+  leftequal <- qbeta(1 - cutoff, aN, bN)
+  rightequal <- qbeta(cutoff, aN, bN)
+  inequal[, i] <- leftequal <= set$thetatrue[i] & set$thetatrue[i] <= rightequal
+  lenequal[, i] <- rightequal - leftequal
 }
 
-res <- cbind(res[,1:2], asymptotic = colMeans(inconf), HPD = colMeans(inHPD))
+res <- cbind(res[,1:2],
+             asy_coverage = colMeans(inconf),
+             HPD_coverage = colMeans(inHPD),
+             equal_coverage = colMeans(inequal),
+             asy_length = colMeans(lenconf),
+             HPD_length = colMeans(lenHPD),
+             equal_length = colMeans(lenequal))
 knitr::kable(round(res, 2))
 ```
 
