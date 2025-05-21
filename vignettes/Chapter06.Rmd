@@ -112,7 +112,7 @@ To summarize the results nicely we  compute equal tailed 95% confidence interval
 ```{r}
 res.mcmc<-function(x) c(quantile(x,0.025),mean(x), quantile(x,0.975))
 
-beta.sc <- betas.sc[burnin+(1:M),]
+beta.sc <- betas[burnin+(1:M),]
 
 res_beta.sc<- t(apply(beta.sc,2,res.mcmc))
 colnames(res_beta.sc) <- c("2.5%","post.mean", "97.5%") 
@@ -121,7 +121,7 @@ rownames(res_beta.sc) <- c("Intercept",covs)
 print(round(res_beta.sc,3))
 
 # Error variance estimate with semi-conjugate prior
-res_sigma2.sc=res.mcmc(sigma2s.sc[burnin+(1:M)])
+res_sigma2.sc=res.mcmc(sigma2s[burnin+(1:M)])
 names(res_sigma2.sc) <- c("2.5%","post.mean", "97.5%")
 
 print(round(res_sigma2.sc,3))
@@ -170,7 +170,7 @@ for (m in 1:(burnin+M)){
   
   # sample lambda^2
   zeta <- rexp(1,rate=1+1/lambda2)
-  lambda2 <- rinvgamma(1,(p+1)/2,rate=zeta+0.5*sum(beta.star^2/tau2))
+  lambda2 <- rinvgamma(1,(p+1)/2,zeta+0.5*sum(beta.star^2/tau2))
   
   # store results
   betas.hs[m,]<-beta
@@ -236,7 +236,7 @@ for (i in 1:d){
     plot(beta.sc[,i], type="l")
 }
 
-for (i in 1:(d+1)){
+for (i in 1:d){
     plot(beta.hs[,i], type="l")
 } 
 ```
