@@ -250,22 +250,28 @@ if (pdfplots) {
 }
 
 tau2.hs<-tau2s.hs[burnin+(1:M),]
-
-par(mfrow=c(1,1), mgp = c(1.6, .6, 0), mar = c(2,2,2,0.1))
+par(mfrow=c(1,1), mgp = c(1.6, .6, 0), mar = c(1.5, 1.5, 1.5, 0.1))
 
 boxplot(sqrt(tau2.hs), outline = FALSE)
 alpha <- 0.05
-tau2.hs.trunc <- apply(tau2.hs, 2, function(x, alpha) x[x <= quantile(x, 1 - alpha)], alpha = alpha)
+truncate <- function(x, alpha) x[x <= quantile(x, 1 - alpha)] 
+tau2.hs.trunc <- apply(tau2.hs, 2, truncate, alpha = alpha)
 tau.hs.trunc.mirrored <- rbind(sqrt(tau2.hs.trunc), -sqrt(tau2.hs.trunc))
 vioplot::vioplot(tau.hs.trunc.mirrored, h = 3, pchMed = NA, drawRect = FALSE,
                  ylim = c(-50, 50))
-par(mfrow=c(6,4))
+```
+
+```{r, echo=-1,  fig.width = 8, fig.height = 12}
+par(mfrow = c(12, 2))
 for (i in seq_len(ncol(beta.hs))) {
-hist(beta.hs[,i], breaks = 100, xlab = "", ylab = "", main = c("Intercept", covs)[i])
-}
-plot.new()
-for (i in seq_len(ncol(tau.hs.trunc.mirrored))) {
-hist(tau.hs.trunc.mirrored[,i], breaks = 100, xlab = "", ylab = "", main = covs[i])
+  hist(beta.hs[,i], breaks = 100, xlab = "", ylab = "", 
+       main = c("Intercept", covs)[i])
+  if (i == 1) {
+    plot.new()
+  } else { 
+    hist(tau.hs.trunc.mirrored[, i - 1], breaks = 200, xlab = "", ylab = "",
+         main = covs[i - 1])
+  }
 }
 ```
 
