@@ -618,7 +618,7 @@ Now we can plot.
 ```{r, echo=-(1:2)}
 if (pdfplots) {
   pdf("5-5_1.pdf", width = 8, height = 4)
-  par(mgp = c(1.4, .5, 0), mar = c(1.5, 1, 1.5, .1), lwd = 2)
+  par(mgp = c(1.4, .5, 0), mar = c(1.5, 1.5, 1.5, .1), lwd = 2)
 }
 par(mfrow = c(2, 3))
 theta <- seq(0, 1, length.out = 200)
