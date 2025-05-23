@@ -532,5 +532,46 @@ res <- cbind(asy_mean_coverage = mean(inconf1),
 knitr::kable(t(round(res, 2)))
 ```
 
+## Example 5.12: Uncertainty quantification for various count data
 
+We revisit the accidents and the eye tracking data sets and compute means
+and variances.
+
+```{r}
+data("accidents")
+data("eyetracking")
+y1 <- accidents[, c("seniors_accidents", "children_accidents")]
+y2 <- eyetracking$anomalies
+N <- c(rep(nrow(y1), ncol(y1)), length(y2))
+means <- c(colSums(y1), eyetracking_anomalies = sum(y2)) / N
+vars <- c(apply(y1, 2, var), var(y2))
+```
+
+The asymptotic and the Bayesian intervals can be computed as above.
+
+```{r}
+# asymptotic intervals based on sample means
+lconf1 <- means - qnorm(1 - alpha / 2) * sqrt(means / N)
+rconf1 <- means + qnorm(1 - alpha / 2) * sqrt(means / N)
+
+# asymptotic intervals based on sample means and variances
+lconf2 <- means - qnorm(1 - alpha / 2) * sqrt(vars / N)
+rconf2 <- means + qnorm(1 - alpha / 2) * sqrt(vars / N)
+
+# equal-tailed Bayesian intervals under a flat prior
+lequal <- qgamma(alpha / 2, N * means + 1, N)
+requal <- qgamma(1 - alpha / 2, N * means + 1, N)
+
+# HPD intervals under a flat prior
+qs <- qgamma(grid[, seq_along(means)],
+             rep(N * means + 1, each = resolution + 1),
+             rep(N, each = resolution + 1))
+minimizer <- apply(diff(qs, lag = dist), 2, which.min)
+selector <- minimizer + (seq_along(minimizer) - 1) * (resolution + 1)
+lHPD <- qs[selector]
+rHPD <- qs[selector + dist]
+
+res <- cbind(lconf1, rconf1, lconf2, rconf2, lequal, requal, lHPD, rHPD)
+knitr::kable(round(res, 3))
+```
 
