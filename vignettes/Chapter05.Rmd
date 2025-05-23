@@ -392,11 +392,11 @@ thetaML <- postmode[1:6]
 res <- cbind(thetatrue = c(thetatrue[1], NA, NA, thetatrue[2], NA, NA),
              N = rep(N, 2),
              SN = as.vector(SN),
-             thetaML = thetaML,
-             thetameanB11 = postmean[1:6],
-             thetamodeB11 = postmode[1:6],
-             thetameanB42 = postmean[7:12],
-             thetamodeB42 = postmode[7:12])
+             ML = thetaML,
+             meanB11 = postmean[1:6],
+             modeB11 = postmode[1:6],
+             meanB42 = postmean[7:12],
+             modeB42 = postmode[7:12])
 
 knitr::kable(round(res, 3))
 ```
@@ -410,7 +410,7 @@ leftconf <- thetaML - qnorm(.975) * sqrt(thetaML * (1 - thetaML) / set$N[1:6])
 rightconf <- thetaML + qnorm(.975) * sqrt(thetaML * (1 - thetaML) / set$N[1:6])
 
 # HPD intervals
-resolution <- 10000
+resolution <- 1000
 grid <- seq(0, 1, length.out = resolution + 1)
 dist <- 0.95 * resolution
 
@@ -427,8 +427,8 @@ res <- cbind(res[,1:3], leftconf, rightconf, leftHPD, rightHPD)
 knitr::kable(round(res, 3))
 ```
 
-## Example 2.10 / Table 5.3: Coverage probabilities under the beta-Bernoulli model
-For an analysis of the (frequentist) coverage probabilities, we simulate
+## Example 5.10 / Table 5.3: Coverage probabilities under the beta-Bernoulli model
+For a (frequentist) estimate of the coverage probabilities, we simulate
 many data sets for each of the parameter configurations and check how often
 the intervals contain the true parameter.
 
@@ -477,16 +477,16 @@ for (i in 1:6) {
 }
 
 res <- cbind(res[,1:2],
-             asy_coverage = colMeans(inconf),
-             HPD_coverage = colMeans(inHPD),
-             equal_coverage = colMeans(inequal),
-             asy_length = colMeans(lenconf),
-             HPD_length = colMeans(lenHPD),
-             equal_length = colMeans(lenequal))
+             asy_cover = colMeans(inconf),
+             HPD_cover = colMeans(inHPD),
+             equal_cover = colMeans(inequal),
+             asy_len = colMeans(lenconf),
+             HPD_len = colMeans(lenHPD),
+             equal_len = colMeans(lenequal))
 knitr::kable(round(res, 2))
 ```
 
-## Example 2.11: Coverage probabilities under Poisson-gamma model
+## Example 5.11: Coverage probabilities under the Poisson-gamma model
 
 As above, but for data from a $\mathcal{P}(5)$-distribution. We
 estimate the mean from $N = 24$ data points and construct CIs.
@@ -495,36 +495,46 @@ $$
 \mu|\mathbf{y} \sim \mathcal G(N\bar y + 1, N),
 $$
 
+We start by simulating the data and computing sample means and sample variances.
+
 ```{r}
 mutrue <- 5
 N <- 24
 dat <- matrix(rpois(N * nrep, mutrue), nrep, N)
 means <- rowMeans(dat)
 vars <- apply(dat, 1, var)
+```
 
-# asymptotic intervals based on sample means
+Next, we compute asymptotic intervals based on sample means and sample variances.
+
+```{r}
 leftconf1 <- means - qnorm(1 - alpha / 2) * sqrt(means / N)
 rightconf1 <- means + qnorm(1 - alpha / 2) * sqrt(means / N)
 inconf1 <- leftconf1 <= mutrue & mutrue <= rightconf1
 
-# asymptotic intervals based on sample means and variances
 leftconf2 <- means - qnorm(1 - alpha / 2) * sqrt(vars / N)
 rightconf2 <- means + qnorm(1 - alpha / 2) * sqrt(vars / N)
 inconf2 <- leftconf2 <= mutrue & mutrue <= rightconf2
+```
 
-# equal-tailed Bayesian intervals under a flat prior
+For the Baysian variants, we look compute the equal-tailed and the HPD intervals.
+
+```{r}
 leftequal <- qgamma(alpha / 2, N * means + 1, N)
 rightequal <- qgamma(1 - alpha / 2, N * means + 1, N)
 inequal <- leftequal <= mutrue & mutrue <= rightequal
 
-# HPD intervals under a flat prior
 qs <- qgamma(grid, rep(N * means + 1, each = resolution + 1), N)
 minimizer <- apply(diff(qs, lag = dist), 2, which.min)
 selector <- minimizer + (seq_along(minimizer) - 1) * (resolution + 1)
 leftHPD <- qs[selector]
 rightHPD <- qs[selector + dist]
 inHPD <- leftHPD <= mutrue & mutrue <= rightHPD
+```
 
+Finally, we compile and print the results.
+
+```{r}
 res <- cbind(asy_mean_coverage = mean(inconf1),
              asy_var_coverage = mean(inconf2),
              equal_coverage = mean(inequal),
@@ -575,3 +585,4 @@ res <- cbind(lconf1, rconf1, lconf2, rconf2, lequal, requal, lHPD, rHPD)
 knitr::kable(round(res, 3))
 ```
 
+# Section 5.5: The Role of the Prior for Bayesian Learning
