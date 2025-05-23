@@ -263,6 +263,7 @@ vioplot::vioplot(tau.hs.trunc.mirrored, h = 3, pchMed = NA, drawRect = FALSE,
 
 ```{r, echo=-1,  fig.width = 8, fig.height = 12}
 par(mfrow = c(12, 2))
+
 for (i in seq_len(ncol(beta.hs))) {
   hist(beta.hs[,i], breaks = 100, xlab = "", ylab = "", 
        main = c("Intercept", covs)[i])
