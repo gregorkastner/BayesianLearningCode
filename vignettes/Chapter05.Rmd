@@ -589,9 +589,9 @@ knitr::kable(round(res, 3))
 
 ## Example 5.13 / Figure 5.7: Prior (non-)invariance illustration
 
-First, we define the function \code{dbetamod}, a modified version of the
-native \code{dbeta} to return the improper kernel if both parameters are 0
-(and resort to the original \code{dbeta} otherwise).
+First, we define the function `dbetamod`, a modified version of the
+native `dbeta` to return the improper kernel if both parameters are 0
+(and resort to the original `dbeta` otherwise).
 
 ```{r}
 dbetamod <- function(x, a, b) {
