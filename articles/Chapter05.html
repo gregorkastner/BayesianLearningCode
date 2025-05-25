@@ -898,9 +898,10 @@ above.</p>
 <div class="section level3">
 <h3 id="example-5-13-figure-5-7-prior-non-invariance-illustration">Example 5.13 / Figure 5.7: Prior (non-)invariance illustration<a class="anchor" aria-label="anchor" href="#example-5-13-figure-5-7-prior-non-invariance-illustration"></a>
 </h3>
-<p>First, we define the function , a modified version of the native to
-return the improper kernel if both parameters are 0 (and resort to the
-original otherwise).</p>
+<p>First, we define the function <code>dbetamod</code>, a modified
+version of the native <code>dbeta</code> to return the improper kernel
+if both parameters are 0 (and resort to the original <code>dbeta</code>
+otherwise).</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dbetamod</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">a</span>, <span class="va">b</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="kw">if</span> <span class="op">(</span><span class="va">a</span> <span class="op">==</span> <span class="fl">0</span> <span class="op">&amp;&amp;</span> <span class="va">b</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span> <span class="op">{</span></span>
@@ -947,7 +948,7 @@ densities.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer>
