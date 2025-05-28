@@ -13,7 +13,7 @@
 #' @param location parameter.
 #' @param scale positive parameter.
 #' @param df positive parameter.
-#' @param ndraws number of observations.
+#' @param n number of observations.
 #' @param log logical; if \code{TRUE}, densities are returned as logarithms.
 #'
 #' @returns \code{dstudt} gives the density, \code{pstudt} gives the
@@ -32,8 +32,8 @@ dstudt <- function(x, location = 0, scale = 1, df, log = FALSE) {
 
 #' @rdname StudTDist
 #' @export
-pstudt <- function(x, location = 0, scale = 1, df) {
-  pt((x - location) / scale, df = df)
+pstudt <- function(q, location = 0, scale = 1, df) {
+  pt((q - location) / scale, df = df)
 }
 
 #' @rdname StudTDist

@@ -10,7 +10,7 @@
 \usage{
 dstudt(x, location = 0, scale = 1, df, log = FALSE)
 
-pstudt(x, location = 0, scale = 1, df)
+pstudt(q, location = 0, scale = 1, df)
 
 qstudt(p, location = 0, scale = 1, df)
 
@@ -27,11 +27,11 @@ rstudt(n, location = 0, scale = 1, df)
 
 \item{log}{logical; if \code{TRUE}, densities are returned as logarithms.}
 
-\item{p}{vector of probabilities.}
-
 \item{q}{vector of quantiles.}
 
-\item{ndraws}{number of observations.}
+\item{p}{vector of probabilities.}
+
+\item{n}{number of observations.}
 }
 \value{
 \code{dstudt} gives the density, \code{pstudt} gives the
