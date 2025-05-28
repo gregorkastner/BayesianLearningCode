@@ -22,6 +22,7 @@ NULL
 
 #' @rdname InvGammaDist
 #' @export
+#' @importFrom stats dgamma
 dinvgamma <- function(x, a, b, log = FALSE) {
   logdens <- dgamma(1/x, a, b, log = TRUE) - 2 * log(x)
   if (log) logdens else exp(logdens)
@@ -29,18 +30,21 @@ dinvgamma <- function(x, a, b, log = FALSE) {
 
 #' @rdname InvGammaDist
 #' @export
+#' @importFrom stats pgamma
 pinvgamma <- function(q, a, b) {
   1 - pgamma(1 / q, a, b)
 }
 
 #' @rdname InvGammaDist
 #' @export
+#' @importFrom stats qgamma
 qinvgamma <- function(p, a, b) {
   1 / qgamma(1 - p, a, b)
 }
 
 #' @rdname InvGammaDist
 #' @export
+#' @importFrom stats rgamma
 rinvgamma <- function(ndraws, a, b) {
   1 / rgamma(ndraws, a, b)
 }

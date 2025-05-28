@@ -25,6 +25,7 @@ NULL
 
 #' @rdname StudTDist
 #' @export
+#' @importFrom stats dt
 dstudt <- function(x, location = 0, scale = 1, df, log = FALSE) {
   logdens <- dt((x - location) / scale, df = df, log = TRUE) - log(scale)
   if (log) logdens else exp(logdens)
@@ -32,18 +33,21 @@ dstudt <- function(x, location = 0, scale = 1, df, log = FALSE) {
 
 #' @rdname StudTDist
 #' @export
+#' @importFrom stats pt
 pstudt <- function(q, location = 0, scale = 1, df) {
   pt((q - location) / scale, df = df)
 }
 
 #' @rdname StudTDist
 #' @export
+#' @importFrom stats qt
 qstudt <- function(p, location = 0, scale = 1, df) {
   location + scale * qt(p, df = df)
 }
 
 #' @rdname StudTDist
 #' @export
+#' @importFrom stats rt
 rstudt <- function(n, location = 0, scale = 1, df) {
   location + scale * rt(n, df = df)
 }
