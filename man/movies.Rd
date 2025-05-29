@@ -7,12 +7,39 @@
 \format{
 A data frame with 94 observations of 29 variables
 \describe{
-\item{title}{The title of the movie (anonymized)}
-\item{...}{etc. etc.}
+\item{\code{OpenBoxOffice}}{a numeric vector}
+\item{\code{Action}}{a binary vector}
+\item{\code{Adventure}}{a binary vector}
+\item{\code{Animation}}{a binary vector}
+\item{\code{Comedy}}{a binary vector}
+\item{\code{Crime}}{a binary vector}
+\item{\code{Drama}}{a binary vector}
+\item{\code{Family}}{a binary vector}
+\item{\code{Fantasy}}{a binary vector}
+\item{\code{Mystery}}{a binary vector}
+\item{\code{Romance}}{a binary vector}
+\item{\samp{Sci-Fi}}{a binary vector}
+\item{\code{Thriller}}{a binary vector}
+\item{\code{PG}}{a binary vector}
+\item{\code{PG13}}{a binary vector}
+\item{\code{R}}{a binary vector}
+\item{\code{Budget}}{a numeric vector}
+\item{\code{Weeks}}{a numeric vector}
+\item{\code{Screens}}{a numeric vector}
+\item{\samp{S-21-27}}{a numeric vector}
+\item{\samp{S-14-20}}{a numeric vector}
+\item{\samp{S-7-13}}{a numeric vector}
+\item{\samp{S-4-6}}{a numeric vector}
+\item{\samp{S-1-3}}{a numeric vector}
+\item{\samp{Vol-21-27}}{a numeric vector}
+\item{\samp{Vol-14-20}}{a numeric vector}
+\item{\samp{Vol-7-13}}{a numeric vector}
+\item{\samp{Vol-4-6}}{a numeric vector}
+\item{\samp{Vol-1-3}}{a numeric vector}
 }
 }
 \source{
-TBD: \url{https://doi.org/10.7910/DVN/JS3AVM}
+TBD: \doi{10.7910/DVN/JS3AVM}
 }
 \usage{
 movies
