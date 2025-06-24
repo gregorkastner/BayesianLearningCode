@@ -1,8 +1,8 @@
 ---
-title: "Chapter 6"
+title: "Chapter 6: The Bayesian Approach to Standard Regression Analysis"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Chapter 6}
+  %\VignetteIndexEntry{Chapter 6: The Bayesian Approach to Standard Regression Analysis}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 editor_options: 
@@ -23,8 +23,8 @@ pdfplots <- FALSE # default: FALSE; set this to TRUE only if you like pdf figure
 ```{r, include = FALSE}
 par(mgp = c(1.6, .6, 0), mar = c(2.6, 2.6, 2.6, .4), lwd = 1)
 ```
-# Example 6.1
-# Movie data 
+# Section 6.4
+## Example 6.1/6.2: Movie data
 
 We use movie data provided within the package to illustrate Bayesian analysis
 of a regression model. The data set is a preprocessed version of the one
@@ -35,223 +35,199 @@ provided by Lehrer and Xi (2017).
 library("BayesianLearningCode")
 data("movies", package = "BayesianLearningCode")
 ```
-First of all, as there is only one film of genre G, we set the baseline for the categorical covariate genre to 
-G or PG by removing PG from the data set.
+First of all, as there is only one film of genre G, we set the baseline for the
+categorical covariate genre to  G or PG by removing PG from the data set.
 
 ```{r}
-# Example 2
 movies["PG"] <- NULL
 ```
 
-Next we prepare the variables for regression analysis. We define the response variable OpenBoxOffice as y and center the covariates at zero. 
+Next, we prepare the variables for regression analysis. We define the response
+variable `OpenBoxOffice` as `y` and center the covariates at zero. 
 
 ```{r}
 y <- movies[, "OpenBoxOffice"]
-
-covs <- c("Comedy", "Thriller","PG13", "R",
-          "Budget", "Weeks", "Screens", 
-          "S-4-6","S-1-3", "Vol-4-6", "Vol-1-3")
- covs.cen<-scale(movies[,covs] ,scale=FALSE)
-  
+covs <- c("Comedy", "Thriller","PG13", "R", "Budget", "Weeks", "Screens", 
+          "S-4-6", "S-1-3", "Vol-4-6", "Vol-1-3")
+covs.cen <- scale(movies[, covs], scale = FALSE)
 
 N <- length(y)  # number of Observations
-X <- cbind(rep(1,N),as.matrix(covs.cen)) # regressor matrix
-varnames <- c("Intercept", covs)
+X <- cbind("Intercept" = rep(1, N), covs.cen) # regressor matrix
 
 d <- dim(X)[2] # number regression effects 
-p <- d-1 # number of regression effects without intercept
+p <- d - 1 # number of regression effects without intercept
 ```
 
 We first estimate the parameters of the regression model under a rather flat semi-conjugate prior.
 
 ```{r}
-set.seed(421)
+set.seed(1)
 
 # define prior parameters of semi-conjugate prior
-B0.inv <- diag(rep(1/10000,d), nrow=d)
-b0 <- rep(0,d)
+B0.inv <- diag(rep(1 / 10000, d), nrow = d)
+b0 <- rep(0, d)
 
 c0 <- 2.5 
 C0 <- 1.5
 
 # define quantities for the Gibbs sampler
 XX <- crossprod(X)
-Xy <- t(X)%*%y
-cN <- c0+N/2
+Xy <- t(X) %*% y
+cN <- c0 + N/2
 
 #define burnin and M
 burnin <- 1000
-M <- 5000
+M <- 50000
 
 # prepare storing of results
-betas <- matrix(NA, nrow=burnin+M, ncol=d)
-sigma2s <- rep(NA,burnin+M )
-
-require("mvtnorm")
+betas <- matrix(NA_real_, nrow = burnin + M, ncol = d)
+sigma2s <- rep(NA_real_, burnin + M)
 
 # starting value for sigma2
-sigma2 <- var(y)/2
+sigma2 <- var(y) / 2
 
-for (m in 1:(burnin+M)){
+for (m in 1:(burnin + M)){
     # sample  beta from the full conditional
-    Bn <- solve(B0.inv+XX/sigma2) 
-    bn <- Bn%*%(B0.inv%*%b0+Xy/sigma2)
-    beta <- t(rmvnorm(n=1,mean=bn,sigma=Bn))
+    Bn <- solve(B0.inv + XX / sigma2) 
+    bn <- Bn %*% (B0.inv %*% b0 + Xy / sigma2)
+    beta <- t(mvtnorm::rmvnorm(1, mean = bn, sigma = Bn))
     
     # sample sigma^2 from its full conditional
-    eps <- y-X%*%beta
-    CN <- C0+ crossprod(eps)/2
-    sigma2 <- rinvgamma(1,cN,CN)
+    eps <- y - X %*% beta
+    CN <- C0 + crossprod(eps) / 2
+    sigma2 <- rinvgamma(1, cN, CN)
     
-    betas[m,] <- beta
+    betas[m, ] <- beta
     sigma2s[m] <- sigma2
 }
 ```
 
-To summarize the results nicely we  compute equal tailed 95% confidence intervals.
+To summarize the results nicely we compute equal tailed 95% confidence intervals.
 
 ```{r}
-res.mcmc<-function(x) c(quantile(x,0.025),mean(x), quantile(x,0.975))
+res.mcmc <- function(x, lower = 0.025, upper = 0.975)
+  c(quantile(x, lower), mean(x), quantile(x, upper))
 
-beta.sc <- betas[burnin+(1:M),]
+beta.sc <- betas[burnin + (1:M), ]
 
-res_beta.sc<- t(apply(beta.sc,2,res.mcmc))
-colnames(res_beta.sc) <- c("2.5%","post.mean", "97.5%") 
-rownames(res_beta.sc) <- c("Intercept",covs)
+res_beta.sc<- t(apply(beta.sc, 2, res.mcmc))
+colnames(res_beta.sc) <- c("2.5%", "Mean", "97.5%") 
+rownames(res_beta.sc) <- c("Intercept", covs)
 
-print(round(res_beta.sc,3))
+knitr::kable(round(res_beta.sc, 3))
 
 # Error variance estimate with semi-conjugate prior
-res_sigma2.sc=res.mcmc(sigma2s[burnin+(1:M)])
-names(res_sigma2.sc) <- c("2.5%","post.mean", "97.5%")
+res_sigma2.sc <- res.mcmc(sigma2s[burnin + (1:M)])
+names(res_sigma2.sc) <- colnames(res_beta.sc)
 
-print(round(res_sigma2.sc,3))
+knitr::kable(t(round(res_sigma2.sc, 3)))
 ```
 
-Next we use the horseshoe prior to analyse the data. We use 
-the same prior on the intercept and the error variance as above but specify a horseshoe prior on the  regression effects. 
-The prior variance of the intercept is set to the same value as in the semi-conjugate prior.
+Next we use the horseshoe prior to analyze the data. We use 
+the same prior on the intercept and the error variance as above but specify a
+horseshoe prior on the  regression effects. 
+The prior variance of the intercept is set to the same value as in the
+semi-conjugate prior.
 
-```{r,echo=-(1:2)}
-B00.inv=1/10000 # prior precision for the intercept
-
-#define burnin and M
-burnin=1000
-M=5000
+```{r}
+B00.inv <- 1 / 10000 # prior precision for the intercept
 
 # prepare storing of results
-betas.hs=matrix(NA, nrow=burnin+M, ncol=d)
-sigma2s.hs=rep(NA,burnin+M)
-
-tau2s.hs=matrix(NA, nrow=burnin+M, ncol=p)
-lambda2s.hs=rep(NA,burnin+M)
+betas.hs <- matrix(NA_real_, nrow = burnin + M, ncol = d)
+sigma2s.hs <- rep(NA_real_, burnin + M)
+tau2s.hs <- matrix(NA_real_, nrow = burnin + M, ncol = p)
+lambda2s.hs <- rep(NA_real_, burnin + M)
 
 # set starting values 
-sigma2=var(y)/2
-tau2=rep(1,p)
-lambda2=1
+sigma2 <- var(y) / 2
+tau2 <- rep(1, p)
+lambda2 <- 1
 
-for (m in 1:(burnin+M)){
+for (m in seq_len(burnin + M)) {
   # sample  beta from the full conditional
-  B0.inv=diag(c(B00.inv,1/(lambda2*tau2)))
-  Bn <- solve(B0.inv+XX/sigma2) 
-  bn <- Bn%*%(B0.inv%*%b0+Xy/sigma2)
+  B0.inv <- diag(c(B00.inv, 1 / (lambda2 * tau2)))
+  Bn <- solve(B0.inv + XX / sigma2) 
+  bn <- Bn %*% (B0.inv %*% b0 + Xy / sigma2)
   
-  beta=t(rmvnorm(n=1,mean=bn,sigma=Bn))
-  beta.star=beta[2:d]
+  beta <- t(mvtnorm::rmvnorm(1, mean = bn, sigma = Bn))
+  beta.star <- beta[2:d]
   
   # sample sigma^2 from its full conditional
-  eps<-y-X%*%beta
-  CN <- C0 + crossprod(eps)/2
-  sigma2 <- rinvgamma(1,cN,CN)
+  eps <- y - X %*% beta
+  CN <- C0 + crossprod(eps) / 2
+  sigma2 <- rinvgamma(1, cN, CN)
   
   # sample tau^2
-  xi  <- rexp(p,rate=1+1/tau2)
-  tau2 <- rinvgamma(p,1,xi+0.5*beta.star^2/lambda2)
+  xi  <- rexp(p, rate = 1 + 1 / tau2)
+  tau2 <- rinvgamma(p, 1, xi + 0.5 * beta.star^2 / lambda2)
   
   # sample lambda^2
-  zeta <- rexp(1,rate=1+1/lambda2)
-  lambda2 <- rinvgamma(1,(p+1)/2,zeta+0.5*sum(beta.star^2/tau2))
+  zeta <- rexp(1, rate = 1 + 1 / lambda2)
+  lambda2 <- rinvgamma(1, (p + 1) / 2, zeta + 0.5 * sum(beta.star^2 / tau2))
   
   # store results
-  betas.hs[m,]<-beta
-  sigma2s.hs[m]<- sigma2
-  
-  tau2s.hs[m,]<-tau2
-  lambda2s.hs[m]<- lambda2
-
+  betas.hs[m,] <- beta
+  sigma2s.hs[m] <- sigma2
+  tau2s.hs[m,] <- tau2
+  lambda2s.hs[m] <- lambda2
 }
 ```
-Again we show the  posterior mean estimates and
+
+Again, we show the  posterior mean estimates and
 equal tailed 95% credibility intervals in a table.
 
 ```{r}
 # Regression effects estimates with horseshoe prior
-beta.hs<- betas.hs[burnin+(1:M),]
-res_beta.hs <- t(apply(beta.hs,2,res.mcmc))
-
-colnames(res_beta.hs) <- c("2.5%","post.mean", "97.5" )
-rownames(res_beta.hs)<- c("Intercept", covs)
-print(round(res_beta.hs,3))
+beta.hs <- betas.hs[burnin + (1:M),] 
+res_beta.hs <- t(apply(beta.hs, 2, res.mcmc))
+colnames(res_beta.hs) <- c("2.5%", "Mean", "97.5%")
+rownames(res_beta.hs) <- colnames(X)
+print(round(res_beta.hs, 3))
 
 # Error variance estimate with horseshoe prior
-res_sigma2.hs=res.mcmc(sigma2s.hs[burnin+(1:M)])
-names(res_sigma2.hs) <- c("2.5%","post.mean", "97.5%")
-
-print(round(res_sigma2.hs,3))
+res_sigma2.hs <- res.mcmc(sigma2s.hs[burnin + (1:M)])
+names(res_sigma2.hs) <- colnames(res_beta.hs)
+print(round(res_sigma2.hs, 3))
 ```
 
-We next have a look at the posterior distributions: first under the semi-conjugate priors and then under the Horseshoe prior.
+We next have a look at the posterior distributions: first under the semi-conjugate priors and then under the horseshoe prior.
 
-```{r, echo=-(1:2)}
+```{r, echo = -(1:2)}
 if (pdfplots) {
   pdf("6-4_1.pdf", width = 8, height = 5)
   par(mar = c(2.2, 1.6, 1.6, .2), mgp = c(1.2, .5, 0))
 }
-
-par(mfrow=c(3,4))
-
-for (i in 1:d){
-  hist(beta.sc[,i], main=varnames[i])
-}
-
-for (i in 1:d){
- hist(beta.hs[,i], main=varnames[i])
-} 
-
+par(mfrow = c(3,4))
+for (i in seq_len(d)) hist(beta.sc[,i], main = colnames(X)[i])
+for (i in seq_len(d)) hist(beta.hs[,i], main = colnames(X)[i])
 ```
 
-Whereas the posterior distributions are symmetric under the semi-conjugate prior this is not the case under the Horseshoe prior. 
+Note that the posterior distributions are symmetric under the semi-conjugate
+prior, whereas this is not the case under the horseshoe prior. 
 
-We next investigate now the MCMC plots. 
+We next investigate the trace plots. 
 
-```{r, echo=-(1:2)}
+```{r, echo = -(1:2)}
 if (pdfplots) {
   pdf("6-4_2.pdf", width = 8, height = 5)
   par(mar = c(2.2, 1.6, 1.6, .2), mgp = c(1.2, .5, 0))
 }
-
-par(mfrow=c(3,4))
-
-for (i in 1:d){
-    plot(beta.sc[,i], type="l")
-}
-
-for (i in 1:d){
-    plot(beta.hs[,i], type="l")
-} 
+par(mfrow = c(3, 4))
+for (i in seq_len(d)) plot(beta.sc[,i], type="l")
+for (i in seq_len(d)) plot(beta.hs[,i], type="l")
 ```
 
-Finally have a look at boxplots of the posterior distributions of the local shrinkage parameters $\tau_j$ under the horseshoe prior.
+Finally, we have a look at boxplots of the posterior distributions of the
+local shrinkage parameters $\tau_j$ under the horseshoe prior.
 
-```{r, echo=-(1:2)}
+```{r, echo = -(1:2)}
 if (pdfplots) {
   pdf("6-4_3.pdf", width = 8, height = 5)
   par(mar = c(2.2, 1.6, 1.6, .2), mgp = c(1.2, .5, 0))
 }
 
-tau2.hs<-tau2s.hs[burnin+(1:M),]
-par(mfrow=c(1,1), mgp = c(1.6, .6, 0), mar = c(1.5, 1.5, 1.5, 0.1))
+tau2.hs <- tau2s.hs[burnin+(1:M),]
+par(mfrow = c(1,1), mgp = c(1.6, .6, 0), mar = c(1.5, 1.5, 1.5, 0.1))
 
 boxplot(sqrt(tau2.hs), outline = FALSE)
 alpha <- 0.05
@@ -262,15 +238,22 @@ vioplot::vioplot(tau.hs.trunc.mirrored, h = 3, pchMed = NA, drawRect = FALSE,
                  ylim = c(-50, 50))
 ```
 
-```{r, echo=-1,  fig.width = 8, fig.height = 12}
+```{r, echo = -(1:2), fig.width = 8, fig.height = 12}
+if (pdfplots) {
+  pdf("6-4_4.pdf", width = 9, height = 12)
+  par(mar = c(1.5, 1.5, 1.5, .1), mgp = c(1, .5, 0))
+}
 par(mfrow = c(12, 2))
 for (i in seq_len(ncol(beta.hs))) {
-  hist(beta.hs[,i], breaks = 100, xlab = "", ylab = "", 
+  breaks <- seq(min(beta.hs[, i]), max(beta.hs[, i]), length.out = 100)
+  hist(beta.hs[, i], breaks = breaks, xlab = "", ylab = "", 
        main = c("Intercept", covs)[i])
   if (i == 1) {
     plot.new()
-  } else { 
-    hist(tau.hs.trunc.mirrored[, i - 1], breaks = 200, xlab = "", ylab = "",
+  } else {
+    breaks <- seq(min(tau.hs.trunc.mirrored[, i - 1]),
+                      max(tau.hs.trunc.mirrored[, i - 1]), length.out = 100)
+    hist(tau.hs.trunc.mirrored[, i - 1], breaks = breaks, xlab = "", ylab = "",
          main = covs[i - 1])
   }
 }
