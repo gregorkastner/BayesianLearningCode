@@ -28,24 +28,24 @@ par(mgp = c(1.6, .6, 0), mar = c(2.6, 2.6, 2.6, .4), lwd = 1)
 ## Figure 6.1
 We start with a visualization of the normal and the horseshoe prior. 
 
-```{r, echo = -(1:2)}
+```{r, echo = -1}
 if (pdfplots) {
   pdf("6-4_1.pdf", width = 8, height = 5)
   par(mar = c(2.5, 1.5, .1, .1), mgp = c(1.6, .6, 0))
 }
-beta <- seq(from=-4, to=4, by=0.01)
+beta <- seq(from = -4, to = 4, by = 0.01)
 
 # Horseshoe prior
-# approximated by the result of Theorem 1 in Carvalho/Polson (2010)
-c <-  1/sqrt(2*pi^3)
-l <- c/2*log(1+4/beta^2)
-u <- c*log(1+2/beta^2)
+# Approximated by the result of Theorem 1 in Carvalho and Polson (2010)
+c <-  1 / sqrt(2 * pi^3)
+l <- c / 2 * log(1 + 4 / beta^2)
+u <- c * log(1 + 2 / beta^2)
 
-plot(beta,(u+l)/2, type="l",ylim=c(0,0.55), xlab=expression(beta),
-     ylab="",lty=1, col="blue")
-lines(beta,dnorm(beta),lty=2) # Standard Normal Prior
-legend('topright', legend=c("Horseshoe", "Standard Normal"), 
-        bty="n",lty=1:2, col=c("blue", "black"))
+plot(beta, (u + l) / 2, type = "l", ylim = c(0, 0.55), xlab = expression(beta),
+     ylab = "", lty = 1, col = "blue")
+lines(beta, dnorm(beta), lty = 2) # Standard normal prior
+legend('topright', legend = c("Horseshoe", "Standard normal"), lty = 1:2,
+       col = c("blue", "black"))
 ```
 
 ## Example 6.1/6.2: Movie data
@@ -53,7 +53,6 @@ legend('topright', legend=c("Horseshoe", "Standard Normal"),
 We use movie data provided within the package to illustrate Bayesian analysis
 of a regression model. The data set is a preprocessed version of the one
 provided by Lehrer and Xi (2017).
- 
 
 ```{r}
 library("BayesianLearningCode")
@@ -75,14 +74,15 @@ covs <- c("Comedy", "Thriller","PG13", "R", "Budget", "Weeks", "Screens",
           "S-4-6", "S-1-3", "Vol-4-6", "Vol-1-3")
 covs.cen <- scale(movies[, covs], scale = FALSE)
 
-N <- length(y)  # number of Observations
+N <- length(y)  # number of observations
 X <- cbind("Intercept" = rep(1, N), covs.cen) # regressor matrix
 
 d <- dim(X)[2] # number regression effects 
 p <- d - 1 # number of regression effects without intercept
 ```
 
-We first estimate the parameters of the regression model under a rather flat semi-conjugate prior.
+We first estimate the parameters of the regression model under a rather flat
+semi-conjugate prior.
 
 ```{r}
 set.seed(1)
@@ -101,17 +101,18 @@ cN <- c0 + N / 2
 
 #define burnin and M
 burnin <- 1000
-M <- 5000
+M <- 100000
 
 # prepare storing of results
 betas <- matrix(NA_real_, nrow = burnin + M, ncol = d)
 sigma2s <- rep(NA_real_, burnin + M)
+colnames(betas) <- colnames(X)
 
 # starting value for sigma2
 sigma2 <- var(y) / 2
 
 for (m in 1:(burnin + M)) {
-    # sample  beta from the full conditional
+    # sample beta from the full conditional
     Bn <- solve(B0.inv + XX / sigma2) 
     bn <- Bn %*% (B0.inv %*% b0 + Xy / sigma2)
     beta <- t(mvtnorm::rmvnorm(1, mean = bn, sigma = Bn))
@@ -126,7 +127,8 @@ for (m in 1:(burnin + M)) {
 }
 ```
 
-To summarize the results nicely we compute equal tailed 95% confidence intervals.
+To summarize the results nicely, we compute equal-tailed 95% confidence
+intervals for the regression effects.
 
 ```{r}
 res.mcmc <- function(x, lower = 0.025, upper = 0.975)
@@ -139,11 +141,13 @@ colnames(res_beta.sc) <- c("2.5%", "Mean", "97.5%")
 rownames(res_beta.sc) <- c("Intercept", covs)
 
 knitr::kable(round(res_beta.sc, 3))
+```
 
-# Error variance estimate with semi-conjugate prior
+We do the same for the error variances.
+
+```{r}
 res_sigma2.sc <- res.mcmc(sigma2s[burnin + (1:M)])
 names(res_sigma2.sc) <- colnames(res_beta.sc)
-
 knitr::kable(t(round(res_sigma2.sc, 3)))
 ```
 
@@ -158,6 +162,7 @@ B00.inv <- 1 / 10000 # prior precision for the intercept
 
 # prepare storing of results
 betas.hs <- matrix(NA_real_, nrow = burnin + M, ncol = d)
+colnames(betas.hs) <- colnames(X)
 sigma2s.hs <- rep(NA_real_, burnin + M)
 tau2s.hs <- matrix(NA_real_, nrow = burnin + M, ncol = p)
 lambda2s.hs <- rep(NA_real_, burnin + M)
@@ -211,19 +216,18 @@ knitr::kable(round(res_beta.hs, 3))
 And for the variance.
 
 ```{r}
-# Error variance estimate with horseshoe prior
 res_sigma2.hs <- res.mcmc(sigma2s.hs[burnin + (1:M)])
 names(res_sigma2.hs) <- colnames(res_beta.hs)
 knitr::kable(t(round(res_sigma2.hs, 3)))
 ```
 
 We next have a look at the posterior distributions. First under the
-semi-conjugate priors and then under the horseshoe prior.
-Note that the posterior distributions are symmetric under the semi-conjugate
+semi-conjugate priors and then under the horseshoe prior.Note that the posterior distributions are symmetric under the semi-conjugate
 prior, whereas this is not the case under the horseshoe prior. 
 
 ```{r, echo = -1}
-par(mfrow = c(ncol(beta.hs) / 2, 2), mgp = c(1.6, .6, 0), mar = c(1.5, 1.5, 1, .1))
+par(mfrow = c(ncol(beta.hs) / 2, 2), mgp = c(1.6, .6, 0),
+    mar = c(1.5, 1.5, 1, .1))
 for (i in seq_len(d)) {
   breaks <- seq(min(beta.sc[,i], beta.hs[,i]), max(beta.sc[,i], beta.hs[,i]),
                 length.out = 100)
@@ -232,39 +236,59 @@ for (i in seq_len(d)) {
 }
 ```
 
-We next investigate the trace plots. 
+For illustration purposes, we overlay four selected marginal posteriors in
+order to illustrate the shrinkage effect.
 
-```{r}
-for (i in seq_len(d)) {
-  plot(beta.sc[,i], type = "l")
-  plot(beta.hs[,i], type = "l")
+```{r, echo = -c(1:2)}
+if (pdfplots) {
+  pdf("6-4_2.pdf", width = 8, height = 5)
+}
+par(mfrow = c(2, 2), mar = c(1.5, 1.5, 1.5, .1), mgp = c(1, .5, 0))
+selection <- c("Screens", "Weeks", "S-1-3", "Thriller")
+for (i in selection) {
+ breaks <- seq(min(beta.sc[,i], beta.hs[,i]), max(beta.sc[,i], beta.hs[,i]),
+                length.out = 50)
+ h1 <- hist(beta.sc[,i], breaks = breaks, plot = FALSE)
+ h2 <- hist(beta.hs[,i], breaks = breaks, plot = FALSE)
+ col <- c(rgb(0, 0, 1, 0.25), rgb(1, 0, 0, 0.25))
+ plot(h1, main = i, xlab = "", ylab = "", freq = FALSE,
+      ylim = c(0, max(h1$density, h2$density)), col = col[1])
+ plot(h2, xlab = "", ylab = "", freq = FALSE, col = col[2], 
+      add = TRUE)
 }
 ```
 
-Finally, we have a look at boxplots of the posterior distributions of the
-(square root of the) local shrinkage parameters $\tau_j$ under the horseshoe
-prior.
-
-```{r, echo = -1}
-par(mfrow = c(1, 1), mgp = c(1.6, .6, 0), mar = c(1.5, 1.5, 1.5, 0.1))
-tau2.hs <- tau2s.hs[burnin + (1:M),]
-boxplot(sqrt(tau2.hs), outline = FALSE)
-```
-
-To sum up, we visualize the posterior of the effects
+We next investigate the trace plots. 
 
 ```{r}
+par(mfrow = c(6, 2))
+for (i in seq_len(d)) {
+  plot(beta.sc[,i], type = "l", xlab = "", ylab = "", main = colnames(beta.sc)[i])
+  plot(beta.hs[,i], type = "l", xlab = "", ylab = "", main = colnames(beta.sc)[i])
+}
+```
+
+
+To sum up, we visualize the posterior of the effects and corresponding
+(square root of the) shrinkage parameters. For visual inspection, we create
+a gap plot, where we remove the largest 5% of the local shrinkage parameter
+draws and mirror them around 0. That way, we can easily identify ``significant''
+effects via clear bimodality or even a gap around zero -- hence the name.
+
+```{r}
+tau2.hs <- tau2s.hs[burnin + (1:M), ]
 alpha <- 0.05
 truncate <- function(x, alpha) x[x <= quantile(x, 1 - alpha)] 
 tau2.hs.trunc <- apply(tau2.hs, 2, truncate, alpha = alpha)
 tau.hs.trunc.mirrored <- rbind(sqrt(tau2.hs.trunc), -sqrt(tau2.hs.trunc))
-vioplot::vioplot(tau.hs.trunc.mirrored, h = 3, pchMed = NA, drawRect = FALSE,
-                 ylim = c(-50, 50))
 ```
+
+On the left, we see the regression effects posteriors. On the right, we
+visualize the gap plot.
 
 ```{r, echo = -(1:2), fig.width = 8, fig.height = 12}
 if (pdfplots) {
-  pdf("6-4_4.pdf", width = 9, height = 12)
+  pdf("6-4_3.pdf", width = 9, height = 12)
   par(mar = c(1.5, 1.5, 1.5, .1), mgp = c(1, .5, 0))
 }
 par(mfrow = c(12, 2))
