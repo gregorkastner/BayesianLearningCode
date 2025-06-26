@@ -77,18 +77,19 @@
 <p>We start with a visualization of the normal and the horseshoe
 prior.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="co"># Horseshoe prior</span></span>
-<span><span class="co"># approximated by the result of Theorem 1 in Carvalho/Polson (2010)</span></span>
-<span><span class="va">c</span> <span class="op">&lt;-</span>  <span class="fl">1</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fl">2</span><span class="op">*</span><span class="va">pi</span><span class="op">^</span><span class="fl">3</span><span class="op">)</span></span>
-<span><span class="va">l</span> <span class="op">&lt;-</span> <span class="va">c</span><span class="op">/</span><span class="fl">2</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">1</span><span class="op">+</span><span class="fl">4</span><span class="op">/</span><span class="va">beta</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span></span>
-<span><span class="va">u</span> <span class="op">&lt;-</span> <span class="va">c</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">1</span><span class="op">+</span><span class="fl">2</span><span class="op">/</span><span class="va">beta</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">beta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span>from <span class="op">=</span> <span class="op">-</span><span class="fl">4</span>, to <span class="op">=</span> <span class="fl">4</span>, by <span class="op">=</span> <span class="fl">0.01</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">beta</span>,<span class="op">(</span><span class="va">u</span><span class="op">+</span><span class="va">l</span><span class="op">)</span><span class="op">/</span><span class="fl">2</span>, type<span class="op">=</span><span class="st">"l"</span>,ylim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">0.55</span><span class="op">)</span>, xlab<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">beta</span><span class="op">)</span>,</span>
-<span>     ylab<span class="op">=</span><span class="st">""</span>,lty<span class="op">=</span><span class="fl">1</span>, col<span class="op">=</span><span class="st">"blue"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">beta</span>,<span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">dnorm</a></span><span class="op">(</span><span class="va">beta</span><span class="op">)</span>,lty<span class="op">=</span><span class="fl">2</span><span class="op">)</span> <span class="co"># Standard Normal Prior</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">'topright'</span>, legend<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Horseshoe"</span>, <span class="st">"Standard Normal"</span><span class="op">)</span>, </span>
-<span>        bty<span class="op">=</span><span class="st">"n"</span>,lty<span class="op">=</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, col<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"blue"</span>, <span class="st">"black"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="co"># Horseshoe prior</span></span>
+<span><span class="co"># Approximated by the result of Theorem 1 in Carvalho and Polson (2010)</span></span>
+<span><span class="va">c</span> <span class="op">&lt;-</span>  <span class="fl">1</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fl">2</span> <span class="op">*</span> <span class="va">pi</span><span class="op">^</span><span class="fl">3</span><span class="op">)</span></span>
+<span><span class="va">l</span> <span class="op">&lt;-</span> <span class="va">c</span> <span class="op">/</span> <span class="fl">2</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="fl">4</span> <span class="op">/</span> <span class="va">beta</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span></span>
+<span><span class="va">u</span> <span class="op">&lt;-</span> <span class="va">c</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="fl">2</span> <span class="op">/</span> <span class="va">beta</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">beta</span>, <span class="op">(</span><span class="va">u</span> <span class="op">+</span> <span class="va">l</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span>, type <span class="op">=</span> <span class="st">"l"</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.55</span><span class="op">)</span>, xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">beta</span><span class="op">)</span>,</span>
+<span>     ylab <span class="op">=</span> <span class="st">""</span>, lty <span class="op">=</span> <span class="fl">1</span>, col <span class="op">=</span> <span class="st">"blue"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">beta</span>, <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">dnorm</a></span><span class="op">(</span><span class="va">beta</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="co"># Standard normal prior</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">'topright'</span>, legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Horseshoe"</span>, <span class="st">"Standard normal"</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span>,</span>
+<span>       col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"blue"</span>, <span class="st">"black"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="Chapter06_files/figure-html/unnamed-chunk-3-1.png" width="768"></p>
 </div>
 <div class="section level3">
@@ -114,7 +115,7 @@ center the covariates at zero.</p>
 <span>          <span class="st">"S-4-6"</span>, <span class="st">"S-1-3"</span>, <span class="st">"Vol-4-6"</span>, <span class="st">"Vol-1-3"</span><span class="op">)</span></span>
 <span><span class="va">covs.cen</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/scale.html" class="external-link">scale</a></span><span class="op">(</span><span class="va">movies</span><span class="op">[</span>, <span class="va">covs</span><span class="op">]</span>, scale <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">N</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span>  <span class="co"># number of Observations</span></span>
+<span><span class="va">N</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span>  <span class="co"># number of observations</span></span>
 <span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="st">"Intercept"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">N</span><span class="op">)</span>, <span class="va">covs.cen</span><span class="op">)</span> <span class="co"># regressor matrix</span></span>
 <span></span>
 <span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span> <span class="co"># number regression effects </span></span>
@@ -138,17 +139,18 @@ rather flat semi-conjugate prior.</p>
 <span></span>
 <span><span class="co">#define burnin and M</span></span>
 <span><span class="va">burnin</span> <span class="op">&lt;-</span> <span class="fl">1000</span></span>
-<span><span class="va">M</span> <span class="op">&lt;-</span> <span class="fl">5000</span></span>
+<span><span class="va">M</span> <span class="op">&lt;-</span> <span class="fl">100000</span></span>
 <span></span>
 <span><span class="co"># prepare storing of results</span></span>
 <span><span class="va">betas</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="cn">NA_real_</span>, nrow <span class="op">=</span> <span class="va">burnin</span> <span class="op">+</span> <span class="va">M</span>, ncol <span class="op">=</span> <span class="va">d</span><span class="op">)</span></span>
 <span><span class="va">sigma2s</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA_real_</span>, <span class="va">burnin</span> <span class="op">+</span> <span class="va">M</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">betas</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># starting value for sigma2</span></span>
 <span><span class="va">sigma2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">var</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span></span>
 <span></span>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">m</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="op">(</span><span class="va">burnin</span> <span class="op">+</span> <span class="va">M</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="co"># sample  beta from the full conditional</span></span>
+<span>    <span class="co"># sample beta from the full conditional</span></span>
 <span>    <span class="va">Bn</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/solve.html" class="external-link">solve</a></span><span class="op">(</span><span class="va">B0.inv</span> <span class="op">+</span> <span class="va">XX</span> <span class="op">/</span> <span class="va">sigma2</span><span class="op">)</span> </span>
 <span>    <span class="va">bn</span> <span class="op">&lt;-</span> <span class="va">Bn</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="op">(</span><span class="va">B0.inv</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="va">b0</span> <span class="op">+</span> <span class="va">Xy</span> <span class="op">/</span> <span class="va">sigma2</span><span class="op">)</span></span>
 <span>    <span class="va">beta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu">mvtnorm</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/mvtnorm/man/Mvnorm.html" class="external-link">rmvnorm</a></span><span class="op">(</span><span class="fl">1</span>, mean <span class="op">=</span> <span class="va">bn</span>, sigma <span class="op">=</span> <span class="va">Bn</span><span class="op">)</span><span class="op">)</span></span>
@@ -161,8 +163,8 @@ rather flat semi-conjugate prior.</p>
 <span>    <span class="va">betas</span><span class="op">[</span><span class="va">m</span>, <span class="op">]</span> <span class="op">&lt;-</span> <span class="va">beta</span></span>
 <span>    <span class="va">sigma2s</span><span class="op">[</span><span class="va">m</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">sigma2</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>To summarize the results nicely we compute equal tailed 95%
-confidence intervals.</p>
+<p>To summarize the results nicely, we compute equal-tailed 95%
+confidence intervals for the regression effects.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">res.mcmc</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">lower</span> <span class="op">=</span> <span class="fl">0.025</span>, <span class="va">upper</span> <span class="op">=</span> <span class="fl">0.975</span><span class="op">)</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">lower</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">upper</span><span class="op">)</span><span class="op">)</span></span>
@@ -184,84 +186,82 @@ confidence intervals.</p>
 <tbody>
 <tr class="odd">
 <td align="left">Intercept</td>
-<td align="right">17.455</td>
-<td align="right">19.100</td>
-<td align="right">20.719</td>
+<td align="right">17.500</td>
+<td align="right">19.110</td>
+<td align="right">20.725</td>
 </tr>
 <tr class="even">
 <td align="left">Comedy</td>
-<td align="right">-2.730</td>
-<td align="right">1.422</td>
-<td align="right">5.535</td>
+<td align="right">-2.680</td>
+<td align="right">1.457</td>
+<td align="right">5.570</td>
 </tr>
 <tr class="odd">
 <td align="left">Thriller</td>
-<td align="right">-4.104</td>
-<td align="right">0.482</td>
-<td align="right">4.911</td>
+<td align="right">-3.923</td>
+<td align="right">0.545</td>
+<td align="right">5.012</td>
 </tr>
 <tr class="even">
 <td align="left">PG13</td>
-<td align="right">-8.412</td>
-<td align="right">-2.756</td>
-<td align="right">3.008</td>
+<td align="right">-8.515</td>
+<td align="right">-2.759</td>
+<td align="right">2.959</td>
 </tr>
 <tr class="odd">
 <td align="left">R</td>
-<td align="right">-3.604</td>
-<td align="right">2.164</td>
-<td align="right">8.170</td>
+<td align="right">-3.638</td>
+<td align="right">2.181</td>
+<td align="right">7.974</td>
 </tr>
 <tr class="even">
 <td align="left">Budget</td>
-<td align="right">0.041</td>
+<td align="right">0.040</td>
 <td align="right">0.128</td>
-<td align="right">0.215</td>
+<td align="right">0.216</td>
 </tr>
 <tr class="odd">
 <td align="left">Weeks</td>
-<td align="right">0.015</td>
-<td align="right">0.377</td>
-<td align="right">0.744</td>
+<td align="right">0.021</td>
+<td align="right">0.376</td>
+<td align="right">0.734</td>
 </tr>
 <tr class="even">
 <td align="left">Screens</td>
-<td align="right">0.597</td>
-<td align="right">0.964</td>
-<td align="right">1.326</td>
+<td align="right">0.598</td>
+<td align="right">0.966</td>
+<td align="right">1.337</td>
 </tr>
 <tr class="odd">
 <td align="left">S-4-6</td>
-<td align="right">-4.855</td>
-<td align="right">-1.279</td>
-<td align="right">2.387</td>
+<td align="right">-4.892</td>
+<td align="right">-1.277</td>
+<td align="right">2.313</td>
 </tr>
 <tr class="even">
 <td align="left">S-1-3</td>
-<td align="right">-1.262</td>
-<td align="right">2.454</td>
-<td align="right">6.178</td>
+<td align="right">-1.202</td>
+<td align="right">2.457</td>
+<td align="right">6.135</td>
 </tr>
 <tr class="odd">
 <td align="left">Vol-4-6</td>
-<td align="right">-19.741</td>
-<td align="right">-16.763</td>
-<td align="right">-13.858</td>
+<td align="right">-19.705</td>
+<td align="right">-16.733</td>
+<td align="right">-13.775</td>
 </tr>
 <tr class="even">
 <td align="left">Vol-1-3</td>
-<td align="right">19.377</td>
-<td align="right">22.400</td>
-<td align="right">25.422</td>
+<td align="right">19.287</td>
+<td align="right">22.370</td>
+<td align="right">25.485</td>
 </tr>
 </tbody>
 </table>
+<p>We do the same for the error variances.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="co"># Error variance estimate with semi-conjugate prior</span></span>
-<span><span class="va">res_sigma2.sc</span> <span class="op">&lt;-</span> <span class="fu">res.mcmc</span><span class="op">(</span><span class="va">sigma2s</span><span class="op">[</span><span class="va">burnin</span> <span class="op">+</span> <span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="va">M</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">res_sigma2.sc</span> <span class="op">&lt;-</span> <span class="fu">res.mcmc</span><span class="op">(</span><span class="va">sigma2s</span><span class="op">[</span><span class="va">burnin</span> <span class="op">+</span> <span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="va">M</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">res_sigma2.sc</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">res_beta.sc</span><span class="op">)</span></span>
-<span></span>
 <span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">res_sigma2.sc</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
@@ -270,9 +270,9 @@ confidence intervals.</p>
 <th align="right">97.5%</th>
 </tr></thead>
 <tbody><tr class="odd">
-<td align="right">47.338</td>
-<td align="right">63.993</td>
-<td align="right">87.332</td>
+<td align="right">47.439</td>
+<td align="right">63.938</td>
+<td align="right">86.25</td>
 </tr></tbody>
 </table>
 <p>Next we use the horseshoe prior to analyze the data. We use the same
@@ -284,6 +284,7 @@ intercept is set to the same value as in the semi-conjugate prior.</p>
 <span></span>
 <span><span class="co"># prepare storing of results</span></span>
 <span><span class="va">betas.hs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="cn">NA_real_</span>, nrow <span class="op">=</span> <span class="va">burnin</span> <span class="op">+</span> <span class="va">M</span>, ncol <span class="op">=</span> <span class="va">d</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">betas.hs</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span></span>
 <span><span class="va">sigma2s.hs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA_real_</span>, <span class="va">burnin</span> <span class="op">+</span> <span class="va">M</span><span class="op">)</span></span>
 <span><span class="va">tau2s.hs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="cn">NA_real_</span>, nrow <span class="op">=</span> <span class="va">burnin</span> <span class="op">+</span> <span class="va">M</span>, ncol <span class="op">=</span> <span class="va">p</span><span class="op">)</span></span>
 <span><span class="va">lambda2s.hs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA_real_</span>, <span class="va">burnin</span> <span class="op">+</span> <span class="va">M</span><span class="op">)</span></span>
@@ -340,82 +341,81 @@ effects.</p>
 <tbody>
 <tr class="odd">
 <td align="left">Intercept</td>
-<td align="right">17.508</td>
+<td align="right">17.488</td>
 <td align="right">19.110</td>
-<td align="right">20.711</td>
+<td align="right">20.734</td>
 </tr>
 <tr class="even">
 <td align="left">Comedy</td>
 <td align="right">-1.602</td>
-<td align="right">0.293</td>
-<td align="right">2.834</td>
+<td align="right">0.275</td>
+<td align="right">2.845</td>
 </tr>
 <tr class="odd">
 <td align="left">Thriller</td>
-<td align="right">-2.297</td>
-<td align="right">0.040</td>
-<td align="right">2.401</td>
+<td align="right">-2.267</td>
+<td align="right">0.042</td>
+<td align="right">2.497</td>
 </tr>
 <tr class="even">
 <td align="left">PG13</td>
-<td align="right">-6.351</td>
-<td align="right">-1.873</td>
-<td align="right">0.836</td>
+<td align="right">-6.368</td>
+<td align="right">-1.915</td>
+<td align="right">0.744</td>
 </tr>
 <tr class="odd">
 <td align="left">R</td>
-<td align="right">-1.309</td>
-<td align="right">0.992</td>
-<td align="right">5.017</td>
+<td align="right">-1.388</td>
+<td align="right">0.964</td>
+<td align="right">4.972</td>
 </tr>
 <tr class="even">
 <td align="left">Budget</td>
-<td align="right">0.037</td>
-<td align="right">0.126</td>
-<td align="right">0.213</td>
+<td align="right">0.035</td>
+<td align="right">0.125</td>
+<td align="right">0.214</td>
 </tr>
 <tr class="odd">
 <td align="left">Weeks</td>
-<td align="right">-0.002</td>
+<td align="right">-0.004</td>
 <td align="right">0.332</td>
 <td align="right">0.684</td>
 </tr>
 <tr class="even">
 <td align="left">Screens</td>
-<td align="right">0.578</td>
-<td align="right">0.950</td>
-<td align="right">1.318</td>
+<td align="right">0.590</td>
+<td align="right">0.959</td>
+<td align="right">1.325</td>
 </tr>
 <tr class="odd">
 <td align="left">S-4-6</td>
-<td align="right">-1.648</td>
-<td align="right">0.224</td>
-<td align="right">1.674</td>
+<td align="right">-1.549</td>
+<td align="right">0.228</td>
+<td align="right">1.686</td>
 </tr>
 <tr class="even">
 <td align="left">S-1-3</td>
-<td align="right">-0.544</td>
-<td align="right">0.775</td>
-<td align="right">2.821</td>
+<td align="right">-0.542</td>
+<td align="right">0.759</td>
+<td align="right">2.694</td>
 </tr>
 <tr class="odd">
 <td align="left">Vol-4-6</td>
-<td align="right">-19.136</td>
-<td align="right">-16.212</td>
-<td align="right">-13.309</td>
+<td align="right">-19.128</td>
+<td align="right">-16.158</td>
+<td align="right">-13.168</td>
 </tr>
 <tr class="even">
 <td align="left">Vol-1-3</td>
-<td align="right">18.737</td>
-<td align="right">21.819</td>
-<td align="right">24.921</td>
+<td align="right">18.663</td>
+<td align="right">21.761</td>
+<td align="right">24.836</td>
 </tr>
 </tbody>
 </table>
 <p>And for the variance.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Error variance estimate with horseshoe prior</span></span>
-<span><span class="va">res_sigma2.hs</span> <span class="op">&lt;-</span> <span class="fu">res.mcmc</span><span class="op">(</span><span class="va">sigma2s.hs</span><span class="op">[</span><span class="va">burnin</span> <span class="op">+</span> <span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="va">M</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">res_sigma2.hs</span> <span class="op">&lt;-</span> <span class="fu">res.mcmc</span><span class="op">(</span><span class="va">sigma2s.hs</span><span class="op">[</span><span class="va">burnin</span> <span class="op">+</span> <span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="va">M</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">res_sigma2.hs</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">res_beta.hs</span><span class="op">)</span></span>
 <span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">res_sigma2.hs</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
@@ -425,13 +425,13 @@ effects.</p>
 <th align="right">97.5%</th>
 </tr></thead>
 <tbody><tr class="odd">
-<td align="right">47.452</td>
-<td align="right">63.63</td>
-<td align="right">85.481</td>
+<td align="right">47.209</td>
+<td align="right">63.592</td>
+<td align="right">85.511</td>
 </tr></tbody>
 </table>
 <p>We next have a look at the posterior distributions. First under the
-semi-conjugate priors and then under the horseshoe prior. Note that the
+semi-conjugate priors and then under the horseshoe prior.Note that the
 posterior distributions are symmetric under the semi-conjugate prior,
 whereas this is not the case under the horseshoe prior.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
@@ -441,31 +441,45 @@ whereas this is not the case under the horseshoe prior.</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">beta.sc</span><span class="op">[</span>,<span class="va">i</span><span class="op">]</span>, main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, breaks <span class="op">=</span> <span class="va">breaks</span>, xlab <span class="op">=</span> <span class="st">""</span>, ylab <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">beta.hs</span><span class="op">[</span>,<span class="va">i</span><span class="op">]</span>, main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, breaks <span class="op">=</span> <span class="va">breaks</span>, xlab <span class="op">=</span> <span class="st">""</span>, ylab <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p><img src="Chapter06_files/figure-html/unnamed-chunk-12-1.png" width="768"><img src="Chapter06_files/figure-html/unnamed-chunk-12-2.png" width="768"></p>
-<p>We next investigate the trace plots.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">d</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">beta.sc</span><span class="op">[</span>,<span class="va">i</span><span class="op">]</span>, type <span class="op">=</span> <span class="st">"l"</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">beta.hs</span><span class="op">[</span>,<span class="va">i</span><span class="op">]</span>, type <span class="op">=</span> <span class="st">"l"</span><span class="op">)</span></span>
-<span><span class="op">}</span></span></code></pre></div>
 <p><img src="Chapter06_files/figure-html/unnamed-chunk-13-1.png" width="768"><img src="Chapter06_files/figure-html/unnamed-chunk-13-2.png" width="768"></p>
-<p>Finally, we have a look at boxplots of the posterior distributions of
-the (square root of the) local shrinkage parameters
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>τ</mi><mi>j</mi></msub><annotation encoding="application/x-tex">\tau_j</annotation></semantics></math>
-under the horseshoe prior.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">tau2.hs</span> <span class="op">&lt;-</span> <span class="va">tau2s.hs</span><span class="op">[</span><span class="va">burnin</span> <span class="op">+</span> <span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="va">M</span><span class="op">)</span>,<span class="op">]</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/boxplot.html" class="external-link">boxplot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">tau2.hs</span><span class="op">)</span>, outline <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<p>For illustration purposes, we overlay four selected marginal
+posteriors in order to illustrate the shrinkage effect.</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">selection</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Screens"</span>, <span class="st">"Weeks"</span>, <span class="st">"S-1-3"</span>, <span class="st">"Thriller"</span><span class="op">)</span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="va">selection</span><span class="op">)</span> <span class="op">{</span></span>
+<span> <span class="va">breaks</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">beta.sc</span><span class="op">[</span>,<span class="va">i</span><span class="op">]</span>, <span class="va">beta.hs</span><span class="op">[</span>,<span class="va">i</span><span class="op">]</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">beta.sc</span><span class="op">[</span>,<span class="va">i</span><span class="op">]</span>, <span class="va">beta.hs</span><span class="op">[</span>,<span class="va">i</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>                length.out <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span>
+<span> <span class="va">h1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">beta.sc</span><span class="op">[</span>,<span class="va">i</span><span class="op">]</span>, breaks <span class="op">=</span> <span class="va">breaks</span>, plot <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span> <span class="va">h2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">beta.hs</span><span class="op">[</span>,<span class="va">i</span><span class="op">]</span>, breaks <span class="op">=</span> <span class="va">breaks</span>, plot <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span> <span class="va">col</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/grDevices/rgb.html" class="external-link">rgb</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0.25</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/grDevices/rgb.html" class="external-link">rgb</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0.25</span><span class="op">)</span><span class="op">)</span></span>
+<span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">h1</span>, main <span class="op">=</span> <span class="va">i</span>, xlab <span class="op">=</span> <span class="st">""</span>, ylab <span class="op">=</span> <span class="st">""</span>, freq <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>      ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">h1</span><span class="op">$</span><span class="va">density</span>, <span class="va">h2</span><span class="op">$</span><span class="va">density</span><span class="op">)</span><span class="op">)</span>, col <span class="op">=</span> <span class="va">col</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></span>
+<span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">h2</span>, xlab <span class="op">=</span> <span class="st">""</span>, ylab <span class="op">=</span> <span class="st">""</span>, freq <span class="op">=</span> <span class="cn">FALSE</span>, col <span class="op">=</span> <span class="va">col</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, </span>
+<span>      add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
 <p><img src="Chapter06_files/figure-html/unnamed-chunk-14-1.png" width="768"></p>
-<p>To sum up, we visualize the posterior of the effects</p>
+<p>We next investigate the trace plots.</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">6</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">d</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">beta.sc</span><span class="op">[</span>,<span class="va">i</span><span class="op">]</span>, type <span class="op">=</span> <span class="st">"l"</span>, xlab <span class="op">=</span> <span class="st">""</span>, ylab <span class="op">=</span> <span class="st">""</span>, main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">beta.sc</span><span class="op">)</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">beta.hs</span><span class="op">[</span>,<span class="va">i</span><span class="op">]</span>, type <span class="op">=</span> <span class="st">"l"</span>, xlab <span class="op">=</span> <span class="st">""</span>, ylab <span class="op">=</span> <span class="st">""</span>, main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">beta.sc</span><span class="op">)</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+<p><img src="Chapter06_files/figure-html/unnamed-chunk-15-1.png" width="768"><img src="Chapter06_files/figure-html/unnamed-chunk-15-2.png" width="768"></p>
+<p>To sum up, we visualize the posterior of the effects and
+corresponding (square root of the) shrinkage parameters. For visual
+inspection, we create a gap plot, where we remove the largest 5% of the
+local shrinkage parameter draws and mirror them around 0. That way, we
+can easily identify ``significant’’ effects via clear bimodality or even
+a gap around zero – hence the name.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">alpha</span> <span class="op">&lt;-</span> <span class="fl">0.05</span></span>
+<code class="sourceCode R"><span><span class="va">tau2.hs</span> <span class="op">&lt;-</span> <span class="va">tau2s.hs</span><span class="op">[</span><span class="va">burnin</span> <span class="op">+</span> <span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="va">M</span><span class="op">)</span>, <span class="op">]</span></span>
+<span><span class="va">alpha</span> <span class="op">&lt;-</span> <span class="fl">0.05</span></span>
 <span><span class="va">truncate</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">alpha</span><span class="op">)</span> <span class="va">x</span><span class="op">[</span><span class="va">x</span> <span class="op">&lt;=</span> <span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">x</span>, <span class="fl">1</span> <span class="op">-</span> <span class="va">alpha</span><span class="op">)</span><span class="op">]</span> </span>
 <span><span class="va">tau2.hs.trunc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">tau2.hs</span>, <span class="fl">2</span>, <span class="va">truncate</span>, alpha <span class="op">=</span> <span class="va">alpha</span><span class="op">)</span></span>
-<span><span class="va">tau.hs.trunc.mirrored</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">tau2.hs.trunc</span><span class="op">)</span>, <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">tau2.hs.trunc</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu">vioplot</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/vioplot/man/vioplot.html" class="external-link">vioplot</a></span><span class="op">(</span><span class="va">tau.hs.trunc.mirrored</span>, h <span class="op">=</span> <span class="fl">3</span>, pchMed <span class="op">=</span> <span class="cn">NA</span>, drawRect <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>                 ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">50</span>, <span class="fl">50</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Chapter06_files/figure-html/unnamed-chunk-15-1.png" width="768"></p>
+<span><span class="va">tau.hs.trunc.mirrored</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">tau2.hs.trunc</span><span class="op">)</span>, <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">tau2.hs.trunc</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>On the left, we see the regression effects posteriors. On the right,
+we visualize the gap plot.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">beta.hs</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">breaks</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">beta.hs</span><span class="op">[</span>, <span class="va">i</span><span class="op">]</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">beta.hs</span><span class="op">[</span>, <span class="va">i</span><span class="op">]</span><span class="op">)</span>, length.out <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
@@ -480,7 +494,7 @@ under the horseshoe prior.</p>
 <span>         main <span class="op">=</span> <span class="va">covs</span><span class="op">[</span><span class="va">i</span> <span class="op">-</span> <span class="fl">1</span><span class="op">]</span><span class="op">)</span></span>
 <span>  <span class="op">}</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p><img src="Chapter06_files/figure-html/unnamed-chunk-16-1.png" width="768"></p>
+<p><img src="Chapter06_files/figure-html/unnamed-chunk-17-1.png" width="768"></p>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
