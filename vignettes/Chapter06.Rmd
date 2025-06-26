@@ -73,11 +73,11 @@ C0 <- 1.5
 # define quantities for the Gibbs sampler
 XX <- crossprod(X)
 Xy <- t(X) %*% y
-cN <- c0 + N/2
+cN <- c0 + N / 2
 
 #define burnin and M
 burnin <- 1000
-M <- 50000
+M <- 5000
 
 # prepare storing of results
 betas <- matrix(NA_real_, nrow = burnin + M, ncol = d)
@@ -86,7 +86,7 @@ sigma2s <- rep(NA_real_, burnin + M)
 # starting value for sigma2
 sigma2 <- var(y) / 2
 
-for (m in 1:(burnin + M)){
+for (m in 1:(burnin + M)) {
     # sample  beta from the full conditional
     Bn <- solve(B0.inv + XX / sigma2) 
     bn <- Bn %*% (B0.inv %*% b0 + Xy / sigma2)
@@ -173,63 +173,63 @@ for (m in seq_len(burnin + M)) {
 }
 ```
 
-Again, we show the  posterior mean estimates and
-equal tailed 95% credibility intervals in a table.
+Again, we show the posterior mean estimates and equal-tailed 95% credibility
+intervals in a table. First, for the regressions effects.
 
 ```{r}
-# Regression effects estimates with horseshoe prior
 beta.hs <- betas.hs[burnin + (1:M),] 
 res_beta.hs <- t(apply(beta.hs, 2, res.mcmc))
 colnames(res_beta.hs) <- c("2.5%", "Mean", "97.5%")
 rownames(res_beta.hs) <- colnames(X)
-print(round(res_beta.hs, 3))
+knitr::kable(round(res_beta.hs, 3))
+```
 
+And for the variance.
+
+```{r}
 # Error variance estimate with horseshoe prior
 res_sigma2.hs <- res.mcmc(sigma2s.hs[burnin + (1:M)])
 names(res_sigma2.hs) <- colnames(res_beta.hs)
-print(round(res_sigma2.hs, 3))
+knitr::kable(t(round(res_sigma2.hs, 3)))
 ```
 
-We next have a look at the posterior distributions: first under the semi-conjugate priors and then under the horseshoe prior.
-
-```{r, echo = -(1:2)}
-if (pdfplots) {
-  pdf("6-4_1.pdf", width = 8, height = 5)
-  par(mar = c(2.2, 1.6, 1.6, .2), mgp = c(1.2, .5, 0))
-}
-par(mfrow = c(3,4))
-for (i in seq_len(d)) hist(beta.sc[,i], main = colnames(X)[i])
-for (i in seq_len(d)) hist(beta.hs[,i], main = colnames(X)[i])
-```
-
+We next have a look at the posterior distributions. First under the
+semi-conjugate priors and then under the horseshoe prior.
 Note that the posterior distributions are symmetric under the semi-conjugate
 prior, whereas this is not the case under the horseshoe prior. 
 
+```{r, echo = -1}
+par(mfrow = c(ncol(beta.hs) / 2, 2), mgp = c(1.6, .6, 0), mar = c(1.5, 1.5, 1, .1))
+for (i in seq_len(d)) {
+  breaks <- seq(min(beta.sc[,i], beta.hs[,i]), max(beta.sc[,i], beta.hs[,i]),
+                length.out = 100)
+  hist(beta.sc[,i], main = colnames(X)[i], breaks = breaks, xlab = "", ylab = "")
+  hist(beta.hs[,i], main = colnames(X)[i], breaks = breaks, xlab = "", ylab = "")
+}
+```
+
 We next investigate the trace plots. 
 
-```{r, echo = -(1:2)}
-if (pdfplots) {
-  pdf("6-4_2.pdf", width = 8, height = 5)
-  par(mar = c(2.2, 1.6, 1.6, .2), mgp = c(1.2, .5, 0))
+```{r}
+for (i in seq_len(d)) {
+  plot(beta.sc[,i], type = "l")
+  plot(beta.hs[,i], type = "l")
 }
-par(mfrow = c(3, 4))
-for (i in seq_len(d)) plot(beta.sc[,i], type="l")
-for (i in seq_len(d)) plot(beta.hs[,i], type="l")
 ```
 
 Finally, we have a look at boxplots of the posterior distributions of the
-local shrinkage parameters $\tau_j$ under the horseshoe prior.
+(square root of the) local shrinkage parameters $\tau_j$ under the horseshoe
+prior.
 
-```{r, echo = -(1:2)}
-if (pdfplots) {
-  pdf("6-4_3.pdf", width = 8, height = 5)
-  par(mar = c(2.2, 1.6, 1.6, .2), mgp = c(1.2, .5, 0))
-}
-
-tau2.hs <- tau2s.hs[burnin+(1:M),]
-par(mfrow = c(1,1), mgp = c(1.6, .6, 0), mar = c(1.5, 1.5, 1.5, 0.1))
-
+```{r, echo = -1}
+par(mfrow = c(1, 1), mgp = c(1.6, .6, 0), mar = c(1.5, 1.5, 1.5, 0.1))
+tau2.hs <- tau2s.hs[burnin + (1:M),]
 boxplot(sqrt(tau2.hs), outline = FALSE)
+```
+
+To sum up, we visualize the posterior of the effects
+
+```{r}
 alpha <- 0.05
 truncate <- function(x, alpha) x[x <= quantile(x, 1 - alpha)] 
 tau2.hs.trunc <- apply(tau2.hs, 2, truncate, alpha = alpha)
