@@ -1,0 +1,55 @@
+---
+title: "Chapter 9: Bayesian Predictive Analysis"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Chapter 9: Bayesian Predictive Analysis}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 8,
+  fig.height = 6
+)
+knitr::opts_knit$set(global.par = TRUE)
+pdfplots <- FALSE # default: FALSE; set this to TRUE only if you like pdf figures
+```
+
+```{r, include = FALSE}
+par(mgp = c(1.6, .6, 0), mar = c(2.6, 2.6, 2.6, .4), lwd = 1)
+```
+
+# Section 9.1 
+## Figure 9.1
+We load the data and extract the observations for the senior people in
+Linz. We then plot the pdf and cdf for the predictive distribution
+which corresponds under the flat prior to 
+$$
+y_f|\mathbf{y} \sim \mathcal NB(N\bar y + 1, N).
+$$
+
+```{r, echo = -1}
+if (pdfplots) {
+  pdf("9-1_1.pdf", width = 12, height = 8)
+  par(mar = c(2.5, 1.5, .1, .1), mgp = c(1.6, .6, 0))
+}
+par(mfrow = c(1, 2))
+data("accidents", package = "BayesianLearningCode")
+y <- accidents[, "seniors_accidents"]
+aN <- sum(y) + 1
+bN <- length(y)
+mu <- aN / bN
+yf <- 0:20
+plot(yf, dnbinom(yf, size = aN, mu = mu),
+     type = "h", xlab = "", ylab = "")
+plot(yf, pnbinom(yf, size = aN, mu = mu),
+     type = "h", xlab = "", ylab = "")
+probs <- c(0.025, 0.975)
+abline(h = probs)
+mtext(probs, side = 2, at = probs, adj = c(0, 1), cex = .8, col = "dimgrey")
+```
