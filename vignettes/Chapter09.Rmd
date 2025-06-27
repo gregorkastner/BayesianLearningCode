@@ -78,6 +78,7 @@ if (pdfplots) {
   par(mar = c(2.5, 1.5, .1, .1), mgp = c(1.6, .6, 0))
 }
 par(mfrow = c(1, 2))
+library("BayesianLearningCode")
 data("exrates", package = "stochvol")
 y <- 100 * diff(log(exrates$USD / exrates$CHF))
 ybar <- mean(y)
