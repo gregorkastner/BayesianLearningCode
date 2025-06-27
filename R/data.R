@@ -1,3 +1,19 @@
+#' Labor Market Data
+#'
+#' Labor market data of Austrian employees. The data stem from 1986--1998.
+#'
+#' @format A data frame with 4376 observations (persons) of 6 variables
+#' \describe{
+#'   \item{age}{age of the person in the year 1986}
+#'   \item{unemp97}{logical, TRUE if the person was unemployed in 1997}
+#'   \item{unemp98}{logical, TRUE if the person was unemployed in 1998}
+#'   \item{changeempl}{number of times the person changed employer from 1986 until 1998}
+#'   \item{female}{logical, TRUE if the person is female}
+#'   \item{wcollar}{logical, TRUE if the person was classified as white collar employee}
+#' }
+#' @source Weber (2001)
+"labor"
+
 #' Accidents Data
 #'
 #' Seriously injured or killed pedestrians per month in Linz, Austria, from
