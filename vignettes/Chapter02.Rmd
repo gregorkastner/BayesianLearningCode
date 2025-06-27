@@ -273,3 +273,4 @@ hist(delta1, breaks = 20, prob = TRUE, xlab = expression(delta[1]), ylab = "",
      main = bquote("Histogram of " ~ delta[1]))
 hist(delta2, breaks = 20, prob = TRUE, xlab = expression(delta[2]), ylab = "",
      main = bquote("Histogram of " ~ delta[2]))
+```
