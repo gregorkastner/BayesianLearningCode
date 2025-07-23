@@ -34,7 +34,7 @@ $$
 y_f|\mathbf{y} \sim \mathcal NB(N\bar y + 1, N).
 $$
 
-```{r, echo = -1}
+```{r, echo = -c(1,2)}
 if (pdfplots) {
   pdf("9-1_1.pdf", width = 12, height = 8)
   par(mar = c(2.5, 1.5, .1, .1), mgp = c(1.6, .6, 0))
@@ -69,7 +69,7 @@ pnbinom(9, size = aN, mu = mu) - pnbinom(0, size = aN, mu = mu)
 We load the data and then plot the pdf and cdf for the predictive
 distribution which corresponds under the improper prior to
 $$
-y_f|\mathbf{y} \sim \mathcal t_{2c_N}(\bar y, \frac{N s_y^2}{N-1}(1 + \frac{1}{N}).
+y_f|\mathbf{y} \sim \mathcal t_{2c_N}\left(\bar y, \frac{N s_y^2}{N-1}\left(1 + \frac{1}{N}\right)\right).
 $$
 
 ```{r, echo = -1}
