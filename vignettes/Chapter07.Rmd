@@ -190,3 +190,50 @@ for (p in 1:4) {
        xlab = bquote(phi[.(p)]), ylab = "", breaks = seq(-.75, .75, .02))
 }
 ```
+
+Next, we fit an AR(3) model with different priors.
+
+```{r}
+y <- tail(logret, -3)
+Xy <- ARdesignmatrix(logret, 3)
+
+res_improper <- res[[3]]
+
+res_conj_1 <- regression(y, Xy, prior = "conjugate",
+                              b0 = rep(0, 4), B0 = diag(rep(1, 4)),
+                              c0 = 2, C0 = 0.001)
+
+res_semi_1 <- regression(y, Xy, prior = "semi-conjugate",
+                              b0 = rep(0, 4), B0 = diag(rep(1, 4)),
+                              c0 = 2, C0 = 0.001)
+
+res_conj_2 <- regression(y, Xy, prior = "conjugate",
+                              b0 = rep(0, 4), B0 = diag(rep(100, 4)),
+                              c0 = 2, C0 = 0.001)
+
+res_semi_2 <- regression(y, Xy, prior = "semi-conjugate",
+                              b0 = rep(0, 4), B0 = diag(rep(100, 4)),
+                              c0 = 2, C0 = 0.001)
+
+```
+
+## Figure 7.3
+We now plot the posterior of the intercept under all those priors.
+
+```{r, echo = -c(1:2)}
+if (pdfplots) {
+  pdf("7-2_3.pdf", width = 8, height = 5)
+}
+par(mfrow = c(1, 2), mar = c(2.5, 1.5, 1.2, .1), mgp = c(1.5, .5, 0))
+plot(density(res_improper$betas[, 1], bw = "SJ", adj = 2),
+     xlim = range(res_improper$betas[, 1], res_semi_1$betas[, 1], res_semi_2$betas[, 1]),
+     main = "Posterior of the intercept", xlab = expression(zeta), ylab = "")
+lines(density(res_semi_1$betas[, 1], bw = "SJ", adj = 2), col = 2, lty = 2)
+lines(density(res_semi_2$betas[, 1], bw = "SJ", adj = 2), col = 3, lty = 3)
+
+plot(density(res_improper$betas[, 1], bw = "SJ", adj = 2),
+     xlim = range(res_improper$betas[, 1], res_conj_1$betas[, 1], res_conj_2$betas[, 1]),
+     main = "Posterior of the intercept", xlab = expression(zeta), ylab = "")
+lines(density(res_conj_1$betas[, 1], bw = "SJ", adj = 2), col = 2, lty = 2)
+lines(density(res_conj_2$betas[, 1], bw = "SJ", adj = 2), col = 3, lty = 3)
+```
