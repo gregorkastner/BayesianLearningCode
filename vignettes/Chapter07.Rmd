@@ -86,8 +86,8 @@ regression <- function(y, X, prior = "improper", b0 = 0, B0 = 1, c0 = 0.01,
     BN <- solve(crossprod(X))
     
     sigma2s <- rinvgamma(M, cN, CN)
-    betas <- rep(NA_real_, M)
-    for (i in seq_len(M)) betas[i] <- rmvnorm(1, bN, sigma2s[i] * BN)
+    betas <- matrix(NA_real_, M, d)
+    for (i in seq_len(M)) betas[i,] <- rmvnorm(1, bN, sigma2s[i] * BN)
   
   } else if (prior == "conjugate") {
     
@@ -140,6 +140,7 @@ regression <- function(y, X, prior = "improper", b0 = 0, B0 = 1, c0 = 0.01,
       }
     }
   }
+  list(betas = betas, sigma2s = sigma2s)
 }
 ```
 
