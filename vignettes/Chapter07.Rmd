@@ -159,7 +159,7 @@ ARdesignmatrix <- function(dat, p = 1) {
   Xy <- matrix(NA_real_, N, d)
   Xy[, 1] <- 1
   for (i in seq_len(p)) {
-    Xy[, i + 1] <- logret[(p + 1 - i) : (length(logret) - i)]
+    Xy[, i + 1] <- dat[(p + 1 - i) : (length(dat) - i)]
   }
   Xy
 }
