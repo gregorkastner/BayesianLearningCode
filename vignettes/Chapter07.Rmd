@@ -289,3 +289,34 @@ plot(dens_improper, xlim = range(dens_improper$x, dens_conj_1$x, dens_conj_2$x),
 lines(dens_conj_1, col = 2, lty = 2)
 lines(dens_conj_2, col = 3, lty = 3)
 ```
+
+## Section 7.2.2: Exploring stationarity during post-processing
+
+We reuse the AR($p$) models under the improper prior from above to explore
+stationarity for $p = 1, 2, 3$.
+
+## Figure 7.5
+
+```{r, echo = -c(1:2), fig.width = 9, fig.height = 3}
+if (pdfplots) {
+  pdf("7-2_5.pdf", width = 9, height = 3)
+}
+par(mfrow = c(1, 3), mar = c(2.5, 2.5, 1.2, .1), mgp = c(1.5, .5, 0))
+hist(res[[1]]$betas[,2], breaks = 20, freq = FALSE, main = "AR(1)",
+     xlab = bquote(phi), ylab = "")
+
+plot(res[[2]]$betas[,2:3], main = "AR(2)", xlab = bquote(phi[1]),
+     ylab = bquote(phi[2]), xlim = c(-2, 2), ylim = c(-1, 1),
+     col = rgb(0, 0, 0, .05), pch = 16)
+polygon(c(-2, 0, 2, -2), c(-1, 1, -1, -1), border = 2)
+
+draws <- res[[3]]$betas[,2:4]
+eigenvalues <- matrix(NA_complex_, nrow(draws), ncol(draws))
+for (m in seq_len(nrow(draws))) {
+  Phi <- matrix(c(draws[m,], c(1, 0, 0), c(0, 1, 0)), byrow = TRUE, nrow = 3)
+  eigenvalues[m,] <- eigen(Phi, only.values = TRUE)$values
+}
+plot(eigenvalues, xlim = c(-1, 1), ylim = c(-1, 1), asp = 1,
+     main = "AR(3)", col = rgb(0, 0, 0, .05), pch = 16)
+symbols(0, 0, 1, add = TRUE, fg = 2, inches = FALSE)
+```
