@@ -146,7 +146,7 @@ regression <- function(y, X, prior = "improper", b0 = 0, B0 = 1, c0 = 0.01,
 
 Now we are ready to reproduce the results in the book.
 
-# Example 7.1
+## Example 7.1
 
 We begin by writing a function that sets up the design matrix for an AR($p$)
 model.
@@ -165,7 +165,7 @@ ARdesignmatrix <- function(dat, p = 1) {
 }
 ```
 
-Now we obtain draws for four AR models under the improper prior.
+We obtain draws for four AR models under the improper prior.
 
 ```{r}
 res <- vector("list", 4)
@@ -176,6 +176,7 @@ for (p in 1:4) {
 }
 ```
 
+## Figure 7.2
 Now we plot the draws for the leading coefficient, i.e., the coefficient
 corresponding to the highest lag in each of the models.
 
