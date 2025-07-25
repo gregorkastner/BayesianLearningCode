@@ -52,3 +52,93 @@ ts.plot(y, main = "U.S. GDP percentage log returns")
 acf(y, lag = 6, main = "")
 title("Empirical autocorrelation function")
 ```
+
+Before we move on, we define a function yielding posterior draws under a
+standard regression model, using the tools developed in Chapter 6.
+
+```{r}
+library(BayesianLearningCode)
+library(mvtnorm)
+regression <- function(y, X, prior = "improper", b0 = 0, B0 = 1, c0 = 0.01,
+                       C0 = 0.01, burnin = 100L, M = 1000L) {
+  
+  N <- nrow(X)
+  d <- ncol(X)
+  
+  if (length(b0) == 1L) b0 <- rep(b0, d)
+  
+  if (!is.matrix(B0)) {
+    if (length(B0) == 1L) {
+      B0 <- diag(rep(B0, d))
+    } else {
+      B0 <- diag(B0)
+    }
+  }
+  
+  if (prior == "improper") {
+
+    fit <- lm.fit(X, y)
+    betahat <- fit$coefficients
+    SSR <- sum(fit$residuals^2)
+    cN <- (N - d) / 2
+    CN <- SSR / 2
+    bN <- betahat
+    BN <- solve(crossprod(X))
+    
+    sigma2s <- rinvgamma(M, cN, CN)
+    betas <- rep(NA_real_, M)
+    for (i in seq_len(M)) betas[i] <- rmvnorm(1, bN, sigma2s[i] * BN)
+  
+  } else if (prior == "conjugate") {
+    
+    B0inv <- solve(B0)
+    BNinv <- B0inv + crossprod(X)
+    BN <- solve(BNinv)
+    bN <- BN %*% (B0inv %*% b0 + crossprod(X, y))
+    Seps0 <- crossprod(y) + crossprod(b0, B0inv) %*% b0 -
+      crossprod(bN, BNinv) %*% bN
+    cN <- c0 + N / 2
+    CN <- C0 + Seps0 / 2
+    
+    sigma2s <- rinvgamma(M, cN, CN)
+    betas <- rep(NA_real_, M)
+    for (i in seq_len(M)) betas[i] <- rmvnorm(1, bN, sigma2s[i] * BN)
+  
+  } else if (prior == "semi-conjugate") {
+    
+    # Precompute some values
+    B0inv <- solve(B0)
+    B0invb0 <- B0inv %*% b0
+    cN <- c0 + N / 2
+    XX <- crossprod(X)
+    Xy <- crossprod(X, y)
+    
+    # Prepare memory to store the draws
+    betas <- matrix(NA_real_, nrow = M, ncol = d)
+    sigma2s <- rep(NA_real_, M)
+    colnames(betas) <- colnames(X)
+    
+    # Set the tarting value for sigma2
+    sigma2 <- var(y) / 2
+    
+    # Run the Gibbs sampler
+    for (m in seq_len(burnin + M)) {
+      # Sample beta from its full conditional
+      BN <- solve(B0inv + XX / sigma2) 
+      bN <- BN %*% (B0invb0 + Xy / sigma2)
+      beta <- rmvnorm(1, mean = bN, sigma = BN)
+      
+      # Sample sigma^2 from its full conditional
+      eps <- y - tcrossprod(X, beta)
+      CN <- C0 + crossprod(eps) / 2
+      sigma2 <- rinvgamma(1, cN, CN)
+      
+      # Store the results
+      if (m > burnin) {
+        betas[m - burnin,] <- beta
+        sigma2s[m - burnin] <- sigma2
+      }
+    }
+  }
+}
+```
