@@ -222,9 +222,9 @@ We now visualize the posterior of the intercept under all those priors.
 
 ```{r, echo = -c(1:2)}
 if (pdfplots) {
-  pdf("7-2_3.pdf", width = 12, height = 5, lwd = 1.5)
+  pdf("7-2_3.pdf", width = 12, height = 5)
 }
-par(mfrow = c(1, 2), mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.5, .5, 0))
+par(mfrow = c(1, 2), mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
 dens_improper <- density(res_improper$betas[, 1], bw = "SJ", adj = 2)
 dens_semi_1 <- density(res_semi_1$betas[, 1], bw = "SJ", adj = 2)
 dens_semi_2 <- density(res_semi_2$betas[, 1], bw = "SJ", adj = 2)
