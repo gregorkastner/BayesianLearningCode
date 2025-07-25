@@ -37,7 +37,7 @@ dat <- gdp[1:which(names(gdp) == '2019-10-01')]
 Next, we compute the percentage log returns.
 
 ```{r}
-y <- 100 * (log(dat[-1]) - log(dat[-length(dat)]))
+perclogret <- 100 * (log(dat[-1]) - log(dat[-length(dat)]))
 ```
 
 Now we can plot the data and its empirical autocorrelation function.
@@ -48,8 +48,8 @@ if (pdfplots) {
   par(mar = c(2.5, 1.5, .1, .1), mgp = c(1.5, .5, 0))
 }
 par(mfrow = c(1,2))
-ts.plot(y, main = "U.S. GDP percentage log returns")
-acf(y, lag = 6, main = "")
+ts.plot(perclogret, main = "U.S. GDP percentage log returns")
+acf(perclogret, lag = 6, main = "")
 title("Empirical autocorrelation function")
 ```
 
@@ -140,5 +140,24 @@ regression <- function(y, X, prior = "improper", b0 = 0, B0 = 1, c0 = 0.01,
       }
     }
   }
+}
+```
+
+Now we are ready to reproduce the results in the book.
+
+# Example 7.1
+
+We begin by setting up the response vector and the design matrix.
+
+```{r}
+p <- 4
+d <- p + 1
+y <- tail(perclogret, -p)
+N <- length(y)
+
+Xy <- matrix(NA_real_, N, d)
+Xy[, 1] <- 1
+for (i in seq_len(p)) {
+  Xy[, i + 1] <- perclogret[(p + 1 - i) : (length(perclogret) - i)]
 }
 ```
