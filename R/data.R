@@ -1,3 +1,14 @@
+#' Inflation data
+#'
+#' Harmonized Index of Consumer Prices (HICP) in the Euro area (changing
+#' composition). Monthly data from January 1997 to June 2025.
+#'
+#' @format A sequence of length 342.
+#' @source European Central Bank Data Portal, retrieved from
+#' \url{https://data.ecb.europa.eu/data/datasets/ICP/ICP.M.U2.N.000000.4.ANR},\
+#' July 25, 2025.
+"inflation"
+
 #' GDP data
 #'
 #' Gross domestic product of the USA. Quarterly data from 1947Q1 to 2025Q1.
