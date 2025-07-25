@@ -5,7 +5,7 @@
 #'
 #' @format A sequence of length 342.
 #' @source European Central Bank Data Portal, retrieved from
-#' \url{https://data.ecb.europa.eu/data/datasets/ICP/ICP.M.U2.N.000000.4.ANR},\
+#' \url{https://data.ecb.europa.eu/data/datasets/ICP/ICP.M.U2.N.000000.4.ANR},
 #' July 25, 2025.
 "inflation"
 
