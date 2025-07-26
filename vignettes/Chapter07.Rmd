@@ -354,3 +354,14 @@ plot(eigenvalues, xlim = c(-1, 1), ylim = c(-1, 1), asp = 1,
      main = "AR(3)", col = rgb(0, 0, 0, .05), pch = 16)
 symbols(0, 0, 1, add = TRUE, fg = 2, inches = FALSE)
 ```
+
+To assess the probability of nonstationarity, we can simply count the
+draws outside of the stationarity region.
+
+```{r}
+mean(abs(ar1draws) > 1)
+mean(ar2draws[,1] + ar2draws[,2] > 1 |
+     abs(ar2draws[,2]) > 1 |
+     ar2draws[,2] > 1 + ar2draws[,1])
+mean(apply(abs(eigenvalues) > 1, 1, any))
+```
