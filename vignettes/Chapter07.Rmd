@@ -168,6 +168,7 @@ ARdesignmatrix <- function(dat, p = 1) {
 We obtain draws for four AR models under the improper prior.
 
 ```{r}
+set.seed(42)
 res <- vector("list", 4)
 for (p in 1:4) {
   y <- tail(logret, -p)
