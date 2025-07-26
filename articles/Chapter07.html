@@ -71,10 +71,15 @@
     
     
 <div class="section level2">
-<h2 id="section-7-2">Section 7.2<a class="anchor" aria-label="anchor" href="#section-7-2"></a>
+<h2 id="section-7-2-bayesian-learning-of-stationary-autoregressive-models">Section 7.2: Bayesian Learning of (Stationary) Autoregressive
+Models<a class="anchor" aria-label="anchor" href="#section-7-2-bayesian-learning-of-stationary-autoregressive-models"></a>
 </h2>
 <div class="section level3">
-<h3 id="figure-7-1">Figure 7.1<a class="anchor" aria-label="anchor" href="#figure-7-1"></a>
+<h3 id="section-7-2-2-exploring-stationarity-during-post-processing">Section 7.2.2: Exploring stationarity during post-processing<a class="anchor" aria-label="anchor" href="#section-7-2-2-exploring-stationarity-during-post-processing"></a>
+</h3>
+</div>
+<div class="section level3">
+<h3 id="figure-7-1-u-s--gdp-data">Figure 7.1: U.S. GDP data<a class="anchor" aria-label="anchor" href="#figure-7-1-u-s--gdp-data"></a>
 </h3>
 <p>First, we load the data. Because of the extreme outliers during the
 COVID pandemic, we restrict our analysis to the time before its
@@ -184,7 +189,7 @@ under a standard regression model, using the tools developed in Chapter
 <p>Now we are ready to reproduce the results in the book.</p>
 </div>
 <div class="section level3">
-<h3 id="example-7-1">Example 7.1<a class="anchor" aria-label="anchor" href="#example-7-1"></a>
+<h3 id="example-7-1-ar-modeling-of-the-u-s--gdp-data">Example 7.1: AR modeling of the U.S. GDP data<a class="anchor" aria-label="anchor" href="#example-7-1-ar-modeling-of-the-u-s--gdp-data"></a>
 </h3>
 <p>We begin by writing a function that sets up the design matrix for an
 AR(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>)
@@ -212,7 +217,7 @@ model.</p>
 <span><span class="op">}</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="figure-7-2">Figure 7.2<a class="anchor" aria-label="anchor" href="#figure-7-2"></a>
+<h3 id="figure-7-2-exploratory-model-selection">Figure 7.2: Exploratory model selection<a class="anchor" aria-label="anchor" href="#figure-7-2-exploratory-model-selection"></a>
 </h3>
 <p>Now we plot the draws for the leading coefficient, i.e., the
 coefficient corresponding to the highest lag in each of the models.</p>
@@ -246,14 +251,15 @@ coefficient corresponding to the highest lag in each of the models.</p>
 <span>                              c0 <span class="op">=</span> <span class="fl">2</span>, C0 <span class="op">=</span> <span class="fl">0.001</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="figure-7-3">Figure 7.3<a class="anchor" aria-label="anchor" href="#figure-7-3"></a>
+<h3 id="figure-7-3-ar3-models-with-improper-semi-conjugate-and-conjugate-priors">Figure 7.3: AR(3) models with improper, semi-conjugate, and
+conjugate priors<a class="anchor" aria-label="anchor" href="#figure-7-3-ar3-models-with-improper-semi-conjugate-and-conjugate-priors"></a>
 </h3>
 <p>We now visualize the posterior of the model parameters under all
 those priors.</p>
 <p><img src="Chapter07_files/figure-html/unnamed-chunk-11-1.png" width="768"></p>
 </div>
 <div class="section level3">
-<h3 id="section-7-2-2-exploring-stationarity-during-post-processing">Section 7.2.2: Exploring stationarity during post-processing<a class="anchor" aria-label="anchor" href="#section-7-2-2-exploring-stationarity-during-post-processing"></a>
+<h3 id="section-7-2-2-exploring-stationarity-during-post-processing-1">Section 7.2.2: Exploring stationarity during post-processing<a class="anchor" aria-label="anchor" href="#section-7-2-2-exploring-stationarity-during-post-processing-1"></a>
 </h3>
 <p>We reuse the
 AR(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>)
@@ -261,7 +267,7 @@ models under the improper prior from above to explore stationarity for
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>=</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">p = 1, 2, 3</annotation></semantics></math>.</p>
 </div>
 <div class="section level3">
-<h3 id="figure-7-4">Figure 7.4<a class="anchor" aria-label="anchor" href="#figure-7-4"></a>
+<h3 id="figure-7-4-checking-stationarity-conditions-for-the-gdp-data">Figure 7.4: Checking stationarity conditions for the GDP data<a class="anchor" aria-label="anchor" href="#figure-7-4-checking-stationarity-conditions-for-the-gdp-data"></a>
 </h3>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">res</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">betas</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span>, breaks <span class="op">=</span> <span class="fl">20</span>, freq <span class="op">=</span> <span class="cn">FALSE</span>, main <span class="op">=</span> <span class="st">"AR(1)"</span>,</span>
@@ -289,10 +295,10 @@ models under the improper prior from above to explore stationarity for
 function.</p>
 </div>
 <div class="section level3">
-<h3 id="figure-7-5">Figure 7.5<a class="anchor" aria-label="anchor" href="#figure-7-5"></a>
+<h3 id="figure-7-5-eu-inflation-data">Figure 7.5: EU inflation data<a class="anchor" aria-label="anchor" href="#figure-7-5-eu-inflation-data"></a>
 </h3>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/ts.plot.html" class="external-link">ts.plot</a></span><span class="op">(</span><span class="va">inflation</span>, main <span class="op">=</span> <span class="st">"EU Inflation"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/ts.plot.html" class="external-link">ts.plot</a></span><span class="op">(</span><span class="va">inflation</span>, main <span class="op">=</span> <span class="st">"EU inflation"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/acf.html" class="external-link">acf</a></span><span class="op">(</span><span class="va">inflation</span>, main <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/title.html" class="external-link">title</a></span><span class="op">(</span><span class="st">"Empirical autocorrelation function"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="Chapter07_files/figure-html/unnamed-chunk-14-1.png" width="768"></p>
@@ -309,7 +315,8 @@ models under the improper prior to explore stationarity for
 <span><span class="op">}</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="figure-7-6">Figure 7.6<a class="anchor" aria-label="anchor" href="#figure-7-6"></a>
+<h3 id="figure-7-6-checking-stationarity-conditions-for-the-eu-inflation-data">Figure 7.6: Checking stationarity conditions for the EU inflation
+data<a class="anchor" aria-label="anchor" href="#figure-7-6-checking-stationarity-conditions-for-the-eu-inflation-data"></a>
 </h3>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ar1draws</span> <span class="op">&lt;-</span> <span class="va">res</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">betas</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span></span>
