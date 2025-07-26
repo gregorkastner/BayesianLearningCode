@@ -24,8 +24,11 @@ pdfplots <- FALSE # default: FALSE; set this to TRUE only if you like pdf figure
 par(mgp = c(1.6, .6, 0), mar = c(2.6, 2.6, 2.6, .4), lwd = 1.5)
 ```
 
-# Section 7.2
-## Figure 7.1
+# Section 7.2: Bayesian Learning of (Stationary) Autoregressive Models
+## Section 7.2.2: Exploring stationarity during post-processing
+
+## Figure 7.1: U.S. GDP data
+
 First, we load the data. Because of the extreme outliers during the COVID
 pandemic, we restrict our analysis to the time before its outbreak.
 
@@ -146,7 +149,7 @@ regression <- function(y, X, prior = "improper", b0 = 0, B0 = 1, c0 = 0.01,
 
 Now we are ready to reproduce the results in the book.
 
-## Example 7.1
+## Example 7.1: AR modeling of the U.S. GDP data
 
 We begin by writing a function that sets up the design matrix for an AR($p$)
 model.
@@ -177,7 +180,7 @@ for (p in 1:4) {
 }
 ```
 
-## Figure 7.2
+## Figure 7.2: Exploratory model selection
 Now we plot the draws for the leading coefficient, i.e., the coefficient
 corresponding to the highest lag in each of the models.
 
@@ -218,7 +221,8 @@ res_semi_2 <- regression(y, Xy, prior = "semi-conjugate",
 
 ```
 
-## Figure 7.3
+## Figure 7.3: AR(3) models with improper, semi-conjugate, and conjugate priors
+
 We now visualize the posterior of the model parameters under all those priors.
 
 ```{r, echo = -c(1:3), fig.height = 12}
@@ -266,7 +270,7 @@ for (i in 1:5) {
 We reuse the AR($p$) models under the improper prior from above to explore
 stationarity for $p = 1, 2, 3$.
 
-## Figure 7.4
+## Figure 7.4: Checking stationarity conditions for the GDP data
 
 ```{r, echo = -c(1:2), fig.width = 9, fig.height = 3}
 if (pdfplots) {
@@ -300,7 +304,7 @@ data("inflation", package = "BayesianLearningCode")
 
 First, we plot the data and its empirical autocorrelation function.
 
-## Figure 7.5
+## Figure 7.5: EU inflation data
 
 ```{r, echo = -c(1:2)}
 if (pdfplots) {
@@ -308,7 +312,7 @@ if (pdfplots) {
   par(mar = c(2.6, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
 }
 par(mfrow = c(1,2))
-ts.plot(inflation, main = "EU Inflation")
+ts.plot(inflation, main = "EU inflation")
 acf(inflation, main = "")
 title("Empirical autocorrelation function")
 ```
@@ -325,7 +329,7 @@ for (p in 1:3) {
 }
 ```
 
-## Figure 7.6
+## Figure 7.6: Checking stationarity conditions for the EU inflation data
 
 ```{r, echo = -c(1:2), fig.width = 9, fig.height = 3}
 if (pdfplots) {
