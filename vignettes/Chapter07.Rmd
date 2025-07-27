@@ -463,3 +463,18 @@ for (i in seq_along(missing)) {
   points(missing[i], logret[missing[i]], col = 2, cex = 2, lwd = 2)
 }
 ```
+
+Now let us compare the parameter estimates with the complete-data posterior
+and the posterior arising when missing values are ignored.
+
+We start by estimating a model where all equations containing missing data are
+simply dropped.
+
+```{r}
+y <- tail(yaug, -2)
+Xy <- ARdesignmatrix(yaug, 2)
+containsNA <- apply(is.na(cbind(y, Xy)), 1, any)
+yred <- y[!containsNA]
+Xyred <- Xy[!containsNA, ]
+res_drop <- regression(yred, Xyred, prior = "improper")
+```
