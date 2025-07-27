@@ -478,3 +478,33 @@ yred <- y[!containsNA]
 Xyred <- Xy[!containsNA, ]
 res_drop <- regression(yred, Xyred, prior = "improper")
 ```
+
+Now we can plot.
+
+```{r, echo = -c(1:2)}
+if (pdfplots) {
+  pdf("7-2_8.pdf", width = 10, height = 6)
+}
+par(mfrow = c(2, 2), mar = c(2.7, 1.5, 1.4, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
+for (i in 1:4) {
+  if (i <= 3) {
+    if (i == 1) name <- bquote(zeta) else name <- bquote(phi[.(i - 1)])
+    dens_improper <- density(res_improper$betas[, i], bw = "SJ", adj = 2)
+    dens_drop <- density(res_drop$betas[, i], bw = "SJ", adj = 2)
+    dens_aug <- density(betas[, i], bw = "SJ", adj = 2)
+  } else {
+    name <- bquote(sigma[epsilon]^2)
+    dens_improper <- density(res_improper$sigma2, bw = "SJ", adj = 2)
+    dens_drop <- density(res_drop$sigma2, bw = "SJ", adj = 2)
+    dens_aug <- density(sigma2s, bw = "SJ", adj = 2)
+  } 
+  
+  plot(dens_improper, xlim = range(dens_improper$x, dens_drop$x, dens_aug$x),
+       ylim = range(dens_improper$y, dens_drop$y, dens_aug$y),
+       main = "", xlab = name, ylab = "")
+  if (i == 1) title("XXX")
+  lines(dens_aug, col = 2, lty = 2)
+  lines(dens_drop, col = 3, lty = 3)
+  legend("topright", c("Full-data", "Augmented", "Dropped"), col = 1:3, lty = 1:3)
+}
+```
