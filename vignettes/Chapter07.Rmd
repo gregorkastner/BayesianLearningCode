@@ -388,3 +388,51 @@ names(ymiss) <- names(logret)[missing]
 yaug <- logret
 yaug[missing] <- ymiss
 ```
+
+For simplicity, we employ our improper prior and sample iteratively.
+
+```{r}
+draws <- 500
+burnin <- 0
+ind <- missing - 2
+ytilde <- rep(NA_real_, 3)
+betas <- matrix(NA_real_, draws, 3)
+sigma2s <- rep(NA_real_, draws)
+ymisses <- matrix(NA_real_, draws, length(ind))
+
+for (m in seq_len(draws + burnin)) {
+  
+  # Sample theta
+  Xy <- ARdesignmatrix(yaug, 2)
+  y <- tail(yaug, -2)
+  N <- nrow(Xy)
+  d <- ncol(Xy)
+  BN <- solve(crossprod(Xy))
+  bN <- BN %*% crossprod(Xy, y)
+  cN <- (N - d) / 2
+  CN <- sum((y - Xy %*% bN)^2) / 2
+  sigma2 <- rinvgamma(1, cN, CN)
+  beta <- rmvnorm(1, bN, sigma2 * BN)
+  zeta <- beta[1]
+  phi <- beta[2:3]
+  
+  # Samnple ymiss
+  for (i in seq_along(ind)) {
+    ytilde[1] <- -zeta - phi[1] * y[ind[i] - 1] - phi[2] * y[ind[i] - 2]
+    ytilde[2] <- -zeta + y[ind[i] + 1] - phi[2] * y[ind[i] - 1]
+    ytilde[3] <- -zeta + y[ind[i] + 2] - phi[1] * y[ind[i] + 1]
+    
+    X <- matrix(c(-1, phi), nrow = 3)
+    BN <- solve(crossprod(X))
+    bN <- BN %*% crossprod(X, ytilde)
+    ymiss[i] <- rmvnorm(1, bN, sigma2 * BN)
+  }
+  
+  # Store the results
+  if (m > burnin) {
+    betas[m - burnin, ] <- beta
+    sigma2s[m - burnin] <- sigma2
+    ymisses[m - burnin,] <- ymiss
+  }
+}
+```
