@@ -62,6 +62,7 @@ standard regression model, using the tools developed in Chapter 6.
 ```{r}
 library(BayesianLearningCode)
 library(mvtnorm)
+
 regression <- function(y, X, prior = "improper", b0 = 0, B0 = 1, c0 = 0.01,
                        C0 = 0.01, burnin = 1000L, M = 5000L) {
   
@@ -372,10 +373,12 @@ mean(apply(Mod(eigenvalues) > 1, 1, any))
 
 # Section 7.2.3: Recovering Missing Time Series Data -- An Introduction to Data Augmentation
 
-Assume that the values at $t_1 = 62$ and $t_2 = 92$ are missing.
+Assume that the values at $t_1 = 62$ and $t_2 = 72$ are missing.
 
 ```{r}
-missing <- c(62, 92)
+missing <- c(62, 72)
+yaug <- logret
+yaug[missing] <- NA
 ```
 
 To set up the Gibbs sampler, we need starting values for
@@ -385,24 +388,25 @@ the adjacent values).
 ```{r}
 ymiss <- (logret[missing + 1] + logret[missing - 1]) / 2
 names(ymiss) <- names(logret)[missing]
-yaug <- logret
-yaug[missing] <- ymiss
 ```
 
 For simplicity, we employ our improper prior and sample iteratively.
 
 ```{r}
-draws <- 500
-burnin <- 0
+draws <- 5000
+burnin <- 1000
 ind <- missing - 2
+
 ytilde <- rep(NA_real_, 3)
 betas <- matrix(NA_real_, draws, 3)
 sigma2s <- rep(NA_real_, draws)
 ymisses <- matrix(NA_real_, draws, length(ind))
 
 for (m in seq_len(draws + burnin)) {
+  # Augment the observed time series with the missing values
+  yaug[missing] <- ymiss
   
-  # Sample theta
+  # Sample the parameters conditional on the augmented data
   Xy <- ARdesignmatrix(yaug, 2)
   y <- tail(yaug, -2)
   N <- nrow(Xy)
@@ -416,7 +420,7 @@ for (m in seq_len(draws + burnin)) {
   zeta <- beta[1]
   phi <- beta[2:3]
   
-  # Samnple ymiss
+  # Sample the missing values conditional on the parameters
   for (i in seq_along(ind)) {
     ytilde[1] <- -zeta - phi[1] * y[ind[i] - 1] - phi[2] * y[ind[i] - 2]
     ytilde[2] <- -zeta + y[ind[i] + 1] - phi[2] * y[ind[i] - 1]
