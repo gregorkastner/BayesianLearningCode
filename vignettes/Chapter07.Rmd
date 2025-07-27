@@ -378,7 +378,7 @@ sampler, we require the missing time points to be far enough apart. This
 restriction is not substantial, though.)
 
 ```{r}
-missing <- c(62)
+missing <- seq(10, 100, by = 10)
 yaug <- logret
 yaug[missing] <- NA
 ```
@@ -471,7 +471,7 @@ if (pdfplots) {
 par(mfrow = c(1, 1), mar = c(2.6, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
 yaug[missing] <- NA
 
-where <- seq(min(missing) - 3, max(missing) + 3)
+where <- seq(max(missing) - 33, max(missing) + 3)
 plot(where, yaug[where], type = "l", ylim = range(ymisses[, i]),
      xlab = "Time", ylab = "", main = "U.S. GDP growth")
 for (i in seq_along(missing)) {
@@ -491,8 +491,8 @@ We start by estimating a model where all equations containing missing data are
 simply dropped.
 
 ```{r}
-y <- tail(yaug, -2)
 Xy <- ARdesignmatrix(yaug, 2)
+y <- tail(yaug, -2)
 containsNA <- apply(is.na(cbind(y, Xy)), 1, any)
 yred <- y[!containsNA]
 Xyred <- Xy[!containsNA, ]
