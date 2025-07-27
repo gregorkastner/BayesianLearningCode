@@ -443,8 +443,26 @@ for (m in seq_len(draws + burnin)) {
 }
 ```
 
-We visualize the observed and the missing values (black lines), alongside the
-unobservable true values (red circles).
+Let us briefly check some trace plots and ACFs of the draws.
+
+```{r}
+par(mfrow = c(5, 2))
+ts.plot(betas[,1])
+acf(betas[,1])
+ts.plot(betas[,2])
+acf(betas[,1])
+ts.plot(betas[,3])
+acf(betas[,3])
+ts.plot(sigma2s)
+acf(sigma2s)
+ts.plot(ymisses[,1])
+acf(ymisses[,1])
+```
+
+Seems like the mixing is perfect and there is no cause for concern.
+
+We move on to visualizing the observed and the missing values (black lines),
+alongside the unobservable true values (red circles).
 
 ```{r, echo = -c(1:2)}
 if (pdfplots) {
