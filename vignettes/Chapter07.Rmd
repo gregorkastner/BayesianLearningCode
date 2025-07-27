@@ -369,3 +369,22 @@ mean(ar2draws[,1] + ar2draws[,2] > 1 |
      ar2draws[,2] > 1 + ar2draws[,1])
 mean(apply(Mod(eigenvalues) > 1, 1, any))
 ```
+
+# Section 7.2.3: Recovering Missing Time Series Data -- An Introduction to Data Augmentation
+
+Assume that the values at $t_1 = 62$ and $t_2 = 92$ are missing.
+
+```{r}
+missing <- c(62, 92)
+```
+
+To set up the Gibbs sampler, we need starting values for
+$\mathbf y_\text{miss}$. Here, we interpolate linearly (take the average of
+the adjacent values).
+
+```{r}
+ymiss <- (logret[missing + 1] + logret[missing - 1]) / 2
+names(ymiss) <- names(logret)[missing]
+yaug <- logret
+yaug[missing] <- ymiss
+```
