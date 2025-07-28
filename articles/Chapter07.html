@@ -163,7 +163,7 @@ under a standard regression model, using the tools developed in Chapter
 <span>    <span class="va">sigma2s</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA_real_</span>, <span class="va">M</span><span class="op">)</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">betas</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span></span>
 <span>    </span>
-<span>    <span class="co"># Set the tarting value for sigma2</span></span>
+<span>    <span class="co"># Set the starting value for sigma2</span></span>
 <span>    <span class="va">sigma2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">var</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span></span>
 <span>    </span>
 <span>    <span class="co"># Run the Gibbs sampler</span></span>
