@@ -25,4 +25,70 @@ par(mgp = c(1.6, .6, 0), mar = c(2.6, 2.6, 2.6, .4), lwd = 1)
 ```
 
 # Section 8.4
+We illustrate  probit regression analysis for the labour market data.
+```{r}
+library("BayesianLearningCode")
+data("labour", package = "BayesianLearningCode")
+```
+Additionally to the ... we have the following covariates
 
+```{r}
+y <- movies[, "OpenBoxOffice"]
+
+
+N <- length(y)  # number of observations
+X <- cbind("Intercept" = rep(1, N), covs) # regressor matrix
+
+d <- dim(X)[2] # number regression effects 
+p <- d - 1 # number of regression effects without intercept
+```
+We first estimate the parameters of the regression model under a rather flat
+semi-conjugate prior.
+
+```{r}
+set.seed(1)
+
+# define prior parameters 
+B0.inv <- diag(rep(1 / 10000, d), nrow = d)
+b0 <- rep(0, d)
+B0inv.b0 <- iB0%*%b0
+
+# define quantities for the Gibbs sampler
+XX <- crossprod(X)
+Bn <- solve(B0.inv + XX)
+
+#define burnin and M
+burnin <- 1000
+M <- 100000
+
+# prepare storing of results
+betas <- matrix(NA_real_, nrow = burnin + M, ncol = d)
+colnames(betas) <- colnames(X)
+
+# starting values
+beta <- rep(0,k)
+z <- rep(NA_real_,n)
+
+
+for (m in 1:(burnin + M)) {
+    #Compute mean of truncated normal of z
+    mu_z <- X %*% beta
+  
+    #Draw z from truncated normal distribution
+    z[y == 0] <- rtruncnorm(sum(y==0), a = -Inf, b = 0,
+                          mean = mu_z[y == 0], sd = 1)
+    z[y == 1] <- rtruncnorm(sum(y==1), a = 0, b = Inf,
+                          mean = mu_z[y == 1], sd = 1)
+  
+  
+    #Compute posterior mean of theta
+    bn <- Bn %*% (B0inv.b0 + t(X) %*% z)
+  
+    # sample beta from the full conditional
+    beta <- t(mvtnorm::rmvnorm(1, mean = bn, sigma = Bn))
+    
+    # Store the beta draws
+    betas[m, ] <- beta
+    
+}
+```
