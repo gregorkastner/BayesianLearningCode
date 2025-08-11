@@ -9,8 +9,9 @@ articles:
   Chapter05: Chapter05.html
   Chapter06: Chapter06.html
   Chapter07: Chapter07.html
+  Chapter08: Chapter08.html
   Chapter09: Chapter09.html
-last_built: 2025-07-28T09:38Z
+last_built: 2025-08-11T13:54Z
 urls:
   reference: https://gregorkastner.github.io/BayesianLearningCode/reference
   article: https://gregorkastner.github.io/BayesianLearningCode/articles
