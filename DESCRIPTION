@@ -30,8 +30,7 @@ RoxygenNote: 7.3.2
 URL: https://gregorkastner.github.io/BayesianLearningCode/
 Imports:
     stochvol,
-    mvtnorm,
-    vioplot
+    mvtnorm
 Suggests: 
     knitr,
     rmarkdown

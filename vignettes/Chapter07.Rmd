@@ -1,8 +1,15 @@
 ---
+<<<<<<< HEAD
 title: "Chapter 6: The Bayesian Approach to Standard Regression Analysis"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Chapter 6: The Bayesian Approach to Standard Regression Analysis}
+=======
+title: "Chapter 7: Introduction to Bayesian Time Series Analysis"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Chapter 7: Introduction to Bayesian Time Series Analysis}
+>>>>>>> 758741c774062e97507b8711b6e14dfe41bbd2b6
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 editor_options: 
@@ -21,6 +28,7 @@ pdfplots <- FALSE # default: FALSE; set this to TRUE only if you like pdf figure
 ```
 
 ```{r, include = FALSE}
+<<<<<<< HEAD
 par(mgp = c(1.6, .6, 0), mar = c(2.6, 2.6, 2.6, .4), lwd = 1)
 ```
 
@@ -303,7 +311,514 @@ for (i in seq_len(ncol(beta.hs))) {
                       max(tau.hs.trunc.mirrored[, i - 1]), length.out = 100)
     hist(tau.hs.trunc.mirrored[, i - 1], breaks = breaks, xlab = "", ylab = "",
          main = covs[i - 1])
+=======
+par(mgp = c(1.6, .6, 0), mar = c(2.6, 2.6, 2.6, .4), lwd = 1.5)
+```
+
+# Section 7.2: Bayesian Learning of (Stationary) Autoregressive Models
+## Section 7.2.2: Exploring stationarity during post-processing
+
+## Figure 7.1: U.S. GDP data
+
+First, we load the data. Because of the extreme outliers during the COVID
+pandemic, we restrict our analysis to the time before its outbreak.
+
+```{r}
+data("gdp", package = "BayesianLearningCode")
+dat <- gdp[1:which(names(gdp) == '2019-10-01')]
+```
+
+Next, we compute the log returns.
+
+```{r}
+logret <- log(dat[-1]) - log(dat[-length(dat)])
+```
+
+Now we can plot the data and its empirical autocorrelation function.
+
+```{r, echo = -c(1:2)}
+if (pdfplots) {
+  pdf("7-2_1.pdf", width = 12, height = 5)
+  par(mar = c(2.6, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
+}
+par(mfrow = c(1, 2))
+ts.plot(logret, main = "U.S. GDP log returns")
+acf(logret, lag = 8, main = "")
+title("Empirical autocorrelation function")
+```
+
+Before we move on, we define a function yielding posterior draws under a
+standard regression model, using the tools developed in Chapter 6.
+
+```{r}
+library(BayesianLearningCode)
+library(mvtnorm)
+
+regression <- function(y, X, prior = "improper", b0 = 0, B0 = 1, c0 = 0.01,
+                       C0 = 0.01, burnin = 1000L, M = 5000L) {
+  
+  N <- nrow(X)
+  d <- ncol(X)
+  
+  if (length(b0) == 1L) b0 <- rep(b0, d)
+  
+  if (!is.matrix(B0)) {
+    if (length(B0) == 1L) {
+      B0 <- diag(rep(B0, d))
+    } else {
+      B0 <- diag(B0)
+    }
+  }
+  
+  if (prior == "improper") {
+
+    fit <- lm.fit(X, y)
+    betahat <- fit$coefficients
+    SSR <- sum(fit$residuals^2)
+    cN <- (N - d) / 2
+    CN <- SSR / 2
+    bN <- betahat
+    BN <- solve(crossprod(X))
+    
+    sigma2s <- rinvgamma(M, cN, CN)
+    betas <- matrix(NA_real_, M, d)
+    for (i in seq_len(M)) betas[i,] <- rmvnorm(1, bN, sigma2s[i] * BN)
+  
+  } else if (prior == "conjugate") {
+    
+    B0inv <- solve(B0)
+    BNinv <- B0inv + crossprod(X)
+    BN <- solve(BNinv)
+    bN <- BN %*% (B0inv %*% b0 + crossprod(X, y))
+    Seps0 <- crossprod(y) + crossprod(b0, B0inv) %*% b0 -
+      crossprod(bN, BNinv) %*% bN
+    cN <- c0 + N / 2
+    CN <- C0 + Seps0 / 2
+    
+    sigma2s <- rinvgamma(M, cN, CN)
+    betas <- matrix(NA_real_, M, d)
+    for (i in seq_len(M)) betas[i,] <- rmvnorm(1, bN, sigma2s[i] * BN)
+  
+  } else if (prior == "semi-conjugate") {
+    
+    # Precompute some values
+    B0inv <- solve(B0)
+    B0invb0 <- B0inv %*% b0
+    cN <- c0 + N / 2
+    XX <- crossprod(X)
+    Xy <- crossprod(X, y)
+    
+    # Prepare memory to store the draws
+    betas <- matrix(NA_real_, nrow = M, ncol = d)
+    sigma2s <- rep(NA_real_, M)
+    colnames(betas) <- colnames(X)
+    
+    # Set the starting value for sigma2
+    sigma2 <- var(y) / 2
+    
+    # Run the Gibbs sampler
+    for (m in seq_len(burnin + M)) {
+      # Sample beta from its full conditional
+      BN <- solve(B0inv + XX / sigma2) 
+      bN <- BN %*% (B0invb0 + Xy / sigma2)
+      beta <- rmvnorm(1, mean = bN, sigma = BN)
+      
+      # Sample sigma^2 from its full conditional
+      eps <- y - tcrossprod(X, beta)
+      CN <- C0 + crossprod(eps) / 2
+      sigma2 <- rinvgamma(1, cN, CN)
+      
+      # Store the results
+      if (m > burnin) {
+        betas[m - burnin,] <- beta
+        sigma2s[m - burnin] <- sigma2
+      }
+    }
+  }
+  list(betas = betas, sigma2s = sigma2s)
+}
+```
+
+Now we are ready to reproduce the results in the book.
+
+## Example 7.1: AR modeling of the U.S. GDP data
+
+We begin by writing a function that sets up the design matrix for an AR($p$)
+model.
+
+```{r}
+ARdesignmatrix <- function(dat, p = 1) {
+  d <- p + 1
+  N <- length(dat) - p
+
+  Xy <- matrix(NA_real_, N, d)
+  Xy[, 1] <- 1
+  for (i in seq_len(p)) {
+    Xy[, i + 1] <- dat[(p + 1 - i) : (length(dat) - i)]
+  }
+  Xy
+}
+```
+
+We obtain draws for four AR models under the improper prior.
+
+```{r}
+set.seed(42)
+res <- vector("list", 4)
+for (p in 1:4) {
+  y <- tail(logret, -p)
+  Xy <- ARdesignmatrix(logret, p)
+  res[[p]] <- regression(y, Xy, prior = "improper")
+}
+```
+
+## Figure 7.2: Exploratory model selection
+Now we plot the draws for the leading coefficient, i.e., the coefficient
+corresponding to the highest lag in each of the models.
+
+```{r, echo = -c(1:2)}
+if (pdfplots) {
+  pdf("7-2_2.pdf", width = 8, height = 5)
+}
+par(mfrow = c(2, 2), mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
+for (p in 1:4) {
+  hist(res[[p]]$betas[, p + 1], freq = FALSE, main = bquote(AR(.(p))),
+       xlab = bquote(phi[.(p)]), ylab = "", breaks = seq(-.75, .75, .02))
+}
+```
+
+Next, we fit an AR(3) model with different priors.
+
+```{r}
+y <- tail(logret, -3)
+Xy <- ARdesignmatrix(logret, 3)
+
+res_improper <- res[[3]]
+
+res_conj_1 <- regression(y, Xy, prior = "conjugate",
+                              b0 = rep(0, 4), B0 = diag(rep(1, 4)),
+                              c0 = 2, C0 = 0.001)
+
+res_semi_1 <- regression(y, Xy, prior = "semi-conjugate",
+                              b0 = rep(0, 4), B0 = diag(rep(1, 4)),
+                              c0 = 2, C0 = 0.001)
+
+res_conj_2 <- regression(y, Xy, prior = "conjugate",
+                              b0 = rep(0, 4), B0 = diag(rep(100, 4)),
+                              c0 = 2, C0 = 0.001)
+
+res_semi_2 <- regression(y, Xy, prior = "semi-conjugate",
+                              b0 = rep(0, 4), B0 = diag(rep(100, 4)),
+                              c0 = 2, C0 = 0.001)
+
+```
+
+## Figure 7.3: AR(3) models with improper, semi-conjugate, and conjugate priors
+
+We now visualize the posterior of the model parameters under all those priors.
+
+```{r, echo = -c(1:2), fig.height = 12}
+if (pdfplots) {
+  pdf("7-2_3.pdf", width = 7, height = 9)
+}
+par(mfrow = c(5, 2), mar = c(2.7, 1.5, 1.4, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
+for (i in 1:5) {
+  if (i <= 4) {
+    if (i == 1) name <- bquote(zeta) else name <- bquote(phi[.(i - 1)])
+    dens_improper <- density(res_improper$betas[, i], bw = "SJ", adj = 2)
+    dens_semi_1 <- density(res_semi_1$betas[, i], bw = "SJ", adj = 2)
+    dens_semi_2 <- density(res_semi_2$betas[, i], bw = "SJ", adj = 2)
+    dens_conj_1 <- density(res_conj_1$betas[, i], bw = "SJ", adj = 2)
+    dens_conj_2 <- density(res_conj_2$betas[, i], bw = "SJ", adj = 2)
+  } else {
+    name <- bquote(sigma[epsilon]^2)
+    dens_improper <- density(res_improper$sigma2, bw = "SJ", adj = 2)
+    dens_semi_1 <- density(res_semi_1$sigma2, bw = "SJ", adj = 2)
+    dens_semi_2 <- density(res_semi_2$sigma2, bw = "SJ", adj = 2)
+    dens_conj_1 <- density(res_conj_1$sigma2, bw = "SJ", adj = 2)
+    dens_conj_2 <- density(res_conj_2$sigma2, bw = "SJ", adj = 2)
+  } 
+  
+  plot(dens_improper, xlim = range(dens_improper$x, dens_semi_1$x, dens_semi_2$x),
+       ylim = range(dens_improper$y, dens_semi_1$y, dens_semi_2$y),
+       main = "", xlab = name, ylab = "")
+  if (i == 1) title("Semi-conjugate priors")
+  lines(dens_semi_1, col = 2, lty = 2)
+  lines(dens_semi_2, col = 3, lty = 3)
+  legend("topright", c("Improper", "Tight", "Loose"), col = 1:3, lty = 1:3)
+  
+  plot(dens_improper, xlim = range(dens_improper$x, dens_conj_1$x, dens_conj_2$x),
+       ylim = range(dens_improper$y, dens_conj_1$y, dens_conj_2$y),
+       main = "", xlab = name, ylab = "")
+  if (i == 1) title("Conjugate priors")
+  lines(dens_conj_1, col = 2, lty = 2)
+  lines(dens_conj_2, col = 3, lty = 3)
+  legend("topright", c("Improper", "Tight", "Loose"), col = 1:3, lty = 1:3)
+}
+```
+
+## Section 7.2.2: Exploring stationarity during post-processing
+
+We reuse the AR($p$) models under the improper prior from above to explore
+stationarity for $p = 1, 2, 3$.
+
+## Figure 7.4: Checking stationarity conditions for the GDP data
+
+```{r, echo = -c(1:2), fig.width = 9, fig.height = 3}
+if (pdfplots) {
+  pdf("7-2_4.pdf", width = 9, height = 3)
+}
+par(mfrow = c(1, 3), mar = c(2.5, 2.5, 1.2, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
+hist(res[[1]]$betas[,2], breaks = 20, freq = FALSE, main = "AR(1)",
+     xlab = bquote(phi), ylab = "")
+
+plot(res[[2]]$betas[,2:3], main = "AR(2)", xlab = bquote(phi[1]),
+     ylab = bquote(phi[2]), xlim = c(-2, 2), ylim = c(-1, 1),
+     col = rgb(0, 0, 0, .05), pch = 16)
+polygon(c(-2, 0, 2, -2), c(-1, 1, -1, -1), border = 2)
+
+draws <- res[[3]]$betas[,2:4]
+eigenvalues <- matrix(NA_complex_, nrow(draws), ncol(draws))
+for (m in seq_len(nrow(draws))) {
+  Phi <- matrix(c(draws[m,], c(1, 0, 0), c(0, 1, 0)), byrow = TRUE, nrow = 3)
+  eigenvalues[m,] <- eigen(Phi, only.values = TRUE)$values
+}
+plot(eigenvalues, xlim = c(-1, 1), ylim = c(-1, 1), asp = 1,
+     main = "AR(3)", col = rgb(0, 0, 0, .05), pch = 16)
+symbols(0, 0, 1, add = TRUE, fg = 2, inches = FALSE)
+```
+
+We now move towards analyzing EU inflation data.
+
+```{r}
+data("inflation", package = "BayesianLearningCode")
+```
+
+First, we plot the data and its empirical autocorrelation function.
+
+## Figure 7.5: EU inflation data
+
+```{r, echo = -c(1:2)}
+if (pdfplots) {
+  pdf("7-2_5.pdf", width = 12, height = 5)
+  par(mar = c(2.6, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
+}
+par(mfrow = c(1,2))
+ts.plot(inflation, main = "EU inflation")
+acf(inflation, main = "")
+title("Empirical autocorrelation function")
+```
+
+We fit AR($p$) models under the improper prior to explore stationarity for
+$p = 1, 2, 3$.
+
+```{r}
+res2 <- vector("list", 3)
+for (p in 1:3) {
+  y <- tail(inflation, -p)
+  Xy <- ARdesignmatrix(inflation, p)
+  res2[[p]] <- regression(y, Xy, prior = "improper")
+}
+```
+
+## Figure 7.6: Checking stationarity conditions for the EU inflation data
+
+```{r, echo = -c(1:2), fig.width = 9, fig.height = 3}
+if (pdfplots) {
+  pdf("7-2_6.pdf", width = 9, height = 3)
+}
+par(mfrow = c(1, 3), mar = c(2.5, 2.5, 1.2, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
+ar1draws <- res2[[1]]$betas[,2]
+ar2draws <- res2[[2]]$betas[,2:3]
+ar3draws <- res2[[3]]$betas[,2:4]
+
+hist(ar1draws, breaks = 20, freq = FALSE, main = "AR(1)",
+     xlab = bquote(phi), ylab = "")
+abline(v = 1, col = 2)
+
+plot(ar2draws, main = "AR(2)", xlab = bquote(phi[1]),
+     ylab = bquote(phi[2]), xlim = c(-2, 2), ylim = c(-1, 1),
+     col = rgb(0, 0, 0, .05), pch = 16)
+polygon(c(-2, 0, 2, -2), c(-1, 1, -1, -1), border = 2)
+
+eigenvalues <- matrix(NA_complex_, nrow(ar3draws), ncol(ar3draws))
+for (m in seq_len(nrow(ar3draws))) {
+  Phi <- matrix(c(ar3draws[m,], c(1, 0, 0), c(0, 1, 0)), byrow = TRUE, nrow = 3)
+  eigenvalues[m,] <- eigen(Phi, only.values = TRUE)$values
+}
+plot(eigenvalues, xlim = c(-1, 1), ylim = c(-1, 1), asp = 1,
+     main = "AR(3)", col = rgb(0, 0, 0, .05), pch = 16)
+symbols(0, 0, 1, add = TRUE, fg = 2, inches = FALSE)
+```
+
+To assess the probability of nonstationarity, we can simply count the
+draws outside of the stationarity region.
+
+```{r}
+mean(abs(ar1draws) > 1)
+mean(ar2draws[,1] + ar2draws[,2] > 1 |
+     abs(ar2draws[,2]) > 1 |
+     ar2draws[,2] > 1 + ar2draws[,1])
+mean(apply(Mod(eigenvalues) > 1, 1, any))
+```
+
+# Section 7.2.3: Recovering Missing Time Series Data -- An Introduction to Data Augmentation
+
+Assume that the values at certain time points are missing. (Note that for our
+sampler, we require the missing time points to be far enough apart. This
+restriction is not substantial, though.)
+
+```{r}
+missing <- seq(10, 100, by = 10)
+yaug <- logret
+yaug[missing] <- NA
+```
+
+To set up the Gibbs sampler, we need starting values for
+$\mathbf y_\text{miss}$. Here, we interpolate linearly (take the average of
+the adjacent values).
+
+```{r}
+ymiss <- (logret[missing + 1] + logret[missing - 1]) / 2
+names(ymiss) <- names(logret)[missing]
+```
+
+For simplicity, we employ our improper prior and sample iteratively.
+
+```{r}
+draws <- 5000
+burnin <- 1000
+ind <- missing - 2
+
+ytilde <- rep(NA_real_, 3)
+betas <- matrix(NA_real_, draws, 3)
+sigma2s <- rep(NA_real_, draws)
+ymisses <- matrix(NA_real_, draws, length(ind))
+
+for (m in seq_len(draws + burnin)) {
+  # Augment the observed time series with the missing values
+  yaug[missing] <- ymiss
+  
+  # Sample the parameters conditional on the augmented data
+  Xy <- ARdesignmatrix(yaug, 2)
+  y <- tail(yaug, -2)
+  N <- nrow(Xy)
+  d <- ncol(Xy)
+  BN <- solve(crossprod(Xy))
+  bN <- BN %*% crossprod(Xy, y)
+  cN <- (N - d) / 2
+  CN <- sum((y - Xy %*% bN)^2) / 2
+  sigma2 <- rinvgamma(1, cN, CN)
+  beta <- rmvnorm(1, bN, sigma2 * BN)
+  zeta <- beta[1]
+  phi <- beta[2:3]
+  
+  # Sample the missing values conditional on the parameters
+  for (i in seq_along(ind)) {
+    ytilde[1] <- -zeta - phi[1] * y[ind[i] - 1] - phi[2] * y[ind[i] - 2]
+    ytilde[2] <- -zeta + y[ind[i] + 1] - phi[2] * y[ind[i] - 1]
+    ytilde[3] <- -zeta + y[ind[i] + 2] - phi[1] * y[ind[i] + 1]
+    
+    X <- matrix(c(-1, phi), nrow = 3)
+    BN <- solve(crossprod(X))
+    bN <- BN %*% crossprod(X, ytilde)
+    ymiss[i] <- rmvnorm(1, bN, sigma2 * BN)
+  }
+  
+  # Store the results
+  if (m > burnin) {
+    betas[m - burnin, ] <- beta
+    sigma2s[m - burnin] <- sigma2
+    ymisses[m - burnin,] <- ymiss
+>>>>>>> 758741c774062e97507b8711b6e14dfe41bbd2b6
   }
 }
 ```
 
+<<<<<<< HEAD
+=======
+Let us briefly check some trace plots and ACFs of the draws.
+
+```{r}
+par(mfrow = c(5, 2))
+ts.plot(betas[,1])
+acf(betas[,1])
+ts.plot(betas[,2])
+acf(betas[,1])
+ts.plot(betas[,3])
+acf(betas[,3])
+ts.plot(sigma2s)
+acf(sigma2s)
+ts.plot(ymisses[,1])
+acf(ymisses[,1])
+```
+
+Seems like the mixing is perfect and there is no cause for concern.
+
+We move on to visualizing the observed and the missing values (black lines),
+alongside the unobservable true values (red circles).
+
+```{r, echo = -c(1:2)}
+if (pdfplots) {
+  pdf("7-2_7.pdf", width = 9, height = 3)
+}
+par(mfrow = c(1, 1), mar = c(2.6, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
+yaug[missing] <- NA
+
+where <- seq(max(missing) - 13, max(missing) + 3)
+plot(where, yaug[where], type = "l", ylim = range(ymisses[, i]),
+     xlab = "Time", ylab = "", main = "U.S. GDP growth")
+for (i in seq_along(missing)) {
+  for (j in seq_len(nrow(ymisses))) {
+    lines(c(missing[i] - 1, missing[i], missing[i] + 1),
+          c(yaug[missing[i] - 1], ymisses[j, i], yaug[missing[i] + 1]),
+          col = rgb(0, 0, 0, .02))
+  }
+  points(missing[i], logret[missing[i]], col = 2, cex = 2, lwd = 2)
+}
+```
+
+Now let us compare the parameter estimates with the complete-data posterior
+and the posterior arising when missing values are ignored.
+
+We start by estimating a model where all equations containing missing data are
+simply dropped.
+
+```{r}
+Xy <- ARdesignmatrix(yaug, 2)
+y <- tail(yaug, -2)
+containsNA <- apply(is.na(cbind(y, Xy)), 1, any)
+yred <- y[!containsNA]
+Xyred <- Xy[!containsNA, ]
+res_drop <- regression(yred, Xyred, prior = "improper")
+```
+
+Now we can plot.
+
+```{r, echo = -c(1:2)}
+if (pdfplots) {
+  pdf("7-2_8.pdf", width = 10, height = 6)
+}
+par(mfrow = c(2, 2), mar = c(2.7, 1.5, .1, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
+for (i in 1:4) {
+  if (i <= 3) {
+    if (i == 1) name <- bquote(zeta) else name <- bquote(phi[.(i - 1)])
+    dens_improper <- density(res[[2]]$betas[, i], bw = "SJ", adj = 2)
+    dens_drop <- density(res_drop$betas[, i], bw = "SJ", adj = 2)
+    dens_aug <- density(betas[, i], bw = "SJ", adj = 2)
+  } else {
+    name <- bquote(sigma[epsilon]^2)
+    dens_improper <- density(res[[2]]$sigma2, bw = "SJ", adj = 2)
+    dens_drop <- density(res_drop$sigma2, bw = "SJ", adj = 2)
+    dens_aug <- density(sigma2s, bw = "SJ", adj = 2)
+  } 
+  
+  plot(dens_improper, xlim = range(dens_improper$x, dens_drop$x, dens_aug$x),
+       ylim = range(dens_improper$y, dens_drop$y, dens_aug$y),
+       main = "", xlab = name, ylab = "")
+  lines(dens_aug, col = 2, lty = 2)
+  lines(dens_drop, col = 3, lty = 3)
+  legend("topright", c("Full-data", "Augmented", "Dropped"), col = 1:3, lty = 1:3)
+}
+```
+>>>>>>> 758741c774062e97507b8711b6e14dfe41bbd2b6
