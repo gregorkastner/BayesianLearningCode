@@ -1,0 +1,10 @@
+---
+title: "Chapter 8: Bayesian Learning Beyond Standard Regression Analysis"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{Chapter 8: Bayesian Learning Beyond Standard Regression Analysis}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
