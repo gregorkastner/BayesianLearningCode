@@ -548,8 +548,8 @@ We revisit the accidents and the eye tracking data sets and compute means
 and variances.
 
 ```{r}
-data("accidents")
-data("eyetracking")
+data("accidents", package = "BayesianLearningCode")
+data("eyetracking", package = "BayesianLearningCode")
 y1 <- accidents[, c("seniors_accidents", "children_accidents")]
 y2 <- eyetracking$anomalies
 N <- c(rep(nrow(y1), ncol(y1)), length(y2))

@@ -1,3 +1,45 @@
+#' Inflation data
+#'
+#' Harmonized Index of Consumer Prices (HICP) in the Euro area (changing
+#' composition). Monthly data from January 1997 to June 2025.
+#'
+#' @format A sequence of length 342.
+#' @source European Central Bank Data Portal, retrieved from
+#' \url{https://data.ecb.europa.eu/data/datasets/ICP/ICP.M.U2.N.000000.4.ANR},
+#' July 25, 2025.
+"inflation"
+
+#' GDP data
+#'
+#' Gross domestic product of the USA. Quarterly data from 1947Q1 to 2025Q1.
+#'
+#' Gross domestic product (GDP), the featured measure of U.S. output,
+#' is the market value of the goods and services produced by labor and property
+#' located in the United States. The units are Billions of Dollars,
+#' Seasonally Adjusted Annual Rate.
+#'
+#' @format A sequence of length 313
+#' @source U.S. Bureau of Economic Analysis, Gross Domestic Product [GDP],
+#' retrieved from FRED, Federal Reserve Bank of St. Louis;
+#' \url{https://fred.stlouisfed.org/series/GDP}, July 24, 2025.
+"gdp"
+
+#' Labor Market Data
+#'
+#' Labor market data of Austrian employees. The data stem from 1986--1998.
+#'
+#' @format A data frame with 4376 observations (persons) of 6 variables
+#' \describe{
+#'   \item{age}{age of the person in the year 1986}
+#'   \item{unemp97}{logical, TRUE if the person was unemployed in 1997}
+#'   \item{unemp98}{logical, TRUE if the person was unemployed in 1998}
+#'   \item{changeempl}{number of times the person changed employer from 1986 until 1998}
+#'   \item{female}{logical, TRUE if the person is female}
+#'   \item{wcollar}{logical, TRUE if the person was classified as white collar employee}
+#' }
+#' @source Weber (2001)
+"labor"
+
 #' Accidents Data
 #'
 #' Seriously injured or killed pedestrians per month in Linz, Austria, from

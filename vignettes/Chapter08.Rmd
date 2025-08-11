@@ -2,12 +2,18 @@
 title: "Chapter 8: Bayesian Learning Beyond Standard Regression Analysis"
 output: rmarkdown::html_vignette
 vignette: >
+<<<<<<< HEAD
   %\VignetteIndexEntry{Chapter 8: Bayesian Learning Beyond Standard Regression Analysis}
   %\VignetteEncoding{UTF-8}
+=======
+  %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{Chapter 8: Bayesian Learning Beyond Standard Regression Analysis}
+>>>>>>> 758741c774062e97507b8711b6e14dfe41bbd2b6
   %\VignetteEngine{knitr::rmarkdown}
 editor_options: 
   chunk_output_type: console
 ---
+<<<<<<< HEAD
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
@@ -92,3 +98,5 @@ for (m in 1:(burnin + M)) {
     
 }
 ```
+=======
+>>>>>>> 758741c774062e97507b8711b6e14dfe41bbd2b6
