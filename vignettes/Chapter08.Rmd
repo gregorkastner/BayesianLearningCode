@@ -33,3 +33,14 @@ data("labor", package = "BayesianLearningCode")
 ```
 We model the binary variable unemployment and use as covariates the variables female
 (binary), wcollar (binary) and age18 (quantitative, centered at 18 years).
+
+```{r}
+y <- labor$unemp98
+N <- length(y)  # number of observations 
+
+X <- cbind("intercept" = rep(1, N), "female"=labor$female, "wcollar"=labor$wcollar,
+            "age18"=labor$age-18) # regressor matrix
+
+d <- dim(X)[2] # number regression effects 
+p <- d - 1 # number of regression effects without intercept
+```
