@@ -44,3 +44,13 @@ X <- cbind("intercept" = rep(1, N), "female"=labor$female, "wcollar"=labor$wcoll
 d <- dim(X)[2] # number regression effects 
 p <- d - 1 # number of regression effects without intercept
 ```
+
+We specify  the  prior on the regression effects as a rather flat multivariate
+Normal.
+
+```{r}
+# define prior parameters 
+B0.inv <- diag(rep(1 / 10000, d), nrow = d) 
+b0 <- rep(0, d) 
+B0inv.b0 <- iB0%*%b0
+```
