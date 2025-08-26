@@ -2,18 +2,12 @@
 title: "Chapter 8: Bayesian Learning Beyond Standard Regression Analysis"
 output: rmarkdown::html_vignette
 vignette: >
-<<<<<<< HEAD
-  %\VignetteIndexEntry{Chapter 8: Bayesian Learning Beyond Standard Regression Analysis}
-  %\VignetteEncoding{UTF-8}
-=======
   %\VignetteEncoding{UTF-8}
   %\VignetteIndexEntry{Chapter 8: Bayesian Learning Beyond Standard Regression Analysis}
->>>>>>> 758741c774062e97507b8711b6e14dfe41bbd2b6
   %\VignetteEngine{knitr::rmarkdown}
 editor_options: 
   chunk_output_type: console
 ---
-<<<<<<< HEAD
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
@@ -30,46 +24,49 @@ pdfplots <- FALSE # default: FALSE; set this to TRUE only if you like pdf figure
 par(mgp = c(1.6, .6, 0), mar = c(2.6, 2.6, 2.6, .4), lwd = 1)
 ```
 
-# Section 8.4
-We illustrate  probit regression analysis for the labour market data.
+# Section 8.1
+We illustrate probit regression analysis for the labor market data.
 ```{r}
 library("BayesianLearningCode")
-data("labour", package = "BayesianLearningCode")
+data("labor", package = "BayesianLearningCode")
 ```
-Additionally to the ... we have the following covariates
-
+We model the binary variable unemployment and use as covariates the variables female
+(binary), wcollar (binary) and age18 (quantitative, centered at 18 years)
 ```{r}
-y <- movies[, "OpenBoxOffice"]
+y <- labor$unemp98
+N <- length(y)  # number of observations 
 
-
-N <- length(y)  # number of observations
-X <- cbind("Intercept" = rep(1, N), covs) # regressor matrix
+X <- cbind("intercept" = rep(1, N), "female"=labor$female, "wcollar"=labor$wcollar,
+            "age18"=labor$age-18) # regressor matrix
 
 d <- dim(X)[2] # number regression effects 
 p <- d - 1 # number of regression effects without intercept
 ```
-We first estimate the parameters of the regression model under a rather flat
-semi-conjugate prior.
+We specify  the  prior on the regression effects as a rather flat multivariate
+Normal.
 
+```{r}
+# define prior parameters 
+B0.inv <- diag(rep(1 / 10000, d), nrow = d) 
+b0 <- rep(0, d) 
+B0inv.b0 <- iB0%*%b0
+```
+The regression coefficients are estimated using  data augmentation and Gibbs 
+sampling.
 ```{r}
 set.seed(1)
 
-# define prior parameters 
-B0.inv <- diag(rep(1 / 10000, d), nrow = d)
-b0 <- rep(0, d)
-B0inv.b0 <- iB0%*%b0
+#define burnin and M
+burnin <- 1000
+M <- 10000
+
 
 # define quantities for the Gibbs sampler
 XX <- crossprod(X)
-Bn <- solve(B0.inv + XX)
+BN <- solve(B0.inv + XX)
 
-#define burnin and M
-burnin <- 1000
-M <- 100000
-
-# prepare storing of results
-betas <- matrix(NA_real_, nrow = burnin + M, ncol = d)
-colnames(betas) <- colnames(X)
+ind0=(y==0) # indicators for zeros and ones
+ind1=(y==1)
 
 # starting values
 beta <- rep(0,k)
@@ -77,26 +74,22 @@ z <- rep(NA_real_,n)
 
 
 for (m in 1:(burnin + M)) {
-    #Compute mean of truncated normal of z
-    mu_z <- X %*% beta
+    
+  # Draw z conditional on y and beta
+    u<- runif(N)
+    eta <- X %*% beta
+    pi<- pnorm(eta) 
+   
+    z[ind0] <- eta[ind0] + qnorm(u[ind0]*(1-pi[ind0]))
+    z[ind1] <- eta[ind1] + qnorm (1-u[ind1]*pi[ind1])
   
-    #Draw z from truncated normal distribution
-    z[y == 0] <- rtruncnorm(sum(y==0), a = -Inf, b = 0,
-                          mean = mu_z[y == 0], sd = 1)
-    z[y == 1] <- rtruncnorm(sum(y==1), a = 0, b = Inf,
-                          mean = mu_z[y == 1], sd = 1)
-  
-  
-    #Compute posterior mean of theta
-    bn <- Bn %*% (B0inv.b0 + t(X) %*% z)
-  
-    # sample beta from the full conditional
-    beta <- t(mvtnorm::rmvnorm(1, mean = bn, sigma = Bn))
+    # sample beta from the full conditional 
+    bN <- BN %*% (B0inv.b0 + t(X) %*% z)
+    beta <- t(mvtnorm::rmvnorm(1, mean = bN, sigma = BN))
     
     # Store the beta draws
     betas[m, ] <- beta
     
 }
 ```
-=======
->>>>>>> 758741c774062e97507b8711b6e14dfe41bbd2b6
+
