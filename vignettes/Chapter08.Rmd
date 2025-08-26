@@ -26,12 +26,18 @@ par(mgp = c(1.6, .6, 0), mar = c(2.6, 2.6, 2.6, .4), lwd = 1)
 
 # Section 8.1
 We illustrate probit regression analysis for the labor market data.
+
 ```{r}
 library("BayesianLearningCode")
 data("labor", package = "BayesianLearningCode")
 ```
 We model the binary variable unemployment and use as covariates the variables female
+<<<<<<< HEAD
 (binary), wcollar (binary) and age18 (quantitative, centered at 18 years)
+=======
+(binary), wcollar (binary) and age18 (quantitative, centered at 18 years).
+
+>>>>>>> df0bb42b8beda50f0a11de8f9b6e3aeaa0daa1d2
 ```{r}
 y <- labor$unemp98
 N <- length(y)  # number of observations 
@@ -42,6 +48,10 @@ X <- cbind("intercept" = rep(1, N), "female"=labor$female, "wcollar"=labor$wcoll
 d <- dim(X)[2] # number regression effects 
 p <- d - 1 # number of regression effects without intercept
 ```
+<<<<<<< HEAD
+=======
+
+>>>>>>> df0bb42b8beda50f0a11de8f9b6e3aeaa0daa1d2
 We specify  the  prior on the regression effects as a rather flat multivariate
 Normal.
 
@@ -51,6 +61,7 @@ B0.inv <- diag(rep(1 / 10000, d), nrow = d)
 b0 <- rep(0, d) 
 B0inv.b0 <- iB0%*%b0
 ```
+<<<<<<< HEAD
 The regression coefficients are estimated using  data augmentation and Gibbs 
 sampling.
 ```{r}
@@ -93,3 +104,8 @@ for (m in 1:(burnin + M)) {
 }
 ```
 
+=======
+
+We estimate the regression coefficients  using  data augmentation and Gibbs 
+sampling.
+>>>>>>> df0bb42b8beda50f0a11de8f9b6e3aeaa0daa1d2
