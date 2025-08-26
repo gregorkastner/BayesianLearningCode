@@ -24,10 +24,12 @@ pdfplots <- FALSE # default: FALSE; set this to TRUE only if you like pdf figure
 par(mgp = c(1.6, .6, 0), mar = c(2.6, 2.6, 2.6, .4), lwd = 1)
 ```
 
-# Section 8.4
+# Section 8.1
 We illustrate probit regression analysis for the labor market data.
+
 ```{r}
 library("BayesianLearningCode")
 data("labor", package = "BayesianLearningCode")
 ```
-Additionally to the ... we have the following covariates
+We model the binary variable unemployment and use as covariates the variables female
+(binary), wcollar (binary) and age18 (quantitative, centered at 18 years).
