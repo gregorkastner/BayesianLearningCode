@@ -54,3 +54,6 @@ B0.inv <- diag(rep(1 / 10000, d), nrow = d)
 b0 <- rep(0, d) 
 B0inv.b0 <- iB0%*%b0
 ```
+
+We estimate the regression coefficients  using  data augmentation and Gibbs 
+sampling.
