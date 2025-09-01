@@ -82,6 +82,63 @@ data.</p>
 <p>We model the binary variable unemployment and use as covariates the
 variables female (binary), wcollar (binary) and age18 (quantitative,
 centered at 18 years).</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="va">labor</span><span class="op">$</span><span class="va">unemp98</span></span>
+<span><span class="va">N</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span>  <span class="co"># number of observations </span></span>
+<span></span>
+<span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="st">"intercept"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">N</span><span class="op">)</span>, <span class="st">"female"</span><span class="op">=</span><span class="va">labor</span><span class="op">$</span><span class="va">female</span>, <span class="st">"wcollar"</span><span class="op">=</span><span class="va">labor</span><span class="op">$</span><span class="va">wcollar</span>,</span>
+<span>            <span class="st">"age18"</span><span class="op">=</span><span class="va">labor</span><span class="op">$</span><span class="va">age</span><span class="op">-</span><span class="fl">18</span><span class="op">)</span> <span class="co"># regressor matrix</span></span>
+<span></span>
+<span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span> <span class="co"># number regression effects </span></span>
+<span><span class="va">p</span> <span class="op">&lt;-</span> <span class="va">d</span> <span class="op">-</span> <span class="fl">1</span> <span class="co"># number of regression effects without intercept</span></span></code></pre></div>
+<p>We specify the prior on the regression effects as a rather flat
+multivariate Normal.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># define prior parameters </span></span>
+<span><span class="va">B0.inv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">/</span><span class="fl">10000</span>, <span class="va">d</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="va">d</span><span class="op">)</span> </span>
+<span><span class="va">b0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">d</span><span class="op">)</span> </span>
+<span><span class="va">B0inv.b0</span> <span class="op">&lt;-</span> <span class="va">B0.inv</span><span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span><span class="va">b0</span></span></code></pre></div>
+<p>The regression coefficients are estimated using data augmentation and
+Gibbs sampling.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">#define burnin and M</span></span>
+<span><span class="va">burnin</span> <span class="op">&lt;-</span> <span class="fl">1000</span></span>
+<span><span class="va">M</span> <span class="op">&lt;-</span> <span class="fl">10000</span></span>
+<span></span>
+<span><span class="va">betas</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="cn">NA</span>,nrow<span class="op">=</span><span class="va">burnin</span><span class="op">+</span><span class="va">M</span>, ncol<span class="op">=</span><span class="va">d</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># define quantities for the Gibbs sampler</span></span>
+<span><span class="va">XX</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/crossprod.html" class="external-link">crossprod</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span></span>
+<span><span class="va">BN</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/solve.html" class="external-link">solve</a></span><span class="op">(</span><span class="va">B0.inv</span> <span class="op">+</span> <span class="va">XX</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">ind0</span><span class="op">=</span><span class="op">(</span><span class="va">y</span><span class="op">==</span><span class="fl">0</span><span class="op">)</span> <span class="co"># indicators for zeros and ones</span></span>
+<span><span class="va">ind1</span><span class="op">=</span><span class="op">(</span><span class="va">y</span><span class="op">==</span><span class="fl">1</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># starting values</span></span>
+<span><span class="va">beta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>,<span class="va">d</span><span class="op">)</span></span>
+<span><span class="va">z</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA_real_</span>,<span class="va">N</span><span class="op">)</span></span>
+<span></span>
+<span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">m</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="op">(</span><span class="va">burnin</span> <span class="op">+</span> <span class="va">M</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    </span>
+<span>  <span class="co"># Draw z conditional on y and beta</span></span>
+<span>    <span class="va">u</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="va">N</span><span class="op">)</span></span>
+<span>    <span class="va">eta</span> <span class="op">&lt;-</span> <span class="va">X</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="va">beta</span></span>
+<span>    <span class="va">pi</span><span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">pnorm</a></span><span class="op">(</span><span class="va">eta</span><span class="op">)</span> </span>
+<span>   </span>
+<span>    <span class="va">z</span><span class="op">[</span><span class="va">ind0</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">eta</span><span class="op">[</span><span class="va">ind0</span><span class="op">]</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">qnorm</a></span><span class="op">(</span><span class="va">u</span><span class="op">[</span><span class="va">ind0</span><span class="op">]</span><span class="op">*</span><span class="op">(</span><span class="fl">1</span><span class="op">-</span><span class="va">pi</span><span class="op">[</span><span class="va">ind0</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="va">z</span><span class="op">[</span><span class="va">ind1</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">eta</span><span class="op">[</span><span class="va">ind1</span><span class="op">]</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">qnorm</a></span> <span class="op">(</span><span class="fl">1</span><span class="op">-</span><span class="va">u</span><span class="op">[</span><span class="va">ind1</span><span class="op">]</span><span class="op">*</span><span class="va">pi</span><span class="op">[</span><span class="va">ind1</span><span class="op">]</span><span class="op">)</span></span>
+<span>  </span>
+<span>    <span class="co"># sample beta from the full conditional </span></span>
+<span>    <span class="va">bN</span> <span class="op">&lt;-</span> <span class="va">BN</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="op">(</span><span class="va">B0inv.b0</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="va">z</span><span class="op">)</span></span>
+<span>    <span class="va">beta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu">mvtnorm</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/mvtnorm/man/Mvnorm.html" class="external-link">rmvnorm</a></span><span class="op">(</span><span class="fl">1</span>, mean <span class="op">=</span> <span class="va">bN</span>, sigma <span class="op">=</span> <span class="va">BN</span><span class="op">)</span><span class="op">)</span></span>
+<span>    </span>
+<span>    <span class="co"># Store the beta draws</span></span>
+<span>    <span class="va">betas</span><span class="op">[</span><span class="va">m</span>, <span class="op">]</span> <span class="op">&lt;-</span> <span class="va">beta</span></span>
+<span>    </span>
+<span><span class="op">}</span></span></code></pre></div>
 </div>
   </main>
 </div>

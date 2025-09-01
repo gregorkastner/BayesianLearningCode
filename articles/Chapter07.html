@@ -97,7 +97,7 @@ function.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/ts.plot.html" class="external-link">ts.plot</a></span><span class="op">(</span><span class="va">logret</span>, main <span class="op">=</span> <span class="st">"U.S. GDP log returns"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/acf.html" class="external-link">acf</a></span><span class="op">(</span><span class="va">logret</span>, lag <span class="op">=</span> <span class="fl">8</span>, main <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/title.html" class="external-link">title</a></span><span class="op">(</span><span class="st">"Empirical autocorrelation function"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Chapter07_files/figure-html/unnamed-chunk-5-1.png" width="768"></p>
+<p><img src="Chapter07_files/figure-html/unnamed-chunk-4-1.png" width="768"></p>
 <p>Before we move on, we define a function yielding posterior draws
 under a standard regression model, using the tools developed in Chapter
 6.</p>
@@ -228,7 +228,7 @@ coefficient corresponding to the highest lag in each of the models.</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">res</span><span class="op">[[</span><span class="va">p</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">betas</span><span class="op">[</span>, <span class="va">p</span> <span class="op">+</span> <span class="fl">1</span><span class="op">]</span>, freq <span class="op">=</span> <span class="cn">FALSE</span>, main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/bquote.html" class="external-link">bquote</a></span><span class="op">(</span><span class="fu">AR</span><span class="op">(</span><span class="fu">.</span><span class="op">(</span><span class="va">p</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>       xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/bquote.html" class="external-link">bquote</a></span><span class="op">(</span><span class="va">phi</span><span class="op">[</span><span class="fu">.</span><span class="op">(</span><span class="va">p</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>, ylab <span class="op">=</span> <span class="st">""</span>, breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="op">-</span><span class="fl">.75</span>, <span class="fl">.75</span>, <span class="fl">.02</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p><img src="Chapter07_files/figure-html/unnamed-chunk-9-1.png" width="768"></p>
+<p><img src="Chapter07_files/figure-html/unnamed-chunk-8-1.png" width="768"></p>
 <p>Next, we fit an AR(3) model with different priors.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="va">logret</span>, <span class="op">-</span><span class="fl">3</span><span class="op">)</span></span>
@@ -292,7 +292,7 @@ those priors.</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">dens_conj_2</span>, col <span class="op">=</span> <span class="fl">3</span>, lty <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topright"</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Improper"</span>, <span class="st">"Tight"</span>, <span class="st">"Loose"</span><span class="op">)</span>, col <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, lty <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p><img src="Chapter07_files/figure-html/unnamed-chunk-11-1.png" width="768"></p>
+<p><img src="Chapter07_files/figure-html/unnamed-chunk-10-1.png" width="768"></p>
 </div>
 <div class="section level3">
 <h3 id="section-7-2-2-exploring-stationarity-during-post-processing-1">Section 7.2.2: Exploring stationarity during post-processing<a class="anchor" aria-label="anchor" href="#section-7-2-2-exploring-stationarity-during-post-processing-1"></a>
@@ -323,7 +323,7 @@ models under the improper prior from above to explore stationarity for
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">eigenvalues</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>, asp <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>     main <span class="op">=</span> <span class="st">"AR(3)"</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/rgb.html" class="external-link">rgb</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">.05</span><span class="op">)</span>, pch <span class="op">=</span> <span class="fl">16</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/symbols.html" class="external-link">symbols</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, add <span class="op">=</span> <span class="cn">TRUE</span>, fg <span class="op">=</span> <span class="fl">2</span>, inches <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Chapter07_files/figure-html/unnamed-chunk-12-1.png" width="864"></p>
+<p><img src="Chapter07_files/figure-html/unnamed-chunk-11-1.png" width="864"></p>
 <p>We now move towards analyzing EU inflation data.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"inflation"</span>, package <span class="op">=</span> <span class="st">"BayesianLearningCode"</span><span class="op">)</span></span></code></pre></div>
@@ -337,7 +337,7 @@ function.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/ts.plot.html" class="external-link">ts.plot</a></span><span class="op">(</span><span class="va">inflation</span>, main <span class="op">=</span> <span class="st">"EU inflation"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/acf.html" class="external-link">acf</a></span><span class="op">(</span><span class="va">inflation</span>, main <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/title.html" class="external-link">title</a></span><span class="op">(</span><span class="st">"Empirical autocorrelation function"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Chapter07_files/figure-html/unnamed-chunk-14-1.png" width="768"></p>
+<p><img src="Chapter07_files/figure-html/unnamed-chunk-13-1.png" width="768"></p>
 <p>We fit
 AR(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>)
 models under the improper prior to explore stationarity for
@@ -376,7 +376,7 @@ data<a class="anchor" aria-label="anchor" href="#figure-7-6-checking-stationarit
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">eigenvalues</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>, asp <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>     main <span class="op">=</span> <span class="st">"AR(3)"</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/rgb.html" class="external-link">rgb</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">.05</span><span class="op">)</span>, pch <span class="op">=</span> <span class="fl">16</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/symbols.html" class="external-link">symbols</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, add <span class="op">=</span> <span class="cn">TRUE</span>, fg <span class="op">=</span> <span class="fl">2</span>, inches <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Chapter07_files/figure-html/unnamed-chunk-16-1.png" width="864"></p>
+<p><img src="Chapter07_files/figure-html/unnamed-chunk-15-1.png" width="864"></p>
 <p>To assess the probability of nonstationarity, we can simply count the
 draws outside of the stationarity region.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
@@ -470,7 +470,7 @@ iteratively.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/acf.html" class="external-link">acf</a></span><span class="op">(</span><span class="va">sigma2s</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/ts.plot.html" class="external-link">ts.plot</a></span><span class="op">(</span><span class="va">ymisses</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/acf.html" class="external-link">acf</a></span><span class="op">(</span><span class="va">ymisses</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Chapter07_files/figure-html/unnamed-chunk-21-1.png" width="768"></p>
+<p><img src="Chapter07_files/figure-html/unnamed-chunk-20-1.png" width="768"></p>
 <p>Seems like the mixing is perfect and there is no cause for
 concern.</p>
 <p>We move on to visualizing the observed and the missing values (black
@@ -489,7 +489,7 @@ lines), alongside the unobservable true values (red circles).</p>
 <span>  <span class="op">}</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">missing</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, <span class="va">logret</span><span class="op">[</span><span class="va">missing</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span>, col <span class="op">=</span> <span class="fl">2</span>, cex <span class="op">=</span> <span class="fl">2</span>, lwd <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p><img src="Chapter07_files/figure-html/unnamed-chunk-22-1.png" width="768"></p>
+<p><img src="Chapter07_files/figure-html/unnamed-chunk-21-1.png" width="768"></p>
 <p>Now let us compare the parameter estimates with the complete-data
 posterior and the posterior arising when missing values are ignored.</p>
 <p>We start by estimating a model where all equations containing missing
@@ -523,7 +523,7 @@ data are simply dropped.</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">dens_drop</span>, col <span class="op">=</span> <span class="fl">3</span>, lty <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topright"</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Full-data"</span>, <span class="st">"Augmented"</span>, <span class="st">"Dropped"</span><span class="op">)</span>, col <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, lty <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p><img src="Chapter07_files/figure-html/unnamed-chunk-24-1.png" width="768"></p>
+<p><img src="Chapter07_files/figure-html/unnamed-chunk-23-1.png" width="768"></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
