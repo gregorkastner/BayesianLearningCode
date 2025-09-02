@@ -31,14 +31,14 @@ We illustrate probit regression analysis for the labor market data.
 library("BayesianLearningCode")
 data("labor", package = "BayesianLearningCode")
 ```
-We model the binary variable unemployment and use as covariates the variables female (binary), wcollar (binary) and age18 (quantitative, centered at 18 years).
+We model the binary variable unemployment and use as covariates the variables female (binary), wcollar (binary),  age18 (quantitative, centered at 18 years) and unemployed in 1997 (binary).
 
 ```{r}
 y <- labor$unemp98
 N <- length(y)  # number of observations 
 
 X <- cbind("intercept" = rep(1, N), "female"=labor$female, "wcollar"=labor$wcollar,
-            "age18"=labor$age-18) # regressor matrix
+            "age18"=labor$age-18, "unemp97"=labor$unemp97) # regressor matrix
 
 d <- dim(X)[2] # number regression effects 
 p <- d - 1 # number of regression effects without intercept
@@ -93,9 +93,21 @@ for (m in 1:(burnin + M)) {
     beta <- t(mvtnorm::rmvnorm(1, mean = bN, sigma = BN))
     
     # Store the beta draws
-    betas[m, ] <- beta
+    if (m > burnin) {
+       betas[m-burnin, ] <- beta
+    }
     
 }
 ```
 
 
+```{r, echo = -c(1:2)}
+if (pdfplots) {
+  pdf("8-1_1.pdf", width = 8, height = 5)
+}
+par(mfrow = c(2, 3), mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
+for (dd in 1:d) {
+  hist(betas[, dd], freq = FALSE, main = "",
+       xlab = colnames(X)[dd], ylab = "")
+}
+```
