@@ -37,77 +37,86 @@ We model the binary variable unemployment and use as covariates the variables fe
 y <- labor$unemp98
 N <- length(y)  # number of observations 
 
-X <- cbind("intercept" = rep(1, N), "female"=labor$female, "wcollar"=labor$wcollar,
-            "age18"=labor$age-18, "unemp97"=labor$unemp97) # regressor matrix
+X <- cbind("intercept" = rep(1, N), "female"=labor$female,"age18"=labor$age-18,
+           "wcollar"=labor$wcollar, "unemp97"=labor$unemp97) # regressor matrix
 
-d <- dim(X)[2] # number regression effects 
-p <- d - 1 # number of regression effects without intercept
-```
-
-We specify  the  prior on the regression effects as a rather flat multivariate
-Normal.
-
-```{r}
-# define prior parameters 
-B0.inv <- diag(rep(1/10000, d), nrow = d) 
-b0 <- rep(0, d) 
-B0inv.b0 <- B0.inv%*%b0
 ```
 
 The regression coefficients are estimated using  data augmentation and Gibbs 
 sampling.
 
 ```{r}
-set.seed(1)
 
-#define burnin and M
-burnin <- 1000
-M <- 10000
-
-betas <- matrix(NA,nrow=burnin+M, ncol=d)
-
-# define quantities for the Gibbs sampler
-XX <- crossprod(X)
-BN <- solve(B0.inv + XX)
-
-ind0=(y==0) # indicators for zeros and ones
-ind1=(y==1)
-
-# starting values
-beta <- rep(0,d)
-z <- rep(NA_real_,N)
-
-
-for (m in 1:(burnin + M)) {
-    
-  # Draw z conditional on y and beta
-    u <- runif(N)
-    eta <- X %*% beta
-    pi<- pnorm(eta) 
-   
-    z[ind0] <- eta[ind0] + qnorm(u[ind0]*(1-pi[ind0]))
-    z[ind1] <- eta[ind1] + qnorm (1-u[ind1]*pi[ind1])
+probit <- function(y, X,  b0 = 0, B0 = 10000,
+                       burnin = 1000L, M = 5000L) {
   
-    # sample beta from the full conditional 
-    bN <- BN %*% (B0inv.b0 + t(X) %*% z)
-    beta <- t(mvtnorm::rmvnorm(1, mean = bN, sigma = BN))
+  d <- dim(X)[2] # number regression effects 
+  p <- d - 1 # number of regression effects without intercept
+
+  B0.inv <- diag(rep(1/B0, d), nrow = d) 
+  b0 <- rep(0, d) 
+  B0inv.b0 <- B0.inv%*%b0
+
+  betas <- matrix(NA,nrow=burnin+M, ncol=d)
+
+  # define quantities for the Gibbs sampler
+  XX <- crossprod(X)
+  BN <- solve(B0.inv + XX)
+
+  ind0=(y==0) # indicators for zeros and ones
+  ind1=(y==1)
+
+  # starting values
+  beta <- rep(0,d)
+  z <- rep(NA_real_,N)
+
+
+   for (m in seq_len(burnin+M)) {
     
-    # Store the beta draws
-    if (m > burnin) {
-       betas[m-burnin, ] <- beta
+      # Draw z conditional on y and beta
+      u <- runif(N)
+      eta <- X %*% beta
+      pi<- pnorm(eta) 
+   
+      z[ind0] <- eta[ind0] + qnorm(u[ind0]*(1-pi[ind0]))
+      z[ind1] <- eta[ind1] + qnorm (1-u[ind1]*pi[ind1])
+  
+      # sample beta from the full conditional 
+      bN <- BN %*% (B0inv.b0 + t(X) %*% z)
+      beta <- t(mvtnorm::rmvnorm(1, mean = bN, sigma = BN))
+    
+     # Store the beta draws
+     if (m > burnin) {
+        betas[m-burnin, ] <- beta
     }
-    
+ }
+ return(betas)
 }
 ```
 
+We specify  the  prior on the regression effects as a rather flat multivariate
+Normal.
+
+```{r}
+betas <- probit(y,X,b0=0, B0=10000)
+```
 
 ```{r, echo = -c(1:2)}
 if (pdfplots) {
   pdf("8-1_1.pdf", width = 8, height = 5)
 }
 par(mfrow = c(2, 3), mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
-for (dd in 1:d) {
-  hist(betas[, dd], freq = FALSE, main = "",
-       xlab = colnames(X)[dd], ylab = "")
+for (j in seq_len(ncol(X))) {
+  hist(betas[, j], freq = FALSE, main = "",
+       xlab = colnames(X)[j], ylab = "")
 }
+```
+
+We next illustrate problems of the sampler when the response variable  contain either only few or very many successes. We use data with 1000 observations 
+with 1 and 999 successes.
+```{r}
+N=1000
+y1=c(0, rep(1,N-1))
+y2=c(rep(0,N-1),1)
+X <- rep(1,N)
 ```
