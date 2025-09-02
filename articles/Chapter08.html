@@ -102,7 +102,7 @@ Gibbs sampling.</p>
 <span>  <span class="va">b0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">d</span><span class="op">)</span> </span>
 <span>  <span class="va">B0inv.b0</span> <span class="op">&lt;-</span> <span class="va">B0.inv</span><span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span><span class="va">b0</span></span>
 <span></span>
-<span>  <span class="va">betas</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="cn">NA</span>,nrow<span class="op">=</span><span class="va">burnin</span><span class="op">+</span><span class="va">M</span>, ncol<span class="op">=</span><span class="va">d</span><span class="op">)</span></span>
+<span>  <span class="va">betas</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="cn">NA</span>,nrow<span class="op">=</span><span class="va">M</span>, ncol<span class="op">=</span><span class="va">d</span><span class="op">)</span></span>
 <span></span>
 <span>  <span class="co"># define quantities for the Gibbs sampler</span></span>
 <span>  <span class="va">XX</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/crossprod.html" class="external-link">crossprod</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span></span>
@@ -154,7 +154,13 @@ observations with 1 and 999 successes.</p>
 <code class="sourceCode R"><span><span class="va">N</span><span class="op">=</span><span class="fl">1000</span></span>
 <span><span class="va">y1</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>,<span class="va">N</span><span class="op">-</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">y2</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>,<span class="va">N</span><span class="op">-</span><span class="fl">1</span><span class="op">)</span>,<span class="fl">1</span><span class="op">)</span></span>
-<span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>,<span class="va">N</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1</span>,nrow<span class="op">=</span><span class="va">N</span><span class="op">)</span></span>
+<span><span class="va">betas1</span> <span class="op">&lt;-</span> <span class="fu">probit</span><span class="op">(</span><span class="va">y1</span>,<span class="va">X</span>,b0<span class="op">=</span><span class="fl">0</span>, B0<span class="op">=</span><span class="fl">10000</span><span class="op">)</span></span>
+<span><span class="va">betas2</span> <span class="op">&lt;-</span> <span class="fu">probit</span><span class="op">(</span><span class="va">y2</span>,<span class="va">X</span>,b0<span class="op">=</span><span class="fl">0</span>, B0<span class="op">=</span><span class="fl">10000</span><span class="op">)</span> </span></code></pre></div>
+<p>if (pdfplots) { pdf(“8-1_2.pdf”, width = 8, height = 5) } par(mfrow =
+c(2, ^1), mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
+plot(betas1,type=“l”, main = ““, xlab =”“, ylab =”“)
+plot(betas2,type=”l”, main = ““, xlab =”“, ylab =”“) ```</p>
 </div>
   </main>
 </div>
