@@ -80,14 +80,14 @@ data.</p>
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://gregorkastner.github.io/BayesianLearningCode/">"BayesianLearningCode"</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"labor"</span>, package <span class="op">=</span> <span class="st">"BayesianLearningCode"</span><span class="op">)</span></span></code></pre></div>
 <p>We model the binary variable unemployment and use as covariates the
-variables female (binary), wcollar (binary) and age18 (quantitative,
-centered at 18 years).</p>
+variables female (binary), wcollar (binary), age18 (quantitative,
+centered at 18 years) and unemployed in 1997 (binary).</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="va">labor</span><span class="op">$</span><span class="va">unemp98</span></span>
 <span><span class="va">N</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span>  <span class="co"># number of observations </span></span>
 <span></span>
 <span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="st">"intercept"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">N</span><span class="op">)</span>, <span class="st">"female"</span><span class="op">=</span><span class="va">labor</span><span class="op">$</span><span class="va">female</span>, <span class="st">"wcollar"</span><span class="op">=</span><span class="va">labor</span><span class="op">$</span><span class="va">wcollar</span>,</span>
-<span>            <span class="st">"age18"</span><span class="op">=</span><span class="va">labor</span><span class="op">$</span><span class="va">age</span><span class="op">-</span><span class="fl">18</span><span class="op">)</span> <span class="co"># regressor matrix</span></span>
+<span>            <span class="st">"age18"</span><span class="op">=</span><span class="va">labor</span><span class="op">$</span><span class="va">age</span><span class="op">-</span><span class="fl">18</span>, <span class="st">"unemp97"</span><span class="op">=</span><span class="va">labor</span><span class="op">$</span><span class="va">unemp97</span><span class="op">)</span> <span class="co"># regressor matrix</span></span>
 <span></span>
 <span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span> <span class="co"># number regression effects </span></span>
 <span><span class="va">p</span> <span class="op">&lt;-</span> <span class="va">d</span> <span class="op">-</span> <span class="fl">1</span> <span class="co"># number of regression effects without intercept</span></span></code></pre></div>
@@ -136,9 +136,17 @@ Gibbs sampling.</p>
 <span>    <span class="va">beta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu">mvtnorm</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/mvtnorm/man/Mvnorm.html" class="external-link">rmvnorm</a></span><span class="op">(</span><span class="fl">1</span>, mean <span class="op">=</span> <span class="va">bN</span>, sigma <span class="op">=</span> <span class="va">BN</span><span class="op">)</span><span class="op">)</span></span>
 <span>    </span>
 <span>    <span class="co"># Store the beta draws</span></span>
-<span>    <span class="va">betas</span><span class="op">[</span><span class="va">m</span>, <span class="op">]</span> <span class="op">&lt;-</span> <span class="va">beta</span></span>
+<span>    <span class="kw">if</span> <span class="op">(</span><span class="va">m</span> <span class="op">&gt;</span> <span class="va">burnin</span><span class="op">)</span> <span class="op">{</span></span>
+<span>       <span class="va">betas</span><span class="op">[</span><span class="va">m</span><span class="op">-</span><span class="va">burnin</span>, <span class="op">]</span> <span class="op">&lt;-</span> <span class="va">beta</span></span>
+<span>    <span class="op">}</span></span>
 <span>    </span>
 <span><span class="op">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw">for</span> <span class="op">(</span><span class="va">dd</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="va">d</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">betas</span><span class="op">[</span>, <span class="va">dd</span><span class="op">]</span>, freq <span class="op">=</span> <span class="cn">FALSE</span>, main <span class="op">=</span> <span class="st">""</span>,</span>
+<span>       xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">[</span><span class="va">dd</span><span class="op">]</span>, ylab <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+<p><img src="Chapter08_files/figure-html/unnamed-chunk-7-1.png" width="768"></p>
 </div>
   </main>
 </div>
