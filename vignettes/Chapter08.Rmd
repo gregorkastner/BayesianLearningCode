@@ -161,9 +161,12 @@ plot(betas2,type="l", main = "", xlab = "", ylab = "")
 acf(betas2)
 ```
 High autocorrelated draws can also occur in cases of seperation, i.e. when a covariate (or a linear combination of covariates) perfectly  allows to predict 
-sucesses and failures. We illustrate this issue also on simulated data,
-with $N=1000$ observations where 500 successes and 500 failures are observed. 
-We add a binary predictor $x$ where for $x=1$ we observe only successes.
+sucesses and failures. 
+
+To illustrate this issue we again simulate
+$N=1000$ observations with 500 successes and 500 failures. 
+We add a binary predictor $x$ where for $x=1$ we observe only successes and hence there is complete seperation of successes and failures.
+
 ```{r}
 N <- 1000
 x <-  c(rep(1,10),rep(0,N-10))
@@ -171,7 +174,7 @@ y <- c(rep(1,N/2),rep(0,N/2))
 
 table(y,x)
 ```
-We estimate the model parameters and plot the acf of the draws. 
+We estímate the  model parameters and plot the acf of the draws. 
 
 ```{r, echo = -c(1:2)}
 if (pdfplots) {
@@ -188,9 +191,26 @@ acf(betas[,1])
 plot(betas[,2], type="l", main = "", xlab = "", ylab = "")
 acf(betas[,2])
 ```
-
 While the autocorrelation of the intercept decreases quickly, 
-the autocorrelation of the covariate effect remains very high.
-With a flat prior the 
+the autocorrelation of the covariate effect remains high. 
 
+If there is seperation in the data  the likelihood is monotone and the  MLE does not exist. In a Bayesian approach  using a  flat,  improper prior on the regression effects will result in an improper posterior distribution. Hence   a proper prior is required to avoid improper posteriors in case of seperation. 
+If  more information is added to the data by the prior, the autocorrelations 
+are lower. This can be seen in the next figure, where the simulated data are 
+analysed using a Normal prior that is tighter around zero.
+
+```{r, echo = -c(1:2)}
+if (pdfplots) {
+  pdf("8-1_4.pdf", width = 8, height = 5)
+}
+betas=probit(y, X,b0=0, B0=2.5^2)
+
+par(mfrow = c(2, 2), mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
+
+plot(betas[,1], type="l", main = "", xlab = "", ylab = "")
+acf(betas[,1])
+
+plot(betas[,2], type="l", main = "", xlab = "", ylab = "")
+acf(betas[,2])
+```
 
