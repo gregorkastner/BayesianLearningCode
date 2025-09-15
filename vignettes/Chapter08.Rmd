@@ -160,21 +160,37 @@ acf(betas1)
 plot(betas2,type="l", main = "", xlab = "", ylab = "")
 acf(betas2)
 ```
+High autocorrelated draws can also occur in cases of seperation, i.e. when a covariate (or a linear combination of covariates) perfectly  allows to predict 
+sucesses and failures. We illustrate this issue also on simulated data,
+with $N=1000$ observations where 500 successes and 500 failures are observed. 
+We add a binary predictor $x$ where for $x=1$ we observe only successes.
+```{r}
+N <- 1000
+x <-  c(rep(1,10),rep(0,N-10))
+y <- c(rep(1,N/2),rep(0,N/2))
 
+table(y,x)
+```
+We estimate the model parameters and plot the acf of the draws. 
 
 ```{r, echo = -c(1:2)}
 if (pdfplots) {
   pdf("8-1_3.pdf", width = 8, height = 5)
 }
+X <- matrix(cbind(rep(1,N),x), ncol=2)
+betas=probit(y, X,b0=0, B0=10000)
 
 par(mfrow = c(2, 2), mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
 
-betas1 <- probit(y1,X,b0=0, B0=0.1)
-plot(betas1,type="l", main = "", xlab = "", ylab = "")
-acf(betas1)
+plot(betas[,1], type="l", main = "", xlab = "", ylab = "")
+acf(betas[,1])
 
-betas2 <- probit(y2,X,b0=0, B0=0.1) 
-plot(betas2,type="l", main = "", xlab = "", ylab = "")
-acf(betas2)
+plot(betas[,2], type="l", main = "", xlab = "", ylab = "")
+acf(betas[,2])
 ```
-With a tighter prior the ACF decreases faster, however the posterior mean is closer to zero.
+
+While the autocorrelation of the intercept decreases quickly, 
+the autocorrelation of the covariate effect remains very high.
+With a flat prior the 
+
+
