@@ -82,8 +82,8 @@ data.</p>
 <p>We model the binary variable unemployment and use as covariates the
 variables female (binary), wcollar (binary), age18 (quantitative,
 centered at 18 years) and unemployed in 1997 (binary). The baseline
-person is hence an 18 year old male blue collar work who was employed in
-1997.</p>
+person is hence an 18 year old male blue collar worker who was employed
+in 1997.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="va">labor</span><span class="op">$</span><span class="va">unemp98</span></span>
 <span><span class="va">N</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span>  <span class="co"># number of observations </span></span>
@@ -94,9 +94,8 @@ person is hence an 18 year old male blue collar work who was employed in
 Gibbs sampling. We define a function yielding posterior draws using the
 algorithm detailed in Chapter 8.1.1.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="va">probit</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">y</span>, <span class="va">X</span>,  <span class="va">b0</span> <span class="op">=</span> <span class="fl">0</span>, <span class="va">B0</span> <span class="op">=</span> <span class="fl">10000</span>,</span>
-<span>                       <span class="va">burnin</span> <span class="op">=</span> <span class="fl">1000L</span>, <span class="va">M</span> <span class="op">=</span> <span class="fl">5000L</span><span class="op">)</span> <span class="op">{</span></span>
+<code class="sourceCode R"><span><span class="va">probit</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">y</span>, <span class="va">X</span>,  <span class="va">b0</span> <span class="op">=</span> <span class="fl">0</span>, <span class="va">B0</span> <span class="op">=</span> <span class="fl">10000</span>,</span>
+<span>                   <span class="va">burnin</span> <span class="op">=</span> <span class="fl">1000L</span>, <span class="va">M</span> <span class="op">=</span> <span class="fl">5000L</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  </span>
 <span>  <span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span> <span class="co"># number regression effects </span></span>
 <span>  <span class="va">p</span> <span class="op">&lt;-</span> <span class="va">d</span> <span class="op">-</span> <span class="fl">1</span> <span class="co"># number of regression effects without intercept</span></span>
@@ -196,26 +195,25 @@ independence Normal prior.</p>
 <p>The estimated risk of unemployment for a baseline person is low and
 it is even lower for a white collar worker. It is higher for females,
 older persons and particularily for those unemployed in 1997.</p>
-<p>A plot of the autocorrelation of the draws shows that though they are
-autocorrelated, autocorrelation vanishes after a few lags.</p>
+<p>A plot of the autocorrelation of the draws shows that although there
+is some autocorrelation, it vanishes after a few lags.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">for</span> <span class="op">(</span><span class="va">j</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">betas</span><span class="op">[</span>, <span class="va">j</span><span class="op">]</span>, freq <span class="op">=</span> <span class="cn">FALSE</span>, main <span class="op">=</span> <span class="st">""</span>,</span>
 <span>       xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">[</span><span class="va">j</span><span class="op">]</span>, ylab <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.5</span>, <span class="fl">1.5</span>, <span class="fl">1.5</span>, <span class="fl">.1</span><span class="op">)</span>, mgp <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.5</span>, <span class="fl">.5</span>, <span class="fl">0</span><span class="op">)</span>, lwd <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span></span></code></pre></div>
+<span><span class="op">}</span></span></code></pre></div>
 <p><img src="Chapter08_files/figure-html/unnamed-chunk-8-1.png" width="768"></p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">for</span> <span class="op">(</span><span class="va">j</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>     <span class="fu"><a href="https://rdrr.io/r/stats/acf.html" class="external-link">acf</a></span><span class="op">(</span><span class="va">betas</span><span class="op">[</span>, <span class="va">j</span><span class="op">]</span>,main <span class="op">=</span> <span class="st">""</span>, xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">[</span><span class="va">j</span><span class="op">]</span>, ylab <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p><img src="Chapter08_files/figure-html/unnamed-chunk-8-2.png" width="768"></p>
-<p>This is different when the response variable contains either only few
-or very many successes. To illustrate this issue we use data where in
-N=1000 trials only 1 success is observed or 999 sucesses are observed.
-.</p>
+<p><img src="Chapter08_files/figure-html/unnamed-chunk-9-1.png" width="768">
+The sampler is easy to implement, however there might be problems when
+the response variable contains either only few or very many successes.
+To illustrate this issue, we use data where in N=500 trials only 1
+success or only 1 failure is observed.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">N</span><span class="op">=</span><span class="fl">1000</span></span>
+<code class="sourceCode R"><span><span class="va">N</span><span class="op">=</span><span class="fl">500</span></span>
 <span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1</span>,nrow<span class="op">=</span><span class="va">N</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">y1</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>,<span class="va">N</span><span class="op">-</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
@@ -230,30 +228,38 @@ slowly.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/acf.html" class="external-link">acf</a></span><span class="op">(</span><span class="va">betas1</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">betas2</span>,type<span class="op">=</span><span class="st">"l"</span>, main <span class="op">=</span> <span class="st">""</span>, xlab <span class="op">=</span> <span class="st">""</span>, ylab <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/acf.html" class="external-link">acf</a></span><span class="op">(</span><span class="va">betas2</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Chapter08_files/figure-html/unnamed-chunk-10-1.png" width="768">
-High autocorrelated draws can also occur in cases of seperation,
-i.e. when a covariate (or a linear combination of covariates) perfectly
-allows to predict sucesses and failures.</p>
-<p>To illustrate this issue we again simulate
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>=</mo><mn>1000</mn></mrow><annotation encoding="application/x-tex">N=1000</annotation></semantics></math>
-observations with 500 successes and 500 failures. We add a binary
+<p><img src="Chapter08_files/figure-html/unnamed-chunk-11-1.png" width="768">
+High autocorrelated draws in probit models not only occur if successes
+or failures are very rare, but also when a covariate (or a linear
+combination of covariates) perfectly allows to predict successes and/or
+failures. Complete seperation means that both successes and failures can
+be perfectly predicted by a covariate, whereas with quasi-complete
+seperation only either successes or failures can be predicted
+perfectly.</p>
+<p>To illustrate posterior sampling, in the case of complete seperation,
+we simulate
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>=</mo><mn>500</mn></mrow><annotation encoding="application/x-tex">N=500</annotation></semantics></math>
+observations with 10 successes and 490 failures. We add a binary
 predictor
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>
 where for
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">x=1</annotation></semantics></math>
-we observe only successes and hence there is complete seperation of
-successes and failures.</p>
+we observe only successes and for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">x=0</annotation></semantics></math>
+only failures.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">N</span> <span class="op">&lt;-</span> <span class="fl">1000</span></span>
-<span><span class="va">x</span> <span class="op">&lt;-</span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">10</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>,<span class="va">N</span><span class="op">-</span><span class="fl">10</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>,<span class="va">N</span><span class="op">/</span><span class="fl">2</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>,<span class="va">N</span><span class="op">/</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">N</span> <span class="op">&lt;-</span> <span class="fl">500</span></span>
+<span><span class="va">ns</span> <span class="op">&lt;-</span> <span class="fl">10</span></span>
+<span><span class="va">x</span> <span class="op">&lt;-</span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>,<span class="va">ns</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>,<span class="va">N</span><span class="op">-</span><span class="va">ns</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">y</span> <span class="op">&lt;-</span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>,<span class="va">ns</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>,<span class="va">N</span><span class="op">-</span><span class="va">ns</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">y</span>,<span class="va">x</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    x</span></span>
 <span><span class="co">#&gt; y     0   1</span></span>
-<span><span class="co">#&gt;   0 500   0</span></span>
-<span><span class="co">#&gt;   1 490  10</span></span></code></pre></div>
-<p>We estímate the model parameters and plot the acf of the draws.</p>
+<span><span class="co">#&gt;   0 490   0</span></span>
+<span><span class="co">#&gt;   1   0  10</span></span></code></pre></div>
+<p>We estímate the model parameters and plot the acf of the draws. Again
+the autocorrelations remain high even for lag 35.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">betas</span><span class="op">=</span><span class="fu">probit</span><span class="op">(</span><span class="va">y</span>, <span class="va">X</span>,b0<span class="op">=</span><span class="fl">0</span>, B0<span class="op">=</span><span class="fl">10000</span><span class="op">)</span></span>
 <span></span>
@@ -264,18 +270,51 @@ successes and failures.</p>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">betas</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span>, type<span class="op">=</span><span class="st">"l"</span>, main <span class="op">=</span> <span class="st">""</span>, xlab <span class="op">=</span> <span class="st">""</span>, ylab <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/acf.html" class="external-link">acf</a></span><span class="op">(</span><span class="va">betas</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Chapter08_files/figure-html/unnamed-chunk-12-1.png" width="768">
-While the autocorrelation of the intercept decreases quickly, the
-autocorrelation of the covariate effect remains high.</p>
-<p>If there is seperation in the data the likelihood is monotone and the
-MLE does not exist. In a Bayesian approach using a flat, improper prior
-on the regression effects will result in an improper posterior
-distribution. Hence a proper prior is required to avoid improper
-posteriors in case of seperation. If more information is added to the
-data by the prior, the autocorrelations are lower. This can be seen in
-the next figure, where the simulated data are analysed using a Normal
-prior that is tighter around zero.</p>
+<p><img src="Chapter08_files/figure-html/unnamed-chunk-13-1.png" width="768">
+Finally we simulate another data set of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>=</mo><mn>500</mn></mrow><annotation encoding="application/x-tex">N=500</annotation></semantics></math>
+observations with 10 successes and 490 failures. In this data for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">x=1</annotation></semantics></math>
+only successes but for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">x=0</annotation></semantics></math>
+successes as well as failures are observed and hence there is
+quasi-seperation.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">N</span> <span class="op">&lt;-</span> <span class="fl">500</span></span>
+<span><span class="va">x</span> <span class="op">&lt;-</span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>,<span class="va">ns</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>,<span class="va">N</span><span class="op">-</span><span class="va">ns</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>,<span class="va">N</span><span class="op">/</span><span class="fl">2</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>,<span class="va">N</span><span class="op">/</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">y</span>,<span class="va">x</span><span class="op">)</span></span>
+<span><span class="co">#&gt;    x</span></span>
+<span><span class="co">#&gt; y     0   1</span></span>
+<span><span class="co">#&gt;   0 250   0</span></span>
+<span><span class="co">#&gt;   1 240  10</span></span></code></pre></div>
+<p>A plot of the acf of the draws shows low autocorrelation for the
+intercept but autocorrelations for the covariate effect are again
+high.</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">betas</span><span class="op">=</span><span class="fu">probit</span><span class="op">(</span><span class="va">y</span>, <span class="va">X</span>,b0<span class="op">=</span><span class="fl">0</span>, B0<span class="op">=</span><span class="fl">10000</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.5</span>, <span class="fl">1.5</span>, <span class="fl">1.5</span>, <span class="fl">.1</span><span class="op">)</span>, mgp <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.5</span>, <span class="fl">.5</span>, <span class="fl">0</span><span class="op">)</span>, lwd <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">betas</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span>, type<span class="op">=</span><span class="st">"l"</span>, main <span class="op">=</span> <span class="st">""</span>, xlab <span class="op">=</span> <span class="st">""</span>, ylab <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/acf.html" class="external-link">acf</a></span><span class="op">(</span><span class="va">betas</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">betas</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span>, type<span class="op">=</span><span class="st">"l"</span>, main <span class="op">=</span> <span class="st">""</span>, xlab <span class="op">=</span> <span class="st">""</span>, ylab <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/acf.html" class="external-link">acf</a></span><span class="op">(</span><span class="va">betas</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
+<p><img src="Chapter08_files/figure-html/unnamed-chunk-15-1.png" width="768"></p>
+<p>High autocorrelations typically indicate problems with the sampler. f
+there is seperation in the data the likelihood is monotone and the MLE
+does not exist. In a Bayesian approach using a flat, improper prior on
+the regression effects will result in an improper posterior
+distribution. Hence a proper prior is required to avoid improper
+posteriors in case of seperation. In the examples above we used a rather
+proper prior which is rather flat. With a more informative prior, the
+autocorrelations of the draw are lower.<br>
+This can be seen in the next figure, where the simulated data under
+quasi-seperation are re-analysed with a Normal prior that is tighter
+around zero.</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.5</span>, <span class="fl">1.5</span>, <span class="fl">1.5</span>, <span class="fl">.1</span><span class="op">)</span>, mgp <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.5</span>, <span class="fl">.5</span>, <span class="fl">0</span><span class="op">)</span>, lwd <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span></span>
 <span></span>
@@ -284,7 +323,7 @@ prior that is tighter around zero.</p>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">betas</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span>, type<span class="op">=</span><span class="st">"l"</span>, main <span class="op">=</span> <span class="st">""</span>, xlab <span class="op">=</span> <span class="st">""</span>, ylab <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/acf.html" class="external-link">acf</a></span><span class="op">(</span><span class="va">betas</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Chapter08_files/figure-html/unnamed-chunk-13-1.png" width="768"></p>
+<p><img src="Chapter08_files/figure-html/unnamed-chunk-16-1.png" width="768"></p>
 </div>
   </main>
 </div>
