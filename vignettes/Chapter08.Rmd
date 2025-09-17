@@ -220,7 +220,7 @@ plot(betas[,2], type="l", main = "", xlab = "", ylab = "")
 acf(betas[,2])
 ```
 
-High autocorrelations typically indicate problems with the sampler. f there is seperation in the data  the likelihood is monotone and the  MLE does not exist. In a Bayesian approach  using a  flat,  improper prior on the regression effects will result in an improper posterior distribution. Hence   a proper prior is required to avoid improper posteriors in case of seperation. 
+High autocorrelations typically indicate problems with the sampler. If there is complete or quasi-complete seperation in the data  the likelihood is monotone and the  MLE does not exist. In a Bayesian approach  using a  flat,  improper prior on the regression effects will result in an improper posterior distribution. Hence   a proper prior is required to avoid improper posteriors in case of seperation. 
 In the  examples above we used a rather  proper prior which is rather flat. With a  more  informative prior, the autocorrelations of the draw  are lower.  
 This can be seen in the next figure, where the simulated data under quasi-seperation are re-analysed with a Normal prior that is tighter around zero.
 
