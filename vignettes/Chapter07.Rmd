@@ -545,7 +545,7 @@ We now create Figure 7.9 via simple transformations.
 if (pdfplots) {
   pdf("7-2_9.pdf", width = 9, height = 3)
 }
-par(mfrow = c(1, 1), mar = c(2.6, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 2)
+par(mfrow = c(1, 2), mar = c(2.6, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 2)
 mu <- sigma2 <- matrix(NA_real_, ndraws, 3, dimnames = list(NULL, order = 0:2))
 
 mu[, "0"] <- res0$betas[, 1]
@@ -591,9 +591,9 @@ we proceed as above.
 
 ```{r, echo = -c(1:2)}
 if (pdfplots) {
-  pdf("7-2_9.pdf", width = 9, height = 3)
+  pdf("7-2_10.pdf", width = 9, height = 3)
 }
-par(mfrow = c(1, 1), mar = c(2.6, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 2)
+par(mfrow = c(1, 2), mar = c(2.6, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 2)
 mu <- sigma2 <- list()
 
 mu[["0"]] <- res20$betas[, 1]
