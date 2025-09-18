@@ -529,3 +529,41 @@ for (i in 1:4) {
 ```
 
 # Section 7.2.4: Imposing Stationarity via an Independence MH Algorithm
+
+First, we estimate an AR(0), i.e., an intercept-only, model.
+
+```{r}
+Xy <- ARdesignmatrix(logret, 0) # Fill the N x 1 design matrix with 1s
+res0 <- regression(logret, Xy, prior = "improper")
+```
+
+We now create Figure 7.9 via simple transformations.
+
+```{r, echo = -c(1:2)}
+if (pdfplots) {
+  pdf("7-2_9.pdf", width = 9, height = 3)
+}
+par(mfrow = c(1, 1), mar = c(2.6, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 2)
+mu <- sigma2 <- matrix(NA_real_, draws, 5, dimnames = list(NULL, order = 0:4))
+
+mu[, "0"] <- res0$betas[, 1]
+sigma2[, "0"] <- res0$sigma2s
+for (p in 1:4) {
+  mu[, as.character(p)] <- res[[p]]$betas[, 1] /
+    (1 - rowSums(res[[p]]$betas[, 2:(p + 1), drop = FALSE]))
+  sigma2[, as.character(p)] <- res[[p]]$sigma2s /
+    (1 - rowSums(res[[p]]$betas[, 2:(p + 1), drop = FALSE]))^2
+}
+  
+plot(density(mu[, "0"], bw = "SJ", adj = 2), xlim = range(mu), ylab = "",
+       main = "Posterior of the marginal mean", xlab = expression(mu))
+for (p in 1:4) lines(density(mu[, as.character(p)], bw = "SJ", adj = 2),
+                     col = p + 1, lty = p + 1)
+legend("topright", paste0("p = ", 0:4), col = 1:5, lty = 1:5)
+
+plot(density(sigma2[, "0"], bw = "SJ", adj = 2), xlim = range(sigma2), ylab = "",
+       main = "Posterior of the marginal variance", xlab = expression(sigma^2))
+for (p in 1:4) lines(density(sigma2[, as.character(p)], bw = "SJ", adj = 2),
+                     col = p + 1, lty = p + 1)
+legend("topright", paste0("p = ", 0:4), col = 1:5, lty = 1:5)
+```
