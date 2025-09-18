@@ -60,7 +60,7 @@ library(BayesianLearningCode)
 library(mvtnorm)
 
 regression <- function(y, X, prior = "improper", b0 = 0, B0 = 1, c0 = 0.01,
-                       C0 = 0.01, burnin = 1000L, M = 5000L) {
+                       C0 = 0.01, nburn = 1000L, M = 5000L) {
   
   N <- nrow(X)
   d <- ncol(X)
@@ -122,7 +122,7 @@ regression <- function(y, X, prior = "improper", b0 = 0, B0 = 1, c0 = 0.01,
     sigma2 <- var(y) / 2
     
     # Run the Gibbs sampler
-    for (m in seq_len(burnin + M)) {
+    for (m in seq_len(nburn + M)) {
       # Sample beta from its full conditional
       BN <- solve(B0inv + XX / sigma2) 
       bN <- BN %*% (B0invb0 + Xy / sigma2)
@@ -134,9 +134,9 @@ regression <- function(y, X, prior = "improper", b0 = 0, B0 = 1, c0 = 0.01,
       sigma2 <- rinvgamma(1, cN, CN)
       
       # Store the results
-      if (m > burnin) {
-        betas[m - burnin,] <- beta
-        sigma2s[m - burnin] <- sigma2
+      if (m > nburn) {
+        betas[m - nburn,] <- beta
+        sigma2s[m - nburn] <- sigma2
       }
     }
   }
@@ -360,11 +360,13 @@ To assess the probability of nonstationarity, we can simply count the
 draws outside of the stationarity region.
 
 ```{r}
-mean(abs(ar1draws) > 1)
-mean(ar2draws[,1] + ar2draws[,2] > 1 |
+nonstationary <- matrix(NA, nrow(ar3draws), 3, dimnames = list(NULL, order = 1:3))
+nonstationary[, 1] <- abs(ar1draws) > 1
+nonstationary[, 2] <- ar2draws[,1] + ar2draws[,2] > 1 |
      abs(ar2draws[,2]) > 1 |
-     ar2draws[,2] > 1 + ar2draws[,1])
-mean(apply(Mod(eigenvalues) > 1, 1, any))
+     ar2draws[,2] > 1 + ar2draws[,1]
+nonstationary[ ,3] <- apply(Mod(eigenvalues) > 1, 1, any)
+colMeans(nonstationary)
 ```
 
 # Section 7.2.3: Recovering Missing Time Series Data -- An Introduction to Data Augmentation
@@ -391,16 +393,16 @@ names(ymiss) <- names(logret)[missing]
 For simplicity, we employ our improper prior and sample iteratively.
 
 ```{r}
-draws <- 5000
-burnin <- 1000
+ndraws <- 5000
+nburn <- 1000
 ind <- missing - 2
 
 ytilde <- rep(NA_real_, 3)
-betas <- matrix(NA_real_, draws, 3)
-sigma2s <- rep(NA_real_, draws)
-ymisses <- matrix(NA_real_, draws, length(ind))
+betas <- matrix(NA_real_, ndraws, 3)
+sigma2s <- rep(NA_real_, ndraws)
+ymisses <- matrix(NA_real_, ndraws, length(ind))
 
-for (m in seq_len(draws + burnin)) {
+for (m in seq_len(ndraws + nburn)) {
   # Augment the observed time series with the missing values
   yaug[missing] <- ymiss
   
@@ -431,10 +433,10 @@ for (m in seq_len(draws + burnin)) {
   }
   
   # Store the results
-  if (m > burnin) {
-    betas[m - burnin, ] <- beta
-    sigma2s[m - burnin] <- sigma2
-    ymisses[m - burnin,] <- ymiss
+  if (m > nburn) {
+    betas[m - nburn, ] <- beta
+    sigma2s[m - nburn] <- sigma2
+    ymisses[m - nburn,] <- ymiss
   }
 }
 ```
@@ -544,7 +546,7 @@ if (pdfplots) {
   pdf("7-2_9.pdf", width = 9, height = 3)
 }
 par(mfrow = c(1, 1), mar = c(2.6, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 2)
-mu <- sigma2 <- matrix(NA_real_, draws, 5, dimnames = list(NULL, order = 0:4))
+mu <- sigma2 <- matrix(NA_real_, ndraws, 3, dimnames = list(NULL, order = 0:2))
 
 mu[, "0"] <- res0$betas[, 1]
 sigma2[, "0"] <- res0$sigma2s
