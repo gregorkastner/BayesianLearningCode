@@ -476,7 +476,10 @@ for (i in seq_along(missing)) {
           c(yaug[missing[i] - 1], ymisses[j, i], yaug[missing[i] + 1]),
           col = rgb(0, 0, 0, .02))
   }
-  points(missing[i], logret[missing[i]], col = 2, cex = 2, lwd = 2)
+  points(missing[i], logret[missing[i]], col = 2, cex = 2, lwd = 2, pch = 16)
+  lines(c(missing[i] - 1, missing[i], missing[i] + 1),
+        c(yaug[missing[i] - 1], logret[missing[i]], yaug[missing[i] + 1]),
+        col = 2, cex = 2, lwd = 2)
 }
 ```
 
@@ -501,7 +504,7 @@ Now we can plot.
 if (pdfplots) {
   pdf("7-2_8.pdf", width = 10, height = 6)
 }
-par(mfrow = c(2, 2), mar = c(2.7, 1.5, .1, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
+par(mfrow = c(2, 2), mar = c(2.7, 1.5, .1, .1), mgp = c(1.5, .5, 0), lwd = 2)
 for (i in 1:4) {
   if (i <= 3) {
     if (i == 1) name <- bquote(zeta) else name <- bquote(phi[.(i - 1)])
@@ -517,9 +520,10 @@ for (i in 1:4) {
   
   plot(dens_improper, xlim = range(dens_improper$x, dens_drop$x, dens_aug$x),
        ylim = range(dens_improper$y, dens_drop$y, dens_aug$y),
-       main = "", xlab = name, ylab = "")
+       main = "", xlab = name, ylab = "", col = 3)
   lines(dens_aug, col = 2, lty = 2)
-  lines(dens_drop, col = 3, lty = 3)
-  legend("topright", c("Full-data", "Augmented", "Dropped"), col = 1:3, lty = 1:3)
+  lines(dens_drop, lty = 3)
+  legend("topright", c("Complete-data", "Augmented", "Dropped"),
+         col = 1:3, lty = 3:1)
 }
 ```
