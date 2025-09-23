@@ -527,7 +527,7 @@ for (i in 1:4) {
   lines(dens_aug, col = 2, lty = 2)
   lines(dens_drop, lty = 3)
   legend("topright", c("Complete-data", "Augmented", "Dropped"),
-         col = 1:3, lty = 3:1)
+         col = 3:1, lty = 1:3)
 }
 ```
 
