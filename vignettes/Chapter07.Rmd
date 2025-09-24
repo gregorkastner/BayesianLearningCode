@@ -784,3 +784,10 @@ naccepts2 <- naccepts
 plot.ts(res2)
 acf(res2)
 ```
+
+```{r}
+plot(density(res1$phi, bw = "SJ", adj = 2))
+lines(density(res2$phi, bw = "SJ", adj = 2), lty = 2, col = 2)
+qqplot(res1$phi, res2$phi)
+abline(0, 1, col = 2)
+```
