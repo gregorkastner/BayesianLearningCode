@@ -627,3 +627,79 @@ for (p in 1:2) lines(density(sigma2[[as.character(p)]], bw = "SJ", adj = 2),
                      col = p + 1, lty = p + 1)
 legend("topright", paste0("p = ", 0:2), col = 1:3, lty = 1:3)
 ```
+
+We now move on to imposing stationarity through employing a non-conjugate
+transformed beta prior on $\phi$, i.e.,
+$$
+(\phi + 1) / 2 \sim \mathcal{B}\left(a^\phi, b^\phi\right),
+$$
+and employ a 4-step sampler to obtain posterior draws. In addition, we assume
+that $y_0$ is unknown a priori follows the stationary distribution of the AR(1)
+process.
+
+```{r}
+dbetarescaled <- function(x, a, b, log = FALSE) {
+  tmp <- dbeta((x + 1) / 2, a, b, log = TRUE) - log(2)
+  if (log) tmp else exp(tmp)
+}
+
+```{r}
+# Specify the hyperparameters
+c0 <- 1
+C0 <- 1
+b0 <- 0
+B0 <- 1
+a0 <- 1
+A0 <- 1
+
+# Allocate some space for the posterior draws and initialize the parameters:
+y0s <- sigma2s <- zetas <- phis <- rep(NA_real_, ndraws)
+zeta <- 0
+phi <- .8
+sigma2 <- var(y) * (1 - phi)
+
+# Define the design matrix and y
+X <- matrix(NA_real_, nrow = length(inflation), 2)
+X[, 1] <- 1
+X[, 2] <- c(NA_real_, inflation[-length(inflation)])
+y <- inflation
+
+for (m in seq_len(ndraws + nburn)) {
+  # Step (a): Draw y0
+  y0 <- rnorm(1, zeta + phi * y[1], sqrt(sigma2))
+  
+  # Step (b): Draw the innovation variance
+  X[1, 2] <- y0
+  beta <- matrix(c(zeta, phi), nrow = 2)
+  tmp <- y - X %*% beta
+  sigma2 <- rinvgamma(1, c0 + length(y) / 2, C0 + crossprod(tmp))
+  
+  # Step (c): Draw the intercept
+  BT <- 1 / (1 / B0 + length(y) / sigma2)
+  bT <- BT * (b0 / B0 + (y[1] - phi * y0 + sum(y[-1] - phi * y[-length(y)])) / sigma2)
+  zeta <- rnorm(1, bT, sqrt(BT))
+  
+  # Step (d): Draw the persistence
+  tmp <- y0^2 + sum(y[-length(y)]^2)
+  propmean <- (y0 * (y[1] - zeta) + sum(y[-length(y)] * (y[-1] - zeta))) / tmp
+  propvar <- sigma2 / tmp
+  phiprop <- rnorm(1, propmean, sqrt(propvar))
+  if (-1 < phiprop & phiprop < 1) {
+    logR <- dbetarescaled(phiprop, a0, A0, log = TRUE) -
+      dbetarescaled(phi, a0, A0, log = TRUE) +
+      dnorm(y0, zeta / (1 - phiprop), sqrt(sigma2 / (1 - phiprop^2)), log = TRUE) -
+      dnorm(y0, zeta / (1 - phi), sqrt(sigma2 / (1 - phi^2)), log = TRUE)
+    if (log(runif(1)) < logR) phi <- phiprop
+  }
+  
+  # Store the draws
+  if (m > nburn) {
+    y0s[m - nburn] <- y0
+    sigma2s[m - nburn] <- sigma2
+    zetas[m - nburn] <- zeta
+    phis[m - nburn] <- phi
+  }
+}
+
+ts.plot(cbind(y0s, sigma2s, zetas, phis))
+```
