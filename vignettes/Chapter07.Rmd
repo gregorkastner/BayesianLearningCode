@@ -650,8 +650,8 @@ c0 <- 1
 C0 <- 1
 b0 <- 0
 B0 <- 1
-a0 <- 20
-A0 <- 1.5
+a0 <- 10
+A0 <- 2
 
 # Define the design matrix and y
 y <- inflation
