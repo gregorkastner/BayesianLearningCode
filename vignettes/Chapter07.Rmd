@@ -720,8 +720,8 @@ from an auxiliary moment-matched prior in Step (d).
 
 ```{r}
 # Compute mean and variance of the actual prior using properties of the beta
-priormean <- a0 / (a0 + A0)
-priorvar <- (a0 * A0) / ((a0 + A0)^2 * (a0 + A0 + 1))
+priormean <- 2 * a0 / (a0 + A0) - 1
+priorvar <- 4 * (a0 * A0) / ((a0 + A0)^2 * (a0 + A0 + 1))
 
 # Define the design matrix and y
 X <- matrix(NA_real_, nrow = length(y), 2)
