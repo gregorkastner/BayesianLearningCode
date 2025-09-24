@@ -653,18 +653,18 @@ B0 <- 1
 a0 <- 20
 A0 <- 1.5
 
+# Define the design matrix and y
+y <- inflation
+X <- matrix(NA_real_, nrow = length(y), 2)
+X[, 1] <- 1
+X[, 2] <- c(NA_real_, y[-length(y)])
+
 # Allocate some space for the posterior draws and initialize the parameters:
 y0s <- sigma2s <- zetas <- phis <- rep(NA_real_, ndraws)
 zeta <- 0
 phi <- .8
 sigma2 <- var(y) * (1 - phi)
 naccepts <- 0
-
-# Define the design matrix and y
-X <- matrix(NA_real_, nrow = length(inflation), 2)
-X[, 1] <- 1
-X[, 2] <- c(NA_real_, inflation[-length(inflation)])
-y <- inflation
 
 for (m in seq_len(ndraws + nburn)) {
   # Step (a): Draw y0
@@ -723,18 +723,17 @@ from an auxiliary moment-matched prior in Step (d).
 priormean <- a0 / (a0 + A0)
 priorvar <- (a0 * A0) / ((a0 + A0)^2 * (a0 + A0 + 1))
 
+# Define the design matrix and y
+X <- matrix(NA_real_, nrow = length(y), 2)
+X[, 1] <- 1
+X[, 2] <- c(NA_real_, y[-length(y)])
+
 # Allocate some space for the posterior draws and initialize the parameters:
 y0s <- sigma2s <- zetas <- phis <- rep(NA_real_, ndraws)
 zeta <- 0
 phi <- .8
 sigma2 <- var(y) * (1 - phi)
 naccepts <- 0
-
-# Define the design matrix and y
-X <- matrix(NA_real_, nrow = length(inflation), 2)
-X[, 1] <- 1
-X[, 2] <- c(NA_real_, inflation[-length(inflation)])
-y <- inflation
 
 for (m in seq_len(ndraws + nburn)) {
   # Step (a): Draw y0
