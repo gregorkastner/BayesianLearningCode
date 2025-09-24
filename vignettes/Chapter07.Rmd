@@ -642,6 +642,7 @@ dbetarescaled <- function(x, a, b, log = FALSE) {
   tmp <- dbeta((x + 1) / 2, a, b, log = TRUE) - log(2)
   if (log) tmp else exp(tmp)
 }
+```
 
 ```{r}
 # Specify the hyperparameters
@@ -649,14 +650,15 @@ c0 <- 1
 C0 <- 1
 b0 <- 0
 B0 <- 1
-a0 <- 1
-A0 <- 1
+a0 <- 20
+A0 <- 1.5
 
 # Allocate some space for the posterior draws and initialize the parameters:
 y0s <- sigma2s <- zetas <- phis <- rep(NA_real_, ndraws)
 zeta <- 0
 phi <- .8
 sigma2 <- var(y) * (1 - phi)
+naccepts <- 0
 
 # Define the design matrix and y
 X <- matrix(NA_real_, nrow = length(inflation), 2)
@@ -689,7 +691,28 @@ for (m in seq_len(ndraws + nburn)) {
       dbetarescaled(phi, a0, A0, log = TRUE) +
       dnorm(y0, zeta / (1 - phiprop), sqrt(sigma2 / (1 - phiprop^2)), log = TRUE) -
       dnorm(y0, zeta / (1 - phi), sqrt(sigma2 / (1 - phi^2)), log = TRUE)
-    if (log(runif(1)) < logR) phi <- phiprop
+    if (log(runif(1)) < logR) {
+      phi <- phiprop
+      if (m > nburn) naccepts <- naccepts + 1L
+    }
+  }
+  
+  # Store the draws
+  if (m > nburn) {
+    y0s[m - nburn] <- y0
+    sigma2s[m - nburn] <- sigma2
+    zetas[m - nburn] <- zeta
+    phis[m - nburn] <- phi
+  }
+}
+res1 <- data.frame(y0 = y0s, sigma2 = sigma2s, zeta = zetas, phi = phis)
+naccepts1 <- naccepts
+```
+
+```{r}
+plot.ts(res1)
+acf(res1)
+```
   }
   
   # Store the draws
