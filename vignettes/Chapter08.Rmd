@@ -239,3 +239,66 @@ plot(betas[,2], type="l", main = "", xlab = "", ylab = "")
 acf(betas[,2])
 ```
 
+# Section 8.2
+We now estimate a logistic regression model for the labor market data
+using the two-block Polya-Gamma sampler.
+
+```{r}
+install.packages("pgdraw",repos = "http://cran.us.r-project.org")
+
+logit<- function(y, X,  b0 = 0, B0 = 10000,
+                   burnin = 1000L, M = 5000L) {
+  
+  d <- dim(X)[2] # number regression effects 
+  p <- d - 1 # number of regression effects without intercept
+
+  B0.inv <- diag(rep(1/B0, d), nrow = d) 
+  b0 <- rep(0, d) 
+  B0inv.b0 <- B0.inv%*%b0
+
+  betas <- matrix(NA,nrow=M, ncol=d)
+
+  # define quantities for the Gibbs sampler
+  ind0=(y==0) # indicators for zeros and ones
+  ind1=(y==1)
+  
+  # starting values
+  beta <- rep(0,d)
+  z <- rep(NA_real_,N)
+  omega <-rep(NA_real_,N)
+
+
+   for (m in seq_len(burnin+M)) {
+    
+      # Draw z conditional on y and beta
+      eta <- X %*% beta
+      pi<- plogis(eta) 
+      
+      u <- runif(N)
+      z[ind0] <- eta[ind0] + qlogis(u[ind0]*(1-pi[ind0]))
+      z[ind1] <- eta[ind1] + qlogis (1-u[ind1]*pi[ind1])
+      
+      
+      # Draw omega conditional on y, beta and z
+      omega <- pgdraw::pgdraw(b = 1, c = z-eta)
+  
+      # sample beta from the full conditional 
+      Xomega <- Matrix::Diagonal(n = length(omega), x = omega)
+      BN <- solve(B0inv + t(Xomega)%*%X)
+      bN <- BN %*% (B0inv.b0 + t(Xomega)%*% z)
+      beta <- t(mvtnorm::rmvnorm(1, mean = bN, sigma = BN))
+    
+     # Store the beta draws
+     if (m > burnin) {
+        betas[m-burnin, ] <- beta
+    }
+ }
+ return(betas)
+}
+```
+We again use   the flat independence
+Normal prior on the regression effects
+
+```{r}
+betas_logit <- probit(y,X,b0=0, B0=10000)
+```
