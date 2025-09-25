@@ -245,7 +245,9 @@ using the two-block Polya-Gamma sampler.
 
 ```{r}
 install.packages("pgdraw",repos = "http://cran.us.r-project.org")
+```
 
+```{r}
 logit<- function(y, X,  b0 = 0, B0 = 10000,
                    burnin = 1000L, M = 5000L) {
   
@@ -283,8 +285,8 @@ logit<- function(y, X,  b0 = 0, B0 = 10000,
       omega <- pgdraw::pgdraw(b = 1, c = z-eta)
   
       # sample beta from the full conditional 
-      Xomega <- Matrix::Diagonal(n = length(omega), x = omega)
-      BN <- solve(B0inv + t(Xomega)%*%X)
+      Xomega <- matrix(omega,ncol=d, nrow=N) *X
+      BN <- solve(B0.inv + t(Xomega)%*%X)
       bN <- BN %*% (B0inv.b0 + t(Xomega)%*% z)
       beta <- t(mvtnorm::rmvnorm(1, mean = bN, sigma = BN))
     
@@ -297,8 +299,14 @@ logit<- function(y, X,  b0 = 0, B0 = 10000,
 }
 ```
 We again use   the flat independence
-Normal prior on the regression effects
+Normal prior on the regression effects and estimate the model.
 
 ```{r}
-betas_logit <- probit(y,X,b0=0, B0=10000)
+betas_logit <- logit(y,X,b0=0, B0=10000)
+
+res_beta_logit<- t(apply(betas_logit,2, res.mcmc))
+colnames(res_beta_logit) <- c("2.5%", "Mean", "97.5%") 
+rownames(res_beta_logit) <- colnames(X)
+ 
+knitr::kable(round(t(res_beta_logit),3))
 ```
