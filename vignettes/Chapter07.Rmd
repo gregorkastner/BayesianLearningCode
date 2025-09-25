@@ -44,7 +44,7 @@ Now we can plot the data and its empirical autocorrelation function.
 ```{r, echo = -c(1:2)}
 if (pdfplots) {
   pdf("7-2_1.pdf", width = 12, height = 5)
-  par(mar = c(2.6, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
+  par(mar = c(2.6, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 2)
 }
 par(mfrow = c(1, 2))
 ts.plot(logret, main = "U.S. GDP log returns")
@@ -60,7 +60,7 @@ library(BayesianLearningCode)
 library(mvtnorm)
 
 regression <- function(y, X, prior = "improper", b0 = 0, B0 = 1, c0 = 0.01,
-                       C0 = 0.01, burnin = 1000L, M = 5000L) {
+                       C0 = 0.01, nburn = 1000L, M = 5000L) {
   
   N <- nrow(X)
   d <- ncol(X)
@@ -122,7 +122,7 @@ regression <- function(y, X, prior = "improper", b0 = 0, B0 = 1, c0 = 0.01,
     sigma2 <- var(y) / 2
     
     # Run the Gibbs sampler
-    for (m in seq_len(burnin + M)) {
+    for (m in seq_len(nburn + M)) {
       # Sample beta from its full conditional
       BN <- solve(B0inv + XX / sigma2) 
       bN <- BN %*% (B0invb0 + Xy / sigma2)
@@ -134,9 +134,9 @@ regression <- function(y, X, prior = "improper", b0 = 0, B0 = 1, c0 = 0.01,
       sigma2 <- rinvgamma(1, cN, CN)
       
       # Store the results
-      if (m > burnin) {
-        betas[m - burnin,] <- beta
-        sigma2s[m - burnin] <- sigma2
+      if (m > nburn) {
+        betas[m - nburn,] <- beta
+        sigma2s[m - nburn] <- sigma2
       }
     }
   }
@@ -185,10 +185,11 @@ corresponding to the highest lag in each of the models.
 if (pdfplots) {
   pdf("7-2_2.pdf", width = 8, height = 5)
 }
-par(mfrow = c(2, 2), mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
+par(mfrow = c(2, 2), mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 2)
 for (p in 1:4) {
   hist(res[[p]]$betas[, p + 1], freq = FALSE, main = bquote(AR(.(p))),
        xlab = bquote(phi[.(p)]), ylab = "", breaks = seq(-.75, .75, .02))
+  abline(v = 0, lty = 3)
 }
 ```
 
@@ -226,7 +227,7 @@ We now visualize the posterior of the model parameters under all those priors.
 if (pdfplots) {
   pdf("7-2_3.pdf", width = 7, height = 9)
 }
-par(mfrow = c(5, 2), mar = c(2.7, 1.5, 1.4, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
+par(mfrow = c(5, 2), mar = c(2.7, 1.5, 1.4, .1), mgp = c(1.5, .5, 0), lwd = 2)
 for (i in 1:5) {
   if (i <= 4) {
     if (i == 1) name <- bquote(zeta) else name <- bquote(phi[.(i - 1)])
@@ -273,7 +274,7 @@ stationarity for $p = 1, 2, 3$.
 if (pdfplots) {
   pdf("7-2_4.pdf", width = 9, height = 3)
 }
-par(mfrow = c(1, 3), mar = c(2.5, 2.5, 1.2, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
+par(mfrow = c(1, 3), mar = c(2.5, 2.5, 1.2, .1), mgp = c(1.5, .5, 0), lwd = 2)
 hist(res[[1]]$betas[,2], breaks = 20, freq = FALSE, main = "AR(1)",
      xlab = bquote(phi), ylab = "")
 
@@ -306,7 +307,7 @@ First, we plot the data and its empirical autocorrelation function.
 ```{r, echo = -c(1:2)}
 if (pdfplots) {
   pdf("7-2_5.pdf", width = 12, height = 5)
-  par(mar = c(2.6, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
+  par(mar = c(2.6, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 2)
 }
 par(mfrow = c(1,2))
 ts.plot(inflation, main = "EU inflation")
@@ -332,7 +333,7 @@ for (p in 1:3) {
 if (pdfplots) {
   pdf("7-2_6.pdf", width = 9, height = 3)
 }
-par(mfrow = c(1, 3), mar = c(2.5, 2.5, 1.2, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
+par(mfrow = c(1, 3), mar = c(2.5, 2.5, 1.2, .1), mgp = c(1.5, .5, 0), lwd = 2)
 ar1draws <- res2[[1]]$betas[,2]
 ar2draws <- res2[[2]]$betas[,2:3]
 ar3draws <- res2[[3]]$betas[,2:4]
@@ -360,11 +361,13 @@ To assess the probability of nonstationarity, we can simply count the
 draws outside of the stationarity region.
 
 ```{r}
-mean(abs(ar1draws) > 1)
-mean(ar2draws[,1] + ar2draws[,2] > 1 |
+nonstationary <- matrix(NA, nrow(ar3draws), 3, dimnames = list(NULL, order = 1:3))
+nonstationary[, 1] <- abs(ar1draws) > 1
+nonstationary[, 2] <- ar2draws[,1] + ar2draws[,2] > 1 |
      abs(ar2draws[,2]) > 1 |
-     ar2draws[,2] > 1 + ar2draws[,1])
-mean(apply(Mod(eigenvalues) > 1, 1, any))
+     ar2draws[,2] > 1 + ar2draws[,1]
+nonstationary[ ,3] <- apply(Mod(eigenvalues) > 1, 1, any)
+colMeans(nonstationary)
 ```
 
 # Section 7.2.3: Recovering Missing Time Series Data -- An Introduction to Data Augmentation
@@ -391,16 +394,16 @@ names(ymiss) <- names(logret)[missing]
 For simplicity, we employ our improper prior and sample iteratively.
 
 ```{r}
-draws <- 5000
-burnin <- 1000
+ndraws <- 5000
+nburn <- 1000
 ind <- missing - 2
 
 ytilde <- rep(NA_real_, 3)
-betas <- matrix(NA_real_, draws, 3)
-sigma2s <- rep(NA_real_, draws)
-ymisses <- matrix(NA_real_, draws, length(ind))
+betas <- matrix(NA_real_, ndraws, 3)
+sigma2s <- rep(NA_real_, ndraws)
+ymisses <- matrix(NA_real_, ndraws, length(ind))
 
-for (m in seq_len(draws + burnin)) {
+for (m in seq_len(ndraws + nburn)) {
   # Augment the observed time series with the missing values
   yaug[missing] <- ymiss
   
@@ -431,10 +434,10 @@ for (m in seq_len(draws + burnin)) {
   }
   
   # Store the results
-  if (m > burnin) {
-    betas[m - burnin, ] <- beta
-    sigma2s[m - burnin] <- sigma2
-    ymisses[m - burnin,] <- ymiss
+  if (m > nburn) {
+    betas[m - nburn, ] <- beta
+    sigma2s[m - nburn] <- sigma2
+    ymisses[m - nburn,] <- ymiss
   }
 }
 ```
@@ -464,7 +467,7 @@ alongside the unobservable true values (red circles).
 if (pdfplots) {
   pdf("7-2_7.pdf", width = 9, height = 3)
 }
-par(mfrow = c(1, 1), mar = c(2.6, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
+par(mfrow = c(1, 1), mar = c(2.6, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 2)
 yaug[missing] <- NA
 
 where <- seq(max(missing) - 13, max(missing) + 3)
@@ -476,7 +479,10 @@ for (i in seq_along(missing)) {
           c(yaug[missing[i] - 1], ymisses[j, i], yaug[missing[i] + 1]),
           col = rgb(0, 0, 0, .02))
   }
-  points(missing[i], logret[missing[i]], col = 2, cex = 2, lwd = 2)
+  points(missing[i], logret[missing[i]], col = 2, cex = 2, pch = 16)
+  lines(c(missing[i] - 1, missing[i], missing[i] + 1),
+        c(yaug[missing[i] - 1], logret[missing[i]], yaug[missing[i] + 1]),
+        col = 2, cex = 2)
 }
 ```
 
@@ -501,7 +507,7 @@ Now we can plot.
 if (pdfplots) {
   pdf("7-2_8.pdf", width = 10, height = 6)
 }
-par(mfrow = c(2, 2), mar = c(2.7, 1.5, .1, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
+par(mfrow = c(2, 2), mar = c(2.7, 1.5, .1, .1), mgp = c(1.5, .5, 0), lwd = 2)
 for (i in 1:4) {
   if (i <= 3) {
     if (i == 1) name <- bquote(zeta) else name <- bquote(phi[.(i - 1)])
@@ -517,9 +523,271 @@ for (i in 1:4) {
   
   plot(dens_improper, xlim = range(dens_improper$x, dens_drop$x, dens_aug$x),
        ylim = range(dens_improper$y, dens_drop$y, dens_aug$y),
-       main = "", xlab = name, ylab = "")
+       main = "", xlab = name, ylab = "", col = 3)
   lines(dens_aug, col = 2, lty = 2)
-  lines(dens_drop, col = 3, lty = 3)
-  legend("topright", c("Full-data", "Augmented", "Dropped"), col = 1:3, lty = 1:3)
+  lines(dens_drop, lty = 3)
+  legend("topright", c("Complete-data", "Augmented", "Dropped"),
+         col = 3:1, lty = 1:3)
 }
+```
+
+# Section 7.2.4: Imposing Stationarity via an Independence MH Algorithm
+
+First, we fit an AR(0), i.e., an intercept-only, model, to the GDP data.
+
+```{r}
+Xy <- ARdesignmatrix(logret, 0) # Fill the N x 1 design matrix with 1s
+res0 <- regression(logret, Xy, prior = "improper")
+```
+
+We now create Figure 7.9 via simple transformations.
+
+```{r, echo = -c(1:2)}
+if (pdfplots) {
+  pdf("7-2_9.pdf", width = 9, height = 3)
+}
+par(mfrow = c(1, 2), mar = c(2.6, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 2)
+mu <- sigma2 <- matrix(NA_real_, ndraws, 3, dimnames = list(NULL, order = 0:2))
+
+mu[, "0"] <- res0$betas[, 1]
+sigma2[, "0"] <- res0$sigma2s
+for (p in 1:2) {
+  mu[, as.character(p)] <- res[[p]]$betas[, 1] /
+    (1 - rowSums(res[[p]]$betas[, 2:(p + 1), drop = FALSE]))
+}
+
+# AR(1):
+phi <- res[[1]]$betas[, 2]
+sigma2[, "1"] <- res[[1]]$sigma2s / (1 - phi^2)
+
+# AR(2):
+phi1 <- res[[2]]$betas[, 2]
+phi2 <- res[[2]]$betas[, 3]
+sigma2[, "2"] <- (1 - phi2) * res[[1]]$sigma2s / 
+  ((1 + phi2) * (1 - phi1^2 + phi2^2 - 2 * phi2))
+  
+plot(density(mu[, "0"], bw = "SJ", adj = 2), xlim = range(mu), ylab = "",
+       main = "Posterior of the marginal mean", xlab = expression(mu))
+for (p in 1:2) lines(density(mu[, as.character(p)], bw = "SJ", adj = 2),
+                     col = p + 1, lty = p + 1)
+legend("topright", paste0("p = ", 0:2), col = 1:3, lty = 1:3)
+
+plot(density(sigma2[, "0"], bw = "SJ", adj = 2), xlim = range(sigma2), ylab = "",
+       main = "Posterior of the marginal variance", xlab = expression(sigma^2))
+for (p in 1:2) lines(density(sigma2[, as.character(p)], bw = "SJ", adj = 2),
+                     col = p + 1, lty = p + 1)
+legend("topright", paste0("p = ", 0:2), col = 1:3, lty = 1:3)
+```
+
+We continue by fitting an AR(0) model to the inflation data.
+
+```{r}
+Xy <- ARdesignmatrix(inflation, 0) # Fill the N x 1 design matrix with 1s
+res20 <- regression(inflation, Xy, prior = "improper")
+```
+
+Before we can compute unconditional mean and unconditional variance from our
+fitted AR models, we need to remove nonstationary draws. Apart from that,
+we proceed as above.
+
+```{r, echo = -c(1:2)}
+if (pdfplots) {
+  pdf("7-2_10.pdf", width = 9, height = 3)
+}
+par(mfrow = c(1, 2), mar = c(2.6, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 2)
+mu <- sigma2 <- list()
+
+mu[["0"]] <- res20$betas[, 1]
+sigma2[["0"]] <- res20$sigma2s
+
+for (p in 1:2) {
+  mu[[as.character(p)]] <- res2[[p]]$betas[!nonstationary[, p], 1] /
+    (1 - rowSums(res2[[p]]$betas[!nonstationary[, p], 2:(p + 1), drop = FALSE]))
+}
+
+# AR(1):
+phi <- res2[[1]]$betas[!nonstationary[, 1], 2]
+sigma2[["1"]] <- res2[[1]]$sigma2s[!nonstationary[, 1]] / (1 - phi^2)
+
+# AR(2):
+phi1 <- res2[[2]]$betas[!nonstationary[, 2], 2]
+phi2 <- res2[[2]]$betas[!nonstationary[, 2], 3]
+sigma2[["2"]] <- (1 - phi2) * res2[[2]]$sigma2s[!nonstationary[, 2]] / 
+  ((1 + phi2) * (1 - phi1^2 + phi2^2 - 2 * phi2))
+  
+plot(density(mu[["0"]], bw = "SJ", adj = 2), xlim = range(mu), ylab = "",
+       main = "Posterior of the marginal mean", xlab = expression(mu))
+for (p in 1:2) lines(density(mu[[as.character(p)]], bw = "SJ", adj = 2),
+                     col = p + 1, lty = p + 1)
+legend("topright", paste0("p = ", 0:2), col = 1:3, lty = 1:3)
+
+plot(density(sigma2[["0"]], bw = "SJ", adj = 2), xlim = range(sigma2), ylab = "",
+       main = "Posterior of the marginal variance", xlab = expression(sigma^2))
+for (p in 1:2) lines(density(sigma2[[as.character(p)]], bw = "SJ", adj = 2),
+                     col = p + 1, lty = p + 1)
+legend("topright", paste0("p = ", 0:2), col = 1:3, lty = 1:3)
+```
+
+We now move on to imposing stationarity through employing a non-conjugate
+transformed beta prior on $\phi$, i.e.,
+$$
+(\phi + 1) / 2 \sim \mathcal{B}\left(a^\phi, b^\phi\right),
+$$
+and employ a 4-step sampler to obtain posterior draws. In addition, we assume
+that $y_0$ is unknown a priori follows the stationary distribution of the AR(1)
+process.
+
+```{r}
+dbetarescaled <- function(x, a, b, log = FALSE) {
+  tmp <- dbeta((x + 1) / 2, a, b, log = TRUE) - log(2)
+  if (log) tmp else exp(tmp)
+}
+```
+
+```{r}
+# Specify the hyperparameters
+c0 <- 1
+C0 <- 1
+b0 <- 0
+B0 <- 1
+a0 <- 10
+A0 <- 2
+
+# Define the design matrix and y
+y <- inflation
+X <- matrix(NA_real_, nrow = length(y), 2)
+X[, 1] <- 1
+X[, 2] <- c(NA_real_, y[-length(y)])
+
+# Allocate some space for the posterior draws and initialize the parameters:
+y0s <- sigma2s <- zetas <- phis <- rep(NA_real_, ndraws)
+zeta <- 0
+phi <- .8
+sigma2 <- var(y) * (1 - phi)
+naccepts <- 0
+
+for (m in seq_len(ndraws + nburn)) {
+  # Step (a): Draw y0
+  y0 <- rnorm(1, zeta + phi * y[1], sqrt(sigma2))
+  
+  # Step (b): Draw the innovation variance
+  X[1, 2] <- y0
+  beta <- matrix(c(zeta, phi), nrow = 2)
+  tmp <- y - X %*% beta
+  sigma2 <- rinvgamma(1, c0 + length(y) / 2, C0 + crossprod(tmp))
+  
+  # Step (c): Draw the intercept
+  BT <- 1 / (1 / B0 + length(y) / sigma2)
+  bT <- BT * (b0 / B0 + (y[1] - phi * y0 + sum(y[-1] - phi * y[-length(y)])) / sigma2)
+  zeta <- rnorm(1, bT, sqrt(BT))
+  
+  # Step (d): Draw the persistence
+  tmp <- y0^2 + sum(y[-length(y)]^2)
+  propmean <- (y0 * (y[1] - zeta) + sum(y[-length(y)] * (y[-1] - zeta))) / tmp
+  propvar <- sigma2 / tmp
+  phiprop <- rnorm(1, propmean, sqrt(propvar))
+  if (-1 < phiprop & phiprop < 1) {
+    logR <- dbetarescaled(phiprop, a0, A0, log = TRUE) -
+      dbetarescaled(phi, a0, A0, log = TRUE) +
+      dnorm(y0, zeta / (1 - phiprop), sqrt(sigma2 / (1 - phiprop^2)), log = TRUE) -
+      dnorm(y0, zeta / (1 - phi), sqrt(sigma2 / (1 - phi^2)), log = TRUE)
+    if (log(runif(1)) < logR) {
+      phi <- phiprop
+      if (m > nburn) naccepts <- naccepts + 1L
+    }
+  }
+  
+  # Store the draws
+  if (m > nburn) {
+    y0s[m - nburn] <- y0
+    sigma2s[m - nburn] <- sigma2
+    zetas[m - nburn] <- zeta
+    phis[m - nburn] <- phi
+  }
+}
+res1 <- data.frame(y0 = y0s, sigma2 = sigma2s, zeta = zetas, phi = phis)
+naccepts1 <- naccepts
+```
+
+```{r}
+plot.ts(res1)
+acf(res1)
+```
+
+We now repeat this exercise, but use the conditional posterior resulting
+from an auxiliary moment-matched prior in Step (d).
+
+
+```{r}
+# Compute mean and variance of the actual prior using properties of the beta
+priormean <- 2 * a0 / (a0 + A0) - 1
+priorvar <- 4 * (a0 * A0) / ((a0 + A0)^2 * (a0 + A0 + 1))
+
+# Define the design matrix and y
+X <- matrix(NA_real_, nrow = length(y), 2)
+X[, 1] <- 1
+X[, 2] <- c(NA_real_, y[-length(y)])
+
+# Allocate some space for the posterior draws and initialize the parameters:
+y0s <- sigma2s <- zetas <- phis <- rep(NA_real_, ndraws)
+zeta <- 0
+phi <- .8
+sigma2 <- var(y) * (1 - phi)
+naccepts <- 0
+
+for (m in seq_len(ndraws + nburn)) {
+  # Step (a): Draw y0
+  y0 <- rnorm(1, zeta + phi * y[1], sqrt(sigma2))
+  
+  # Step (b): Draw the innovation variance
+  X[1, 2] <- y0
+  beta <- matrix(c(zeta, phi), nrow = 2)
+  tmp <- y - X %*% beta
+  sigma2 <- rinvgamma(1, c0 + length(y) / 2, C0 + crossprod(tmp))
+  
+  # Step (c): Draw the intercept
+  BT <- 1 / (1 / B0 + length(y) / sigma2)
+  bT <- BT * (b0 / B0 + (y[1] - phi * y0 + sum(y[-1] - phi * y[-length(y)])) / sigma2)
+  zeta <- rnorm(1, bT, sqrt(BT))
+  
+  # Step (d): Draw the persistence
+  tmp <- y0^2 + sum(y[-length(y)]^2)
+  propvar <- 1 / (1 / priorvar + tmp / sigma2)
+  propmean <- propvar * (priormean / priorvar + (y0 * (y[1] - zeta) + sum(y[-length(y)] * (y[-1] - zeta))) / sigma2)
+  phiprop <- rnorm(1, propmean, sqrt(propvar))
+  if (-1 < phiprop & phiprop < 1) {
+    logR <- dbetarescaled(phiprop, a0, A0, log = TRUE) -
+      dbetarescaled(phi, a0, A0, log = TRUE) +
+      dnorm(y0, zeta / (1 - phiprop), sqrt(sigma2 / (1 - phiprop^2)), log = TRUE) -
+      dnorm(y0, zeta / (1 - phi), sqrt(sigma2 / (1 - phi^2)), log = TRUE) +
+      dnorm(phi, priormean, sqrt(priorvar), log = TRUE) -
+      dnorm(phiprop, priormean, sqrt(priorvar), log = TRUE)
+    if (log(runif(1)) < logR) {
+      phi <- phiprop
+      if (m > nburn) naccepts <- naccepts + 1L
+    }
+  }
+  
+  # Store the draws
+  if (m > nburn) {
+    y0s[m - nburn] <- y0
+    sigma2s[m - nburn] <- sigma2
+    zetas[m - nburn] <- zeta
+    phis[m - nburn] <- phi
+  }
+}
+res2 <- data.frame(y0 = y0s, sigma2 = sigma2s, zeta = zetas, phi = phis)
+naccepts2 <- naccepts
+```
+
+```{r}
+plot.ts(res2)
+acf(res2)
+```
+
+```{r}
+plot(density(res1$phi, bw = "SJ", adj = 2))
+lines(density(res2$phi, bw = "SJ", adj = 2), lty = 2, col = 2)
+qqplot(res1$phi, res2$phi)
+abline(0, 1, col = 2)
 ```
