@@ -34,10 +34,10 @@ data("labor", package = "BayesianLearningCode")
 We model the binary variable unemployment and use as covariates the variables female (binary), wcollar (binary),  age18 (quantitative, centered at 18 years) and unemployed in 1997 (binary). The baseline person is hence an 18 year old  male blue collar worker who was employed in 1997. 
 
 ```{r}
-y <- labor$unemp98
-N <- length(y)  # number of observations 
+y.unemp <- labor$unemp98
+N.unemp <- length(y.unemp)  # number of observations 
 
-X <- cbind("intercept" = rep(1, N), "female"=labor$female,"age18"=labor$age-18,
+X.unemp <- cbind("intercept" = rep(1, N.unemp), "female"=labor$female,"age18"=labor$age-18,
            "wcollar"=labor$wcollar, "unemp97"=labor$unemp97) # regressor matrix
 ```
 
@@ -48,7 +48,7 @@ sampling. We define a function yielding posterior draws using the algorithm deta
 ```{r}
 probit <- function(y, X,  b0 = 0, B0 = 10000,
                    burnin = 1000L, M = 5000L) {
-  
+  N <-length(y)
   d <- dim(X)[2] # number regression effects 
   p <- d - 1 # number of regression effects without intercept
 
@@ -97,7 +97,7 @@ We specify  the  prior on the regression effects as a rather flat independence
 Normal prior.
 
 ```{r}
-betas <- probit(y,X,b0=0, B0=10000)
+betas <- probit(y.unemp,X.unemp,b0=0, B0=10000)
 ```
 
 ```{r}
@@ -106,7 +106,7 @@ res.mcmc <- function(x, lower = 0.025, upper = 0.975)
 
 res_beta<- t(apply(betas,2, res.mcmc))
 colnames(res_beta) <- c("2.5%", "Mean", "97.5%") 
-rownames(res_beta) <- colnames(X)
+rownames(res_beta) <- colnames(X.unemp)
 
 knitr::kable(round(t(res_beta),3))
 
@@ -114,26 +114,30 @@ knitr::kable(round(t(res_beta),3))
 ```
 The estimated risk of unemployment  for a baseline person is low and it is even lower for a white collar worker. It is higher for females, older persons and particularily for those unemployed in 1997.
 
+```{r, echo = -c(1:2)}
+if (pdfplots) {
+  pdf("8-1_1.pdf", width = 8, height = 5)
+}
+
+par(mfrow = c(2, 3), mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
+
+for (j in seq_len(ncol(X.unemp))) {
+  hist(betas[, j], freq = FALSE, main = "",
+       xlab = colnames(X.unemp)[j], ylab = "")
+}
+```
 
 A plot of the autocorrelation of the draws shows that although there is some autocorrelation, it vanishes after a few lags.
 
 ```{r, echo = -c(1:2)}
 if (pdfplots) {
-  pdf("8-1_1.pdf", width = 8, height = 5)
-}
-par(mfrow = c(2, 3), mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
-for (j in seq_len(ncol(X))) {
-  hist(betas[, j], freq = FALSE, main = "",
-       xlab = colnames(X)[j], ylab = "")
-}
-```
-```{r, echo = -c(1:2)}
-if (pdfplots) {
   pdf("8-1_2.pdf", width = 8, height = 5)
 }
+
 par(mfrow = c(2, 3), mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
-for (j in seq_len(ncol(X))) {
-     acf(betas[, j],main = "", xlab = colnames(X)[j], ylab = "")
+
+for (j in seq_len(ncol(X.unemp))) {
+     acf(betas[, j],main = "", xlab = colnames(X.unemp)[j], ylab = "")
 }
 ```
 The sampler is easy to implement, however there  might be problems  when the response variable  contains either only few or very many successes.
@@ -172,7 +176,7 @@ We add a binary predictor $x$ where for $x=1$ we observe only successes and for 
 ```{r}
 N <- 500
 ns <- 10
-x <-  c(rep(1,ns),rep(0,N-ns))
+x<-  c(rep(1,ns),rep(0,N-ns))
 y <-  c(rep(1,ns),rep(0,N-ns))
 
 table(y,x)
@@ -251,6 +255,7 @@ install.packages("pgdraw",repos = "http://cran.us.r-project.org")
 logit<- function(y, X,  b0 = 0, B0 = 10000,
                    burnin = 1000L, M = 5000L) {
   
+  N <-length(y)
   d <- dim(X)[2] # number regression effects 
   p <- d - 1 # number of regression effects without intercept
 
@@ -302,11 +307,27 @@ We again use   the flat independence
 Normal prior on the regression effects and estimate the model.
 
 ```{r}
-betas_logit <- logit(y,X,b0=0, B0=10000)
+betas_logit <- logit(y.unemp,X.unemp,b0=0, B0=10000)
+print(str(betas_logit))
 
 res_beta_logit<- t(apply(betas_logit,2, res.mcmc))
 colnames(res_beta_logit) <- c("2.5%", "Mean", "97.5%") 
-rownames(res_beta_logit) <- colnames(X)
+rownames(res_beta_logit) <- colnames(X.unemp)
  
 knitr::kable(round(t(res_beta_logit),3))
+
+(p_unemploy_base=plogis(res_beta_logit[1,2]))
+```
+
+Note that  the logistic distribution  has a variance of $\pi^2/3$ and hence the 
+regression effects are absolutely larger than in the probit model. However any
+probability computed from the two models  will be very close, compare the  
+probability to be unemployed for a baseline person.
+
+We can compare the posterior estimates of the  coefficients in the probit model 
+$\beta$ those  of of logit model by multiplying them with $\pi/\sqrt{3}$ and see
+that there is not much difference.
+
+```{r}
+knitr::kable(round(t(res_beta*pi/sqrt(3)),3))
 ```
