@@ -85,10 +85,10 @@ centered at 18 years) and unemployed in 1997 (binary). The baseline
 person is hence an 18 year old male blue collar worker who was employed
 in 1997.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="va">labor</span><span class="op">$</span><span class="va">unemp98</span></span>
-<span><span class="va">N</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span>  <span class="co"># number of observations </span></span>
+<code class="sourceCode R"><span><span class="va">y.unemp</span> <span class="op">&lt;-</span> <span class="va">labor</span><span class="op">$</span><span class="va">unemp98</span></span>
+<span><span class="va">N.unemp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y.unemp</span><span class="op">)</span>  <span class="co"># number of observations </span></span>
 <span></span>
-<span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="st">"intercept"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">N</span><span class="op">)</span>, <span class="st">"female"</span><span class="op">=</span><span class="va">labor</span><span class="op">$</span><span class="va">female</span>,<span class="st">"age18"</span><span class="op">=</span><span class="va">labor</span><span class="op">$</span><span class="va">age</span><span class="op">-</span><span class="fl">18</span>,</span>
+<span><span class="va">X.unemp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="st">"intercept"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">N.unemp</span><span class="op">)</span>, <span class="st">"female"</span><span class="op">=</span><span class="va">labor</span><span class="op">$</span><span class="va">female</span>,<span class="st">"age18"</span><span class="op">=</span><span class="va">labor</span><span class="op">$</span><span class="va">age</span><span class="op">-</span><span class="fl">18</span>,</span>
 <span>           <span class="st">"wcollar"</span><span class="op">=</span><span class="va">labor</span><span class="op">$</span><span class="va">wcollar</span>, <span class="st">"unemp97"</span><span class="op">=</span><span class="va">labor</span><span class="op">$</span><span class="va">unemp97</span><span class="op">)</span> <span class="co"># regressor matrix</span></span></code></pre></div>
 <p>The regression coefficients are estimated using data augmentation and
 Gibbs sampling. We define a function yielding posterior draws using the
@@ -96,7 +96,7 @@ algorithm detailed in Chapter 8.1.1.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">probit</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">y</span>, <span class="va">X</span>,  <span class="va">b0</span> <span class="op">=</span> <span class="fl">0</span>, <span class="va">B0</span> <span class="op">=</span> <span class="fl">10000</span>,</span>
 <span>                   <span class="va">burnin</span> <span class="op">=</span> <span class="fl">1000L</span>, <span class="va">M</span> <span class="op">=</span> <span class="fl">5000L</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  </span>
+<span>  <span class="va">N</span> <span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span></span>
 <span>  <span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span> <span class="co"># number regression effects </span></span>
 <span>  <span class="va">p</span> <span class="op">&lt;-</span> <span class="va">d</span> <span class="op">-</span> <span class="fl">1</span> <span class="co"># number of regression effects without intercept</span></span>
 <span></span>
@@ -142,14 +142,14 @@ algorithm detailed in Chapter 8.1.1.</p>
 <p>We specify the prior on the regression effects as a rather flat
 independence Normal prior.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">betas</span> <span class="op">&lt;-</span> <span class="fu">probit</span><span class="op">(</span><span class="va">y</span>,<span class="va">X</span>,b0<span class="op">=</span><span class="fl">0</span>, B0<span class="op">=</span><span class="fl">10000</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">betas</span> <span class="op">&lt;-</span> <span class="fu">probit</span><span class="op">(</span><span class="va">y.unemp</span>,<span class="va">X.unemp</span>,b0<span class="op">=</span><span class="fl">0</span>, B0<span class="op">=</span><span class="fl">10000</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">res.mcmc</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">lower</span> <span class="op">=</span> <span class="fl">0.025</span>, <span class="va">upper</span> <span class="op">=</span> <span class="fl">0.975</span><span class="op">)</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">lower</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">upper</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">res_beta</span><span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">betas</span>,<span class="fl">2</span>, <span class="va">res.mcmc</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">res_beta</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"2.5%"</span>, <span class="st">"Mean"</span>, <span class="st">"97.5%"</span><span class="op">)</span> </span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">res_beta</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">res_beta</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">X.unemp</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="va">res_beta</span><span class="op">)</span>,<span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
@@ -195,17 +195,21 @@ independence Normal prior.</p>
 <p>The estimated risk of unemployment for a baseline person is low and
 it is even lower for a white collar worker. It is higher for females,
 older persons and particularily for those unemployed in 1997.</p>
-<p>A plot of the autocorrelation of the draws shows that although there
-is some autocorrelation, it vanishes after a few lags.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw">for</span> <span class="op">(</span><span class="va">j</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.5</span>, <span class="fl">1.5</span>, <span class="fl">1.5</span>, <span class="fl">.1</span><span class="op">)</span>, mgp <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.5</span>, <span class="fl">.5</span>, <span class="fl">0</span><span class="op">)</span>, lwd <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span></span>
+<span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">j</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">X.unemp</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">betas</span><span class="op">[</span>, <span class="va">j</span><span class="op">]</span>, freq <span class="op">=</span> <span class="cn">FALSE</span>, main <span class="op">=</span> <span class="st">""</span>,</span>
-<span>       xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">[</span><span class="va">j</span><span class="op">]</span>, ylab <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
+<span>       xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">X.unemp</span><span class="op">)</span><span class="op">[</span><span class="va">j</span><span class="op">]</span>, ylab <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p><img src="Chapter08_files/figure-html/unnamed-chunk-8-1.png" width="768"></p>
+<p>A plot of the autocorrelation of the draws shows that although there
+is some autocorrelation, it vanishes after a few lags.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw">for</span> <span class="op">(</span><span class="va">j</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>     <span class="fu"><a href="https://rdrr.io/r/stats/acf.html" class="external-link">acf</a></span><span class="op">(</span><span class="va">betas</span><span class="op">[</span>, <span class="va">j</span><span class="op">]</span>,main <span class="op">=</span> <span class="st">""</span>, xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">[</span><span class="va">j</span><span class="op">]</span>, ylab <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.5</span>, <span class="fl">1.5</span>, <span class="fl">1.5</span>, <span class="fl">.1</span><span class="op">)</span>, mgp <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.5</span>, <span class="fl">.5</span>, <span class="fl">0</span><span class="op">)</span>, lwd <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span></span>
+<span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">j</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">X.unemp</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>     <span class="fu"><a href="https://rdrr.io/r/stats/acf.html" class="external-link">acf</a></span><span class="op">(</span><span class="va">betas</span><span class="op">[</span>, <span class="va">j</span><span class="op">]</span>,main <span class="op">=</span> <span class="st">""</span>, xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">X.unemp</span><span class="op">)</span><span class="op">[</span><span class="va">j</span><span class="op">]</span>, ylab <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p><img src="Chapter08_files/figure-html/unnamed-chunk-9-1.png" width="768">
 The sampler is easy to implement, however there might be problems when
@@ -250,7 +254,7 @@ only failures.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">N</span> <span class="op">&lt;-</span> <span class="fl">500</span></span>
 <span><span class="va">ns</span> <span class="op">&lt;-</span> <span class="fl">10</span></span>
-<span><span class="va">x</span> <span class="op">&lt;-</span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>,<span class="va">ns</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>,<span class="va">N</span><span class="op">-</span><span class="va">ns</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">x</span><span class="op">&lt;-</span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>,<span class="va">ns</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>,<span class="va">N</span><span class="op">-</span><span class="va">ns</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">y</span> <span class="op">&lt;-</span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>,<span class="va">ns</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>,<span class="va">N</span><span class="op">-</span><span class="va">ns</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">y</span>,<span class="va">x</span><span class="op">)</span></span>
@@ -334,11 +338,12 @@ using the two-block Polya-Gamma sampler.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"pgdraw"</span>,repos <span class="op">=</span> <span class="st">"http://cran.us.r-project.org"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Installing package into '/home/runner/work/_temp/Library'</span></span>
-<span><span class="co">#&gt; (as 'lib' is unspecified)</span></span>
-<span></span>
-<span><span class="va">logit</span><span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">y</span>, <span class="va">X</span>,  <span class="va">b0</span> <span class="op">=</span> <span class="fl">0</span>, <span class="va">B0</span> <span class="op">=</span> <span class="fl">10000</span>,</span>
+<span><span class="co">#&gt; (as 'lib' is unspecified)</span></span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">logit</span><span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">y</span>, <span class="va">X</span>,  <span class="va">b0</span> <span class="op">=</span> <span class="fl">0</span>, <span class="va">B0</span> <span class="op">=</span> <span class="fl">10000</span>,</span>
 <span>                   <span class="va">burnin</span> <span class="op">=</span> <span class="fl">1000L</span>, <span class="va">M</span> <span class="op">=</span> <span class="fl">5000L</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  </span>
+<span>  <span class="va">N</span> <span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span></span>
 <span>  <span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span> <span class="co"># number regression effects </span></span>
 <span>  <span class="va">p</span> <span class="op">&lt;-</span> <span class="va">d</span> <span class="op">-</span> <span class="fl">1</span> <span class="co"># number of regression effects without intercept</span></span>
 <span></span>
@@ -373,8 +378,8 @@ using the two-block Polya-Gamma sampler.</p>
 <span>      <span class="va">omega</span> <span class="op">&lt;-</span> <span class="fu">pgdraw</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/pgdraw/man/pgdraw.html" class="external-link">pgdraw</a></span><span class="op">(</span>b <span class="op">=</span> <span class="fl">1</span>, c <span class="op">=</span> <span class="va">z</span><span class="op">-</span><span class="va">eta</span><span class="op">)</span></span>
 <span>  </span>
 <span>      <span class="co"># sample beta from the full conditional </span></span>
-<span>      <span class="va">Xomega</span> <span class="op">&lt;-</span> <span class="fu">Matrix</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/Matrix/man/Diagonal.html" class="external-link">Diagonal</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">omega</span><span class="op">)</span>, x <span class="op">=</span> <span class="va">omega</span><span class="op">)</span></span>
-<span>      <span class="va">BN</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/solve.html" class="external-link">solve</a></span><span class="op">(</span><span class="va">B0inv</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="va">Xomega</span><span class="op">)</span><span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span><span class="va">X</span><span class="op">)</span></span>
+<span>      <span class="va">Xomega</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="va">omega</span>,ncol<span class="op">=</span><span class="va">d</span>, nrow<span class="op">=</span><span class="va">N</span><span class="op">)</span> <span class="op">*</span><span class="va">X</span></span>
+<span>      <span class="va">BN</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/solve.html" class="external-link">solve</a></span><span class="op">(</span><span class="va">B0.inv</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="va">Xomega</span><span class="op">)</span><span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span><span class="va">X</span><span class="op">)</span></span>
 <span>      <span class="va">bN</span> <span class="op">&lt;-</span> <span class="va">BN</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="op">(</span><span class="va">B0inv.b0</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="va">Xomega</span><span class="op">)</span><span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="va">z</span><span class="op">)</span></span>
 <span>      <span class="va">beta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu">mvtnorm</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/mvtnorm/man/Mvnorm.html" class="external-link">rmvnorm</a></span><span class="op">(</span><span class="fl">1</span>, mean <span class="op">=</span> <span class="va">bN</span>, sigma <span class="op">=</span> <span class="va">BN</span><span class="op">)</span><span class="op">)</span></span>
 <span>    </span>
@@ -386,9 +391,108 @@ using the two-block Polya-Gamma sampler.</p>
 <span> <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="va">betas</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>We again use the flat independence Normal prior on the regression
-effects</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">betas_logit</span> <span class="op">&lt;-</span> <span class="fu">probit</span><span class="op">(</span><span class="va">y</span>,<span class="va">X</span>,b0<span class="op">=</span><span class="fl">0</span>, B0<span class="op">=</span><span class="fl">10000</span><span class="op">)</span></span></code></pre></div>
+effects and estimate the model.</p>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">betas_logit</span> <span class="op">&lt;-</span> <span class="fu">logit</span><span class="op">(</span><span class="va">y.unemp</span>,<span class="va">X.unemp</span>,b0<span class="op">=</span><span class="fl">0</span>, B0<span class="op">=</span><span class="fl">10000</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">betas_logit</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;  num [1:5000, 1:5] -3.81 -3.73 -3.69 -3.72 -3.62 ...</span></span>
+<span><span class="co">#&gt; NULL</span></span>
+<span></span>
+<span><span class="va">res_beta_logit</span><span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">betas_logit</span>,<span class="fl">2</span>, <span class="va">res.mcmc</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">res_beta_logit</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"2.5%"</span>, <span class="st">"Mean"</span>, <span class="st">"97.5%"</span><span class="op">)</span> </span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">res_beta_logit</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">X.unemp</span><span class="op">)</span></span>
+<span> </span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="va">res_beta_logit</span><span class="op">)</span>,<span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left"></th>
+<th align="right">intercept</th>
+<th align="right">female</th>
+<th align="right">age18</th>
+<th align="right">wcollar</th>
+<th align="right">unemp97</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">2.5%</td>
+<td align="right">-4.069</td>
+<td align="right">0.090</td>
+<td align="right">0.044</td>
+<td align="right">-0.613</td>
+<td align="right">4.102</td>
+</tr>
+<tr class="even">
+<td align="left">Mean</td>
+<td align="right">-3.673</td>
+<td align="right">0.394</td>
+<td align="right">0.056</td>
+<td align="right">-0.342</td>
+<td align="right">4.380</td>
+</tr>
+<tr class="odd">
+<td align="left">97.5%</td>
+<td align="right">-3.284</td>
+<td align="right">0.692</td>
+<td align="right">0.068</td>
+<td align="right">-0.060</td>
+<td align="right">4.664</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="op">(</span><span class="va">p_unemploy_base</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html" class="external-link">plogis</a></span><span class="op">(</span><span class="va">res_beta_logit</span><span class="op">[</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 0.02477852</span></span></code></pre></div>
+<p>Note that the logistic distribution has a variance of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>π</mi><mn>2</mn></msup><mi>/</mi><mn>3</mn></mrow><annotation encoding="application/x-tex">\pi^2/3</annotation></semantics></math>
+and hence the regression effects are absolutely larger than in the
+probit model. However any probability computed from the two models will
+be very close, compare the<br>
+probability to be unemployed for a baseline person.</p>
+<p>We can compare the posterior estimates of the coefficients in the
+probit model
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>
+those of of logit model by multiplying them with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>π</mi><mi>/</mi><msqrt><mn>3</mn></msqrt></mrow><annotation encoding="application/x-tex">\pi/\sqrt{3}</annotation></semantics></math>
+and see that there is not much difference.</p>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="va">res_beta</span><span class="op">*</span><span class="va">pi</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span><span class="op">)</span>,<span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left"></th>
+<th align="right">intercept</th>
+<th align="right">female</th>
+<th align="right">age18</th>
+<th align="right">wcollar</th>
+<th align="right">unemp97</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">2.5%</td>
+<td align="right">-3.852</td>
+<td align="right">0.195</td>
+<td align="right">0.042</td>
+<td align="right">-0.532</td>
+<td align="right">4.370</td>
+</tr>
+<tr class="even">
+<td align="left">Mean</td>
+<td align="right">-3.580</td>
+<td align="right">0.393</td>
+<td align="right">0.050</td>
+<td align="right">-0.332</td>
+<td align="right">4.573</td>
+</tr>
+<tr class="odd">
+<td align="left">97.5%</td>
+<td align="right">-3.318</td>
+<td align="right">0.592</td>
+<td align="right">0.058</td>
+<td align="right">-0.129</td>
+<td align="right">4.772</td>
+</tr>
+</tbody>
+</table>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
