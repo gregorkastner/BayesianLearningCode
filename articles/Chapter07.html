@@ -622,13 +622,15 @@ i.e.,
 </annotation></semantics></math> and employ a 4-step sampler to obtain
 posterior draws. In addition, we assume that
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>y</mi><mn>0</mn></msub><annotation encoding="application/x-tex">y_0</annotation></semantics></math>
-is unknown a priori follows the stationary distribution of the AR(1)
+is unknown and a priori follows the stationary distribution of the AR(1)
 process.</p>
+<p>We start by defining the density function of the rescaled beta.</p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dbetarescaled</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">a</span>, <span class="va">b</span>, <span class="va">log</span> <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">tmp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Beta.html" class="external-link">dbeta</a></span><span class="op">(</span><span class="op">(</span><span class="va">x</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span>, <span class="va">a</span>, <span class="va">b</span>, log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span>
 <span>  <span class="kw">if</span> <span class="op">(</span><span class="va">log</span><span class="op">)</span> <span class="va">tmp</span> <span class="kw">else</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">tmp</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
+<p>Now we are ready to sample!</p>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Specify the hyperparameters</span></span>
 <span><span class="va">c0</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
@@ -692,11 +694,15 @@ process.</p>
 <span><span class="op">}</span></span>
 <span><span class="va">res1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>y0 <span class="op">=</span> <span class="va">y0s</span>, sigma2 <span class="op">=</span> <span class="va">sigma2s</span>, zeta <span class="op">=</span> <span class="va">zetas</span>, phi <span class="op">=</span> <span class="va">phis</span><span class="op">)</span></span>
 <span><span class="va">naccepts1</span> <span class="op">&lt;-</span> <span class="va">naccepts</span></span></code></pre></div>
+<p>Let us investigate traceplots and empirical autocorrelation functions
+of the draws. In addition, we check the percentage of accepted draws in
+MH-step (d).</p>
 <div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/plot.ts.html" class="external-link">plot.ts</a></span><span class="op">(</span><span class="va">res1</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/plot.ts.html" class="external-link">plot.ts</a></span><span class="op">(</span><span class="va">res1</span>, xlab <span class="op">=</span> <span class="st">"Draws after burn-in"</span>,</span>
+<span>        main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"MH acceptance rate: "</span>, <span class="fl">100</span> <span class="op">*</span> <span class="va">naccepts1</span> <span class="op">/</span> <span class="va">ndraws</span>, <span class="st">"%"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="Chapter07_files/figure-html/unnamed-chunk-30-1.png" width="768"></p>
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/acf.html" class="external-link">acf</a></span><span class="op">(</span><span class="va">res1</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/acf.html" class="external-link">acf</a></span><span class="op">(</span><span class="va">res1</span>, ylab <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span></code></pre></div>
 <p><img src="Chapter07_files/figure-html/unnamed-chunk-30-2.png" width="768"></p>
 <p>We now repeat this exercise, but use the conditional posterior
 resulting from an auxiliary moment-matched prior in Step (d).</p>
@@ -760,18 +766,43 @@ resulting from an auxiliary moment-matched prior in Step (d).</p>
 <span><span class="op">}</span></span>
 <span><span class="va">res2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>y0 <span class="op">=</span> <span class="va">y0s</span>, sigma2 <span class="op">=</span> <span class="va">sigma2s</span>, zeta <span class="op">=</span> <span class="va">zetas</span>, phi <span class="op">=</span> <span class="va">phis</span><span class="op">)</span></span>
 <span><span class="va">naccepts2</span> <span class="op">&lt;-</span> <span class="va">naccepts</span></span></code></pre></div>
+<p>Again, we investigate traceplots and empirical autocorrelation
+functions of the draws. In addition, we check the percentage of accepted
+draws in MH-step (d).</p>
 <div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/plot.ts.html" class="external-link">plot.ts</a></span><span class="op">(</span><span class="va">res2</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/plot.ts.html" class="external-link">plot.ts</a></span><span class="op">(</span><span class="va">res2</span>, xlab <span class="op">=</span> <span class="st">"Draws after burn-in"</span>,</span>
+<span>        main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"MH acceptance rate: "</span>, <span class="fl">100</span> <span class="op">*</span> <span class="va">naccepts2</span> <span class="op">/</span> <span class="va">ndraws</span>, <span class="st">"%"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="Chapter07_files/figure-html/unnamed-chunk-32-1.png" width="768"></p>
 <div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/acf.html" class="external-link">acf</a></span><span class="op">(</span><span class="va">res2</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/acf.html" class="external-link">acf</a></span><span class="op">(</span><span class="va">res2</span>, ylab <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span></code></pre></div>
 <p><img src="Chapter07_files/figure-html/unnamed-chunk-32-2.png" width="768"></p>
+<p>To conclude, we compare the draws from the two samplers; they should
+yield draws from the same distribution, irrespective of the mixing. We
+graphically check this by comparing histograms and quantiles of draws
+from the marginal posterior of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϕ</mi><annotation encoding="application/x-tex">\phi</annotation></semantics></math>.</p>
 <div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/density.html" class="external-link">density</a></span><span class="op">(</span><span class="va">res1</span><span class="op">$</span><span class="va">phi</span>, bw <span class="op">=</span> <span class="st">"SJ"</span>, adj <span class="op">=</span> <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/density.html" class="external-link">density</a></span><span class="op">(</span><span class="va">res2</span><span class="op">$</span><span class="va">phi</span>, bw <span class="op">=</span> <span class="st">"SJ"</span>, adj <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fl">2</span>, col <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/stats/qqnorm.html" class="external-link">qqplot</a></span><span class="op">(</span><span class="va">res1</span><span class="op">$</span><span class="va">phi</span>, <span class="va">res2</span><span class="op">$</span><span class="va">phi</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">res1</span><span class="op">$</span><span class="va">phi</span>, breaks <span class="op">=</span> <span class="fl">50</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/rgb.html" class="external-link">rgb</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">.3</span><span class="op">)</span>,</span>
+<span>     main <span class="op">=</span> <span class="st">"Histogram"</span>, xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">phi</span><span class="op">)</span>, freq <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">res2</span><span class="op">$</span><span class="va">phi</span>, breaks <span class="op">=</span> <span class="fl">50</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/rgb.html" class="external-link">rgb</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">.3</span><span class="op">)</span>, freq <span class="op">=</span> <span class="cn">FALSE</span>, add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/qqnorm.html" class="external-link">qqplot</a></span><span class="op">(</span><span class="va">res1</span><span class="op">$</span><span class="va">phi</span>, <span class="va">res2</span><span class="op">$</span><span class="va">phi</span>, xlab <span class="op">=</span> <span class="st">"Sampler 1"</span>, ylab <span class="op">=</span> <span class="st">"Sampler 2"</span>,</span>
+<span>       main <span class="op">=</span> <span class="st">"Quantiles of draws from the marginal posterior"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, col <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <p><img src="Chapter07_files/figure-html/unnamed-chunk-33-1.png" width="768"></p>
+<p>To conclude, we compare the posteriors of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϕ</mi><annotation encoding="application/x-tex">\phi</annotation></semantics></math>
+under the improper prior, the posterior obtained after post-processing
+draws to obtain stationarity, and the posterior under the
+stationary-enforcing shifted beta prior.</p>
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mybreaks</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">.99</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">res1</span><span class="op">$</span><span class="va">phi</span><span class="op">)</span>, <span class="fl">1.01</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">ar1draws</span><span class="op">)</span>, length <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">ar1draws</span><span class="op">[</span><span class="op">!</span><span class="va">nonstationary</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span><span class="op">]</span>, breaks <span class="op">=</span> <span class="va">mybreaks</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/rgb.html" class="external-link">rgb</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">.2</span><span class="op">)</span>,</span>
+<span>     main <span class="op">=</span> <span class="st">"Histogram"</span>, xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">phi</span><span class="op">)</span>, freq <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">ar1draws</span>, breaks <span class="op">=</span> <span class="va">mybreaks</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/rgb.html" class="external-link">rgb</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">.2</span><span class="op">)</span>,</span>
+<span>     freq <span class="op">=</span> <span class="cn">FALSE</span>, add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">res2</span><span class="op">$</span><span class="va">phi</span>, breaks <span class="op">=</span> <span class="va">mybreaks</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/rgb.html" class="external-link">rgb</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">.2</span><span class="op">)</span>,</span>
+<span>     freq <span class="op">=</span> <span class="cn">FALSE</span>, add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p><img src="Chapter07_files/figure-html/unnamed-chunk-34-1.png" width="768"></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
