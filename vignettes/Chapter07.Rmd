@@ -809,3 +809,17 @@ qqplot(res1$phi, res2$phi, xlab = "Sampler 1", ylab = "Sampler 2",
        main = "Quantiles of draws from the marginal posterior")
 abline(0, 1, col = 2)
 ```
+
+To conclude, we compare the posteriors of $\phi$ under the improper prior,
+the posterior obtained after post-processing draws to obtain stationarity,
+and the posterior under the stationary-enforcing shifted beta prior.
+
+```{r}
+mybreaks <- seq(.99 * min(res1$phi), 1.01 * max(ar1draws), length = 50)
+hist(ar1draws[!nonstationary[, 1]], breaks = mybreaks, col = rgb(0, 0, 1, .2),
+     main = "Histogram", xlab = expression(phi), freq = FALSE)
+hist(ar1draws, breaks = mybreaks, col = rgb(0, 1, 0, .2),
+     freq = FALSE, add = TRUE)
+hist(res2$phi, breaks = mybreaks, col = rgb(1, 0, 0, .2),
+     freq = FALSE, add = TRUE)
+```
