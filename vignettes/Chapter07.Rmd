@@ -634,8 +634,10 @@ $$
 (\phi + 1) / 2 \sim \mathcal{B}\left(a^\phi, b^\phi\right),
 $$
 and employ a 4-step sampler to obtain posterior draws. In addition, we assume
-that $y_0$ is unknown a priori follows the stationary distribution of the AR(1)
-process.
+that $y_0$ is unknown and a priori follows the stationary distribution of the
+AR(1) process.
+
+We start by defining the density function of the rescaled beta.
 
 ```{r}
 dbetarescaled <- function(x, a, b, log = FALSE) {
@@ -643,6 +645,8 @@ dbetarescaled <- function(x, a, b, log = FALSE) {
   if (log) tmp else exp(tmp)
 }
 ```
+
+Now we are ready to sample!
 
 ```{r}
 # Specify the hyperparameters
@@ -709,14 +713,17 @@ res1 <- data.frame(y0 = y0s, sigma2 = sigma2s, zeta = zetas, phi = phis)
 naccepts1 <- naccepts
 ```
 
+Let us investigate traceplots and empirical autocorrelation functions of the
+draws. In addition, we check the percentage of accepted draws in MH-step (d).
+
 ```{r}
-plot.ts(res1)
-acf(res1)
+plot.ts(res1, xlab = "Draws after burn-in",
+        main = paste0("MH acceptance rate: ", 100 * naccepts1 / ndraws, "%"))
+acf(res1, ylab = "")
 ```
 
 We now repeat this exercise, but use the conditional posterior resulting
 from an auxiliary moment-matched prior in Step (d).
-
 
 ```{r}
 # Compute mean and variance of the actual prior using properties of the beta
@@ -780,10 +787,17 @@ res2 <- data.frame(y0 = y0s, sigma2 = sigma2s, zeta = zetas, phi = phis)
 naccepts2 <- naccepts
 ```
 
+Again, we investigate traceplots and empirical autocorrelation functions of the
+draws. In addition, we check the percentage of accepted draws in MH-step (d).
+
 ```{r}
-plot.ts(res2)
-acf(res2)
+plot.ts(res2, xlab = "Draws after burn-in",
+        main = paste0("MH acceptance rate: ", 100 * naccepts2 / ndraws, "%"))
+acf(res2, ylab = "")
 ```
+
+To conclude, we compare the draws from the two samplers; they should yield
+draws from the same distribution, irrespective of the mixing.
 
 ```{r}
 plot(density(res1$phi, bw = "SJ", adj = 2))
