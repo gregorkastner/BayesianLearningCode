@@ -823,3 +823,26 @@ hist(ar1draws, breaks = mybreaks, col = rgb(0, 1, 0, .2),
 hist(res2$phi, breaks = mybreaks, col = rgb(1, 0, 0, .2),
      freq = FALSE, add = TRUE)
 ```
+
+# Section 7.3: Some Extensions
+# Section 7.3.1: AR Models with a Unit Root
+
+Let us check for stationarity of the exchange rate data. First, we load the
+data and visualize it as well as its empirical ACF. We do the same for the
+absolute returns.
+
+```{r}
+if (pdfplots) {
+  pdf("7-2_11.pdf", width = 9, height = 4)
+}
+par(mfrow = c(2, 2), mar = c(2.5, 2.5, 1.2, .5), mgp = c(1.5, .5, 0), lwd = 2)
+data("exrates", package = "stochvol")
+dat <- exrates$USD / exrates$CHF
+ret <- diff(dat)
+plot(dat, type = "l", main = "CHF-USD exchange rate", xlab = "Days",
+     ylab = "CHF in USD")
+plot(ret, type = "l", main = "CHF-USD daily returns", xlab = "Days",
+     ylab = "CHF-USD")
+acf(dat)
+acf(ret)
+```
