@@ -818,14 +818,27 @@ To conclude, we compare the posteriors of $\phi$ under the improper prior,
 the posterior obtained after post-processing draws to obtain stationarity,
 and the posterior under the stationary-enforcing shifted beta prior.
 
-```{r}
-mybreaks <- seq(.99 * min(res1$phi), 1.01 * max(ar1draws), length = 50)
+```{r, echo = -c(1:2)}
+if (pdfplots) {
+  pdf("7-2_12.pdf", width = 9, height = 4)
+}
+par(mfrow = c(1, 1), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
+mybreaks <- seq(floor(100 * .99 * min(res1$phi)) / 100,
+                ceiling(100 * 1.01 * max(ar1draws)) / 100,
+                by = .0025)
 hist(ar1draws[!nonstationary[, 1]], breaks = mybreaks, col = rgb(0, 0, 1, .2),
-     main = "Histogram", xlab = expression(phi), freq = FALSE)
+     main = "Histogram of posterior draws", xlab = expression(phi),
+     freq = FALSE)
 hist(ar1draws, breaks = mybreaks, col = rgb(0, 1, 0, .2),
      freq = FALSE, add = TRUE)
 hist(res2$phi, breaks = mybreaks, col = rgb(1, 0, 0, .2),
      freq = FALSE, add = TRUE)
+lines(mybreaks[mybreaks <= 1], dbetarescaled(mybreaks[mybreaks <= 1], a0, A0),
+      col = 2, lty = 2, lwd = 3)
+legend("topright",
+       c("Unrestricted posterior", "Post-processed posterior",
+         "Beta prior posterior"),
+       fill = rgb(c(0, 0, 1), c(1, 0, 0), c(0, 1, 0), .2))
 ```
 
 # Section 7.3: Some Extensions
