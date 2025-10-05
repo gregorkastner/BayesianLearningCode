@@ -834,11 +834,12 @@ hist(ar1draws, breaks = mybreaks, col = rgb(0, 1, 0, .2),
 hist(res2$phi, breaks = mybreaks, col = rgb(1, 0, 0, .2),
      freq = FALSE, add = TRUE)
 lines(mybreaks[mybreaks <= 1], dbetarescaled(mybreaks[mybreaks <= 1], a0, A0),
-      col = 2, lty = 2, lwd = 3)
+      col = 2, lty = 3, lwd = 3)
 legend("topright",
        c("Unrestricted posterior", "Post-processed posterior",
          "Beta prior posterior"),
        fill = rgb(c(0, 0, 1), c(1, 0, 0), c(0, 1, 0), .2))
+legend("topleft", "Beta prior", col = 2, lty = 3, lwd = 3)
 ```
 
 # Section 7.3: Some Extensions
