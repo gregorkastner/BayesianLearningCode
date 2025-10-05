@@ -860,3 +860,28 @@ Xy <- ARdesignmatrix(ret, 2)
 ar2ret <- regression(y, Xy, prior = "improper")
 ```
 
+Now we can graphically investigate stationarity as above.
+
+```{r, echo = -c(1:2), fig.width = 9, fig.height = 3}
+if (pdfplots) {
+  pdf("7-2_12.pdf", width = 9, height = 4)
+}
+par(mfrow = c(2, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 2)
+draws <- list(ar2dat$betas[,2:3], ar2ret$betas[,2:3])
+eigenvalues <- matrix(NA_complex_, nrow(draws[[1]]), ncol(draws[[1]]))
+mains <- c("AR(2) on the raw series", "AR(2) on the returns")
+for (i in seq_along(draws)) {
+  plot(draws[[i]], main = mains[i], xlab = bquote(phi[1]),
+     ylab = bquote(phi[2]), xlim = c(-2, 2), ylim = c(-1, 1),
+     col = rgb(0, 0, 0, .05), pch = 16)
+  polygon(c(-2, 0, 2, -2), c(-1, 1, -1, -1), border = 2)
+
+  for (m in seq_len(nrow(draws[[i]]))) {
+    Phi <- matrix(c(draws[[i]][m,], c(1, 0)), byrow = TRUE, nrow = 2)
+    eigenvalues[m,] <- eigen(Phi, only.values = TRUE)$values
+  }
+  plot(eigenvalues, xlim = c(-1, 1), ylim = c(-1, 1), asp = 1,
+       main = mains[i], col = rgb(0, 0, 0, .05), pch = 16)
+  symbols(0, 0, 1, add = TRUE, fg = 2, inches = FALSE)
+}
+```
