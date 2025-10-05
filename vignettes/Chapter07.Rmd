@@ -846,3 +846,17 @@ plot(ret, type = "l", main = "CHF-USD daily returns", xlab = "Days",
 acf(dat)
 acf(ret)
 ```
+
+This clearly hints at non-stationarity of the exchange rate series and at
+(first order) stationarity of the returns. To check more formally, we fit an
+AR(2) model to both.
+
+```{r}
+y <- tail(dat, -2)
+Xy <- ARdesignmatrix(dat, 2)
+ar2dat <- regression(y, Xy, prior = "improper")
+y <- tail(ret, -2)
+Xy <- ARdesignmatrix(ret, 2)
+ar2ret <- regression(y, Xy, prior = "improper")
+```
+
