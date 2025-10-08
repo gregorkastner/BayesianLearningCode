@@ -72,8 +72,11 @@
     
     
 <div class="section level2">
-<h2 id="section-8-1">Section 8.1<a class="anchor" aria-label="anchor" href="#section-8-1"></a>
+<h2 id="section-8-1-1-probit-model">Section 8.1.1: Probit Model<a class="anchor" aria-label="anchor" href="#section-8-1-1-probit-model"></a>
 </h2>
+<div class="section level3">
+<h3 id="example-8-1-labour-market-data">Example 8.1: Labour Market Data<a class="anchor" aria-label="anchor" href="#example-8-1-labour-market-data"></a>
+</h3>
 <p>We illustrate probit regression analysis for the labor market
 data.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
@@ -330,8 +333,9 @@ around zero.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/acf.html" class="external-link">acf</a></span><span class="op">(</span><span class="va">betas</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
 <p><img src="Chapter08_files/figure-html/unnamed-chunk-16-1.png" width="768"></p>
 </div>
+</div>
 <div class="section level2">
-<h2 id="section-8-2">Section 8.2<a class="anchor" aria-label="anchor" href="#section-8-2"></a>
+<h2 id="section-8-1-2">Section 8.1.2<a class="anchor" aria-label="anchor" href="#section-8-1-2"></a>
 </h2>
 <p>We now estimate a logistic regression model for the labor market data
 using the two-block Polya-Gamma sampler.</p>
@@ -493,6 +497,28 @@ and see that there is not much difference.</p>
 </tr>
 </tbody>
 </table>
+</div>
+<div class="section level2">
+<h2 id="section-8-2">Section 8.2<a class="anchor" aria-label="anchor" href="#section-8-2"></a>
+</h2>
+<div class="section level3">
+<h3 id="example-8-3-road-safety-data">Example 8.3: Road Safety Data<a class="anchor" aria-label="anchor" href="#example-8-3-road-safety-data"></a>
+</h3>
+<p>#small model with intercept, intervention effect and holiday dummy
+(activated in #July/August) # large model with intercept, intervention
+effect, linear trend, seasonal pattern #with monthly dummies in # Study
+how the acceptance rate detoriates, if d increases. ADD We load the data
+and extract the observations for the children in Linz. Then we define
+the regressor matrix.</p>
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"accidents"</span>, package <span class="op">=</span> <span class="st">"BayesianLearningCode"</span><span class="op">)</span></span>
+<span><span class="va">y</span> <span class="op">&lt;-</span> <span class="va">accidents</span><span class="op">[</span>, <span class="st">"children_accidents"</span><span class="op">]</span></span>
+<span><span class="va">N</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">intervention</span> <span class="op">&lt;-</span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">7</span><span class="op">*</span><span class="fl">12</span><span class="op">+</span><span class="fl">9</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">8</span><span class="op">*</span><span class="fl">12</span><span class="op">+</span><span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">holiday</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">6</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">4</span><span class="op">)</span><span class="op">)</span>,<span class="fl">16</span><span class="op">)</span></span>
+<span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>,<span class="va">N</span><span class="op">)</span>,<span class="va">intervention</span>, <span class="va">holiday</span><span class="op">)</span></span></code></pre></div>
+</div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
