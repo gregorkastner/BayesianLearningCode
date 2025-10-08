@@ -24,7 +24,8 @@ pdfplots <- FALSE # default: FALSE; set this to TRUE only if you like pdf figure
 par(mgp = c(1.6, .6, 0), mar = c(2.6, 2.6, 2.6, .4), lwd = 1)
 ```
 
-# Section 8.1
+# Section 8.1.1: Probit Model 
+## Example 8.1: Labour Market Data
 We illustrate probit regression analysis for the labor market data.
 
 ```{r}
@@ -243,7 +244,7 @@ plot(betas[,2], type="l", main = "", xlab = "", ylab = "")
 acf(betas[,2])
 ```
 
-# Section 8.2
+# Section 8.1.2
 We now estimate a logistic regression model for the labor market data
 using the two-block Polya-Gamma sampler.
 
@@ -330,4 +331,25 @@ that there is not much difference.
 
 ```{r}
 knitr::kable(round(t(res_beta*pi/sqrt(3)),3))
+```
+
+# Section 8.2 
+## Example 8.3: Road Safety Data
+
+#small model with intercept, intervention effect and holiday dummy (activated in
+#July/August)
+# large model with intercept, intervention effect, linear trend, seasonal pattern 
+#with monthly dummies in
+# Study how the acceptance rate detoriates, if d increases. ADD
+We load the data and extract the observations for the children in
+Linz. Then we define the regressor matrix.
+
+```{r}
+data("accidents", package = "BayesianLearningCode")
+y <- accidents[, "children_accidents"]
+N <- length(y)
+
+intervention <-  c(rep(0,7*12+9),rep(1,8*12+3))
+holiday <- rep(c(rep(0,6), rep(1,2), rep(0,4)),16)
+X <- cbind(rep(1,N),intervention, holiday)
 ```
