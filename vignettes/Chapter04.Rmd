@@ -41,7 +41,7 @@ data("exrates", package = "stochvol")
 y <- 100 * diff(log(exrates$USD / exrates$CHF))
 N <- length(y)
 hist(y, breaks = 50, main = "Histogram",
-     xlab = "CHF/USD percentage log returns")
+     xlab = "CHF/USD daily percentage log returns")
 ts.plot(y, main = "Time series plot", ylab = "CHF/USD percentage log returns",
         xlab = "Time (days)")
 ```
