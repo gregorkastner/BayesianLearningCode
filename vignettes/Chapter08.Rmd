@@ -407,10 +407,9 @@ print(parms.proposal$mean)
 print(parms.proposal$var)
 ```
 
-Next we set uo the independence Metropolis Hastings algorithm and estimate the model parameters.
+Next we set up the independence Metropolis Hastings algorithm and estimate the model parameters.
 ```{r}
 install.packages("mvtnorm",repos = "http://cran.us.r-project.org")
-require(mvtnorm)
 ```
 
 ```{r}
@@ -421,19 +420,19 @@ poisson <- function(y, X,  b0 = 0, B0 = 100,qmean,qvar,
   beta.post=matrix(ncol=d,nrow=M)
   acc=0
   
-  beta<-as.vector(rmvnorm(1, mean=qmean, sigma=qvar))
+  beta<-as.vector(mvtnorm::rmvnorm(1, mean=qmean, sigma=qvar))
   
   for (m in (1:M)){
     beta.old <- beta
-    beta.proposed <- as.vector(rmvnorm(1, mean=qmean, sigma=qvar))
+    beta.proposed <- as.vector(mvtnorm::rmvnorm(1, mean=qmean, sigma=qvar))
     
     # compute log proposal density at proposed and old value
-    lq_proposed <- dmvnorm(beta.proposed,mean=qmean, sigma=qvar, log=TRUE)
-    lq_old  <- dmvnorm(beta.old, mean=qmean, sigma=qvar, log=TRUE)
+    lq_proposed <- mvtnorm::dmvnorm(beta.proposed,mean=qmean, sigma=qvar, log=TRUE)
+    lq_old  <- mvtnorm::dmvnorm(beta.old, mean=qmean, sigma=qvar, log=TRUE)
     
     # compute log prior  of proposed and old value
-    lpri_proposed <- dmvnorm(beta.proposed, mean=b0, sigma=B0, log=TRUE )
-    lpri_old  <- dmvnorm(beta.old,  mean=b0, sigma=B0, log=TRUE )
+    lpri_proposed <- mvtnorm::dmvnorm(beta.proposed, mean=b0, sigma=B0, log=TRUE )
+    lpri_old  <- mvtnorm::dmvnorm(beta.old,  mean=b0, sigma=B0, log=TRUE )
     
     # compute loglikelihood of proposed and old value
     lh_proposed <- dpois(y,exp(X%*%beta.proposed),  log=TRUE)
@@ -461,11 +460,11 @@ poisson <- function(y, X,  b0 = 0, B0 = 100,qmean,qvar,
 ```{r}
 res1<-poisson(y,X, b0,B0 ,qmean=parms.proposal$mean,qvar=parms.proposal$var)
 
-res.poisson1<- rbind(apply(res1$beta.post,2, res.mcmc),exp(colMeans(res1$beta.post)))
-rownames(res.poisson1) <- c("2.5%", "Mean", "97.5%", "exp(Mean)") 
-colnames(res.poisson1) <- colnames(X)
+res.poisson1<- t(rbind(apply(res1$beta.post,2, res.mcmc),exp(colMeans(res1$beta.post))))
+colnames(res.poisson1) <- c("2.5%", "Mean", "97.5%", "exp(Mean)") 
+rownames(res.poisson1) <- colnames(X)
 
-knitr::kable(round(t(res.poisson1),3))
+knitr::kable(round(res.poisson1,3))
 print(res1$accept)
 ```
 
@@ -481,7 +480,7 @@ X.large <- cbind(intercept, intervention, lin.trend,seas.dummies)
 d <- dim(X.large)[2]
 ```
 
-Define the prior parameters and compute parameters of the proposal distribution 
+We set the prior parameters and compute parameters of the proposal distribution 
 ```{r}
 b0=rep(0,d)
 B0 <- diag(rep(100, d), nrow = d) 
@@ -489,20 +488,30 @@ B0.inv<- diag(rep(1/100, d), nrow = d)
 
 parms.proposal2<- gen.proposal.poisson(y,X.large)
 
-print(parms.proposal2$mean)
-print(parms.proposal2$var)
+#print(parms.proposal2$mean)
+#print(parms.proposal2$var)
 
 ```
 
-Fit the model.
+and fit the model.
 ```{r}
 res2<-poisson(y,X.large,b0,B0,
               qmean=parms.proposal2$mean,qvar=parms.proposal2$var)
 
-res.poisson2<- rbind(apply(res2$beta.post,2, res.mcmc),
-                     exp(colMeans(res2$beta.post)))
-rownames(res.poisson2) <- c("2.5%", "Mean", "97.5%", "exp(Mean)") 
-colnames(res.poisson2) <- colnames(X.large)
+res.poisson2<- t(rbind(apply(res2$beta.post,2, res.mcmc),
+                     exp(colMeans(res2$beta.post))))
+colnames(res.poisson2) <- c("2.5%", "Mean", "97.5%", "exp(Mean)") 
+rownames(res.poisson2) <- colnames(X.large)
 
-knitr::kable(round(t(res.poisson2),3))
+knitr::kable(round(res.poisson2,3))
 print(res2$accept)
+
+```
+
+```{r}
+# xtable(res.poisson1, caption= "Count Data: estimation results for Model 1", label="res.count1", digits=3)
+ 
+ # xtable(res.poisson2, caption= "Count Data: estimation results for Model 2", label="res.count2", digits=3)
+
+```
+```
