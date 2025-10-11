@@ -367,40 +367,103 @@ B0 <- diag(rep(100, d), nrow = d)
 B0.inv<- diag(rep(1/100, d), nrow = d) 
 ```
 
-To  compute the parameters of the Normal proposal density we apply the Newton-Raphson estimator described in Section 8.2.1. We start with a vector of zeros and set the number of iterations to 30.
-
+To  compute the parameters of the Normal proposal density we use the Newton-Raphson estimator described in Section 8.2.1. 
 ```{r}
-t.max <- 30
-betas=matrix(NA, ncol=t.max, nrow=d)
+gen.proposal.poisson <- function(y,X, t.max=30){
 
-beta.old <- c(log(mean(y)),rep(0,d-1))
+   betas=matrix(NA, ncol=t.max, nrow=d)
+   beta.old <- c(log(mean(y)),rep(0,d-1))
 
-for (t in (1:t.max)){
+   for (t in (1:t.max)){
  
-  rate <- e*exp(X%*%beta.old)
-  score <- t(crossprod(y-rate,X)-(beta.old-b0)%*%B0.inv)
+     rate <- e*exp(X%*%beta.old)
+     score <- t(crossprod(y-rate,X)-(beta.old-b0)%*%B0.inv)
 
+     H <- -B0.inv
+     for (i in (1:N)){
+        H <- H - rate[i]*tcrossprod(X[i,])
+     }
+  
+     betat <-  beta.old- solve(H)%*%score
+     betas[,t] <- betat
+   }
+
+  qmean<-betas[,t.max]
+  
+  # determine the variance matrix  
+  rate <- e*exp(X%*%qmean)
   H <- -B0.inv
   for (i in (1:N)){
-    H <- H - rate[i]*tcrossprod(X[i,])
+     H <- H - rate[i]*tcrossprod(X[i,])
   }
+  qvar <- -solve(H)
+  return(parms.proposal=list(mean=qmean,var=qvar))
+}  
+parms.proposal<- gen.proposal.poisson(y,X)
+
+print(parms.proposal$mean)
+print(parms.proposal$var)
+```
+
+Next we set uo the independence Metropolis Hastings algorithm and estimate the model parameters.
+```{r}
+install.packages("mvtnorm",repos = "http://cran.us.r-project.org")
+require(mvtnorm)
+```
+
+```{r}
+poisson <- function(y, X,  b0 = 0, B0 = 100,qmean,qvar,
+                    burnin = 1000L, M = 5000L){
+  d<-dim(X)[2]
   
-  betat <-  beta.old- solve(H)%*%score
-  betas[,t] <- betat
+  beta.post=matrix(ncol=d,nrow=M)
+  acc=0
+  
+  beta<-as.vector(rmvnorm(1, mean=qmean, sigma=qvar))
+  
+  for (m in (1:M)){
+    beta.old <- beta
+    beta.proposed <- as.vector(rmvnorm(1, mean=qmean, sigma=qvar))
+    
+    # compute log proposal density at proposed and old value
+    lq_proposed <- dmvnorm(beta.proposed,mean=qmean, sigma=qvar, log=TRUE)
+    lq_old  <- dmvnorm(beta.old, mean=qmean, sigma=qvar, log=TRUE)
+    
+    # compute log prior  of proposed and old value
+    lpri_proposed <- dmvnorm(beta.proposed, mean=b0, sigma=B0, log=TRUE )
+    lpri_old  <- dmvnorm(beta.old,  mean=b0, sigma=B0, log=TRUE )
+    
+    # compute loglikelihood of proposed and old value
+    lh_proposed <- dpois(y,exp(X%*%beta.proposed),  log=TRUE)
+    lh_old  <- dpois(y,exp(X%*%beta.old), log=TRUE)
+    
+    maxlik <- max(lh_old,lh_proposed)
+    ll <- sum(lh_proposed-maxlik)-sum(lh_old-maxlik)
+    
+    # compute acceptance probability and accept or not
+    log_acc <- min(0,ll+lpri_proposed-lpri_old+lq_old-lq_proposed)
+    
+    if (log(runif(1)) < log_acc){
+      beta <-  beta.proposed
+      acc[m+1] <- 1
+    }else {
+      beta <-  beta.old
+      acc[m+1] <- 0
+    }
+    beta.post[m,] <- beta
+  }
+  return(res=list(beta.post=beta.post, accept=mean(acc)))
 }
+```
 
-qmean<-betas[,t.max]
-print(qmean)
+```{r}
+res1<-poisson(y,X, b0,B0 ,qmean=parms.proposal$mean,qvar=parms.proposal$var)
 
-# determine the variance of the proposal
+res.poisson1<- rbind(apply(res1$beta.post,2, res.mcmc),exp(colMeans(res1$beta.post)))
+rownames(res.poisson1) <- c("2.5%", "Mean", "97.5%", "exp(Mean)") 
+colnames(res.poisson1) <- colnames(X)
 
-rate <- e*exp(X%*%qmean)
-H <- -B0.inv
-  for (i in (1:N)){
-    H <- H - rate[i]*tcrossprod(X[i,])
-  }
-  
-qvar <- -solve(H)
-print(qvar)
+knitr::kable(round(t(res.poisson1),3))
+print(res1$accept)
 ```
 
