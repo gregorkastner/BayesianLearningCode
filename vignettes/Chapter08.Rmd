@@ -360,17 +360,20 @@ d<- ncol(X)
 ```
 
 We use a flat Normal prior on the regression effects.
+
 ```{r}
 b0 <- rep(0,d)
+B0 <- diag(rep(100, d), nrow = d) 
 B0.inv<- diag(rep(1/100, d), nrow = d) 
 ```
-To  compute the parameters of the Normal proposal density we apply the Newton-Raphson estimator described in Section 8.2.1. We start with a vector of zeros and set the number of iterations to 30.
-```{r}
-beta.old <- rep(0,d)
-t.max <- 30
 
+To  compute the parameters of the Normal proposal density we apply the Newton-Raphson estimator described in Section 8.2.1. We start with a vector of zeros and set the number of iterations to 30.
+
+```{r}
+t.max <- 30
 betas=matrix(NA, ncol=t.max, nrow=d)
 
+beta.old <- c(log(mean(y)),rep(0,d-1))
 
 for (t in (1:t.max)){
  
@@ -381,10 +384,23 @@ for (t in (1:t.max)){
   for (i in (1:N)){
     H <- H - rate[i]*tcrossprod(X[i,])
   }
+  
   betat <-  beta.old- solve(H)%*%score
   betas[,t] <- betat
 }
-print(betas[,t.max])
-print(H)
+
+qmean<-betas[,t.max]
+print(qmean)
+
+# determine the variance of the proposal
+
+rate <- e*exp(X%*%qmean)
+H <- -B0.inv
+  for (i in (1:N)){
+    H <- H - rate[i]*tcrossprod(X[i,])
+  }
+  
+qvar <- -solve(H)
+print(qvar)
 ```
 
