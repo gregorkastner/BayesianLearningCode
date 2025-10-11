@@ -352,9 +352,11 @@ N <- length(y)
 
 e=rep(1,N)
 
+# Define regressors
+intercept=rep(1,N)
 intervention <-  c(rep(0,7*12+9),rep(1,8*12+3))
 holiday <- rep(c(rep(0,6), rep(1,2), rep(0,4)),16)
-X <- cbind(intercept=rep(1,N),intervention, holiday)
+X <- cbind(intercept,intervention, holiday)
 
 d<- ncol(X)
 ```
@@ -370,7 +372,7 @@ B0.inv<- diag(rep(1/100, d), nrow = d)
 To  compute the parameters of the Normal proposal density we use the Newton-Raphson estimator described in Section 8.2.1. 
 ```{r}
 gen.proposal.poisson <- function(y,X, t.max=30){
-
+   d<-ncol(X)
    betas=matrix(NA, ncol=t.max, nrow=d)
    beta.old <- c(log(mean(y)),rep(0,d-1))
 
@@ -467,3 +469,40 @@ knitr::kable(round(t(res.poisson1),3))
 print(res1$accept)
 ```
 
+We then fit an alternative model with intercept, intervention effect, linear trend and saisonal dummy variables. 
+
+```{r}
+seas <-  rbind(diag(1,11), rep(-1,11)) 
+seas.dummies <-matrix(rep(t(seas),16),ncol=11,byrow=TRUE)
+colnames(seas.dummies) <- c("Jan", "Feb", "Mar", "Apr","May", "Jun", "Jul",
+                            "Aug", "Sep", "Oct", "Nov")
+lin.trend <-(1:length(y))                
+X.large <- cbind(intercept, intervention, lin.trend,seas.dummies)
+d <- dim(X.large)[2]
+```
+
+Define the prior parameters and compute parameters of the proposal distribution 
+```{r}
+b0=rep(0,d)
+B0 <- diag(rep(100, d), nrow = d) 
+B0.inv<- diag(rep(1/100, d), nrow = d) 
+
+parms.proposal2<- gen.proposal.poisson(y,X.large)
+
+print(parms.proposal2$mean)
+print(parms.proposal2$var)
+
+```
+
+Fit the model.
+```{r}
+res2<-poisson(y,X.large,b0,B0,
+              qmean=parms.proposal2$mean,qvar=parms.proposal2$var)
+
+res.poisson2<- rbind(apply(res2$beta.post,2, res.mcmc),
+                     exp(colMeans(res2$beta.post)))
+rownames(res.poisson2) <- c("2.5%", "Mean", "97.5%", "exp(Mean)") 
+colnames(res.poisson2) <- colnames(X.large)
+
+knitr::kable(round(t(res.poisson2),3))
+print(res2$accept)
