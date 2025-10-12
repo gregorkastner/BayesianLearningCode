@@ -2,9 +2,11 @@
 title: "Chapter 3: A First Bayesian Analysis of Unknown Probabilities"
 output: rmarkdown::html_vignette
 vignette: >
+  %\VignetteEncoding{UTF-8}
   %\VignetteIndexEntry{Chapter 3: A First Bayesian Analysis of Unknown Probabilities}
   %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r, include = FALSE}
@@ -41,10 +43,10 @@ theta <- seq(0, 1, .001)
 
 for (p in trueprop) {
   for (n in N) {
-    aN <- n*p + 1
-    bN <- n - n*p + 1
+    aN <- n * p + 1
+    bN <- n - n * p + 1
     plot(theta, dbeta(theta, aN, bN), type = "l", xlab = expression(vartheta),
-         ylab = "", main = bquote(N == .(n) ~ "and" ~ S[N] == .(n*p)))
+         ylab = "", main = bquote(N == .(n) ~ "and" ~ S[N] == .(n * p)))
   }
 }
 ```
