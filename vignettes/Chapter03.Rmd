@@ -279,7 +279,7 @@ head(words)
 ```
 
 For illustration purposes, we only use the top 50 words and
-augmented those with a question mark for all other words. This leaves us with 51
+augment those with a question mark for all other words. This leaves us with 51
 possible outcomes (our *universe*).
 
 ```{r}
@@ -458,4 +458,4 @@ In the top panel (based on the uniform prior), we can nicely see the
 whereas the second panel shows almost no
 smoothing/shrinkage, and unseen words are estimated to be extremely unlikely.
 The two bottom panels show the posteriors under the informed priors, one with
-light and one heavy shrinkage towards the prior.
+light and one with heavy shrinkage towards the prior.
