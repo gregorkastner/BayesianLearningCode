@@ -5,12 +5,12 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Chapter 5: Learning More About Bayesian Learning • BayesianLearningCode</title>
+<title> • BayesianLearningCode</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Chapter 5: Learning More About Bayesian Learning">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -37,7 +37,7 @@
     <li><a class="dropdown-item" href="../articles/Chapter02.html">Chapter 2: A First Bayesian Analysis of Count Data</a></li>
     <li><a class="dropdown-item" href="../articles/Chapter03.html">Chapter 3: A First Bayesian Analysis of Unknown Probabilities</a></li>
     <li><a class="dropdown-item" href="../articles/Chapter04.html">Chapter 4: A First Bayesian Analysis of Continuous Data</a></li>
-    <li><a class="dropdown-item" href="../articles/Chapter05.html">Chapter 5: Learning More About Bayesian Learning</a></li>
+    <li><a class="dropdown-item" href="../articles/Chapter05.html">UNKNOWN TITLE</a></li>
     <li><a class="dropdown-item" href="../articles/Chapter06.html">Chapter 6: The Bayesian Approach to Standard Regression Analysis</a></li>
     <li><a class="dropdown-item" href="../articles/Chapter07.html">Chapter 7: Introduction to Bayesian Time Series Analysis</a></li>
     <li><a class="dropdown-item" href="../articles/Chapter08.html">Chapter 8: Bayesian Learning Beyond Standard Regression Analysis</a></li>
@@ -62,7 +62,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
-      <h1>Chapter 5: Learning More About Bayesian Learning</h1>
+      <h1></h1>
             
       
 
@@ -71,6 +71,9 @@
 
     
     
+<p>’— title: “Chapter 5: Learning More About Bayesian Learning” output:
+rmarkdown::html_vignette vignette: &gt; % % % editor_options:
+chunk_output_type: console —</p>
 <div class="section level2">
 <h2 id="section-5-2-conjugate-or-non-conjugate">Section 5.2: Conjugate or non-conjugate?<a class="anchor" aria-label="anchor" href="#section-5-2-conjugate-or-non-conjugate"></a>
 </h2>
@@ -80,7 +83,7 @@ learning<a class="anchor" aria-label="anchor" href="#example-5-3-figure-5-1-the-
 </h3>
 <p>We illustrate the adaptive nature of Bayesian learning (also referred
 to as <em>sequential updating</em> or <em>on-line learning</em>) via the
-beta-Bernoulli model from earlier.</p>
+Beta-Bernoulli model from earlier.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span>
 <span></span>
@@ -101,7 +104,7 @@ beta-Bernoulli model from earlier.</p>
 <span>    <span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">theta</span>, <span class="fu"><a href="https://rdrr.io/r/stats/Beta.html" class="external-link">dbeta</a></span><span class="op">(</span><span class="va">theta</span>, <span class="va">a0</span> <span class="op">+</span> <span class="va">succ</span>, <span class="va">b0</span> <span class="op">+</span> <span class="va">fail</span><span class="op">)</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/rgb.html" class="external-link">rgb</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">.2</span> <span class="op">+</span> <span class="fl">.4</span><span class="op">*</span><span class="va">j</span><span class="op">/</span><span class="va">N</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="op">}</span></span>
 <span>  </span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">'topright'</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"N ="</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">20</span>, <span class="fl">40</span>, <span class="fl">60</span>, <span class="fl">80</span>, <span class="fl">100</span><span class="op">)</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topright"</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"N ="</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">20</span>, <span class="fl">40</span>, <span class="fl">60</span>, <span class="fl">80</span>, <span class="fl">100</span><span class="op">)</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>         col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/rgb.html" class="external-link">rgb</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">.2</span> <span class="op">+</span> <span class="fl">.4</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">20</span>, <span class="fl">40</span>, <span class="fl">60</span>, <span class="fl">80</span>, <span class="fl">100</span><span class="op">)</span><span class="op">/</span><span class="va">N</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p><img src="Chapter05_files/figure-html/unnamed-chunk-3-1.png" width="768"></p>
@@ -290,7 +293,7 @@ draws, as in the previous chapter.</p>
 <h3 id="figure-5-4-bayesian-asymptotics-1">Figure 5.4: Bayesian asymptotics 1<a class="anchor" aria-label="anchor" href="#figure-5-4-bayesian-asymptotics-1"></a>
 </h3>
 <p>To reproduce this figure, we again re-use the theory from Chapter 3
-(the beta-Bernoulli model).</p>
+(the Beta-Bernoulli model).</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span>
 <span><span class="va">thetatrue</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.02</span>, <span class="fl">0.25</span><span class="op">)</span></span>
@@ -390,7 +393,7 @@ that we use the same number of 1s
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>S</mi><mi>N</mi></msub><annotation encoding="application/x-tex">S_N</annotation></semantics></math>)
 as before.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>knitr.kable.NA <span class="op">=</span> <span class="st">''</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>knitr.kable.NA <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
 <span><span class="va">a0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="va">b0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">4</span><span class="op">)</span></span>
 <span><span class="va">set</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span>N <span class="op">=</span> <span class="va">N</span>, thetatrue <span class="op">=</span> <span class="va">thetatrue</span>, a0 <span class="op">=</span> <span class="va">a0</span><span class="op">)</span></span>
@@ -583,7 +586,7 @@ as before.</p>
 </div>
 <div class="section level3">
 <h3 id="example-5-10-table-5-3-coverage-probabilities-under-the-beta-bernoulli-model">Example 5.10 / Table 5.3: Coverage probabilities under the
-beta-Bernoulli model<a class="anchor" aria-label="anchor" href="#example-5-10-table-5-3-coverage-probabilities-under-the-beta-bernoulli-model"></a>
+Beta-Bernoulli model<a class="anchor" aria-label="anchor" href="#example-5-10-table-5-3-coverage-probabilities-under-the-beta-bernoulli-model"></a>
 </h3>
 <p>For a (frequentist) estimate of the coverage probabilities, we
 simulate many data sets for each of the parameter configurations and
@@ -726,7 +729,7 @@ check how often the intervals contain the true parameter.</p>
 </table>
 </div>
 <div class="section level3">
-<h3 id="example-5-11-coverage-probabilities-under-the-poisson-gamma-model">Example 5.11: Coverage probabilities under the Poisson-gamma
+<h3 id="example-5-11-coverage-probabilities-under-the-poisson-gamma-model">Example 5.11: Coverage probabilities under the Poisson-Gamma
 model<a class="anchor" aria-label="anchor" href="#example-5-11-coverage-probabilities-under-the-poisson-gamma-model"></a>
 </h3>
 <p>As above, but for data from a
@@ -756,8 +759,8 @@ sample variances.</p>
 <span><span class="va">leftconf2</span> <span class="op">&lt;-</span> <span class="va">means</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">qnorm</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">alpha</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">vars</span> <span class="op">/</span> <span class="va">N</span><span class="op">)</span></span>
 <span><span class="va">rightconf2</span> <span class="op">&lt;-</span> <span class="va">means</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">qnorm</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">alpha</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">vars</span> <span class="op">/</span> <span class="va">N</span><span class="op">)</span></span>
 <span><span class="va">inconf2</span> <span class="op">&lt;-</span> <span class="va">leftconf2</span> <span class="op">&lt;=</span> <span class="va">mutrue</span> <span class="op">&amp;</span> <span class="va">mutrue</span> <span class="op">&lt;=</span> <span class="va">rightconf2</span></span></code></pre></div>
-<p>For the Baysian variants, we look compute the equal-tailed and the
-HPD intervals.</p>
+<p>For the Bayesian variants, we compute the equal-tailed and the HPD
+intervals.</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">leftequal</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html" class="external-link">qgamma</a></span><span class="op">(</span><span class="va">alpha</span> <span class="op">/</span> <span class="fl">2</span>, <span class="va">N</span> <span class="op">*</span> <span class="va">means</span> <span class="op">+</span> <span class="fl">1</span>, <span class="va">N</span><span class="op">)</span></span>
 <span><span class="va">rightequal</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html" class="external-link">qgamma</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">alpha</span> <span class="op">/</span> <span class="fl">2</span>, <span class="va">N</span> <span class="op">*</span> <span class="va">means</span> <span class="op">+</span> <span class="fl">1</span>, <span class="va">N</span><span class="op">)</span></span>
