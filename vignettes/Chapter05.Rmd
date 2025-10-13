@@ -1,4 +1,4 @@
-'---
+---
 title: "Chapter 5: Learning More About Bayesian Learning"
 output: rmarkdown::html_vignette
 vignette: >
