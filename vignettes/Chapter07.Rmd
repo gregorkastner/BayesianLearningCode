@@ -653,9 +653,9 @@ Now we are ready to sample!
 c0 <- 1
 C0 <- 1
 b0 <- 0
-B0 <- 1
-a0 <- 10
-A0 <- 2
+B0 <- Inf
+aphi <- 1
+bphi <- 1
 
 # Define the design matrix and y
 y <- inflation
@@ -693,8 +693,8 @@ for (m in seq_len(ndraws + nburn)) {
   propvar <- sigma2 / tmp
   phiprop <- rnorm(1, propmean, sqrt(propvar))
   if (-1 < phiprop & phiprop < 1) {
-    logR <- dbetarescaled(phiprop, a0, A0, log = TRUE) -
-      dbetarescaled(phi, a0, A0, log = TRUE) +
+    logR <- dbetarescaled(phiprop, aphi, bphi, log = TRUE) -
+      dbetarescaled(phi, aphi, bphi, log = TRUE) +
       dnorm(y0, zeta / (1 - phiprop), sqrt(sigma2 / (1 - phiprop^2)), log = TRUE) -
       dnorm(y0, zeta / (1 - phi), sqrt(sigma2 / (1 - phi^2)), log = TRUE)
     if (log(runif(1)) < logR) {
@@ -729,8 +729,8 @@ from an auxiliary moment-matched prior in Step (d).
 
 ```{r}
 # Compute mean and variance of the actual prior using properties of the beta
-priormean <- 2 * a0 / (a0 + A0) - 1
-priorvar <- 4 * (a0 * A0) / ((a0 + A0)^2 * (a0 + A0 + 1))
+priormean <- 2 * aphi / (aphi + bphi) - 1
+priorvar <- 4 * (aphi * bphi) / ((aphi + bphi)^2 * (aphi + bphi + 1))
 
 # Define the design matrix and y
 X <- matrix(NA_real_, nrow = length(y), 2)
@@ -767,8 +767,8 @@ for (m in seq_len(ndraws + nburn)) {
   propmean <- propvar * (priormean / priorvar + (y0 * (y[1] - zeta) + sum(y[-length(y)] * (y[-1] - zeta))) / sigma2)
   phiprop <- rnorm(1, propmean, sqrt(propvar))
   if (-1 < phiprop & phiprop < 1) {
-    logR <- dbetarescaled(phiprop, a0, A0, log = TRUE) -
-      dbetarescaled(phi, a0, A0, log = TRUE) +
+    logR <- dbetarescaled(phiprop, aphi, bphi, log = TRUE) -
+      dbetarescaled(phi, aphi, bphi, log = TRUE) +
       dnorm(y0, zeta / (1 - phiprop), sqrt(sigma2 / (1 - phiprop^2)), log = TRUE) -
       dnorm(y0, zeta / (1 - phi), sqrt(sigma2 / (1 - phi^2)), log = TRUE) +
       dnorm(phi, priormean, sqrt(priorvar), log = TRUE) -
@@ -840,8 +840,8 @@ hist(ar1draws, breaks = mybreaks, col = rgb(0, 1, 0, .2),
      freq = FALSE, add = TRUE)
 hist(res2$phi, breaks = mybreaks, col = rgb(1, 0, 0, .2),
      freq = FALSE, add = TRUE)
-lines(mybreaks[mybreaks <= 1], dbetarescaled(mybreaks[mybreaks <= 1], a0, A0),
-      col = 2, lty = 3, lwd = 3)
+lines(mybreaks[mybreaks <= 1], col = 2, lty = 3, lwd = 3,
+      dbetarescaled(mybreaks[mybreaks <= 1], aphi, bphi))
 legend("topright",
        c("Unrestricted posterior", "Post-processed posterior",
          "Beta prior posterior"),
