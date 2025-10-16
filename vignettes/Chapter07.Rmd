@@ -800,7 +800,7 @@ plot.ts(res2, xlab = "Draws after burn-in",
 acf(res2, ylab = "")
 ```
 
-To conclude, we compare the draws from the two samplers; they should yield
+We now compare the draws from the two samplers; they should yield
 draws from the same distribution, irrespective of the mixing. We graphically
 check this by comparing histograms and quantiles of draws from the marginal
 posterior of $\phi$.
@@ -820,6 +820,9 @@ qqplot(res1$phi, res2$phi, xlab = "Sampler 1", ylab = "Sampler 2",
        main = "QQ plot")
 abline(0, 1, col = 2)
 ```
+We can see that the draws appear to come from the same distribution. Note,
+however, that the first sampler gets "stuck" slightly below 0.93 for a few
+draws, which isn't the case for the second sampler.
 
 To conclude, we compare the posteriors of $\phi$ under the improper prior,
 the posterior obtained after post-processing draws to obtain stationarity,
