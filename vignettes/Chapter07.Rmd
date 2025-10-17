@@ -833,7 +833,7 @@ We now re-run the second sampler with a more informative beta prior.
 
 ```{r}
 aphi <- 20
-aphi <- 1.5
+bphi <- 1.5
 
 # Compute mean and variance of the actual prior using properties of the beta
 priormean <- 2 * aphi / (aphi + bphi) - 1
