@@ -646,7 +646,8 @@ dbetarescaled <- function(x, a, b, log = FALSE) {
 }
 ```
 
-Now we are ready to sample!
+We need to specify the hyperparameters and define the left hand side variable
+$y$ as well as the design matrix.
 
 ```{r}
 # Specify the hyperparameters
@@ -662,7 +663,11 @@ y <- inflation
 X <- matrix(NA_real_, nrow = length(y), 2)
 X[, 1] <- 1
 X[, 2] <- c(NA_real_, y[-length(y)])
+```
 
+Now we are ready to sample!
+
+```{r}
 # Allocate some space for the posterior draws and initialize the parameters:
 y0s <- sigma2s <- zetas <- phis <- rep(NA_real_, ndraws)
 zeta <- 0
