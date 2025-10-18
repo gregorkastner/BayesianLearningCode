@@ -548,21 +548,23 @@ negbin <- function(y, X, e, b0 = 0, B0 = 100, qmean, qvar, pri.alpha,
   
   # set starting values
   beta <- as.vector(mvtnorm::rmvnorm(1, mean = qmean, sigma = qvar))
-  alpha.old<- pri.alpha$shape/pri.alpha$rate
+  alpha <- pri.alpha$shape/pri.alpha$rate
   phi <- rep(1.,N)
   
   for (m in seq_len(burnin + M)){
      # Step 1: draw beta  
      beta.old <- beta
-     beta.proposed <- as.vector(rmvnorm(1, mean=qmean, sigma=qvar))
+     beta.proposed <- as.vector(mvtnorm::rmvnorm(1, mean=qmean, sigma=qvar))
 
      # compute log proposal density at proposed and old value
-     lq_proposed <- dmvnorm(beta.proposed,mean=qmean, sigma=qvar, log=TRUE)
-     lq_old  <- dmvnorm(beta.old, mean=qmean, sigma=qvar, log=TRUE)
+     lq_proposed <- mvtnorm::dmvnorm(beta.proposed,mean=qmean, sigma=qvar, 
+                                     log=TRUE)
+     lq_old  <- mvtnorm::dmvnorm(beta.old, mean=qmean, sigma=qvar, log=TRUE)
             
      # compute log prior  of proposed and old value
-     lpri_proposed <- dmvnorm(beta.proposed, mean=b0, sigma=B0, log=TRUE )
-     lpri_old  <- dmvnorm(beta.old,  mean=b0, sigma=B0, log=TRUE )
+     lpri_proposed <- mvtnorm::dmvnorm(beta.proposed, mean=b0, sigma=B0, 
+                                       log=TRUE )
+     lpri_old  <- mvtnorm::dmvnorm(beta.old,  mean=b0, sigma=B0, log=TRUE )
 
      # compute loglikelihood of proposed and old value
      lh_proposed <- dpois(y,exp(X%*%beta.proposed),  log=TRUE)
@@ -592,21 +594,21 @@ negbin <- function(y, X, e, b0 = 0, B0 = 100, qmean, qvar, pri.alpha,
                                log=TRUE)) -
                          sum(dgamma(phi, shape=alpha.old, rate=alpha.old,
                               log=TRUE)) +
-                         dgamma(alpha.proposed, shape=pri.alpha.shape ,
-                              rate=pri.alpha.rate, log=TRUE) -
-                         dgamma(alpha.old, shape=pri.alpha.shape ,
-                            rate=pri.alpha.rate,log=TRUE)
+                         dgamma(alpha.proposed, shape=pri.alpha$shape ,
+                              rate=pri.alpha$rate, log=TRUE) -
+                         dgamma(alpha.old, shape=pri.alpha$shape ,
+                            rate=pri.alpha$rate,log=TRUE)
      }else{
        llik_alpha.proposed <- sum(dnbinom(y, size=alpha.proposed, 
-                                          mu=exposed*exp(linpred), log = TRUE))
+                                          mu=e*exp(linpred), log = TRUE))
        llik_alpha.old <- sum(dnbinom(y, size=alpha.old, 
-                                     mu=exposed*exp(linpred), log = TRUE))
+                                     mu=e*exp(linpred), log = TRUE))
 
       log_acc_alpha <- llik_alpha.proposed-llik_alpha.old+
-                       dgamma(alpha.proposed, shape=pri.alpha.shape ,
-                           rate=pri.alpha.rate,log=TRUE) -
-                       dgamma(alpha.old, shape=pri.alpha.shape ,
-                           rate=pri.alpha.rate,log=TRUE)+
+                       dgamma(alpha.proposed, shape=pri.alpha$shape ,
+                           rate=pri.alpha$rate,log=TRUE) -
+                       dgamma(alpha.old, shape=pri.alpha$shape ,
+                           rate=pri.alpha$rate,log=TRUE)+
                        log(alpha.proposed)-log(alpha.old)
      }
 
@@ -619,22 +621,30 @@ negbin <- function(y, X, e, b0 = 0, B0 = 100, qmean, qvar, pri.alpha,
      }
    
     # Step 3:  sample phi from its full conditional
-    phi <- rgamma (N,shape=alpha+y, rate=alpha+exposed*exp(linpred))
+    phi <- rgamma (N,shape=alpha+y, rate=alpha+e*exp(linpred))
     
     # Save the draws
     if (m > burnin) {
         beta.post[m-burnin, ] <- beta
         acc.beta[m-burnin] <- acc.b
         
-        alpha.post[m-burnin, ] <- alpha
+        alpha.post[m-burnin] <- alpha
         acc.alpha[m-burnin] <- acc.a
     }
   }
-  return(res = list(beta.post = beta.post, acc.beta=acc.beta,alpha.post, 
-                    acc.alpha = acc.alpha))
+  return(res = list(beta.post = beta.post, acc.beta=acc.beta,
+                    alpha.post=alpha.post,acc.alpha = acc.alpha))
 }
 ```
 
 ```{r}
 pri.alpha <- data.frame(shape=2,rate=0.5)
+res1 <- negbin(y, X, e,  qmean=parms.proposal$mean, 
+               qvar=parms.proposal$var, pri.alpha=pri.alpha, full.gibbs = TRUE)
+print(str(res1))
+res.negbin.full <-# t(rbind(
+  cbind(apply(res1$beta.post, 2, res.mcmc), res.mcmc(res1$alpha.post))
+#))
+knitr::kable(round(res.negbin.full, 3))
+#print(mean(res.negbin.full)$acc.beta)#
 ```
