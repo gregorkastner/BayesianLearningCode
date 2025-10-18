@@ -347,7 +347,7 @@ $\pi/\sqrt{3}$ and see that there is not much difference.
 knitr::kable(round(res_beta * pi/sqrt(3), 3))
 ```
 
-# Section 8.2 
+# Section 8.2.1:Poisson Regression models
 ## Example 8.3: Road Safety Data
 
 We fit two different Poisson regression models:
@@ -359,7 +359,7 @@ We fit two different Poisson regression models:
    and a seasonal pattern captured by monthly dummies.
 
 The sampler performance for these two models is assessed to study how
-the acceptance rate detoriates, if $d$ increases.
+the acceptance rate deteroriates, if $d$ increases.
 
 We load the data and extract the observations for the children in
 Linz. 
@@ -518,4 +518,39 @@ res.poisson2 <- t(rbind(apply(res2$beta.post, 2, res.mcmc),
 knitr::kable(round(res.poisson2, 3))
 print(res2$accept)
 ```
+```{r}
+# xtable(res.poisson1, caption= "Count Data: estimation results for Model 1", label="res.count1", digits=3)
+ 
+ # xtable(res.poisson2, caption= "Count Data: estimation results for Model 2", label="res.count2", digits
+```
 
+# Section 8.2.2.: Negative binomial regression
+
+Now we analyse the road safety data allowing for unobserved heterogeneity.
+We first set up both the two versions of the  three-block MH-within-Gibbs sampler 
+
+```{r}
+negbin <- function(y, X, e, b0 = 0, B0 = 100, qmean, qvar,pri.alpha,
+                    full.gibbs= FALSE, burnin = 1000L, M = 5000L) {
+  
+  d <- ncol(X)
+  beta.post <- matrix(ncol = d, nrow = M)
+  colnames(beta.post) <- colnames(X)
+  
+  b0 <- rep(b0, length.out = d)
+  B0 <- diag(rep(B0, length.out = d), nrow = d)
+  
+  acc.beta <- numeric(length = M)
+  
+  alpha.post<- rep(NA,M)
+  acc.alpha <-rep(NA,M)
+  c_alpha=0.1
+  
+  # set starting values
+  beta <- as.vector(mvtnorm::rmvnorm(1, mean = qmean, sigma = qvar))
+  alpha.old=pri.alpha$shape/pri.alpha$rate
+  phi=rep(1.,N)
+  
+  
+}
+```
