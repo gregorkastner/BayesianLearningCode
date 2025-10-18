@@ -506,7 +506,6 @@ X.large <- cbind(X,
 We set the prior parameters and compute parameters of the proposal distribution 
 ```{r}
 parms.proposal2 <- gen.proposal.poisson(y, X.large, e, b0 = 0, B0 = 100)
-parms.proposal2
 ```
 
 and fit the model.
@@ -530,7 +529,7 @@ Now we analyse the road safety data allowing for unobserved heterogeneity.
 We first set up both the two versions of the  three-block MH-within-Gibbs sampler 
 
 ```{r}
-negbin <- function(y, X, e, b0 = 0, B0 = 100, qmean, qvar,pri.alpha,
+negbin <- function(y, X, e, b0 = 0, B0 = 100, qmean, qvar, pri.alpha,
                     full.gibbs= FALSE, burnin = 1000L, M = 5000L) {
   
   d <- ncol(X)
@@ -550,6 +549,82 @@ negbin <- function(y, X, e, b0 = 0, B0 = 100, qmean, qvar,pri.alpha,
   beta <- as.vector(mvtnorm::rmvnorm(1, mean = qmean, sigma = qvar))
   alpha.old=pri.alpha$shape/pri.alpha$rate
   phi=rep(1.,N)
+  
+  for (m in (1:M)){
+  beta.old <- beta
+  beta.proposed <- as.vector(rmvnorm(1, mean=qmean, sigma=qvar))
+
+  # compute log proposal density at proposed and old value
+  lq_proposed <- dmvnorm(beta.proposed,mean=qmean, sigma=qvar, log=TRUE)
+           #dmvt(delta,df=3, sigma=mod.var,log=TRUE)
+  lq_old  <- dmvnorm(beta.old, mean=qmean, sigma=qvar, log=TRUE)
+             #dmvt(beta.old-mod.mean,df=3, sigma=mod.var,log=TRUE)
+
+  # compute log prior  of proposed and old value
+  lpri_proposed <- dmvnorm(beta.proposed, mean=b0, sigma=B0, log=TRUE )
+  lpri_old  <- dmvnorm(beta.old,  mean=b0, sigma=B0, log=TRUE )
+
+  # compute loglikelihood of proposed and old value
+  lh_proposed <- dpois(y,exp(X%*%beta.proposed),  log=TRUE)
+  lh_old  <- dpois(y,exp(X%*%beta.old), log=TRUE)
+
+  maxlik <- max(lh_old,lh_proposed)
+  ll <- sum(lh_proposed-maxlik)-sum(lh_old-maxlik)
+
+  # compute acceptance probability and accept or not
+  log_acc <- min(0,ll+lpri_proposed-lpri_old+lq_old-lq_proposed)
+
+  if (log(runif(1)) < log_acc){
+    beta <-  beta.proposed
+    acc.beta[m] <- 1
+  } else {
+    beta <-  beta.old
+    acc.beta[m] <- 0
+  }
+  beta.post[m,] <- beta
+  linpred=X%*%beta
+
+
+  # Sample alpha
+  alpha.old <- alpha
+  alpha.proposed=alpha.old*exp(c_alpha*rnorm(1))
+  if (full.gibbs){
+
+     log_acc_alpha <-sum(dgamma(phi, shape=alpha.proposed, rate=alpha.proposed,
+                               log=TRUE)) -
+                     sum(dgamma(phi, shape=alpha.old, rate=alpha.old,
+                              log=TRUE)) +
+                     dgamma(alpha.proposed, shape=pri.alpha.shape ,
+                              rate=pri.alpha.rate, log=TRUE) -
+                     dgamma(alpha.old, shape=pri.alpha.shape ,
+                            rate=pri.alpha.rate,log=TRUE)
+  }else{
+    llik_alpha.proposed=sum(dnbinom(y, size=alpha.proposed, mu=exposed*exp(linpred),
+                                    log = TRUE))
+    llik_alpha.old=sum(dnbinom(y, size=alpha.old, mu=exposed*exp(linpred),
+                               log = TRUE))
+
+    log_acc_alpha <-llik_alpha.proposed-llik_alpha.old+
+                    dgamma(alpha.proposed, shape=pri.alpha.shape ,
+                           rate=pri.alpha.rate,log=TRUE) -
+                    dgamma(alpha.old, shape=pri.alpha.shape ,
+                           rate=pri.alpha.rate,log=TRUE)+
+                    log(alpha.proposed)-log(alpha.old)
+  }
+
+  if (log(runif(1)) < log_acc_alpha){
+     alpha <-  alpha.proposed
+     acc.alpha[m] <- 1
+  }else{
+     alpha <-  alpha.old
+     acc.alpha[m] <- 0
+  }
+  alpha.post[m] <- alpha
+
+  # sample phi from its full conditional
+  phi<- rgamma (N,shape=alpha+y, rate=alpha+exposed*exp(linpred))
+
+}
   
   
 }
