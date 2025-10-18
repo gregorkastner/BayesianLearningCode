@@ -482,7 +482,7 @@ and see that there is not much difference.</p>
 </table>
 </div>
 <div class="section level2">
-<h2 id="section-8-2">Section 8.2<a class="anchor" aria-label="anchor" href="#section-8-2"></a>
+<h2 id="section-8-2-1poisson-regression-models">Section 8.2.1:Poisson Regression models<a class="anchor" aria-label="anchor" href="#section-8-2-1poisson-regression-models"></a>
 </h2>
 <div class="section level3">
 <h3 id="example-8-3-road-safety-data">Example 8.3: Road Safety Data<a class="anchor" aria-label="anchor" href="#example-8-3-road-safety-data"></a>
@@ -495,7 +495,7 @@ dummy (activated in July/August);</p></li>
 and a seasonal pattern captured by monthly dummies.</p></li>
 </ol>
 <p>The sampler performance for these two models is assessed to study how
-the acceptance rate detoriates, if
+the acceptance rate deteroriates, if
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>d</mi><annotation encoding="application/x-tex">d</annotation></semantics></math>
 increases.</p>
 <p>We load the data and extract the observations for the children in
@@ -848,7 +848,42 @@ distribution</p>
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">res2</span><span class="op">$</span><span class="va">accept</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 0.1934</span></span></code></pre></div>
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># xtable(res.poisson1, caption= "Count Data: estimation results for Model 1", label="res.count1", digits=3)</span></span>
+<span> </span>
+<span> <span class="co"># xtable(res.poisson2, caption= "Count Data: estimation results for Model 2", label="res.count2", digits</span></span></code></pre></div>
 </div>
+</div>
+<div class="section level2">
+<h2 id="section-8-2-2--negative-binomial-regression">Section 8.2.2.: Negative binomial regression<a class="anchor" aria-label="anchor" href="#section-8-2-2--negative-binomial-regression"></a>
+</h2>
+<p>Now we analyse the road safety data allowing for unobserved
+heterogeneity. We first set up both the two versions of the three-block
+MH-within-Gibbs sampler</p>
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">negbin</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">y</span>, <span class="va">X</span>, <span class="va">e</span>, <span class="va">b0</span> <span class="op">=</span> <span class="fl">0</span>, <span class="va">B0</span> <span class="op">=</span> <span class="fl">100</span>, <span class="va">qmean</span>, <span class="va">qvar</span>,<span class="va">pri.alpha</span>,</span>
+<span>                    <span class="va">full.gibbs</span><span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">burnin</span> <span class="op">=</span> <span class="fl">1000L</span>, <span class="va">M</span> <span class="op">=</span> <span class="fl">5000L</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  </span>
+<span>  <span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span></span>
+<span>  <span class="va">beta.post</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span>ncol <span class="op">=</span> <span class="va">d</span>, nrow <span class="op">=</span> <span class="va">M</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">beta.post</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span></span>
+<span>  </span>
+<span>  <span class="va">b0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">b0</span>, length.out <span class="op">=</span> <span class="va">d</span><span class="op">)</span></span>
+<span>  <span class="va">B0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">B0</span>, length.out <span class="op">=</span> <span class="va">d</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="va">d</span><span class="op">)</span></span>
+<span>  </span>
+<span>  <span class="va">acc.beta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric</a></span><span class="op">(</span>length <span class="op">=</span> <span class="va">M</span><span class="op">)</span></span>
+<span>  </span>
+<span>  <span class="va">alpha.post</span><span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA</span>,<span class="va">M</span><span class="op">)</span></span>
+<span>  <span class="va">acc.alpha</span> <span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA</span>,<span class="va">M</span><span class="op">)</span></span>
+<span>  <span class="va">c_alpha</span><span class="op">=</span><span class="fl">0.1</span></span>
+<span>  </span>
+<span>  <span class="co"># set starting values</span></span>
+<span>  <span class="va">beta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/vector.html" class="external-link">as.vector</a></span><span class="op">(</span><span class="fu">mvtnorm</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/mvtnorm/man/Mvnorm.html" class="external-link">rmvnorm</a></span><span class="op">(</span><span class="fl">1</span>, mean <span class="op">=</span> <span class="va">qmean</span>, sigma <span class="op">=</span> <span class="va">qvar</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">alpha.old</span><span class="op">=</span><span class="va">pri.alpha</span><span class="op">$</span><span class="va">shape</span><span class="op">/</span><span class="va">pri.alpha</span><span class="op">$</span><span class="va">rate</span></span>
+<span>  <span class="va">phi</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1.</span>,<span class="va">N</span><span class="op">)</span></span>
+<span>  </span>
+<span>  </span>
+<span><span class="op">}</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
