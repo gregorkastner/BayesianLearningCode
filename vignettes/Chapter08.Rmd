@@ -590,27 +590,22 @@ negbin <- function(y, X, e, b0 = 0, B0 = 100, qmean, qvar, pri.alpha,
      alpha.proposed <- alpha.old*exp(c_alpha*rnorm(1))
      
      if (full.gibbs){
-        log_acc_alpha <- sum(dgamma(phi, shape=alpha.proposed, rate=alpha.proposed,
-                               log=TRUE)) -
-                         sum(dgamma(phi, shape=alpha.old, rate=alpha.old,
-                              log=TRUE)) +
-                         dgamma(alpha.proposed, shape=pri.alpha$shape ,
-                              rate=pri.alpha$rate, log=TRUE) -
-                         dgamma(alpha.old, shape=pri.alpha$shape ,
-                            rate=pri.alpha$rate,log=TRUE)
+        llik_alpha.proposed <- sum(dgamma(phi, shape=alpha.proposed, rate=alpha.proposed,
+                               log=TRUE))
+        llik_alpha.old <-   sum(dgamma(phi, shape=alpha.old, rate=alpha.old,
+                              log=TRUE)) 
      }else{
        llik_alpha.proposed <- sum(dnbinom(y, size=alpha.proposed, 
                                           mu=e*exp(linpred), log = TRUE))
        llik_alpha.old <- sum(dnbinom(y, size=alpha.old, 
                                      mu=e*exp(linpred), log = TRUE))
-
-      log_acc_alpha <- llik_alpha.proposed-llik_alpha.old+
+     }
+     log_acc_alpha <- llik_alpha.proposed-llik_alpha.old+
                        dgamma(alpha.proposed, shape=pri.alpha$shape ,
                            rate=pri.alpha$rate,log=TRUE) -
                        dgamma(alpha.old, shape=pri.alpha$shape ,
                            rate=pri.alpha$rate,log=TRUE)+
                        log(alpha.proposed)-log(alpha.old)
-     }
 
      if (log(runif(1)) < log_acc_alpha){
         alpha <- alpha.proposed
