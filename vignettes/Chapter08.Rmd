@@ -641,10 +641,30 @@ negbin <- function(y, X, e, b0 = 0, B0 = 100, qmean, qvar, pri.alpha,
 pri.alpha <- data.frame(shape=2,rate=0.5)
 res1 <- negbin(y, X, e,  qmean=parms.proposal$mean, 
                qvar=parms.proposal$var, pri.alpha=pri.alpha, full.gibbs = TRUE)
-print(str(res1))
-res.negbin.full <-# t(rbind(
-   cbind(apply(res1$beta.post, 2, res.mcmc), res.mcmc(res1$alpha.post)) 
-#))
+
+res.negbin.full <- cbind(apply(res1$beta.post, 2, res.mcmc), 
+                         res.mcmc(res1$alpha.post))
+colnames(res.negbin.full)[4]="alpha"
 knitr::kable(round(res.negbin.full, 3))
-#print(mean(res.negbin.full)$acc.beta)#
+print(mean(res1$acc.beta))
+               
+res2 <- negbin(y, X, e,  qmean=parms.proposal$mean, 
+               qvar=parms.proposal$var, pri.alpha=pri.alpha, full.gibbs = FALSE)
+
+res.negbin.partial <- cbind(apply(res2$beta.post, 2, res.mcmc), 
+                         res.mcmc(res2$alpha.post))
+colnames(res.negbin.partial)[4]="alpha"
+knitr::kable(round(res.negbin.partial, 3))
+print(mean(res2$acc.beta))
+
+```
+
+```{r}
+qqplot(res1$beta.post[,1], res2$beta.post[,1])
+abline(a = 0, b = 1)
+
+qqplot(res1$alpha.post, res2$alpha.post)
+abline(a = 0, b = 1)
+
+
 ```
