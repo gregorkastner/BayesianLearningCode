@@ -643,7 +643,7 @@ res1 <- negbin(y, X, e,  qmean=parms.proposal$mean,
                qvar=parms.proposal$var, pri.alpha=pri.alpha, full.gibbs = TRUE)
 print(str(res1))
 res.negbin.full <-# t(rbind(
-  cbind(apply(res1$beta.post, 2, res.mcmc), res.mcmc(res1$alpha.post))
+   cbind(apply(res1$beta.post, 2, res.mcmc), res.mcmc(res1$alpha.post)) 
 #))
 knitr::kable(round(res.negbin.full, 3))
 #print(mean(res.negbin.full)$acc.beta)#
