@@ -660,6 +660,7 @@ colnames(res.negbin.partial)[4]="alpha"
 knitr::kable(round(res.negbin.partial, 3))
 ```
 As expected estimation results using  both samplers are rather similar.
+
 ```{r}
 require(xtable)
 xtable(cbind(t(res.negbin.full), t(res.negbin.partial)), label="exam:negbin_est")
