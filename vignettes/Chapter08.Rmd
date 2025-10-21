@@ -100,20 +100,24 @@ probit <- function(y, X, b0 = 0, B0 = 10000,
 ```
 
 We specify the prior on the regression effects as a rather flat
-Normal independence prior.
+Normal independence prior and estimate the model.
 
 ```{r}
 set.seed(1234)
 betas <- probit(y.unemp, X.unemp, b0 = 0, B0 = 10000)
 ```
 
+To compute summary statistics from the  posterior we use the following function. 
 ```{r}
 res.mcmc <- function(x, lower = 0.025, upper = 0.975) {
   y <- c(quantile(x, lower), mean(x), quantile(x, upper))
   names(y) <- c(paste0(lower * 100, "%"), "Mean", paste0(upper * 100, "%"))
   y
 }    
+```
 
+
+```{r}
 res_beta <- apply(betas, 2, res.mcmc)
 knitr::kable(round(res_beta, 3))
 
@@ -418,7 +422,7 @@ We use a flat Normal prior on the regression effects.
 
 ```{r}
 parms.proposal <- gen.proposal.poisson(y, X, e, b0 = 0, B0 = 100)
-parms.proposal
+print(parms.proposal)
 ```
 
 Next we set up the independence Metropolis-Hastings algorithm and
@@ -520,7 +524,7 @@ print(res2$accept)
 ```{r}
 # xtable(res.poisson1, caption= "Count Data: estimation results for Model 1", label="res.count1", digits=3)
  
- # xtable(res.poisson2, caption= "Count Data: estimation results for Model 2", label="res.count2", digits
+ # xtable(res.poisson2, caption= "Count Data: estimation results for Model 2", label="res.count2", digits=3)
 ```
 
 # Section 8.2.2.: Negative binomial regression
@@ -531,8 +535,9 @@ We first set up both the two versions of the  three-block MH-within-Gibbs sample
 
 ```{r}
 negbin <- function(y, X, e, b0 = 0, B0 = 100, qmean, qvar, pri.alpha,
-                    full.gibbs= FALSE, burnin = 1000L, M = 5000L) {
+                    full.gibbs= FALSE, burnin = 1000L, M = 50000L) {
   
+  N=length(y)
   d <- ncol(X)
   beta.post <- matrix(ncol = d, nrow = M)
   colnames(beta.post) <- colnames(X)
@@ -566,7 +571,7 @@ negbin <- function(y, X, e, b0 = 0, B0 = 100, qmean, qvar, pri.alpha,
                                        log=TRUE )
      lpri_old  <- mvtnorm::dmvnorm(beta.old,  mean=b0, sigma=B0, log=TRUE )
 
-     # compute loglikelihood of proposed and old value
+     # compute log likelihood of proposed and old value
      lh_proposed <- dpois(y,exp(X%*%beta.proposed),  log=TRUE)
      lh_old  <- dpois(y,exp(X%*%beta.old), log=TRUE)
 
@@ -591,21 +596,21 @@ negbin <- function(y, X, e, b0 = 0, B0 = 100, qmean, qvar, pri.alpha,
      
      if (full.gibbs){
         llik_alpha.proposed <- sum(dgamma(phi, shape=alpha.proposed, rate=alpha.proposed,
-                               log=TRUE))
-        llik_alpha.old <-   sum(dgamma(phi, shape=alpha.old, rate=alpha.old,
-                              log=TRUE)) 
+                                 log=TRUE))
+        llik_alpha.old      <- sum(dgamma(phi, shape=alpha.old, rate=alpha.old,
+                                 log=TRUE)) 
      }else{
        llik_alpha.proposed <- sum(dnbinom(y, size=alpha.proposed, 
                                           mu=e*exp(linpred), log = TRUE))
-       llik_alpha.old <- sum(dnbinom(y, size=alpha.old, 
+       llik_alpha.old      <- sum(dnbinom(y, size=alpha.old, 
                                      mu=e*exp(linpred), log = TRUE))
      }
-     log_acc_alpha <- llik_alpha.proposed-llik_alpha.old+
+     log_acc_alpha <- llik_alpha.proposed - llik_alpha.old+
                        dgamma(alpha.proposed, shape=pri.alpha$shape ,
                            rate=pri.alpha$rate,log=TRUE) -
                        dgamma(alpha.old, shape=pri.alpha$shape ,
                            rate=pri.alpha$rate,log=TRUE)+
-                       log(alpha.proposed)-log(alpha.old)
+                       log(alpha.proposed) - log(alpha.old)
 
      if (log(runif(1)) < log_acc_alpha){
         alpha <- alpha.proposed
@@ -632,8 +637,11 @@ negbin <- function(y, X, e, b0 = 0, B0 = 100, qmean, qvar, pri.alpha,
 }
 ```
 
+We specify the prior on $\alpha$ as the Gamma distribution with shape 2 and rate 
+0.5 and use both samplers to estimate the model parameters.
 ```{r}
 pri.alpha <- data.frame(shape=2,rate=0.5)
+
 res1 <- negbin(y, X, e,  qmean=parms.proposal$mean, 
                qvar=parms.proposal$var, pri.alpha=pri.alpha, full.gibbs = TRUE)
 
@@ -641,7 +649,7 @@ res.negbin.full <- cbind(apply(res1$beta.post, 2, res.mcmc),
                          res.mcmc(res1$alpha.post))
 colnames(res.negbin.full)[4]="alpha"
 knitr::kable(round(res.negbin.full, 3))
-print(mean(res1$acc.beta))
+
                
 res2 <- negbin(y, X, e,  qmean=parms.proposal$mean, 
                qvar=parms.proposal$var, pri.alpha=pri.alpha, full.gibbs = FALSE)
@@ -650,16 +658,31 @@ res.negbin.partial <- cbind(apply(res2$beta.post, 2, res.mcmc),
                          res.mcmc(res2$alpha.post))
 colnames(res.negbin.partial)[4]="alpha"
 knitr::kable(round(res.negbin.partial, 3))
-print(mean(res2$acc.beta))
+```
+As expected estimation results using  both samplers are rather similar.
+```{r}
+require(xtable)
+xtable(cbind(t(res.negbin.full), t(res.negbin.partial)), label="exam:negbin_est")
+```
+
+## Section 8.2.3 
+```{r}
+print(c(mean(res1$acc.beta), mean(res1$acc.alpha)))
+print(c(mean(res2$acc.beta), mean(res2$acc.alpha)))
 
 ```
 
 ```{r}
-qqplot(res1$beta.post[,1], res2$beta.post[,1])
+if (pdfplots) {
+  pdf("8-2_1.pdf", width = 8, height = 5)
+}
+par(mfrow = c(1,2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
+
+qqplot(res1$beta.post[,1], res2$beta.post[,1], xlab="Full Gibbs",
+       ylab="Partial Gibbs", main="Intercept")
 abline(a = 0, b = 1)
 
-qqplot(res1$alpha.post, res2$alpha.post)
+qqplot(res1$alpha.post, res2$alpha.post, xlab="Full Gibbs",
+       ylab="Partial Gibbs", main="Alpha")
 abline(a = 0, b = 1)
-
-
 ```
