@@ -19,7 +19,7 @@
 #' Seasonally Adjusted Annual Rate.
 #'
 #' @format A sequence of length 313
-#' @source U.S. Bureau of Economic Analysis, Gross Domestic Product [GDP],
+#' @source U.S. Bureau of Economic Analysis, Gross Domestic Product (GDP),
 #' retrieved from FRED, Federal Reserve Bank of St. Louis;
 #' \url{https://fred.stlouisfed.org/series/GDP}, July 24, 2025.
 "gdp"
