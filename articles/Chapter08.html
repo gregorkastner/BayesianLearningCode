@@ -5,12 +5,12 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Chapter 8: Bayesian Learning Beyond Standard Regression Analysis • BayesianLearningCode</title>
+<title>Chapter 8: Beyond Standard Regression Analysis • BayesianLearningCode</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Chapter 8: Bayesian Learning Beyond Standard Regression Analysis">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Chapter 8: Beyond Standard Regression Analysis">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -40,7 +40,7 @@
     <li><a class="dropdown-item" href="../articles/Chapter05.html">Chapter 5: Learning More About Bayesian Learning</a></li>
     <li><a class="dropdown-item" href="../articles/Chapter06.html">Chapter 6: The Bayesian Approach to Standard Regression Analysis</a></li>
     <li><a class="dropdown-item" href="../articles/Chapter07.html">Chapter 7: Introduction to Bayesian Time Series Analysis</a></li>
-    <li><a class="dropdown-item" href="../articles/Chapter08.html">Chapter 8: Bayesian Learning Beyond Standard Regression Analysis</a></li>
+    <li><a class="dropdown-item" href="../articles/Chapter08.html">Chapter 8: Beyond Standard Regression Analysis</a></li>
     <li><a class="dropdown-item" href="../articles/Chapter09.html">Chapter 9: Bayesian Predictive Analysis</a></li>
   </ul>
 </li>
@@ -62,7 +62,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
-      <h1>Chapter 8: Bayesian Learning Beyond Standard Regression Analysis</h1>
+      <h1>Chapter 8: Beyond Standard Regression Analysis</h1>
             
       
 
@@ -72,8 +72,12 @@
     
     
 <div class="section level2">
-<h2 id="section-8-1-1-probit-model">Section 8.1.1: Probit model<a class="anchor" aria-label="anchor" href="#section-8-1-1-probit-model"></a>
+<h2 id="section-8-1-binary-response-variables">Section 8.1: Binary response variables<a class="anchor" aria-label="anchor" href="#section-8-1-binary-response-variables"></a>
 </h2>
+<div class="section level3">
+<h3 id="section-8-1-1-probit-model">Section 8.1.1: Probit model<a class="anchor" aria-label="anchor" href="#section-8-1-1-probit-model"></a>
+</h3>
+</div>
 <div class="section level3">
 <h3 id="example-8-1-labour-market-data">Example 8.1: Labour market data<a class="anchor" aria-label="anchor" href="#example-8-1-labour-market-data"></a>
 </h3>
@@ -88,13 +92,13 @@ use as covariates the variables female (binary), wcollar (binary), age18
 The baseline person is hence an 18 year old male blue collar worker who
 was employed in 1997.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">y.unemp</span> <span class="op">&lt;-</span> <span class="va">labor</span><span class="op">$</span><span class="va">unemp98</span></span>
+<code class="sourceCode R"><span><span class="va">y.unemp</span> <span class="op">&lt;-</span> <span class="va">labor</span><span class="op">$</span><span class="va">income_1998</span> <span class="op">==</span> <span class="st">"zero"</span></span>
 <span><span class="va">N.unemp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y.unemp</span><span class="op">)</span>  <span class="co"># number of observations </span></span>
 <span><span class="va">X.unemp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="va">labor</span>, <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span>intercept <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">N.unemp</span><span class="op">)</span>,</span>
 <span>                             female <span class="op">=</span> <span class="va">female</span>,</span>
-<span>                             age18 <span class="op">=</span> <span class="va">age</span><span class="op">-</span><span class="fl">18</span>,</span>
-<span>                             wcollar <span class="op">=</span> <span class="va">wcollar</span>,</span>
-<span>                             unemp97 <span class="op">=</span> <span class="va">unemp97</span><span class="op">)</span><span class="op">)</span> <span class="co"># regressor matrix</span></span></code></pre></div>
+<span>                             age18 <span class="op">=</span> <span class="fl">1998</span> <span class="op">-</span> <span class="va">birthyear</span> <span class="op">-</span><span class="fl">18</span>,</span>
+<span>                             wcollar <span class="op">=</span> <span class="va">wcollar_1997</span>,</span>
+<span>                             unemp97 <span class="op">=</span> <span class="va">income_1997</span> <span class="op">==</span> <span class="st">"zero"</span><span class="op">)</span><span class="op">)</span> <span class="co"># regressor matrix</span></span></code></pre></div>
 <p>The regression coefficients are estimated using data augmentation and
 Gibbs sampling. We define a function yielding posterior draws using the
 algorithm detailed in Chapter 8.1.1.</p>
@@ -325,10 +329,13 @@ tighter around zero.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/acf.html" class="external-link">acf</a></span><span class="op">(</span><span class="va">betas</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
 <p><img src="Chapter08_files/figure-html/unnamed-chunk-17-1.png" width="768"></p>
 </div>
+<div class="section level3">
+<h3 id="section-8-1-2-logit-model">Section 8.1.2: Logit model<a class="anchor" aria-label="anchor" href="#section-8-1-2-logit-model"></a>
+</h3>
 </div>
-<div class="section level2">
-<h2 id="section-8-1-2">Section 8.1.2<a class="anchor" aria-label="anchor" href="#section-8-1-2"></a>
-</h2>
+<div class="section level3">
+<h3 id="example-8-4-labour-market-data">Example 8.4: Labour market data<a class="anchor" aria-label="anchor" href="#example-8-4-labour-market-data"></a>
+</h3>
 <p>We now estimate a logistic regression model for the labor market data
 using the two-block Polya-Gamma sampler.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
@@ -483,11 +490,16 @@ and see that there is not much difference.</p>
 </tbody>
 </table>
 </div>
+</div>
 <div class="section level2">
-<h2 id="section-8-2-1poisson-regression-models">Section 8.2.1:Poisson Regression models<a class="anchor" aria-label="anchor" href="#section-8-2-1poisson-regression-models"></a>
+<h2 id="section-8-2-count-response-variables">Section 8.2: Count response variables<a class="anchor" aria-label="anchor" href="#section-8-2-count-response-variables"></a>
 </h2>
 <div class="section level3">
-<h3 id="example-8-3-road-safety-data">Example 8.3: Road Safety Data<a class="anchor" aria-label="anchor" href="#example-8-3-road-safety-data"></a>
+<h3 id="section-8-2-1-poisson-regression-models">Section 8.2.1: Poisson regression models<a class="anchor" aria-label="anchor" href="#section-8-2-1-poisson-regression-models"></a>
+</h3>
+</div>
+<div class="section level3">
+<h3 id="example-8-5-road-safety-data">Example 8.5: Road safety data<a class="anchor" aria-label="anchor" href="#example-8-5-road-safety-data"></a>
 </h3>
 <p>We fit two different Poisson regression models:</p>
 <ol style="list-style-type: decimal">
@@ -797,17 +809,15 @@ distribution</p>
 <span><span class="co">#&gt; [1] 0.1934</span></span></code></pre></div>
 <div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># xtable(res.poisson1, caption= "Count Data: estimation results for Model 1", label="res.count1", digits=3)</span></span>
-<span> </span>
-<span> <span class="co"># xtable(res.poisson2, caption= "Count Data: estimation results for Model 2", label="res.count2", digits=3)</span></span></code></pre></div>
+<span><span class="co"># xtable(res.poisson2, caption= "Count Data: estimation results for Model 2", label="res.count2", digits=3)</span></span></code></pre></div>
 </div>
+<div class="section level3">
+<h3 id="section-8-2-2-negative-binomial-regression">Section 8.2.2: Negative binomial regression<a class="anchor" aria-label="anchor" href="#section-8-2-2-negative-binomial-regression"></a>
+</h3>
 </div>
-<div class="section level2">
-<h2 id="section-8-2-2--negative-binomial-regression">Section 8.2.2.: Negative binomial regression<a class="anchor" aria-label="anchor" href="#section-8-2-2--negative-binomial-regression"></a>
-</h2>
-</div>
-<div class="section level2">
-<h2 id="example-8-4-">Example 8.4.<a class="anchor" aria-label="anchor" href="#example-8-4-"></a>
-</h2>
+<div class="section level3">
+<h3 id="example-8-6-road-safety-data">Example 8.6: Road safety data<a class="anchor" aria-label="anchor" href="#example-8-6-road-safety-data"></a>
+</h3>
 <p>Now we analyse the road safety data allowing for unobserved
 heterogeneity. We first set up both the two versions of the three-block
 MH-within-Gibbs sampler</p>
@@ -1006,8 +1016,9 @@ similar.</p>
 <div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#require(xtable)</span></span>
 <span><span class="co">#xtable(cbind(t(res.negbin.full), t(res.negbin.partial)), label="exam:negbin_est")</span></span></code></pre></div>
+</div>
 <div class="section level3">
-<h3 id="section-8-2-3">Section 8.2.3<a class="anchor" aria-label="anchor" href="#section-8-2-3"></a>
+<h3 id="section-8-2-3-evaluating-mcmc-samplers">Section 8.2.3: Evaluating MCMC samplers<a class="anchor" aria-label="anchor" href="#section-8-2-3-evaluating-mcmc-samplers"></a>
 </h3>
 <div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">res1</span><span class="op">$</span><span class="va">acc.beta</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">res1</span><span class="op">$</span><span class="va">acc.alpha</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
