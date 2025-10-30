@@ -247,7 +247,114 @@ for (i in seq_along(SN)) {
 }
 ```
 
-## Example 3.4: Bag of words
+## Example 3.4: Labor market data
+
+We load the dataset from the package and extract the data needed for the anlaysis:
+
+```{r}
+data("labor", package = "BayesianLearningCode")
+labor <- subset(labor,
+                income_1997 != "zero" & female,
+                c(income_1998, wcollar_1986))
+labor <- with(labor,
+              data.frame(unemployed = income_1998 == "zero",
+                         wcollar = wcollar_1986))
+```
+
+Cross-tabuling being unemployed (i.e., having no income) and
+being a white collar work gives:
+```{r}
+table(labor)
+```
+
+We estimate the risk for a woman who had a positive income, to have no
+income in the next year and assume that this risk is different for
+white- and blue-collar workers.
+
+The four relevant data summaries are given by:
+```{r}
+(N1 <- with(labor, sum(wcollar)))
+(S_N1 <- with(labor, sum(wcollar & unemployed)))
+(N2 <- with(labor, sum(!wcollar)))
+(S_N2 <- with(labor, sum(!wcollar & unemployed)))
+```
+
+Under a uniform prior, the parameters of the posterior distribution
+are given by:
+```{r}
+aN1 <- 1 + S_N1
+bN1 <- 1 + N1 - S_N1
+aN2 <- 1 + S_N2
+bN2 <- 1 + N2 - S_N2
+```
+
+The posterior expectations are given by
+```{r}
+aN1 / (aN1 + bN1)
+aN2 / (aN2 + bN2)
+```
+
+We visualize the joint posterior of $(\vartheta_1, \vartheta_2)$ using
+a contour plot as well as a density estimate of the difference
+$\vartheta_1 - \vartheta_2$.
+
+```{r}
+if (pdfplots) {
+  pdf("3-2_1.pdf", width = 8, height = 5)
+  par(mgp = c(1, .5, 0), mar = c(2.2, 1.5, 2, .2), lwd = 2)
+}
+par(mfrow = c(1, 2))
+post <- function(x1, x2, aN1, aN2, bN1, bN2) {
+  dbeta(x1, aN1, bN1) * dbeta(x2, aN2, bN2)
+}
+
+vartheta1 <- seq(0.04, 0.13, length.out = 100)
+vartheta2 <- seq(0.08, 0.22, length.out = 100)
+z <- outer(vartheta1, vartheta2, post, aN1 = aN1, aN2 = aN2, bN1 = bN1, bN2 = bN2)
+
+nrz <- nrow(z)
+ncz <- ncol(z)
+
+# Generate the desired number of colors from this palette
+nbcol <- 20
+color <- topo.colors(nbcol)
+
+# Compute the z-value at the facet centres
+
+zfacet <- z[-1, -1] + z[-1, -ncz] + z[-nrz, -1] + z[-nrz, -ncz]
+# Recode facet z-values into color indices
+facetcol <- cut(zfacet, nbcol)
+
+contour(vartheta1, vartheta2, z, col = color,
+        xlab = bquote(vartheta[1]), ylab = bquote(vartheta[2]),
+        main = expression(paste("Posterior of (", vartheta[1],
+                                ", ", vartheta[2], ")")))
+abline(0,1)
+postdraws <- data.frame(vartheta1 = rbeta(10^6, aN1, bN1),
+                        vartheta2 = rbeta(10^6, aN2, bN2))
+postdraws$diff <- with(postdraws, vartheta2 - vartheta1)
+plot(density(postdraws$diff),
+     xlab = bquote(vartheta[1] - vartheta[2]),
+     main = expression(paste("Posterior density p(", vartheta[1],
+                                " - ", vartheta[2], "| y)")))
+```
+
+```{r}
+if (pdfplots) {
+  pdf("3-2_1.pdf", width = 8, height = 5)
+  par(mgp = c(1, .5, 0), mar = c(2.2, 1.5, 2, .2), lwd = 2)
+}
+par(mfrow = c(1, 3))
+labels <- c(bquote(vartheta[1]),
+            bquote(vartheta[2]),
+            bquote(vartheta[2] - vartheta[1]))
+for (i in 1:3) {
+    plot(postdraws[1:1000, i], type = "l", ylim = c(0, 0.25),
+         xlab = "draw", ylab = labels[i])
+}
+```
+
+## Example 3.5: Bag of words
 ### Preparing the data
 
 After reading in the quote, we do some simple manipulation such as converting
