@@ -327,7 +327,113 @@ and
 <p><img src="Chapter03_files/figure-html/unnamed-chunk-10-1.png" width="768"></p>
 </div>
 <div class="section level3">
-<h3 id="example-3-4-bag-of-words">Example 3.4: Bag of words<a class="anchor" aria-label="anchor" href="#example-3-4-bag-of-words"></a>
+<h3 id="example-3-4-labor-market-data">Example 3.4: Labor market data<a class="anchor" aria-label="anchor" href="#example-3-4-labor-market-data"></a>
+</h3>
+<p>We load the dataset from the package and extract the data needed for
+the anlaysis:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"labor"</span>, package <span class="op">=</span> <span class="st">"BayesianLearningCode"</span><span class="op">)</span></span>
+<span><span class="va">labor</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">labor</span>,</span>
+<span>                <span class="va">income_1997</span> <span class="op">!=</span> <span class="st">"zero"</span> <span class="op">&amp;</span> <span class="va">female</span>,</span>
+<span>                <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">income_1998</span>, <span class="va">wcollar_1986</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">labor</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="va">labor</span>,</span>
+<span>              <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>unemployed <span class="op">=</span> <span class="va">income_1998</span> <span class="op">==</span> <span class="st">"zero"</span>,</span>
+<span>                         wcollar <span class="op">=</span> <span class="va">wcollar_1986</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>Cross-tabuling being unemployed (i.e., having no income) and being a
+white collar work gives:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">labor</span><span class="op">)</span></span>
+<span><span class="co">#&gt;           wcollar</span></span>
+<span><span class="co">#&gt; unemployed FALSE TRUE</span></span>
+<span><span class="co">#&gt;      FALSE   368  634</span></span>
+<span><span class="co">#&gt;      TRUE     62   59</span></span></code></pre></div>
+<p>We estimate the risk for a woman who had a positive income, to have
+no income in the next year and assume that this risk is different for
+white- and blue-collar workers.</p>
+<p>The four relevant data summaries are given by:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="op">(</span><span class="va">N1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="va">labor</span>, <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">wcollar</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 693</span></span>
+<span><span class="op">(</span><span class="va">S_N1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="va">labor</span>, <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">wcollar</span> <span class="op">&amp;</span> <span class="va">unemployed</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 59</span></span>
+<span><span class="op">(</span><span class="va">N2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="va">labor</span>, <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="op">!</span><span class="va">wcollar</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 430</span></span>
+<span><span class="op">(</span><span class="va">S_N2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="va">labor</span>, <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="op">!</span><span class="va">wcollar</span> <span class="op">&amp;</span> <span class="va">unemployed</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 62</span></span></code></pre></div>
+<p>Under a uniform prior, the parameters of the posterior distribution
+are given by:</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">aN1</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="op">+</span> <span class="va">S_N1</span></span>
+<span><span class="va">bN1</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="op">+</span> <span class="va">N1</span> <span class="op">-</span> <span class="va">S_N1</span></span>
+<span><span class="va">aN2</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="op">+</span> <span class="va">S_N2</span></span>
+<span><span class="va">bN2</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="op">+</span> <span class="va">N2</span> <span class="op">-</span> <span class="va">S_N2</span></span></code></pre></div>
+<p>The posterior expectations are given by</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">aN1</span> <span class="op">/</span> <span class="op">(</span><span class="va">aN1</span> <span class="op">+</span> <span class="va">bN1</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 0.08633094</span></span>
+<span><span class="va">aN2</span> <span class="op">/</span> <span class="op">(</span><span class="va">aN2</span> <span class="op">+</span> <span class="va">bN2</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 0.1458333</span></span></code></pre></div>
+<p>We visualize the joint posterior of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>ϑ</mi><mn>1</mn></msub><mo>,</mo><msub><mi>ϑ</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\vartheta_1, \vartheta_2)</annotation></semantics></math>
+using a contour plot as well as a density estimate of the difference
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>ϑ</mi><mn>1</mn></msub><mo>−</mo><msub><mi>ϑ</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">\vartheta_1 - \vartheta_2</annotation></semantics></math>.</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="va">pdfplots</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/grDevices/pdf.html" class="external-link">pdf</a></span><span class="op">(</span><span class="st">"3-2_1.pdf"</span>, width <span class="op">=</span> <span class="fl">8</span>, height <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mgp <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">.5</span>, <span class="fl">0</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.2</span>, <span class="fl">1.5</span>, <span class="fl">2</span>, <span class="fl">.2</span><span class="op">)</span>, lwd <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">post</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x1</span>, <span class="va">x2</span>, <span class="va">aN1</span>, <span class="va">aN2</span>, <span class="va">bN1</span>, <span class="va">bN2</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/Beta.html" class="external-link">dbeta</a></span><span class="op">(</span><span class="va">x1</span>, <span class="va">aN1</span>, <span class="va">bN1</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/stats/Beta.html" class="external-link">dbeta</a></span><span class="op">(</span><span class="va">x2</span>, <span class="va">aN2</span>, <span class="va">bN2</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="va">vartheta1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.04</span>, <span class="fl">0.13</span>, length.out <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
+<span><span class="va">vartheta2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.08</span>, <span class="fl">0.22</span>, length.out <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
+<span><span class="va">z</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/outer.html" class="external-link">outer</a></span><span class="op">(</span><span class="va">vartheta1</span>, <span class="va">vartheta2</span>, <span class="va">post</span>, aN1 <span class="op">=</span> <span class="va">aN1</span>, aN2 <span class="op">=</span> <span class="va">aN2</span>, bN1 <span class="op">=</span> <span class="va">bN1</span>, bN2 <span class="op">=</span> <span class="va">bN2</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">nrz</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">z</span><span class="op">)</span></span>
+<span><span class="va">ncz</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">z</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Generate the desired number of colors from this palette</span></span>
+<span><span class="va">nbcol</span> <span class="op">&lt;-</span> <span class="fl">20</span></span>
+<span><span class="va">color</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/palettes.html" class="external-link">topo.colors</a></span><span class="op">(</span><span class="va">nbcol</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Compute the z-value at the facet centres</span></span>
+<span></span>
+<span><span class="va">zfacet</span> <span class="op">&lt;-</span> <span class="va">z</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1</span><span class="op">]</span> <span class="op">+</span> <span class="va">z</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span>, <span class="op">-</span><span class="va">ncz</span><span class="op">]</span> <span class="op">+</span> <span class="va">z</span><span class="op">[</span><span class="op">-</span><span class="va">nrz</span>, <span class="op">-</span><span class="fl">1</span><span class="op">]</span> <span class="op">+</span> <span class="va">z</span><span class="op">[</span><span class="op">-</span><span class="va">nrz</span>, <span class="op">-</span><span class="va">ncz</span><span class="op">]</span></span>
+<span><span class="co"># Recode facet z-values into color indices</span></span>
+<span><span class="va">facetcol</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cut.html" class="external-link">cut</a></span><span class="op">(</span><span class="va">zfacet</span>, <span class="va">nbcol</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/contour.html" class="external-link">contour</a></span><span class="op">(</span><span class="va">vartheta1</span>, <span class="va">vartheta2</span>, <span class="va">z</span>, col <span class="op">=</span> <span class="va">color</span>,</span>
+<span>        xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/bquote.html" class="external-link">bquote</a></span><span class="op">(</span><span class="va">vartheta</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>, ylab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/bquote.html" class="external-link">bquote</a></span><span class="op">(</span><span class="va">vartheta</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>        main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Posterior of ("</span>, <span class="va">vartheta</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>,</span>
+<span>                                <span class="st">", "</span>, <span class="va">vartheta</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, <span class="st">")"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">postdraws</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>vartheta1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Beta.html" class="external-link">rbeta</a></span><span class="op">(</span><span class="fl">10</span><span class="op">^</span><span class="fl">6</span>, <span class="va">aN1</span>, <span class="va">bN1</span><span class="op">)</span>,</span>
+<span>                        vartheta2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Beta.html" class="external-link">rbeta</a></span><span class="op">(</span><span class="fl">10</span><span class="op">^</span><span class="fl">6</span>, <span class="va">aN2</span>, <span class="va">bN2</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">postdraws</span><span class="op">$</span><span class="va">diff</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="va">postdraws</span>, <span class="va">vartheta2</span> <span class="op">-</span> <span class="va">vartheta1</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/density.html" class="external-link">density</a></span><span class="op">(</span><span class="va">postdraws</span><span class="op">$</span><span class="va">diff</span><span class="op">)</span>,</span>
+<span>     xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/bquote.html" class="external-link">bquote</a></span><span class="op">(</span><span class="va">vartheta</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">-</span> <span class="va">vartheta</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>     main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Posterior density p("</span>, <span class="va">vartheta</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>,</span>
+<span>                                <span class="st">" - "</span>, <span class="va">vartheta</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, <span class="st">"| y)"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><img src="Chapter03_files/figure-html/unnamed-chunk-16-1.png" width="768"></p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="va">pdfplots</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/grDevices/pdf.html" class="external-link">pdf</a></span><span class="op">(</span><span class="st">"3-2_1.pdf"</span>, width <span class="op">=</span> <span class="fl">8</span>, height <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mgp <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">.5</span>, <span class="fl">0</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.2</span>, <span class="fl">1.5</span>, <span class="fl">2</span>, <span class="fl">.2</span><span class="op">)</span>, lwd <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">labels</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/bquote.html" class="external-link">bquote</a></span><span class="op">(</span><span class="va">vartheta</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>            <span class="fu"><a href="https://rdrr.io/r/base/bquote.html" class="external-link">bquote</a></span><span class="op">(</span><span class="va">vartheta</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>            <span class="fu"><a href="https://rdrr.io/r/base/bquote.html" class="external-link">bquote</a></span><span class="op">(</span><span class="va">vartheta</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span> <span class="op">-</span> <span class="va">vartheta</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">postdraws</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">1000</span>, <span class="va">i</span><span class="op">]</span>, type <span class="op">=</span> <span class="st">"l"</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.25</span><span class="op">)</span>,</span>
+<span>         xlab <span class="op">=</span> <span class="st">"draw"</span>, ylab <span class="op">=</span> <span class="va">labels</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+<p><img src="Chapter03_files/figure-html/unnamed-chunk-17-1.png" width="768"></p>
+</div>
+<div class="section level3">
+<h3 id="example-3-5-bag-of-words">Example 3.5: Bag of words<a class="anchor" aria-label="anchor" href="#example-3-5-bag-of-words"></a>
 </h3>
 <div class="section level4">
 <h4 id="preparing-the-data">Preparing the data<a class="anchor" aria-label="anchor" href="#preparing-the-data"></a>
@@ -336,7 +442,7 @@ and
 converting to lower case, getting rid of newlines, and splitting the
 string into individual words. Finally, we remove potential empty words
 and display the resulting frequencies.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">string</span> <span class="op">&lt;-</span> <span class="st">"You can fool some of the people all of the time,</span></span>
 <span><span class="st">and all of the people some of the time,</span></span>
 <span><span class="st">but you can not fool all of the people all of the time."</span></span>
@@ -381,7 +487,7 @@ and display the resulting frequencies.</p>
 <em>words</em> dataset (shipped with this package). It contains 1000
 most common English words, alongside their frequency of usage among a
 total of 100 million occurrences (cf. <a href="https://www.eapfoundation.com/vocab/general/bnccoca/" class="external-link uri">https://www.eapfoundation.com/vocab/general/bnccoca/</a>).</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"words"</span>, package <span class="op">=</span> <span class="st">"BayesianLearningCode"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">words</span><span class="op">)</span></span>
 <span><span class="co">#&gt;       word frequency</span></span>
@@ -394,7 +500,7 @@ total of 100 million occurrences (cf. <a href="https://www.eapfoundation.com/vo
 <p>For illustration purposes, we only use the top 50 words and augment
 those with a question mark for all other words. This leaves us with 51
 possible outcomes (our <em>universe</em>).</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">top50</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="va">words</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">words</span><span class="op">$</span><span class="va">frequency</span><span class="op">)</span>,<span class="op">]</span>, <span class="fl">50</span><span class="op">)</span></span>
 <span><span class="va">universe</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"?"</span>, <span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="va">top50</span><span class="op">$</span><span class="va">word</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">freq</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span><span class="op">^</span><span class="fl">8</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">top50</span><span class="op">$</span><span class="va">frequency</span><span class="op">)</span>, <span class="va">top50</span><span class="op">$</span><span class="va">frequency</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">top50</span><span class="op">$</span><span class="va">word</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
@@ -408,7 +514,7 @@ possible outcomes (our <em>universe</em>).</p>
 <p>Now, we check if there are any words in our data set which are not
 included in our universe (here, only <em>fool</em> and <em>people</em>)
 and replace these with a question mark.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dat</span><span class="op">[</span><span class="op">!</span><span class="op">(</span><span class="va">dat</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">universe</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"?"</span></span>
 <span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">dat</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
@@ -458,7 +564,7 @@ is the sum of all
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>N</mi><mi>k</mi></msub><annotation encoding="application/x-tex">N_k</annotation></semantics></math>s.
 This can be very easily implemented by merging the universe and the
 data, and simply counting the resulting frequencies.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">merged</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">universe</span>, <span class="va">dat</span><span class="op">)</span></span>
 <span><span class="va">counts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">merged</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1L</span></span>
 <span><span class="va">post_uniform_unnormalized</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="op">+</span> <span class="va">counts</span></span>
@@ -477,7 +583,7 @@ E(\eta_k|\boldsymbol{y}) = \frac{1/51+N_k}{1 + N}, \quad k=1,\ldots,51.
 </annotation></semantics></math> To compute this expectation we simply
 add counts and the new pseudo-counts
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>γ</mi><mrow><mn>0</mn><mo>,</mo><mn>1</mn></mrow></msub><mo>,</mo><mo>=</mo><msub><mi>γ</mi><mrow><mn>0</mn><mo>,</mo><mn>2</mn></mrow></msub><mo>=</mo><mi>…</mi><mo>=</mo><msub><mi>γ</mi><mrow><mn>0</mn><mo>,</mo><mi>K</mi></mrow></msub><mo>=</mo><mn>1</mn><mi>/</mi><mi>K</mi></mrow><annotation encoding="application/x-tex">\gamma_{0,1}, = \gamma_{0,2} = \dots = \gamma_{0,K} = 1/K</annotation></semantics></math>.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">K</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">universe</span><span class="op">)</span></span>
 <span><span class="va">N0</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
 <span><span class="va">gamma0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">N0</span> <span class="op">/</span> <span class="va">K</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">universe</span><span class="op">)</span><span class="op">)</span></span>
@@ -485,7 +591,7 @@ add counts and the new pseudo-counts
 <span><span class="va">post_lessinformative</span> <span class="op">&lt;-</span></span>
 <span>  <span class="va">post_lessinformative_unnormalized</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">post_lessinformative_unnormalized</span><span class="op">)</span></span></code></pre></div>
 <p>Alternatively, we could use a loop.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">post_lessinformative_unnormalized2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA_real_</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">universe</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">universe</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">Nk</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">dat</span> <span class="op">==</span> <span class="va">universe</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span></span>
@@ -495,11 +601,11 @@ add counts and the new pseudo-counts
 <span>  <span class="va">post_lessinformative_unnormalized2</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">post_lessinformative_unnormalized2</span><span class="op">)</span></span></code></pre></div>
 <p>The results must be numerically equivalent, and we can verify this
 easily.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/all.html" class="external-link">all</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">post_lessinformative</span> <span class="op">-</span> <span class="va">post_lessinformative2</span><span class="op">)</span> <span class="op">&lt;</span> <span class="fl">1e-10</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
 <p>Summing up what we have so far.</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dirichlet_sd</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">gamma</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">mean</span> <span class="op">&lt;-</span> <span class="va">gamma</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">gamma</span><span class="op">)</span></span>
 <span>  <span class="va">sd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="op">(</span><span class="va">mean</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">mean</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">gamma</span><span class="op">)</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
@@ -690,7 +796,7 @@ outside of the top 50 English words is
 (the total number of words in the corpus) minus the sum of the top 50
 counts. To compute the posterior, we can again add the actual counts and
 the new pseudo-counts.</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">N</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">dat</span><span class="op">)</span></span>
 <span><span class="va">N0</span> <span class="op">&lt;-</span> <span class="va">N</span><span class="op">/</span><span class="fl">5</span></span>
 <span><span class="va">gamma0</span> <span class="op">&lt;-</span> <span class="va">N0</span> <span class="op">*</span> <span class="va">freq</span> <span class="op">/</span> <span class="fl">10</span><span class="op">^</span><span class="fl">8</span></span>
@@ -702,7 +808,7 @@ to the base rate (here, the overall word distribution in the English
 language). This can simply be accomplished by increasing the total
 number of pseudo-counts
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>N</mi><mn>0</mn></msub><annotation encoding="application/x-tex">N_0</annotation></semantics></math>.</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">N0</span> <span class="op">&lt;-</span> <span class="fl">5</span><span class="op">*</span><span class="va">N</span></span>
 <span><span class="va">gamma0</span> <span class="op">&lt;-</span> <span class="va">N0</span> <span class="op">*</span> <span class="va">freq</span> <span class="op">/</span> <span class="fl">10</span><span class="op">^</span><span class="fl">8</span></span>
 <span></span>
@@ -715,7 +821,7 @@ number of pseudo-counts
 <p>To display the results, we use bar plots. We also add the prior
 probabilities of each word via green triangles and the observed relative
 frequencies via red circles. Sorting is done via frequency counts.</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ord</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">counts</span>, decreasing <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">midpts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html" class="external-link">barplot</a></span><span class="op">(</span><span class="va">post_uniform</span><span class="op">[</span><span class="va">ord</span><span class="op">]</span>, las <span class="op">=</span> <span class="fl">2</span>,</span>
 <span>                  ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">counts</span><span class="op">/</span><span class="va">N</span>, <span class="va">post_uniform</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
@@ -742,7 +848,7 @@ frequencies via red circles. Sorting is done via frequency counts.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">midpts</span>, <span class="va">counts</span><span class="op">[</span><span class="va">ord</span><span class="op">]</span><span class="op">/</span><span class="va">N</span>, col <span class="op">=</span> <span class="fl">2</span>, pch <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">midpts</span>, <span class="va">freq</span><span class="op">[</span><span class="va">ord</span><span class="op">]</span> <span class="op">/</span><span class="fl">10</span><span class="op">^</span><span class="fl">8</span>, col <span class="op">=</span> <span class="fl">3</span>, pch <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/title.html" class="external-link">title</a></span><span class="op">(</span><span class="st">"Informed prior (heavy shrinkage)"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Chapter03_files/figure-html/unnamed-chunk-22-1.png" width="768"></p>
+<p><img src="Chapter03_files/figure-html/unnamed-chunk-29-1.png" width="768"></p>
 <p>In the top panel (based on the uniform prior), we can nicely see the
 <em>add-one smoothing</em> effect, i.e., strong shrinkage towards the
 uniform prior, whereas the second panel shows almost no
