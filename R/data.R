@@ -26,18 +26,43 @@
 
 #' Labor Market Data
 #'
-#' Labor market data of Austrian employees. The data stem from 1986--1998.
+#' The Austrian social security authority collects detailed data for
+#' all workers. This data set is a random sample of 4376 persons from
+#' the birth cohort 1921-1980 with their work status recorded for the
+#' years 1986-1998.
 #'
-#' @format A data frame with 4376 observations (persons) of 6 variables
+#' @format A data frame with 4376 observations (persons) on 41 variables:
 #' \describe{
-#'   \item{age}{age of the person in the year 1986}
-#'   \item{unemp97}{logical, TRUE if the person was unemployed in 1997}
-#'   \item{unemp98}{logical, TRUE if the person was unemployed in 1998}
-#'   \item{changeempl}{number of times the person changed employer from 1986 until 1998}
 #'   \item{female}{logical, TRUE if the person is female}
-#'   \item{wcollar}{logical, TRUE if the person was classified as white collar employee}
+#'   \item{birthyear}{integer, year of birth}
+#'   \item{income_1986, income_1987, income_1988, income_1989,
+#'   income_1990, income_1991, income_1992, income_1993, income_1994,
+#'   income_1995, income_1996, income_1997, income_1998}{ordered
+#'   factor, income status based on the gross monthly wage on May 31st
+#'   of the specific year with levels `zero` (no income) and `<= 1st
+#'   quintile`, `<= 2nd quintile`, `<= 3rd quintile`, `<= 4th
+#'   quintile` and `<= 5th quintile` according to the yearly wage
+#'   distribution}
+#'   \item{employerchanges_1986, employerchanges_1987,
+#'   employerchanges_1988, employerchanges_1989, employerchanges_1990,
+#'   employerchanges_1991, employerchanges_1992, employerchanges_1993,
+#'   employerchanges_1994, employerchanges_1995, employerchanges_1996,
+#'   employerchanges_1997, employerchanges_1998}{integer, number of
+#'   times the person changed employer in the respective year}
+#'   \item{wcollar_1986, wcollar_1987,
+#'   wcollar_1988, wcollar_1989, wcollar_1990,
+#'   wcollar_1991, wcollar_1992, wcollar_1993,
+#'   wcollar_1994, wcollar_1995, wcollar_1996,
+#'   wcollar_1997, wcollar_1998}{logical, TRUE if the person is
+#'   classified as white collar employee and not a blue collar
+#'   employee in the respective year}
 #' }
-#' @source Weber (2001)
+#'
+#' @source Zweimüller, J., R. Winter-Ebmer, R. Lalive, A. Kuhn,
+#' J.-P. Wuellrich, O. Ruf, and S. Büchi (2009): The Austrian
+#' Social Security Database (ASSD). Working Paper 0903, NRN: The
+#' Austrian Center for Labor Economics and the Analysis of the
+#' Welfare State, Linz, Austria.
 "labor"
 
 #' Accidents Data

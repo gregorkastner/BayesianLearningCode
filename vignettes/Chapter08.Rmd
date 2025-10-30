@@ -1,5 +1,5 @@
 ---
-title: "Chapter 8: Bayesian Learning Beyond Standard Regression Analysis"
+title: "Chapter 8: Beyond Standard Regression Analysis"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteEncoding{UTF-8}
@@ -24,7 +24,8 @@ pdfplots <- FALSE # default: FALSE; set this to TRUE only if you like pdf figure
 par(mgp = c(1.6, .6, 0), mar = c(2.6, 2.6, 2.6, .4), lwd = 1)
 ```
 
-# Section 8.1.1: Probit model 
+# Section 8.1: Binary response variables
+## Section 8.1.1: Probit model
 ## Example 8.1: Labour market data
 
 We illustrate probit regression analysis for the labor market data.
@@ -41,13 +42,13 @@ age18 (quantitative, centered at 18 years) and unemployed in 1997
 worker who was employed in 1997.
 
 ```{r}
-y.unemp <- labor$unemp98
+y.unemp <- labor$income_1998 == "zero"
 N.unemp <- length(y.unemp)  # number of observations 
 X.unemp <- with(labor, cbind(intercept = rep(1, N.unemp),
                              female = female,
-                             age18 = age-18,
-                             wcollar = wcollar,
-                             unemp97 = unemp97)) # regressor matrix
+                             age18 = 1998 - birthyear -18,
+                             wcollar = wcollar_1997,
+                             unemp97 = income_1997 == "zero")) # regressor matrix
 ```
 
 The regression coefficients are estimated using data augmentation and
@@ -269,7 +270,8 @@ plot(betas[, 2], type = "l", main = "", xlab = "", ylab = "")
 acf(betas[, 2])
 ```
 
-# Section 8.1.2
+## Section 8.1.2: Logit model
+## Example 8.4: Labour market data
 
 We now estimate a logistic regression model for the labor market data
 using the two-block Polya-Gamma sampler.
@@ -351,8 +353,9 @@ $\pi/\sqrt{3}$ and see that there is not much difference.
 knitr::kable(round(res_beta * pi/sqrt(3), 3))
 ```
 
-# Section 8.2.1:Poisson Regression models
-## Example 8.3: Road Safety Data
+# Section 8.2: Count response variables
+## Section 8.2.1: Poisson regression models
+## Example 8.5: Road safety data
 
 We fit two different Poisson regression models:
 
@@ -523,12 +526,11 @@ print(res2$accept)
 ```
 ```{r}
 # xtable(res.poisson1, caption= "Count Data: estimation results for Model 1", label="res.count1", digits=3)
- 
- # xtable(res.poisson2, caption= "Count Data: estimation results for Model 2", label="res.count2", digits=3)
+# xtable(res.poisson2, caption= "Count Data: estimation results for Model 2", label="res.count2", digits=3)
 ```
 
-# Section 8.2.2.: Negative binomial regression
-# Example 8.4.
+## Section 8.2.2: Negative binomial regression
+## Example 8.6: Road safety data
 
 Now we analyse the road safety data allowing for unobserved heterogeneity.
 We first set up both the two versions of the  three-block MH-within-Gibbs sampler 
@@ -666,7 +668,7 @@ As expected estimation results using  both samplers are rather similar.
 #xtable(cbind(t(res.negbin.full), t(res.negbin.partial)), label="exam:negbin_est")
 ```
 
-## Section 8.2.3 
+## Section 8.2.3: Evaluating MCMC samplers
 ```{r}
 print(c(mean(res1$acc.beta), mean(res1$acc.alpha)))
 print(c(mean(res2$acc.beta), mean(res2$acc.alpha)))
