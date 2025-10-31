@@ -299,7 +299,7 @@ logit <- function(y, X, b0 = 0, B0 = 10000,
   z <- rep(NA_real_, N)
   omega <-rep(NA_real_, N)
 
-  for (m in seq_len(burnin+M)) {
+  for (m in seq_len(burnin + M)) {
     # Draw z conditional on y and beta
     eta <- X %*% beta
     pi <- plogis(eta) 
@@ -688,4 +688,332 @@ abline(a = 0, b = 1)
 qqplot(res1$alpha.post, res2$alpha.post, xlab="Full Gibbs",
        ylab="Partial Gibbs", main="Alpha")
 abline(a = 0, b = 1)
+```
+# Section 8.3: Beyond i.i.d. Gaussian error distributions
+## Section 8.3.1: Regression analysis with heteroskedastic errors
+## Example 8.12: Star cluster data
+
+The bivariate data set of the star cluster CYG OB1 is available in
+package *robustbase* and we load it from this package and visualize it
+in a scatter plot:
+
+```{r}
+data("starsCYG", package = "robustbase")
+plot(starsCYG, pch = 19, xlim = c(3, 5), ylim = c(3, 7),
+     xlab = "log temperature", ylab = "log light intensity")
+```
+
+The four giant stars which can also be identified in the scatter plot
+have the following indices in the data set:
+
+```{r}
+index <- c(11, 20, 30, 34)
+```
+
+We fit a standard Bayesian regression analysis under the improper
+prior $p(\beta_0, \beta_1, \sigma^2) \propto 1 / \sigma^2$ and
+determine the mean and pointwise 95%-HPD regions of the posterior
+predictive distribution $p(y_i |x_i = x, \mathbf{y})$ using (a) the
+full data set and (b) the data set where the observations $y_{11}$,
+$y_{20}$, $y_{30}$, $y_{34}$ corresponding to the giant stars are
+omitted.
+
+The posterior predictive distribution for a single observation $i$
+with covariate value $x_i$ given the sample $\mathbf{y}$ with model
+matrix $\mathbf{X}$ is available in closed form when using the
+improper prior and corresponds to the prediction intervals obtained
+using OLS estimation.
+```{r}
+ols_all <- lm(log.light ~ log.Te, data = starsCYG)
+xnew <- seq(3, 5, length.out = 100)
+preds_all <- predict(ols_all, newdata = data.frame(log.Te = xnew),
+                     interval = "prediction")
+ols_subset <- lm(log.light ~ log.Te, data = starsCYG[-index,])
+preds_subset<- predict(ols_subset, newdata = data.frame(log.Te = xnew),
+                       interval = "prediction")
+```
+
+We compare the expected values (full lines) and
+the pointwise 95%-HPD regions in the following fiugre for the model
+fit using all data (left) and only the subset without the giant stars
+(right).
+
+```{r, echo = -c(1:2)}
+if (pdfplots) {
+  pdf("8-3_1.pdf", width = 8, height = 5)
+}
+par(mfrow = c(1, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
+plot(starsCYG, pch = 19, xlim = c(3, 5), ylim = c(3, 7),
+     xlab = "log temperature", ylab = "log light intensity")
+lines(xnew, preds_all[, "fit"])
+lines(xnew, preds_all[, "lwr"], lty = 2)
+lines(xnew, preds_all[, "upr"], lty = 2)
+plot(starsCYG, pch = 19, xlim = c(3, 5), ylim = c(3, 7),
+     xlab = "log temperature", ylab = "log light intensity")
+lines(xnew, preds_subset[, "fit"])
+lines(xnew, preds_subset[, "lwr"], lty = 2)
+lines(xnew, preds_subset[, "upr"], lty = 2)
+```
+
+## Example 8.13: Star cluster data - heteroscedastic regression with fixed $\phi$
+
+We define the binary indicator indicating outlying observations, i.e.,
+in this case observations corresponding to giant stars.
+
+```{r}
+S <- rep(1L, nrow(starsCYG))
+S[index] <- 2L
+```
+
+We prepare the model matrix and the vector of the response and define
+the dimensions.
+
+```{r}
+X <- cbind(1, starsCYG$log.Te)
+y <- starsCYG$log.light
+N <- length(y)
+d <- ncol(X)
+```
+
+For the heteroscedastic regression, we define weights depending on the
+binary indicator which are either 1 or equal to $\phi \ll 1$.
+
+```{r}
+phi <- 0.001
+w <- phi^(S - 1)
+```
+
+We include the weights and update the Gibbs sampling scheme for the
+linear regression defined in Chapter 6 accordingly.
+
+```{r}
+set.seed(1)
+
+# define prior parameters of semi-conjugate prior
+B0inv <- diag(rep(1 / 10000, d), nrow = d)
+b0 <- rep(0, d)
+
+c0 <- 2.5
+C0 <- 1.5
+
+# define quantities for the Gibbs sampler taking the weights into
+# account
+Xtilde <- sqrt(w) * X
+ytilde <- sqrt(w) * y
+wXX <- crossprod(Xtilde)
+wXy <- t(Xtilde) %*% ytilde
+cN <- c0 + N / 2
+
+# define burnin and M
+burnin <- 1000
+M <- 100000
+
+# prepare storing of results
+betas <- matrix(NA_real_, nrow = burnin + M, ncol = d)
+sigma2s <- rep(NA_real_, burnin + M)
+colnames(betas) <- colnames(X)
+
+# starting value for sigma2
+sigma2 <- var(y) / 2
+
+for (m in 1:(burnin + M)) {
+    # sample beta from the full conditional
+    BN <- solve(B0inv + wXX / sigma2)
+    bN <- BN %*% (B0inv %*% b0 + wXy / sigma2)
+    beta <- t(mvtnorm::rmvnorm(1, mean = bN, sigma = BN))
+
+    # sample sigma^2 from its full conditional
+    eps <- ytilde - Xtilde %*% beta
+    CN <- C0 + crossprod(eps) / 2
+    sigma2 <- rinvgamma(1, cN, CN)
+
+    betas[m, ] <- beta
+    sigma2s[m] <- sigma2
+}
+```
+
+Based on the posterior draws of the parameters we determine draws from
+the predictive distributions for new observations with `xnew` values:
+
+```{r}
+pred_hetero <- sapply(1:M, function(m) {
+    rnorm(length(xnew), cbind(1, xnew) %*% betas[m, ], sqrt(sigma2s[m]))
+})
+```
+
+We visualize again the mean and the 95%-HPD region together with the
+data points and show that the fit now is robust to the outlying
+observations.
+
+```{r, echo = -c(1:2)}
+if (pdfplots) {
+  pdf("8-3_2.pdf", width = 8, height = 5)
+}
+par(mfrow = c(1, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
+plot(starsCYG, pch = 19, xlim = c(3, 5), ylim = c(3, 7),
+     xlab = "log temperature", ylab = "log light intensity")
+lines(xnew, rowMeans(pred_hetero))
+lines(xnew, apply(pred_hetero, 1, quantile, 0.025), lty = 2)
+lines(xnew, apply(pred_hetero, 1, quantile, 0.975), lty = 2)
+```
+
+## Example 8.14: Star cluster data - two-component Gaussian mixture with fixed $\phi$ and $\eta$
+
+We now assume that the indices of the giant stars are not known. We
+only assume that a two-component mixture is used as weight
+distribution where the weights are given by $w_i = \phi^{S_i-1}$ and
+the indicators $S_i$ are unkown. But we assume that the proportion of
+giant stars is known and we assume this to correspond to 10\%.
+
+```{r}
+eta <- 0.1
+phi <- 0.001
+```
+
+```{r}
+# define prior parameters of semi-conjugate prior
+B0inv <- diag(rep(1, d), nrow = d)
+b0 <- coef(ols_subset)
+```
+
+We now modify the Gibbs sampling code to include a sampling step for
+the mixture component indicators.
+
+```{r}
+set.seed(1)
+
+# starting values for beta and sigma2
+beta <- coef(ols_subset)
+sigma2 <- var(y) / 2
+
+for (m in seq_len(burnin + M)) {
+    # mixture component indicator
+    Xbeta <- X %*% beta
+    posterior <- cbind((1 - eta) * dnorm(y, Xbeta, sqrt(sigma2)),
+                       eta * dnorm(y, Xbeta, sqrt(sigma2 / phi)))
+    posterior <- posterior / rowSums(posterior)
+    S <- 1 + rbinom(nrow(posterior), prob = posterior[, 2],
+                    size = 1)
+
+    # re-weight
+    w <- phi^(S - 1)
+    Xtilde <- sqrt(w) * X
+    ytilde <- sqrt(w) * y
+    wXX <- crossprod(Xtilde)
+    wXy <- t(Xtilde) %*% ytilde
+
+    # sample beta from the full conditional
+    BN <- solve(B0inv + wXX / sigma2)
+    bN <- BN %*% (B0inv %*% b0 + wXy / sigma2)
+    beta <- t(mvtnorm::rmvnorm(1, mean = bN, sigma = BN))
+
+    # sample sigma^2 from its full conditional
+    eps <- ytilde - Xtilde %*% beta
+    CN <- C0 + crossprod(eps) / 2
+    sigma2 <- rinvgamma(1, cN, CN)
+
+    betas[m, ] <- beta
+    sigma2s[m] <- sigma2
+}
+```
+
+```{r}
+preds_mix_1 <- sapply(1:M, function(m) {
+    rnorm(length(xnew), cbind(1, xnew) %*% betas[m, ], sqrt(sigma2s[m]))
+})
+```
+
+We visualize again the mean and the 95%-HPD region together with the
+data points and show that the fit now is robust to the outlying
+observations.
+
+## Example 8.14: Star cluster data - two-component Gaussian mixture with fixed $\phi$
+
+We now assume that the indices of the giant stars are not known. We
+only assume that a two-component mixture is used as weight
+distribution where the weights are given by $w_i = \phi^{S_i-1}$ and
+the indicators $S_i$ are unkown. Now, we also assume that the proportion of
+giant stars is unknown.
+
+We need to specify a prior for $\eta$. The usual prior is a beta prior
+and we will use a prior which has mean 0.1 and corresponds to a prior
+sample size of 10.
+
+```{r}
+a0 <- 1
+d0 <- 9
+```
+
+We now modify the Gibbs sampling code to also include a sampling step
+for the component size.
+
+```{r}
+set.seed(1)
+
+# prepare storing of results
+etas <- rep(NA_real_, burnin + M)
+
+# starting values for eta, beta and sigma2
+eta <- 0.1
+beta <- coef(ols_subset)
+sigma2 <- var(y) / 2
+
+for (m in seq_len(burnin + M)) {
+    # mixture component indicator
+    Xbeta <- X %*% beta
+    posterior <- cbind((1 - eta) * dnorm(y, Xbeta, sqrt(sigma2)),
+                       eta * dnorm(y, Xbeta, sqrt(sigma2 / phi)))
+    posterior <- posterior / rowSums(posterior)
+    S <- 1 + rbinom(nrow(posterior), prob = posterior[, 2],
+                    size = 1)
+
+    # sample eta
+    aN <- a0 + sum(S == 2)
+    dN <- d0 + sum(S == 1)
+    eta <- rbeta(1, aN, dN)
+
+    # re-weight
+    w <- phi^(S - 1)
+    Xtilde <- sqrt(w) * X
+    ytilde <- sqrt(w) * y
+    wXX <- crossprod(Xtilde)
+    wXy <- t(Xtilde) %*% ytilde
+
+    # sample beta from the full conditional
+    BN <- solve(B0inv + wXX / sigma2)
+    bN <- BN %*% (B0inv %*% b0 + wXy / sigma2)
+    beta <- t(mvtnorm::rmvnorm(1, mean = bN, sigma = BN))
+
+    # sample sigma^2 from its full conditional
+    eps <- ytilde - Xtilde %*% beta
+    CN <- C0 + crossprod(eps) / 2
+    sigma2 <- rinvgamma(1, cN, CN)
+
+    betas[m, ] <- beta
+    sigma2s[m] <- sigma2
+    etas[m] <- eta
+}
+```
+
+```{r}
+preds_mix_2 <- sapply(1:M, function(m) {
+    rnorm(length(xnew), cbind(1, xnew) %*% betas[m, ], sqrt(sigma2s[m]))
+})
+```
+
+```{r, echo = -c(1:2)}
+if (pdfplots) {
+  pdf("8-3_3.pdf", width = 8, height = 5)
+}
+par(mfrow = c(1, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
+plot(starsCYG, pch = 19, xlim = c(3, 5), ylim = c(3, 7),
+     xlab = "log temperature", ylab = "log light intensity")
+lines(xnew, rowMeans(preds_mix_1))
+lines(xnew, apply(preds_mix_1, 1, quantile, 0.025), lty = 2)
+lines(xnew, apply(preds_mix_1, 1, quantile, 0.975), lty = 2)
+plot(starsCYG, pch = 19, xlim = c(3, 5), ylim = c(3, 7),
+     xlab = "log temperature", ylab = "log light intensity")
+lines(xnew, rowMeans(preds_mix_2))
+lines(xnew, apply(preds_mix_2, 1, quantile, 0.025), lty = 2)
+lines(xnew, apply(preds_mix_2, 1, quantile, 0.975), lty = 2)
 ```
