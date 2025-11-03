@@ -941,7 +941,7 @@ absolute returns.
 
 ```{r, echo = -c(1:2), fig.width = 8, fig.height = 3}
 if (pdfplots) {
-  pdf("7-2_x1.pdf", width = 8, height = 4)
+  pdf("7-3_1.pdf", width = 8, height = 4)
 }
 par(mfrow = c(2, 2), mar = c(2.5, 2.5, 1.2, .5), mgp = c(1.5, .5, 0), lwd = 2)
 data("exrates", package = "stochvol")
@@ -972,7 +972,7 @@ Now we can graphically investigate stationarity as above.
 
 ```{r, echo = -c(1:2), fig.width = 8, fig.height = 3}
 if (pdfplots) {
-  pdf("7-2_x2.pdf", width = 8, height = 4)
+  pdf("7-3_2.pdf", width = 8, height = 4)
 }
 par(mfrow = c(2, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 2)
 draws <- list(ar2dat$betas[,2:3], ar2ret$betas[,2:3])
