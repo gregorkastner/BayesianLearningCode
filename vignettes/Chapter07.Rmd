@@ -806,7 +806,8 @@ acf(res2, ylab = "")
 ```
 
 We now compare the draws from the two samplers; they should yield
-draws from the same distribution, irrespective of the mixing. We graphically
+draws from the same distribution, irrespective of the acceptance rate and thus
+the mixing of the Markov chain. We graphically
 check this by comparing histograms and quantiles of draws from the marginal
 posterior of $\phi$.
 
