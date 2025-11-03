@@ -694,6 +694,7 @@ qqplot(res1$alpha.post, res2$alpha.post, xlab = "Full Gibbs",
        ylab = "Partial Gibbs", main = "Alpha")
 abline(a = 0, b = 1)
 ```
+
 # Section 8.3: Beyond i.i.d. Gaussian error distributions
 ## Section 8.3.1: Regression analysis with heteroskedastic errors
 ## Example 8.12: Star cluster data
