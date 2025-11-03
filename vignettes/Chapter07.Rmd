@@ -651,8 +651,8 @@ $y$ as well as the design matrix.
 
 ```{r}
 # Specify the hyperparameters
-c0 <- 1
-C0 <- 1
+c0 <- 0
+C0 <- 0
 b0 <- 0
 B0 <- Inf
 aphi <- 1
