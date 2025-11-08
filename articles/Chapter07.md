@@ -1,0 +1,1092 @@
+# Chapter 7: Introduction to Bayesian Time Series Analysis
+
+## Section 7.2: Bayesian Learning of (Stationary) Autoregressive Models
+
+### Section 7.2.2: Exploring stationarity during post-processing
+
+### Figure 7.1: U.S. GDP data
+
+First, we load the data. Because of the extreme outliers during the
+COVID pandemic, we restrict our analysis to the time before its
+outbreak.
+
+``` r
+data("gdp", package = "BayesianLearningCode")
+dat <- gdp[1:which(names(gdp) == '2019-10-01')]
+```
+
+Next, we compute the log returns.
+
+``` r
+logret <- log(dat[-1]) - log(dat[-length(dat)])
+```
+
+Now we can plot the data and its empirical autocorrelation function.
+
+``` r
+ts.plot(logret, main = "U.S. GDP log returns")
+acf(logret, lag = 8, main = "")
+title("Empirical autocorrelation function")
+```
+
+![](Chapter07_files/figure-html/unnamed-chunk-4-1.png)
+
+Before we move on, we define a function yielding posterior draws under a
+standard regression model, using the tools developed in Chapter 6.
+
+``` r
+library(BayesianLearningCode)
+library(mvtnorm)
+
+regression <- function(y, X, prior = "improper", b0 = 0, B0 = 1, c0 = 0.01,
+                       C0 = 0.01, nburn = 1000L, M = 5000L) {
+  
+  N <- nrow(X)
+  d <- ncol(X)
+  
+  if (length(b0) == 1L) b0 <- rep(b0, d)
+  
+  if (!is.matrix(B0)) {
+    if (length(B0) == 1L) {
+      B0 <- diag(rep(B0, d))
+    } else {
+      B0 <- diag(B0)
+    }
+  }
+  
+  if (prior == "improper") {
+
+    fit <- lm.fit(X, y)
+    betahat <- fit$coefficients
+    SSR <- sum(fit$residuals^2)
+    cN <- (N - d) / 2
+    CN <- SSR / 2
+    bN <- betahat
+    BN <- solve(crossprod(X))
+    
+    sigma2s <- rinvgamma(M, cN, CN)
+    betas <- matrix(NA_real_, M, d)
+    for (i in seq_len(M)) betas[i,] <- rmvnorm(1, bN, sigma2s[i] * BN)
+  
+  } else if (prior == "conjugate") {
+    
+    B0inv <- solve(B0)
+    BNinv <- B0inv + crossprod(X)
+    BN <- solve(BNinv)
+    bN <- BN %*% (B0inv %*% b0 + crossprod(X, y))
+    Seps0 <- crossprod(y) + crossprod(b0, B0inv) %*% b0 -
+      crossprod(bN, BNinv) %*% bN
+    cN <- c0 + N / 2
+    CN <- C0 + Seps0 / 2
+    
+    sigma2s <- rinvgamma(M, cN, CN)
+    betas <- matrix(NA_real_, M, d)
+    for (i in seq_len(M)) betas[i,] <- rmvnorm(1, bN, sigma2s[i] * BN)
+  
+  } else if (prior == "semi-conjugate") {
+    
+    # Precompute some values
+    B0inv <- solve(B0)
+    B0invb0 <- B0inv %*% b0
+    cN <- c0 + N / 2
+    XX <- crossprod(X)
+    Xy <- crossprod(X, y)
+    
+    # Prepare memory to store the draws
+    betas <- matrix(NA_real_, nrow = M, ncol = d)
+    sigma2s <- rep(NA_real_, M)
+    colnames(betas) <- colnames(X)
+    
+    # Set the starting value for sigma2
+    sigma2 <- var(y) / 2
+    
+    # Run the Gibbs sampler
+    for (m in seq_len(nburn + M)) {
+      # Sample beta from its full conditional
+      BN <- solve(B0inv + XX / sigma2) 
+      bN <- BN %*% (B0invb0 + Xy / sigma2)
+      beta <- rmvnorm(1, mean = bN, sigma = BN)
+      
+      # Sample sigma^2 from its full conditional
+      eps <- y - tcrossprod(X, beta)
+      CN <- C0 + crossprod(eps) / 2
+      sigma2 <- rinvgamma(1, cN, CN)
+      
+      # Store the results
+      if (m > nburn) {
+        betas[m - nburn,] <- beta
+        sigma2s[m - nburn] <- sigma2
+      }
+    }
+  }
+  list(betas = betas, sigma2s = sigma2s)
+}
+```
+
+Now we are ready to reproduce the results in the book.
+
+### Example 7.1: AR modeling of the U.S. GDP data
+
+We begin by writing a function that sets up the design matrix for an
+AR($p$) model.
+
+``` r
+ARdesignmatrix <- function(dat, p = 1) {
+  d <- p + 1
+  N <- length(dat) - p
+
+  Xy <- matrix(NA_real_, N, d)
+  Xy[, 1] <- 1
+  for (i in seq_len(p)) {
+    Xy[, i + 1] <- dat[(p + 1 - i) : (length(dat) - i)]
+  }
+  Xy
+}
+```
+
+We obtain draws for four AR models under the improper prior.
+
+``` r
+set.seed(42)
+res <- vector("list", 4)
+for (p in 1:4) {
+  y <- tail(logret, -p)
+  Xy <- ARdesignmatrix(logret, p)
+  res[[p]] <- regression(y, Xy, prior = "improper")
+}
+```
+
+### Figure 7.2: Exploratory model selection
+
+Now we plot the draws for the leading coefficient, i.e., the coefficient
+corresponding to the highest lag in each of the models.
+
+``` r
+for (p in 1:4) {
+  hist(res[[p]]$betas[, p + 1], freq = FALSE, main = bquote(AR(.(p))),
+       xlab = bquote(phi[.(p)]), ylab = "", breaks = seq(-.75, .75, .02))
+  abline(v = 0, lty = 3)
+}
+```
+
+![](Chapter07_files/figure-html/unnamed-chunk-8-1.png)
+
+Next, we fit an AR(3) model with different priors.
+
+``` r
+y <- tail(logret, -3)
+Xy <- ARdesignmatrix(logret, 3)
+
+res_improper <- res[[3]]
+
+res_conj_1 <- regression(y, Xy, prior = "conjugate",
+                              b0 = rep(0, 4), B0 = diag(rep(1, 4)),
+                              c0 = 2, C0 = 0.001)
+
+res_semi_1 <- regression(y, Xy, prior = "semi-conjugate",
+                              b0 = rep(0, 4), B0 = diag(rep(1, 4)),
+                              c0 = 2, C0 = 0.001)
+
+res_conj_2 <- regression(y, Xy, prior = "conjugate",
+                              b0 = rep(0, 4), B0 = diag(rep(100, 4)),
+                              c0 = 2, C0 = 0.001)
+
+res_semi_2 <- regression(y, Xy, prior = "semi-conjugate",
+                              b0 = rep(0, 4), B0 = diag(rep(100, 4)),
+                              c0 = 2, C0 = 0.001)
+```
+
+### Figure 7.3: AR(3) models with improper, semi-conjugate, and conjugate priors
+
+We now visualize the posterior of the model parameters under all those
+priors.
+
+``` r
+for (i in 1:5) {
+  if (i <= 4) {
+    if (i == 1) name <- bquote(zeta) else name <- bquote(phi[.(i - 1)])
+    dens_improper <- density(res_improper$betas[, i], bw = "SJ", adj = 2)
+    dens_semi_1 <- density(res_semi_1$betas[, i], bw = "SJ", adj = 2)
+    dens_semi_2 <- density(res_semi_2$betas[, i], bw = "SJ", adj = 2)
+    dens_conj_1 <- density(res_conj_1$betas[, i], bw = "SJ", adj = 2)
+    dens_conj_2 <- density(res_conj_2$betas[, i], bw = "SJ", adj = 2)
+  } else {
+    name <- bquote(sigma[epsilon]^2)
+    dens_improper <- density(res_improper$sigma2, bw = "SJ", adj = 2)
+    dens_semi_1 <- density(res_semi_1$sigma2, bw = "SJ", adj = 2)
+    dens_semi_2 <- density(res_semi_2$sigma2, bw = "SJ", adj = 2)
+    dens_conj_1 <- density(res_conj_1$sigma2, bw = "SJ", adj = 2)
+    dens_conj_2 <- density(res_conj_2$sigma2, bw = "SJ", adj = 2)
+  } 
+  
+  plot(dens_improper, xlim = range(dens_improper$x, dens_semi_1$x, dens_semi_2$x),
+       ylim = range(dens_improper$y, dens_semi_1$y, dens_semi_2$y),
+       main = "", xlab = name, ylab = "")
+  if (i == 1) title("Semi-conjugate priors")
+  lines(dens_semi_1, col = 2, lty = 2)
+  lines(dens_semi_2, col = 3, lty = 3)
+  legend("topright", c("Improper", "Tight", "Loose"), col = 1:3, lty = 1:3)
+  
+  plot(dens_improper, xlim = range(dens_improper$x, dens_conj_1$x, dens_conj_2$x),
+       ylim = range(dens_improper$y, dens_conj_1$y, dens_conj_2$y),
+       main = "", xlab = name, ylab = "")
+  if (i == 1) title("Conjugate priors")
+  lines(dens_conj_1, col = 2, lty = 2)
+  lines(dens_conj_2, col = 3, lty = 3)
+  legend("topright", c("Improper", "Tight", "Loose"), col = 1:3, lty = 1:3)
+}
+```
+
+![](Chapter07_files/figure-html/unnamed-chunk-10-1.png)
+
+### Section 7.2.2: Exploring stationarity during post-processing
+
+We reuse the AR($p$) models under the improper prior from above to
+explore stationarity for $p = 1,2,3$.
+
+### Figure 7.4: Checking stationarity conditions for the GDP data
+
+``` r
+hist(res[[1]]$betas[,2], breaks = 20, freq = FALSE, main = "AR(1)",
+     xlab = bquote(phi), ylab = "")
+
+plot(res[[2]]$betas[,2:3], main = "AR(2)", xlab = bquote(phi[1]),
+     ylab = bquote(phi[2]), xlim = c(-2, 2), ylim = c(-1, 1),
+     col = rgb(0, 0, 0, .05), pch = 16)
+polygon(c(-2, 0, 2, -2), c(-1, 1, -1, -1), border = 2)
+
+draws <- res[[3]]$betas[,2:4]
+eigenvalues <- matrix(NA_complex_, nrow(draws), ncol(draws))
+for (m in seq_len(nrow(draws))) {
+  Phi <- matrix(c(draws[m,], c(1, 0, 0), c(0, 1, 0)), byrow = TRUE, nrow = 3)
+  eigenvalues[m,] <- eigen(Phi, only.values = TRUE)$values
+}
+plot(eigenvalues, xlim = c(-1, 1), ylim = c(-1, 1), asp = 1,
+     main = "AR(3)", col = rgb(0, 0, 0, .05), pch = 16)
+symbols(0, 0, 1, add = TRUE, fg = 2, inches = FALSE)
+```
+
+![](Chapter07_files/figure-html/unnamed-chunk-11-1.png)
+
+We now move towards analyzing EU inflation data.
+
+``` r
+data("inflation", package = "BayesianLearningCode")
+```
+
+First, we plot the data and its empirical autocorrelation function.
+
+### Figure 7.5: EU inflation data
+
+``` r
+ts.plot(inflation, main = "EU inflation")
+acf(inflation, main = "")
+title("Empirical autocorrelation function")
+```
+
+![](Chapter07_files/figure-html/unnamed-chunk-13-1.png)
+
+We fit AR($p$) models under the improper prior to explore stationarity
+for $p = 1,2,3$.
+
+``` r
+res2 <- vector("list", 3)
+for (p in 1:3) {
+  y <- tail(inflation, -p)
+  Xy <- ARdesignmatrix(inflation, p)
+  res2[[p]] <- regression(y, Xy, prior = "improper")
+}
+```
+
+### Figure 7.6: Checking stationarity conditions for the EU inflation data
+
+``` r
+ar1draws <- res2[[1]]$betas[,2]
+ar2draws <- res2[[2]]$betas[,2:3]
+ar3draws <- res2[[3]]$betas[,2:4]
+
+hist(ar1draws, breaks = 20, freq = FALSE, main = "AR(1)",
+     xlab = bquote(phi), ylab = "")
+abline(v = 1, col = 2)
+
+plot(ar2draws, main = "AR(2)", xlab = bquote(phi[1]),
+     ylab = bquote(phi[2]), xlim = c(-2, 2), ylim = c(-1, 1),
+     col = rgb(0, 0, 0, .05), pch = 16)
+polygon(c(-2, 0, 2, -2), c(-1, 1, -1, -1), border = 2)
+
+eigenvalues <- matrix(NA_complex_, nrow(ar3draws), ncol(ar3draws))
+for (m in seq_len(nrow(ar3draws))) {
+  Phi <- matrix(c(ar3draws[m,], c(1, 0, 0), c(0, 1, 0)), byrow = TRUE, nrow = 3)
+  eigenvalues[m,] <- eigen(Phi, only.values = TRUE)$values
+}
+plot(eigenvalues, xlim = c(-1, 1), ylim = c(-1, 1), asp = 1,
+     main = "AR(3)", col = rgb(0, 0, 0, .05), pch = 16)
+symbols(0, 0, 1, add = TRUE, fg = 2, inches = FALSE)
+```
+
+![](Chapter07_files/figure-html/unnamed-chunk-15-1.png)
+
+To assess the probability of nonstationarity, we can simply count the
+draws outside of the stationarity region.
+
+``` r
+nonstationary <- matrix(NA, nrow(ar3draws), 3, dimnames = list(NULL, order = 1:3))
+nonstationary[, 1] <- abs(ar1draws) > 1
+nonstationary[, 2] <- ar2draws[,1] + ar2draws[,2] > 1 |
+     abs(ar2draws[,2]) > 1 |
+     ar2draws[,2] > 1 + ar2draws[,1]
+nonstationary[ ,3] <- apply(Mod(eigenvalues) > 1, 1, any)
+colMeans(nonstationary)
+#>      1      2      3 
+#> 0.0422 0.0088 0.0028
+```
+
+## Section 7.2.3: Recovering Missing Time Series Data – An Introduction to Data Augmentation
+
+Assume that the values at certain time points are missing. (Note that
+for our sampler, we require the missing time points to be far enough
+apart. This restriction is not substantial, though.)
+
+``` r
+missing <- seq(10, 100, by = 10)
+yaug <- logret
+yaug[missing] <- NA
+```
+
+To set up the Gibbs sampler, we need starting values for
+$\mathbf{y}_{\text{miss}}$. Here, we interpolate linearly (take the
+average of the adjacent values).
+
+``` r
+ymiss <- (logret[missing + 1] + logret[missing - 1]) / 2
+names(ymiss) <- names(logret)[missing]
+```
+
+For simplicity, we employ our improper prior and sample iteratively.
+
+``` r
+ndraws <- 5000
+nburn <- 1000
+ind <- missing - 2
+
+ytilde <- rep(NA_real_, 3)
+betas <- matrix(NA_real_, ndraws, 3)
+sigma2s <- rep(NA_real_, ndraws)
+ymisses <- matrix(NA_real_, ndraws, length(ind))
+
+for (m in seq_len(ndraws + nburn)) {
+  # Augment the observed time series with the missing values
+  yaug[missing] <- ymiss
+  
+  # Sample the parameters conditional on the augmented data
+  Xy <- ARdesignmatrix(yaug, 2)
+  y <- tail(yaug, -2)
+  N <- nrow(Xy)
+  d <- ncol(Xy)
+  BN <- solve(crossprod(Xy))
+  bN <- BN %*% crossprod(Xy, y)
+  cN <- (N - d) / 2
+  CN <- sum((y - Xy %*% bN)^2) / 2
+  sigma2 <- rinvgamma(1, cN, CN)
+  beta <- rmvnorm(1, bN, sigma2 * BN)
+  zeta <- beta[1]
+  phi <- beta[2:3]
+  
+  # Sample the missing values conditional on the parameters
+  for (i in seq_along(ind)) {
+    ytilde[1] <- -zeta - phi[1] * y[ind[i] - 1] - phi[2] * y[ind[i] - 2]
+    ytilde[2] <- -zeta + y[ind[i] + 1] - phi[2] * y[ind[i] - 1]
+    ytilde[3] <- -zeta + y[ind[i] + 2] - phi[1] * y[ind[i] + 1]
+    
+    X <- matrix(c(-1, phi), nrow = 3)
+    BN <- solve(crossprod(X))
+    bN <- BN %*% crossprod(X, ytilde)
+    ymiss[i] <- rmvnorm(1, bN, sigma2 * BN)
+  }
+  
+  # Store the results
+  if (m > nburn) {
+    betas[m - nburn, ] <- beta
+    sigma2s[m - nburn] <- sigma2
+    ymisses[m - nburn,] <- ymiss
+  }
+}
+```
+
+Let us briefly check some trace plots and ACFs of the draws.
+
+``` r
+par(mfrow = c(5, 2))
+ts.plot(betas[,1])
+acf(betas[,1])
+ts.plot(betas[,2])
+acf(betas[,1])
+ts.plot(betas[,3])
+acf(betas[,3])
+ts.plot(sigma2s)
+acf(sigma2s)
+ts.plot(ymisses[,1])
+acf(ymisses[,1])
+```
+
+![](Chapter07_files/figure-html/unnamed-chunk-20-1.png)
+
+Seems like the mixing is perfect and there is no cause for concern.
+
+We move on to visualizing the observed and the missing values (black
+lines), alongside the unobservable true values (red circles).
+
+``` r
+yaug[missing] <- NA
+
+where <- seq(max(missing) - 13, max(missing) + 3)
+plot(where, yaug[where], type = "l", ylim = range(ymisses[, i]),
+     xlab = "Time", ylab = "", main = "U.S. GDP growth")
+for (i in seq_along(missing)) {
+  for (j in seq_len(nrow(ymisses))) {
+    lines(c(missing[i] - 1, missing[i], missing[i] + 1),
+          c(yaug[missing[i] - 1], ymisses[j, i], yaug[missing[i] + 1]),
+          col = rgb(0, 0, 0, .02))
+  }
+  points(missing[i], logret[missing[i]], col = 2, cex = 2, pch = 16)
+  lines(c(missing[i] - 1, missing[i], missing[i] + 1),
+        c(yaug[missing[i] - 1], logret[missing[i]], yaug[missing[i] + 1]),
+        col = 2, cex = 2)
+}
+```
+
+![](Chapter07_files/figure-html/unnamed-chunk-21-1.png)
+
+Now let us compare the parameter estimates with the complete-data
+posterior and the posterior arising when missing values are ignored.
+
+We start by estimating a model where all equations containing missing
+data are simply dropped.
+
+``` r
+Xy <- ARdesignmatrix(yaug, 2)
+y <- tail(yaug, -2)
+containsNA <- apply(is.na(cbind(y, Xy)), 1, any)
+yred <- y[!containsNA]
+Xyred <- Xy[!containsNA, ]
+res_drop <- regression(yred, Xyred, prior = "improper")
+```
+
+Now we can plot.
+
+``` r
+for (i in 1:4) {
+  if (i <= 3) {
+    if (i == 1) name <- bquote(zeta) else name <- bquote(phi[.(i - 1)])
+    dens_improper <- density(res[[2]]$betas[, i], bw = "SJ", adj = 2)
+    dens_drop <- density(res_drop$betas[, i], bw = "SJ", adj = 2)
+    dens_aug <- density(betas[, i], bw = "SJ", adj = 2)
+  } else {
+    name <- bquote(sigma[epsilon]^2)
+    dens_improper <- density(res[[2]]$sigma2, bw = "SJ", adj = 2)
+    dens_drop <- density(res_drop$sigma2, bw = "SJ", adj = 2)
+    dens_aug <- density(sigma2s, bw = "SJ", adj = 2)
+  } 
+  
+  plot(dens_improper, xlim = range(dens_improper$x, dens_drop$x, dens_aug$x),
+       ylim = range(dens_improper$y, dens_drop$y, dens_aug$y),
+       main = "", xlab = name, ylab = "", col = 3)
+  lines(dens_aug, col = 2, lty = 2)
+  lines(dens_drop, lty = 3)
+  legend("topright", c("Complete-data", "Augmented", "Dropped"),
+         col = 3:1, lty = 1:3)
+}
+```
+
+![](Chapter07_files/figure-html/unnamed-chunk-23-1.png)
+
+## Section 7.2.4: Imposing Stationarity via an Independence MH Algorithm
+
+First, we fit an AR(0), i.e., an intercept-only, model, to the GDP data.
+
+``` r
+Xy <- ARdesignmatrix(logret, 0) # Fill the N x 1 design matrix with 1s
+res0 <- regression(logret, Xy, prior = "improper")
+```
+
+We now create Figure 7.9 via simple transformations.
+
+``` r
+mu <- sigma2 <- matrix(NA_real_, ndraws, 3, dimnames = list(NULL, order = 0:2))
+
+mu[, "0"] <- res0$betas[, 1]
+sigma2[, "0"] <- res0$sigma2s
+for (p in 1:2) {
+  mu[, as.character(p)] <- res[[p]]$betas[, 1] /
+    (1 - rowSums(res[[p]]$betas[, 2:(p + 1), drop = FALSE]))
+}
+
+# AR(1):
+phi <- res[[1]]$betas[, 2]
+sigma2[, "1"] <- res[[1]]$sigma2s / (1 - phi^2)
+
+# AR(2):
+phi1 <- res[[2]]$betas[, 2]
+phi2 <- res[[2]]$betas[, 3]
+sigma2[, "2"] <- (1 - phi2) * res[[1]]$sigma2s / 
+  ((1 + phi2) * (1 - phi1^2 + phi2^2 - 2 * phi2))
+  
+plot(density(mu[, "0"], bw = "SJ", adj = 2), xlim = range(mu), ylab = "",
+       main = "Posterior of the marginal mean", xlab = expression(mu))
+for (p in 1:2) lines(density(mu[, as.character(p)], bw = "SJ", adj = 2),
+                     col = p + 1, lty = p + 1)
+legend("topright", paste0("p = ", 0:2), col = 1:3, lty = 1:3)
+
+plot(density(sigma2[, "0"], bw = "SJ", adj = 2), xlim = range(sigma2), ylab = "",
+       main = "Posterior of the marginal variance", xlab = expression(sigma^2))
+for (p in 1:2) lines(density(sigma2[, as.character(p)], bw = "SJ", adj = 2),
+                     col = p + 1, lty = p + 1)
+legend("topright", paste0("p = ", 0:2), col = 1:3, lty = 1:3)
+```
+
+![](Chapter07_files/figure-html/unnamed-chunk-25-1.png)
+
+We continue by fitting an AR(0) model to the inflation data.
+
+``` r
+Xy <- ARdesignmatrix(inflation, 0) # Fill the N x 1 design matrix with 1s
+res20 <- regression(inflation, Xy, prior = "improper")
+```
+
+Before we can compute unconditional mean and unconditional variance from
+our fitted AR models, we need to remove nonstationary draws. Apart from
+that, we proceed as above.
+
+``` r
+mu <- sigma2 <- list()
+
+mu[["0"]] <- res20$betas[, 1]
+sigma2[["0"]] <- res20$sigma2s
+
+for (p in 1:2) {
+  mu[[as.character(p)]] <- res2[[p]]$betas[!nonstationary[, p], 1] /
+    (1 - rowSums(res2[[p]]$betas[!nonstationary[, p], 2:(p + 1), drop = FALSE]))
+}
+
+# AR(1):
+phi <- res2[[1]]$betas[!nonstationary[, 1], 2]
+sigma2[["1"]] <- res2[[1]]$sigma2s[!nonstationary[, 1]] / (1 - phi^2)
+
+# AR(2):
+phi1 <- res2[[2]]$betas[!nonstationary[, 2], 2]
+phi2 <- res2[[2]]$betas[!nonstationary[, 2], 3]
+sigma2[["2"]] <- (1 - phi2) * res2[[2]]$sigma2s[!nonstationary[, 2]] / 
+  ((1 + phi2) * (1 - phi1^2 + phi2^2 - 2 * phi2))
+  
+plot(density(mu[["0"]], bw = "SJ", adj = 2), xlim = range(mu), ylab = "",
+       main = "Posterior of the marginal mean", xlab = expression(mu))
+for (p in 1:2) lines(density(mu[[as.character(p)]], bw = "SJ", adj = 2),
+                     col = p + 1, lty = p + 1)
+legend("topright", paste0("p = ", 0:2), col = 1:3, lty = 1:3)
+
+plot(density(sigma2[["0"]], bw = "SJ", adj = 2), xlim = range(sigma2), ylab = "",
+       main = "Posterior of the marginal variance", xlab = expression(sigma^2))
+for (p in 1:2) lines(density(sigma2[[as.character(p)]], bw = "SJ", adj = 2),
+                     col = p + 1, lty = p + 1)
+legend("topright", paste0("p = ", 0:2), col = 1:3, lty = 1:3)
+```
+
+![](Chapter07_files/figure-html/unnamed-chunk-27-1.png)
+
+We now move on to imposing stationarity through employing a
+non-conjugate transformed beta prior on $\phi$, i.e.,
+$$(\phi + 1)/2 \sim \mathcal{B}\left( a^{\phi},b^{\phi} \right),$$ and
+employ a 4-step sampler to obtain posterior draws. In addition, we
+assume that $y_{0}$ is unknown and a priori follows the stationary
+distribution of the AR(1) process.
+
+We start by defining the density function of the rescaled beta.
+
+``` r
+dbetarescaled <- function(x, a, b, log = FALSE) {
+  tmp <- dbeta((x + 1) / 2, a, b, log = TRUE) - log(2)
+  if (log) tmp else exp(tmp)
+}
+```
+
+We need to specify the hyperparameters and define the left hand side
+variable $y$ as well as the design matrix.
+
+``` r
+# Specify the hyperparameters
+c0 <- 0
+C0 <- 0
+b0 <- 0
+B0 <- Inf
+aphi <- 1
+bphi <- 1
+
+# Define the design matrix and y
+y <- inflation
+X <- matrix(NA_real_, nrow = length(y), 2)
+X[, 1] <- 1
+X[, 2] <- c(NA_real_, y[-length(y)])
+```
+
+Now we are ready to sample!
+
+``` r
+# Allocate some space for the posterior draws and initialize the parameters:
+y0s <- sigma2s <- zetas <- phis <- rep(NA_real_, ndraws)
+zeta <- 0
+phi <- .8
+sigma2 <- var(y) * (1 - phi)
+naccepts <- 0
+
+for (m in seq_len(ndraws + nburn)) {
+  # Step (a): Draw y0
+  y0 <- rnorm(1, zeta + phi * y[1], sqrt(sigma2))
+  
+  # Step (b): Draw the innovation variance
+  X[1, 2] <- y0
+  beta <- matrix(c(zeta, phi), nrow = 2)
+  tmp <- y - X %*% beta
+  sigma2 <- rinvgamma(1, c0 + (length(y) + 1) / 2,
+    C0 + .5 * (1 - phi^2) * (y0 - zeta / (1 - phi))^2 + .5 * crossprod(tmp))
+  
+  # Step (c): Draw the intercept
+  BT <- 1 / (1 / B0 + (length(y) + 1) / sigma2)
+  bT <- BT * (b0 / B0 + ((1 + phi) * y0 +
+    y[1] - phi * y0 + sum(y[-1] - phi * y[-length(y)])) / sigma2)
+  zeta <- rnorm(1, bT, sqrt(BT))
+  
+  # Step (d): Draw the persistence
+  tmp <- y0^2 + sum(y[-length(y)]^2)
+  propmean <- (y0 * (y[1] - zeta) + sum(y[-length(y)] * (y[-1] - zeta))) / tmp
+  propvar <- sigma2 / tmp
+  phiprop <- rnorm(1, propmean, sqrt(propvar))
+  if (-1 < phiprop & phiprop < 1) {
+    logR <- dbetarescaled(phiprop, aphi, bphi, log = TRUE) -
+      dbetarescaled(phi, aphi, bphi, log = TRUE) +
+      dnorm(y0, zeta / (1 - phiprop), sqrt(sigma2 / (1 - phiprop^2)), log = TRUE) -
+      dnorm(y0, zeta / (1 - phi), sqrt(sigma2 / (1 - phi^2)), log = TRUE)
+    if (log(runif(1)) < logR) {
+      phi <- phiprop
+      if (m > nburn) naccepts <- naccepts + 1L
+    }
+  }
+  
+  # Store the draws
+  if (m > nburn) {
+    y0s[m - nburn] <- y0
+    sigma2s[m - nburn] <- sigma2
+    zetas[m - nburn] <- zeta
+    phis[m - nburn] <- phi
+  }
+}
+res1 <- data.frame(y0 = y0s, sigma2 = sigma2s, zeta = zetas, phi = phis)
+naccepts1 <- naccepts
+```
+
+Let us investigate traceplots and empirical autocorrelation functions of
+the draws. In addition, we check the percentage of accepted draws in
+MH-step (d).
+
+``` r
+plot.ts(res1, xlab = "Draws after burn-in",
+        main = paste0("MH acceptance rate: ", 100 * naccepts1 / ndraws, "%"))
+```
+
+![](Chapter07_files/figure-html/unnamed-chunk-31-1.png)
+
+``` r
+acf(res1, ylab = "")
+```
+
+![](Chapter07_files/figure-html/unnamed-chunk-31-2.png)
+
+We now repeat this exercise, but use the conditional posterior resulting
+from an auxiliary moment-matched prior in Step (d).
+
+``` r
+# Compute mean and variance of the actual prior using properties of the beta
+priormean <- 2 * aphi / (aphi + bphi) - 1
+priorvar <- 4 * (aphi * bphi) / ((aphi + bphi)^2 * (aphi + bphi + 1))
+
+# Define the design matrix and y
+X <- matrix(NA_real_, nrow = length(y), 2)
+X[, 1] <- 1
+X[, 2] <- c(NA_real_, y[-length(y)])
+
+# Allocate some space for the posterior draws and initialize the parameters:
+y0s <- sigma2s <- zetas <- phis <- rep(NA_real_, ndraws)
+zeta <- 0
+phi <- .8
+sigma2 <- var(y) * (1 - phi)
+naccepts <- 0
+
+for (m in seq_len(ndraws + nburn)) {
+  # Step (a): Draw y0
+  y0 <- rnorm(1, zeta + phi * y[1], sqrt(sigma2))
+  
+  # Step (b): Draw the innovation variance
+  X[1, 2] <- y0
+  beta <- matrix(c(zeta, phi), nrow = 2)
+  tmp <- y - X %*% beta
+  sigma2 <- rinvgamma(1, c0 + (length(y) + 1) / 2,
+    C0 + .5 * (1 - phi^2) * (y0 - zeta / (1 - phi))^2 + .5 * crossprod(tmp))
+  
+  # Step (c): Draw the intercept
+  BT <- 1 / (1 / B0 + (length(y) + 1) / sigma2)
+  bT <- BT * (b0 / B0 + ((1 + phi) * y0 +
+    y[1] - phi * y0 + sum(y[-1] - phi * y[-length(y)])) / sigma2)
+  zeta <- rnorm(1, bT, sqrt(BT))
+  
+  # Step (d): Draw the persistence
+  tmp <- y0^2 + sum(y[-length(y)]^2)
+  propvar <- 1 / (1 / priorvar + tmp / sigma2)
+  propmean <- propvar * (priormean / priorvar + (y0 * (y[1] - zeta) + sum(y[-length(y)] * (y[-1] - zeta))) / sigma2)
+  phiprop <- rnorm(1, propmean, sqrt(propvar))
+  if (-1 < phiprop & phiprop < 1) {
+    logR <- dbetarescaled(phiprop, aphi, bphi, log = TRUE) -
+      dbetarescaled(phi, aphi, bphi, log = TRUE) +
+      dnorm(y0, zeta / (1 - phiprop), sqrt(sigma2 / (1 - phiprop^2)), log = TRUE) -
+      dnorm(y0, zeta / (1 - phi), sqrt(sigma2 / (1 - phi^2)), log = TRUE) +
+      dnorm(phi, priormean, sqrt(priorvar), log = TRUE) -
+      dnorm(phiprop, priormean, sqrt(priorvar), log = TRUE)
+    if (log(runif(1)) < logR) {
+      phi <- phiprop
+      if (m > nburn) naccepts <- naccepts + 1L
+    }
+  }
+  
+  # Store the draws
+  if (m > nburn) {
+    y0s[m - nburn] <- y0
+    sigma2s[m - nburn] <- sigma2
+    zetas[m - nburn] <- zeta
+    phis[m - nburn] <- phi
+  }
+}
+res2 <- data.frame(y0 = y0s, sigma2 = sigma2s, zeta = zetas, phi = phis)
+naccepts2 <- naccepts
+```
+
+Again, we investigate traceplots and empirical autocorrelation functions
+of the draws. In addition, we check the percentage of accepted draws in
+MH-step (d).
+
+``` r
+plot.ts(res2, xlab = "Draws after burn-in",
+        main = paste0("MH acceptance rate: ", 100 * naccepts2 / ndraws, "%"))
+```
+
+![](Chapter07_files/figure-html/unnamed-chunk-33-1.png)
+
+``` r
+acf(res2, ylab = "")
+```
+
+![](Chapter07_files/figure-html/unnamed-chunk-33-2.png)
+
+We now compare the draws from the two samplers; they should yield draws
+from the same distribution, irrespective of the acceptance rate and thus
+the mixing of the Markov chain. We graphically check this by comparing
+histograms and quantiles of draws from the marginal posterior of $\phi$.
+
+``` r
+mybreaks <- seq(min(res1$phi, res2$phi), max(res1$phi, res2$phi),
+                length.out = 50)
+hist(res1$phi, breaks = mybreaks, col = rgb(0, 0, 1, .3),
+     main = "Histogram", xlab = expression(phi), freq = FALSE)
+hist(res2$phi, breaks = mybreaks, col = rgb(1, 0, 0, .3), freq = FALSE,
+     add = TRUE)
+qqplot(res1$phi, res2$phi, xlab = "Sampler 1", ylab = "Sampler 2",
+       main = "QQ plot")
+abline(0, 1, col = 2)
+```
+
+![](Chapter07_files/figure-html/unnamed-chunk-34-1.png) We can see that
+the draws appear to come from the same distribution. Note, however, that
+the first sampler gets “stuck” slightly below 0.93 for a few draws,
+which isn’t the case for the second sampler.
+
+We now re-run the second sampler with a more informative beta prior.
+
+``` r
+aphi <- 20
+bphi <- 1.5
+
+# Compute mean and variance of the actual prior using properties of the beta
+priormean <- 2 * aphi / (aphi + bphi) - 1
+priorvar <- 4 * (aphi * bphi) / ((aphi + bphi)^2 * (aphi + bphi + 1))
+
+# Define the design matrix and y
+X <- matrix(NA_real_, nrow = length(y), 2)
+X[, 1] <- 1
+X[, 2] <- c(NA_real_, y[-length(y)])
+
+# Allocate some space for the posterior draws and initialize the parameters:
+y0s <- sigma2s <- zetas <- phis <- rep(NA_real_, ndraws)
+zeta <- 0
+phi <- .8
+sigma2 <- var(y) * (1 - phi)
+naccepts <- 0
+
+for (m in seq_len(ndraws + nburn)) {
+  # Step (a): Draw y0
+  y0 <- rnorm(1, zeta + phi * y[1], sqrt(sigma2))
+  
+  # Step (b): Draw the innovation variance
+  X[1, 2] <- y0
+  beta <- matrix(c(zeta, phi), nrow = 2)
+  tmp <- y - X %*% beta
+  sigma2 <- rinvgamma(1, c0 + (length(y) + 1) / 2,
+    C0 + .5 * (1 - phi^2) * (y0 - zeta / (1 - phi))^2 + .5 * crossprod(tmp))
+  
+  # Step (c): Draw the intercept
+  BT <- 1 / (1 / B0 + (length(y) + 1) / sigma2)
+  bT <- BT * (b0 / B0 + ((1 + phi) * y0 +
+    y[1] - phi * y0 + sum(y[-1] - phi * y[-length(y)])) / sigma2)
+  zeta <- rnorm(1, bT, sqrt(BT))
+  
+  # Step (d): Draw the persistence
+  tmp <- y0^2 + sum(y[-length(y)]^2)
+  propvar <- 1 / (1 / priorvar + tmp / sigma2)
+  propmean <- propvar * (priormean / priorvar + (y0 * (y[1] - zeta) + sum(y[-length(y)] * (y[-1] - zeta))) / sigma2)
+  phiprop <- rnorm(1, propmean, sqrt(propvar))
+  if (-1 < phiprop & phiprop < 1) {
+    logR <- dbetarescaled(phiprop, aphi, bphi, log = TRUE) -
+      dbetarescaled(phi, aphi, bphi, log = TRUE) +
+      dnorm(y0, zeta / (1 - phiprop), sqrt(sigma2 / (1 - phiprop^2)), log = TRUE) -
+      dnorm(y0, zeta / (1 - phi), sqrt(sigma2 / (1 - phi^2)), log = TRUE) +
+      dnorm(phi, priormean, sqrt(priorvar), log = TRUE) -
+      dnorm(phiprop, priormean, sqrt(priorvar), log = TRUE)
+    if (log(runif(1)) < logR) {
+      phi <- phiprop
+      if (m > nburn) naccepts <- naccepts + 1L
+    }
+  }
+  
+  # Store the draws
+  if (m > nburn) {
+    y0s[m - nburn] <- y0
+    sigma2s[m - nburn] <- sigma2
+    zetas[m - nburn] <- zeta
+    phis[m - nburn] <- phi
+  }
+}
+res3 <- data.frame(y0 = y0s, sigma2 = sigma2s, zeta = zetas, phi = phis)
+naccepts3 <- naccepts
+```
+
+To conclude, we compare the posteriors of $\phi$ under the improper
+prior, the posterior obtained after post-processing draws to obtain
+stationarity, and the posterior under the stationary-enforcing shifted
+beta priors.
+
+``` r
+mybreaks <- seq(floor(100 * .99 * min(res2$phi)) / 100,
+                ceiling(100 * 1.01 * max(ar1draws)) / 100,
+                by = .0025)
+hist(ar1draws[!nonstationary[, 1]], breaks = mybreaks, col = rgb(0, 0, 1, .2),
+     main = "Histogram of posterior draws", xlab = expression(phi),
+     freq = FALSE)
+hist(ar1draws, breaks = mybreaks, col = rgb(0, 1, 0, .2),
+     freq = FALSE, add = TRUE)
+hist(res2$phi, breaks = mybreaks, col = rgb(1, 0, 0, .2),
+     freq = FALSE, add = TRUE)
+hist(res3$phi, breaks = mybreaks, col = rgb(1, 1, 0, .2),
+     freq = FALSE, add = TRUE)
+lines(mybreaks[mybreaks <= 1], lty = 3, lwd = 3,
+      dbetarescaled(mybreaks[mybreaks <= 1], 1, 1))
+lines(mybreaks[mybreaks <= 1], lty = 2, lwd = 3,
+      dbetarescaled(mybreaks[mybreaks <= 1], aphi, bphi))
+legend("topright",
+       c("Unrestricted posterior", "Post-processed posterior",
+         "Beta prior posterior (flat)", "Beta prior posterior (informative)"),
+       fill = rgb(c(0, 0, 1, 1), c(1, 0, 0, 1), c(0, 1, 0, 0), .2))
+legend("topleft", c("Beta prior (flat)", "Beta prior (informative)"),
+       col = 1, lty = 3:2, lwd = 3)
+```
+
+![](Chapter07_files/figure-html/unnamed-chunk-36-1.png)
+
+## Section 7.3: Some Extensions
+
+## Section 7.3.1: AR Models with a Unit Root
+
+Let us check for stationarity of the exchange rate data. First, we load
+the data and visualize it as well as its empirical ACF. We do the same
+for the absolute returns.
+
+``` r
+data("exrates", package = "stochvol")
+dat <- exrates$USD / exrates$CHF
+ret <- diff(dat)
+plot(dat, type = "l", main = "CHF-USD exchange rate", xlab = "Days",
+     ylab = "CHF in USD")
+plot(ret, type = "l", main = "CHF-USD daily returns", xlab = "Days",
+     ylab = "CHF-USD")
+acf(dat)
+acf(ret)
+```
+
+![](Chapter07_files/figure-html/unnamed-chunk-37-1.png)
+
+This clearly hints at non-stationarity of the exchange rate series and
+at (first order) stationarity of the returns. To check more formally, we
+fit an AR(2) model to both.
+
+``` r
+y <- tail(dat, -2)
+Xy <- ARdesignmatrix(dat, 2)
+ar2dat <- regression(y, Xy, prior = "improper")
+y <- tail(ret, -2)
+Xy <- ARdesignmatrix(ret, 2)
+ar2ret <- regression(y, Xy, prior = "improper")
+```
+
+Now we can graphically investigate stationarity as above.
+
+``` r
+draws <- list(ar2dat$betas[,2:3], ar2ret$betas[,2:3])
+eigenvalues <- matrix(NA_complex_, nrow(draws[[1]]), ncol(draws[[1]]))
+mains <- c("AR(2) on the raw series", "AR(2) on the returns")
+for (i in seq_along(draws)) {
+  plot(draws[[i]], main = mains[i], xlab = bquote(phi[1]),
+     ylab = bquote(phi[2]), xlim = c(-2, 2), ylim = c(-1, 1),
+     col = rgb(0, 0, 0, .05), pch = 16)
+  polygon(c(-2, 0, 2, -2), c(-1, 1, -1, -1), border = 2)
+
+  for (m in seq_len(nrow(draws[[i]]))) {
+    Phi <- matrix(c(draws[[i]][m,], c(1, 0)), byrow = TRUE, nrow = 2)
+    eigenvalues[m,] <- eigen(Phi, only.values = TRUE)$values
+  }
+  plot(eigenvalues, xlim = c(-1, 1), ylim = c(-1, 1), asp = 1,
+       main = mains[i], col = rgb(0, 0, 0, .05), pch = 16)
+  symbols(0, 0, 1, add = TRUE, fg = 2, inches = FALSE)
+}
+```
+
+![](Chapter07_files/figure-html/unnamed-chunk-39-1.png)
+
+## Section 7.4: Markov modeling for a panel of categorical time series
+
+### Example 7.13: Wage mobility data
+
+We load the data and only consider workers from the birth cohort
+1946-1960.
+
+``` r
+data("labor", package = "BayesianLearningCode")
+labor <- subset(labor, birthyear >= 1946 & birthyear <= 1960)
+nrow(labor)
+#> [1] 1538
+```
+
+We extract the columns about the income over time:
+
+``` r
+income <- labor[, grepl("^income", colnames(labor))]
+income <- sapply(income, as.integer)
+colnames(income) <- gsub("income_", "", colnames(income))
+```
+
+``` r
+set.seed(1)
+index <- sample(nrow(income), 3)
+for (i in index) {
+    plot(as.integer(colnames(income)),
+         income[i, ], pch = 19, ylim = c(0, 6),
+         xlab = "year", ylab = "income class")
+}
+```
+
+![](Chapter07_files/figure-html/unnamed-chunk-42-1.png)
+
+### Example 7.14: Wage mobility data - comparing wage mobility of men and women
+
+We transform the data to obtain for each worker a matrix which contains
+the number of transitions from one class to the other, the matrices with
+values $N_{i,hk}$.
+
+``` r
+getTransitions <- function(x, classes) {
+    transitions <- matrix(0, length(classes), length(classes))
+    for (i in seq_len(length(x) - 1)) {
+        transitions[x[i], x[i+1]] <- transitions[x[i], x[i+1]] + 1
+    }
+    dimnames(transitions) <- list(from = classes, to = classes)
+    transitions
+}
+income_transitions <- lapply(seq_len(nrow(income)),
+                             function(i) getTransitions(income[i,], classes = 0:5))
+```
+
+Based on the transition matrices, the total transitions between the wage
+categories for female and male workers can be obtained.
+
+``` r
+income_trans_female <- Reduce("+", income_transitions[labor$female])
+income_trans_male <- Reduce("+", income_transitions[!labor$female])
+knitr::kable(income_trans_female)
+```
+
+|     |    0 |    1 |    2 |   3 |   4 |   5 |
+|:----|-----:|-----:|-----:|----:|----:|----:|
+| 0   | 1651 |  300 |   97 |  49 |  22 |  15 |
+| 1   |  223 | 1682 |  151 |  17 |   3 |   1 |
+| 2   |   74 |   96 | 1056 | 117 |  14 |   1 |
+| 3   |   48 |   10 |   67 | 574 | 107 |   2 |
+| 4   |   37 |    2 |    2 |  45 | 717 |  64 |
+| 5   |   24 |    1 |    0 |   3 |  22 | 446 |
+
+``` r
+knitr::kable(income_trans_male)
+```
+
+|     |    0 |   1 |   2 |    3 |    4 |    5 |
+|:----|-----:|----:|----:|-----:|-----:|-----:|
+| 0   | 1655 | 121 | 153 |   74 |   53 |   36 |
+| 1   |   89 | 307 |  87 |   23 |    5 |    1 |
+| 2   |   98 |  56 | 926 |  211 |   15 |    1 |
+| 3   |  100 |  21 | 150 | 1433 |  255 |    6 |
+| 4   |   73 |   7 |  12 |  191 | 1755 |  199 |
+| 5   |   50 |   2 |   2 |   11 |  147 | 2391 |
+
+We obtain the posterior mean estimates based on a uniform prior.
+
+``` r
+income_trans_female <- (1 + income_trans_female) / rowSums(1 + income_trans_female)
+income_trans_male <- (1 + income_trans_male) / rowSums(1 + income_trans_male)
+knitr::kable(income_trans_female, digits = 3)
+```
+
+|     |     0 |     1 |     2 |     3 |     4 |     5 |
+|:----|------:|------:|------:|------:|------:|------:|
+| 0   | 0.772 | 0.141 | 0.046 | 0.023 | 0.011 | 0.007 |
+| 1   | 0.108 | 0.808 | 0.073 | 0.009 | 0.002 | 0.001 |
+| 2   | 0.055 | 0.071 | 0.775 | 0.087 | 0.011 | 0.001 |
+| 3   | 0.060 | 0.014 | 0.084 | 0.706 | 0.133 | 0.004 |
+| 4   | 0.044 | 0.003 | 0.003 | 0.053 | 0.822 | 0.074 |
+| 5   | 0.050 | 0.004 | 0.002 | 0.008 | 0.046 | 0.890 |
+
+``` r
+knitr::kable(income_trans_male, digits = 3)
+```
+
+|     |     0 |     1 |     2 |     3 |     4 |     5 |
+|:----|------:|------:|------:|------:|------:|------:|
+| 0   | 0.789 | 0.058 | 0.073 | 0.036 | 0.026 | 0.018 |
+| 1   | 0.174 | 0.595 | 0.170 | 0.046 | 0.012 | 0.004 |
+| 2   | 0.075 | 0.043 | 0.706 | 0.161 | 0.012 | 0.002 |
+| 3   | 0.051 | 0.011 | 0.077 | 0.728 | 0.130 | 0.004 |
+| 4   | 0.033 | 0.004 | 0.006 | 0.086 | 0.783 | 0.089 |
+| 5   | 0.020 | 0.001 | 0.001 | 0.005 | 0.057 | 0.917 |
+
+``` r
+library("corrplot")
+#> corrplot 0.95 loaded
+corrplot(income_trans_female, method = "square",
+         is.corr = FALSE, col = 1, cl.pos = "n")
+corrplot(income_trans_male, method = "square",
+         is.corr = FALSE, col = 1, cl.pos = "n")
+```
+
+![](Chapter07_files/figure-html/unnamed-chunk-46-1.png)

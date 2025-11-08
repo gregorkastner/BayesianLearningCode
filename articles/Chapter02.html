@@ -94,7 +94,7 @@
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/title.html" class="external-link">title</a></span><span class="op">(</span><span class="st">"Road accidents involving pedestrian children"</span>, line <span class="op">=</span> <span class="fl">1.7</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/mtext.html" class="external-link">mtext</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Accidents"</span>, <span class="st">"Exposure"</span><span class="op">)</span>, side <span class="op">=</span> <span class="fl">2</span>, line <span class="op">=</span> <span class="fl">1.5</span>, adj <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.77</span>, <span class="fl">0.29</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/mtext.html" class="external-link">mtext</a></span><span class="op">(</span><span class="st">"Time"</span>, side <span class="op">=</span> <span class="fl">1</span>, line <span class="op">=</span> <span class="fl">1.5</span>, at <span class="op">=</span> <span class="fl">1995.6</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Chapter02_files/figure-html/unnamed-chunk-3-1.png" width="768"></p>
+<p><img src="Chapter02_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" width="768"></p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">accidents</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"seniors_accidents"</span>, <span class="st">"seniors_exposure"</span><span class="op">)</span><span class="op">]</span>,</span>
@@ -103,7 +103,7 @@
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/title.html" class="external-link">title</a></span><span class="op">(</span><span class="st">"Road accidents involving pedestrian seniors"</span>, line <span class="op">=</span> <span class="fl">1.7</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/mtext.html" class="external-link">mtext</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Accidents"</span>, <span class="st">"Exposure"</span><span class="op">)</span>, side <span class="op">=</span> <span class="fl">2</span>, line <span class="op">=</span> <span class="fl">1.5</span>, adj <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.77</span>, <span class="fl">0.29</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/mtext.html" class="external-link">mtext</a></span><span class="op">(</span><span class="st">"Time"</span>, side <span class="op">=</span> <span class="fl">1</span>, line <span class="op">=</span> <span class="fl">1.5</span>, at <span class="op">=</span> <span class="fl">1995.6</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Chapter02_files/figure-html/unnamed-chunk-3-2.png" width="768"></p>
+<p><img src="Chapter02_files/figure-html/unnamed-chunk-3-2.png" class="r-plt" width="768"></p>
 </div>
 <div class="section level3">
 <h3 id="example-2-3-posterior-inference-for-the-road-safety-data-flat-prior">Example 2.3: Posterior inference for the Road Safety Data (flat
@@ -145,7 +145,7 @@ along with the 0.025-, the 0.5-, and the 0.975-quantile.</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.9</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">mu</span><span class="op">)</span>, <span class="va">qs</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">probs</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, <span class="va">probs</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fl">2</span>, col <span class="op">=</span> <span class="st">"dimgrey"</span><span class="op">)</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">qs</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, <span class="va">qs</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">probs</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, <span class="fl">0</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fl">2</span>, col <span class="op">=</span> <span class="st">"dimgrey"</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p><img src="Chapter02_files/figure-html/unnamed-chunk-4-1.png" width="768"></p>
+<p><img src="Chapter02_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" width="768"></p>
 </div>
 <div class="section level3">
 <h3 id="example-2-4-posterior-inference-for-the-road-safety-data-gamma-prior">Example 2.4: Posterior inference for the Road Safety Data (gamma
@@ -180,7 +180,7 @@ gives the improper prior from above.</p>
 <span><span class="op">}</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topright"</span>, legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"m0 = "</span>, <span class="va">m0</span><span class="op">[</span><span class="fl">5</span><span class="op">:</span><span class="fl">7</span><span class="op">]</span><span class="op">)</span>, <span class="st">"improper"</span><span class="op">)</span>,</span>
 <span>       col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span><span class="op">:</span><span class="fl">7</span> <span class="op">-</span> <span class="fl">3</span>, <span class="fl">1</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span><span class="op">:</span><span class="fl">7</span> <span class="op">-</span> <span class="fl">3</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Chapter02_files/figure-html/unnamed-chunk-5-1.png" width="768"></p>
+<p><img src="Chapter02_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" width="768"></p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">b0</span> <span class="op">&lt;-</span> <span class="va">a0</span> <span class="op">/</span> <span class="va">m0</span></span>
 <span><span class="va">aN</span> <span class="op">&lt;-</span> <span class="va">a0</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span></span>
@@ -307,7 +307,7 @@ hyperparameter choices.</p>
 <span>                      <span class="st">", "</span>, <span class="st">"b0 = "</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">b0</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topright"</span>, <span class="va">hyperparams</span>, lty <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">4</span>, col <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Chapter02_files/figure-html/unnamed-chunk-7-1.png" width="768"></p>
+<p><img src="Chapter02_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" width="768"></p>
 <p>For all our data-driven priors, we get the same posterior mean. The
 credible intervals differ slightly.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
@@ -372,7 +372,7 @@ two time frames.</p>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/contour.html" class="external-link">contour</a></span><span class="op">(</span><span class="va">mu1</span>, <span class="va">mu2</span>, <span class="va">z</span>, col <span class="op">=</span> <span class="va">color</span>, xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/bquote.html" class="external-link">bquote</a></span><span class="op">(</span><span class="va">mu</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>, ylab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/bquote.html" class="external-link">bquote</a></span><span class="op">(</span><span class="va">mu</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Chapter02_files/figure-html/unnamed-chunk-9-1.png" width="768"></p>
+<p><img src="Chapter02_files/figure-html/unnamed-chunk-9-1.png" class="r-plt" width="768"></p>
 </div>
 <div class="section level3">
 <h3 id="example-2-10-obtaining-posterior-draws-for-the-road-safety-data">Example 2.10: Obtaining posterior draws for the Road Safety
@@ -398,7 +398,7 @@ functionals of the posterior.</p>
 <span>     main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/bquote.html" class="external-link">bquote</a></span><span class="op">(</span><span class="st">"Histogram of "</span> <span class="op">~</span> <span class="va">delta</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">delta2</span>, breaks <span class="op">=</span> <span class="fl">20</span>, prob <span class="op">=</span> <span class="cn">TRUE</span>, xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">delta</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span>, ylab <span class="op">=</span> <span class="st">""</span>,</span>
 <span>     main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/bquote.html" class="external-link">bquote</a></span><span class="op">(</span><span class="st">"Histogram of "</span> <span class="op">~</span> <span class="va">delta</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Chapter02_files/figure-html/unnamed-chunk-10-1.png" width="768"></p>
+<p><img src="Chapter02_files/figure-html/unnamed-chunk-10-1.png" class="r-plt" width="768"></p>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -412,7 +412,7 @@ functionals of the posterior.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

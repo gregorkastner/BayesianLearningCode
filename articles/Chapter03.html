@@ -94,7 +94,7 @@ visualize it accordingly.</p>
 <span>         ylab <span class="op">=</span> <span class="st">""</span>, main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/bquote.html" class="external-link">bquote</a></span><span class="op">(</span><span class="va">N</span> <span class="op">==</span> <span class="fu">.</span><span class="op">(</span><span class="va">n</span><span class="op">)</span> <span class="op">~</span> <span class="st">"and"</span> <span class="op">~</span> <span class="va">S</span><span class="op">[</span><span class="va">N</span><span class="op">]</span> <span class="op">==</span> <span class="fu">.</span><span class="op">(</span><span class="va">n</span> <span class="op">*</span> <span class="va">p</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="op">}</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p><img src="Chapter03_files/figure-html/unnamed-chunk-3-1.png" width="768"></p>
+<p><img src="Chapter03_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" width="768"></p>
 </div>
 <div class="section level3">
 <h3 id="calibrating-the-beta-prior">Calibrating the Beta prior<a class="anchor" aria-label="anchor" href="#calibrating-the-beta-prior"></a>
@@ -126,7 +126,7 @@ the strength of the prior information.</p>
 <span>                                     <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">" N0 = "</span>, <span class="va">N0</span><span class="op">[</span><span class="fl">2</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span><span class="op">)</span>, sep <span class="op">=</span> <span class="st">","</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>         lty <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">4</span>, col <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p><img src="Chapter03_files/figure-html/unnamed-chunk-4-1.png" width="768"><img src="Chapter03_files/figure-html/unnamed-chunk-4-2.png" width="768"></p>
+<p><img src="Chapter03_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" width="768"><img src="Chapter03_files/figure-html/unnamed-chunk-4-2.png" class="r-plt" width="768"></p>
 </div>
 <div class="section level3">
 <h3 id="example-3-1-figure-3-2-uncertainty-quantification-for-market-shares">Example 3.1 / Figure 3.2: Uncertainty quantification for market
@@ -207,7 +207,7 @@ can compute the equal-tailed intervals without using a loop.</p>
 <span>         pos <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
 <span>  <span class="op">}</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p><img src="Chapter03_files/figure-html/unnamed-chunk-6-1.png" width="768"></p>
+<p><img src="Chapter03_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" width="768"></p>
 </div>
 <div class="section level3">
 <h3 id="example-3-2-table-3-1-posterior-credible-intervals-under-the-beta-binomial-model">Example 3.2 / Table 3.1: Posterior credible intervals under the
@@ -324,7 +324,7 @@ and
 <span>  <span class="fu"><a href="https://rdrr.io/r/graphics/polygon.html" class="external-link">polygon</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">theta</span><span class="op">[</span><span class="va">theta</span> <span class="op">&lt;=</span> <span class="fl">0.05</span><span class="op">]</span>, <span class="fl">0.05</span><span class="op">)</span>,</span>
 <span>          <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Beta.html" class="external-link">dbeta</a></span><span class="op">(</span><span class="va">theta</span><span class="op">[</span><span class="va">theta</span> <span class="op">&lt;=</span> <span class="fl">0.05</span><span class="op">]</span>, <span class="va">aN</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, <span class="va">bN</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span>, <span class="fl">0</span><span class="op">)</span>, col <span class="op">=</span> <span class="st">"red"</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p><img src="Chapter03_files/figure-html/unnamed-chunk-10-1.png" width="768"></p>
+<p><img src="Chapter03_files/figure-html/unnamed-chunk-10-1.png" class="r-plt" width="768"></p>
 </div>
 <div class="section level3">
 <h3 id="example-3-4-labor-market-data">Example 3.4: Labor market data<a class="anchor" aria-label="anchor" href="#example-3-4-labor-market-data"></a>
@@ -416,7 +416,7 @@ using a contour plot as well as a density estimate of the difference
 <span>     xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/bquote.html" class="external-link">bquote</a></span><span class="op">(</span><span class="va">vartheta</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">-</span> <span class="va">vartheta</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span>,</span>
 <span>     main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Posterior density p("</span>, <span class="va">vartheta</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>,</span>
 <span>                                <span class="st">" - "</span>, <span class="va">vartheta</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, <span class="st">"| y)"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Chapter03_files/figure-html/unnamed-chunk-16-1.png" width="768"></p>
+<p><img src="Chapter03_files/figure-html/unnamed-chunk-16-1.png" class="r-plt" width="768"></p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="va">pdfplots</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/grDevices/pdf.html" class="external-link">pdf</a></span><span class="op">(</span><span class="st">"3-2_1.pdf"</span>, width <span class="op">=</span> <span class="fl">8</span>, height <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
@@ -430,7 +430,7 @@ using a contour plot as well as a density estimate of the difference
 <span>    <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">postdraws</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">1000</span>, <span class="va">i</span><span class="op">]</span>, type <span class="op">=</span> <span class="st">"l"</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.25</span><span class="op">)</span>,</span>
 <span>         xlab <span class="op">=</span> <span class="st">"draw"</span>, ylab <span class="op">=</span> <span class="va">labels</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p><img src="Chapter03_files/figure-html/unnamed-chunk-17-1.png" width="768"></p>
+<p><img src="Chapter03_files/figure-html/unnamed-chunk-17-1.png" class="r-plt" width="768"></p>
 </div>
 <div class="section level3">
 <h3 id="example-3-5-bag-of-words">Example 3.5: Bag of words<a class="anchor" aria-label="anchor" href="#example-3-5-bag-of-words"></a>
@@ -848,7 +848,7 @@ frequencies via red circles. Sorting is done via frequency counts.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">midpts</span>, <span class="va">counts</span><span class="op">[</span><span class="va">ord</span><span class="op">]</span><span class="op">/</span><span class="va">N</span>, col <span class="op">=</span> <span class="fl">2</span>, pch <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">midpts</span>, <span class="va">freq</span><span class="op">[</span><span class="va">ord</span><span class="op">]</span> <span class="op">/</span><span class="fl">10</span><span class="op">^</span><span class="fl">8</span>, col <span class="op">=</span> <span class="fl">3</span>, pch <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/title.html" class="external-link">title</a></span><span class="op">(</span><span class="st">"Informed prior (heavy shrinkage)"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Chapter03_files/figure-html/unnamed-chunk-29-1.png" width="768"></p>
+<p><img src="Chapter03_files/figure-html/unnamed-chunk-29-1.png" class="r-plt" width="768"></p>
 <p>In the top panel (based on the uniform prior), we can nicely see the
 <em>add-one smoothing</em> effect, i.e., strong shrinkage towards the
 uniform prior, whereas the second panel shows almost no
@@ -870,7 +870,7 @@ prior.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>
