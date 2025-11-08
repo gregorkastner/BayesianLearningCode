@@ -24,31 +24,8 @@ pdfplots <- FALSE # default: FALSE; set this to TRUE only if you like pdf figure
 par(mgp = c(1.6, .6, 0), mar = c(2.6, 2.6, 2.6, .4), lwd = 1)
 ```
 
-# Section 6.4
-## Figure 6.1
-We start with a visualization of the normal and the horseshoe prior. 
-
-```{r, echo = -1}
-if (pdfplots) {
-  pdf("6-4_1.pdf", width = 8, height = 5)
-  par(mar = c(2.5, 1.5, .1, .1), mgp = c(1.6, .6, 0))
-}
-beta <- seq(from = -4, to = 4, by = 0.01)
-
-# Horseshoe prior
-# Approximated by the result of Theorem 1 in Carvalho and Polson (2010)
-c <-  1 / sqrt(2 * pi^3)
-l <- c / 2 * log(1 + 4 / beta^2)
-u <- c * log(1 + 2 / beta^2)
-
-plot(beta, (u + l) / 2, type = "l", ylim = c(0, 0.55), xlab = expression(beta),
-     ylab = "", lty = 1, col = "blue")
-lines(beta, dnorm(beta), lty = 2) # Standard normal prior
-legend('topright', legend = c("Horseshoe", "Standard normal"), lty = 1:2,
-       col = c("blue", "black"))
-```
-
-## Example 6.1/6.2: Movie data
+# Section 6.2.1
+## Example 6.1: Movie data
 
 We use movie data provided within the package to illustrate Bayesian analysis
 of a regression model. The data set is a preprocessed version of the one
@@ -66,13 +43,83 @@ movies["PG"] <- NULL
 ```
 
 Next, we prepare the variables for regression analysis. We define the response
-variable `OpenBoxOffice` as `y` and center the covariates at zero. 
-
+variable `OpenBoxOffice` as `y` and use as covariates the twitter volume scores
+4-6 and 1-3 weeks before the film starts.
 ```{r}
 y <- movies[, "OpenBoxOffice"]
+covs <- c("Vol-4-6", "Vol-1-3")
+N <- length(y)  # number of observations
+
+X <- as.matrix(cbind("Intercept" = rep(1, N), movies[,covs])) # regressor matrix
+d <- dim(X)[2] # number regression effects
+```
+
+Next we compute the parameters of the marginal posterior for the regression 
+effects under the improper prior  $p(\beta, \sigma^2) \propto \frac{1}{\sigma^2}$.
+```{r}
+
+BN<- solve(crossprod(X))
+Xy <- t(X) %*% y
+beta.hat <- BN%*%Xy
+
+SSR <- as.numeric(crossprod(y-X%*%beta.hat))
+
+cN <- (N-d)/2
+CN <- SSR/2
+
+post.sigma<-(CN/cN)*BN
+post.sd=sqrt(diag(post.sigma))
+
+knitr::kable(cbind(beta.hat,post.sd),digits=3,
+           col.names=c("posterior mean", "posterior.sd"))
+```
+
+We can also plot the marginal posterior distributions.
+```{r}
+if (pdfplots) {
+  pdf("6-4_1.pdf", width = 8, height = 5)
+  par(mar = c(2.5, 1.5, .1, .1), mgp = c(1.6, .6, 0))
+}
+par(mfrow = c(1, 3))
+for (i in seq_len(nrow(beta.hat))) {
+    curve(dt((x-beta.hat[i])/sqrt(post.sd[i]), df=2*cN), 
+        from=beta.hat[i]- 4*post.sd[i], to=beta.hat[i]+ 4*post.sd[i], 
+        ylab="", xlab="" , main=rownames(beta.hat)[i])
+}
+```
+
+## Figure 6.1
+We start with a visualization of the normal and the horseshoe prior. 
+
+```{r, echo = -1}
+if (pdfplots) {
+  pdf("6-4_5.pdf", width = 8, height = 5)
+  par(mar = c(2.5, 1.5, .1, .1), mgp = c(1.6, .6, 0))
+}
+beta <- seq(from = -4, to = 4, by = 0.01)
+
+# Horseshoe prior
+# Approximated by the result of Theorem 1 in Carvalho and Polson (2010)
+c <-  1 / sqrt(2 * pi^3)
+l <- c / 2 * log(1 + 4 / beta^2)
+u <- c * log(1 + 2 / beta^2)
+par(mfrow = c(1, 1))
+plot(beta, (u + l) / 2, type = "l", ylim = c(0, 0.55), xlab = expression(beta),
+     ylab = "", lty = 1, col = "blue")
+lines(beta, dnorm(beta), lty = 2) # Standard normal prior
+legend('topright', legend = c("Horseshoe", "Standard normal"), lty = 1:2,
+       col = c("blue", "black"))
+```
+
+
+# Section 6.4
+Center the covariates at zero. 
+
+```{r}
 covs <- c("Comedy", "Thriller","PG13", "R", "Budget", "Weeks", "Screens", 
           "S-4-6", "S-1-3", "Vol-4-6", "Vol-1-3")
 covs.cen <- scale(movies[, covs], scale = FALSE)
+
 
 N <- length(y)  # number of observations
 X <- cbind("Intercept" = rep(1, N), covs.cen) # regressor matrix
@@ -80,6 +127,8 @@ X <- cbind("Intercept" = rep(1, N), covs.cen) # regressor matrix
 d <- dim(X)[2] # number regression effects 
 p <- d - 1 # number of regression effects without intercept
 ```
+
+
 
 We first estimate the parameters of the regression model under a rather flat
 semi-conjugate prior.
