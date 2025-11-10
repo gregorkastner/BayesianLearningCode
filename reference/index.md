@@ -19,7 +19,7 @@
 - [`gdp`](https://gregorkastner.github.io/BayesianLearningCode/reference/gdp.md)
   : GDP data
 - [`inflation`](https://gregorkastner.github.io/BayesianLearningCode/reference/inflation.md)
-  : Inflation data
+  : Inflation Data
 - [`labor`](https://gregorkastner.github.io/BayesianLearningCode/reference/labor.md)
   : Labor Market Data
 - [`movies`](https://gregorkastner.github.io/BayesianLearningCode/reference/movies.md)

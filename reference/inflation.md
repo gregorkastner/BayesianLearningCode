@@ -1,4 +1,4 @@
-# Inflation data
+# Inflation Data
 
 Harmonized Index of Consumer Prices (HICP) in the Euro area (changing
 composition). Monthly data from January 1997 to June 2025.
