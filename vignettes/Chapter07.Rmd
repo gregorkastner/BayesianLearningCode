@@ -245,17 +245,17 @@ for (i in 1:5) {
     dens_conj_2 <- density(res_conj_2$sigma2, bw = "SJ", adj = 2)
   } 
   
-  plot(dens_improper, xlim = range(dens_improper$x, dens_semi_1$x, dens_semi_2$x),
-       ylim = range(dens_improper$y, dens_semi_1$y, dens_semi_2$y),
-       main = "", xlab = name, ylab = "")
+  plot(dens_improper, main = "", xlab = name, ylab = "",
+       xlim = range(dens_improper$x, dens_semi_1$x, dens_semi_2$x),
+       ylim = range(dens_improper$y, dens_semi_1$y, dens_semi_2$y))
   if (i == 1) title("Semi-conjugate priors")
   lines(dens_semi_1, col = 2, lty = 2)
   lines(dens_semi_2, col = 3, lty = 3)
   legend("topright", c("Improper", "Tight", "Loose"), col = 1:3, lty = 1:3)
   
-  plot(dens_improper, xlim = range(dens_improper$x, dens_conj_1$x, dens_conj_2$x),
-       ylim = range(dens_improper$y, dens_conj_1$y, dens_conj_2$y),
-       main = "", xlab = name, ylab = "")
+  plot(dens_improper, main = "", xlab = name, ylab = "",
+       xlim = range(dens_improper$x, dens_conj_1$x, dens_conj_2$x),
+       ylim = range(dens_improper$y, dens_conj_1$y, dens_conj_2$y))
   if (i == 1) title("Conjugate priors")
   lines(dens_conj_1, col = 2, lty = 2)
   lines(dens_conj_2, col = 3, lty = 3)
@@ -361,7 +361,8 @@ To assess the probability of nonstationarity, we can simply count the
 draws outside of the stationarity region.
 
 ```{r}
-nonstationary <- matrix(NA, nrow(ar3draws), 3, dimnames = list(NULL, order = 1:3))
+nonstationary <- matrix(NA, nrow(ar3draws), 3,
+                        dimnames = list(NULL, order = 1:3))
 nonstationary[, 1] <- abs(ar1draws) > 1
 nonstationary[, 2] <- ar2draws[,1] + ar2draws[,2] > 1 |
      abs(ar2draws[,2]) > 1 |
@@ -572,8 +573,9 @@ for (p in 1:2) lines(density(mu[, as.character(p)], bw = "SJ", adj = 2),
                      col = p + 1, lty = p + 1)
 legend("topright", paste0("p = ", 0:2), col = 1:3, lty = 1:3)
 
-plot(density(sigma2[, "0"], bw = "SJ", adj = 2), xlim = range(sigma2), ylab = "",
-       main = "Posterior of the marginal variance", xlab = expression(sigma^2))
+plot(density(sigma2[, "0"], bw = "SJ", adj = 2), xlim = range(sigma2),
+     xlab = expression(sigma^2), ylab = "",
+     main = "Posterior of the marginal variance")
 for (p in 1:2) lines(density(sigma2[, as.character(p)], bw = "SJ", adj = 2),
                      col = p + 1, lty = p + 1)
 legend("topright", paste0("p = ", 0:2), col = 1:3, lty = 1:3)
@@ -621,8 +623,9 @@ for (p in 1:2) lines(density(mu[[as.character(p)]], bw = "SJ", adj = 2),
                      col = p + 1, lty = p + 1)
 legend("topright", paste0("p = ", 0:2), col = 1:3, lty = 1:3)
 
-plot(density(sigma2[["0"]], bw = "SJ", adj = 2), xlim = range(sigma2), ylab = "",
-       main = "Posterior of the marginal variance", xlab = expression(sigma^2))
+plot(density(sigma2[["0"]], bw = "SJ", adj = 2), xlim = range(sigma2),
+     xlab = expression(sigma^2), ylab = "",
+     main = "Posterior of the marginal variance", )
 for (p in 1:2) lines(density(sigma2[[as.character(p)]], bw = "SJ", adj = 2),
                      col = p + 1, lty = p + 1)
 legend("topright", paste0("p = ", 0:2), col = 1:3, lty = 1:3)
@@ -700,7 +703,8 @@ for (m in seq_len(ndraws + nburn)) {
   if (-1 < phiprop & phiprop < 1) {
     logR <- dbetarescaled(phiprop, aphi, bphi, log = TRUE) -
       dbetarescaled(phi, aphi, bphi, log = TRUE) +
-      dnorm(y0, zeta / (1 - phiprop), sqrt(sigma2 / (1 - phiprop^2)), log = TRUE) -
+      dnorm(y0, zeta / (1 - phiprop), sqrt(sigma2 / (1 - phiprop^2)),
+            log = TRUE) -
       dnorm(y0, zeta / (1 - phi), sqrt(sigma2 / (1 - phi^2)), log = TRUE)
     if (log(runif(1)) < logR) {
       phi <- phiprop
@@ -769,12 +773,14 @@ for (m in seq_len(ndraws + nburn)) {
   # Step (d): Draw the persistence
   tmp <- y0^2 + sum(y[-length(y)]^2)
   propvar <- 1 / (1 / priorvar + tmp / sigma2)
-  propmean <- propvar * (priormean / priorvar + (y0 * (y[1] - zeta) + sum(y[-length(y)] * (y[-1] - zeta))) / sigma2)
+  propmean <- propvar * (priormean / priorvar + (y0 * (y[1] - zeta) +
+    sum(y[-length(y)] * (y[-1] - zeta))) / sigma2)
   phiprop <- rnorm(1, propmean, sqrt(propvar))
   if (-1 < phiprop & phiprop < 1) {
     logR <- dbetarescaled(phiprop, aphi, bphi, log = TRUE) -
       dbetarescaled(phi, aphi, bphi, log = TRUE) +
-      dnorm(y0, zeta / (1 - phiprop), sqrt(sigma2 / (1 - phiprop^2)), log = TRUE) -
+      dnorm(y0, zeta / (1 - phiprop), sqrt(sigma2 / (1 - phiprop^2)),
+            log = TRUE) -
       dnorm(y0, zeta / (1 - phi), sqrt(sigma2 / (1 - phi^2)), log = TRUE) +
       dnorm(phi, priormean, sqrt(priorvar), log = TRUE) -
       dnorm(phiprop, priormean, sqrt(priorvar), log = TRUE)
@@ -872,12 +878,14 @@ for (m in seq_len(ndraws + nburn)) {
   # Step (d): Draw the persistence
   tmp <- y0^2 + sum(y[-length(y)]^2)
   propvar <- 1 / (1 / priorvar + tmp / sigma2)
-  propmean <- propvar * (priormean / priorvar + (y0 * (y[1] - zeta) + sum(y[-length(y)] * (y[-1] - zeta))) / sigma2)
+  propmean <- propvar * (priormean / priorvar +
+    (y0 * (y[1] - zeta) + sum(y[-length(y)] * (y[-1] - zeta))) / sigma2)
   phiprop <- rnorm(1, propmean, sqrt(propvar))
   if (-1 < phiprop & phiprop < 1) {
     logR <- dbetarescaled(phiprop, aphi, bphi, log = TRUE) -
       dbetarescaled(phi, aphi, bphi, log = TRUE) +
-      dnorm(y0, zeta / (1 - phiprop), sqrt(sigma2 / (1 - phiprop^2)), log = TRUE) -
+      dnorm(y0, zeta / (1 - phiprop), sqrt(sigma2 / (1 - phiprop^2)),
+            log = TRUE) -
       dnorm(y0, zeta / (1 - phi), sqrt(sigma2 / (1 - phi^2)), log = TRUE) +
       dnorm(phi, priormean, sqrt(priorvar), log = TRUE) -
       dnorm(phiprop, priormean, sqrt(priorvar), log = TRUE)
@@ -1039,13 +1047,13 @@ matrices with values $N_{i,hk}$.
 getTransitions <- function(x, classes) {
     transitions <- matrix(0, length(classes), length(classes))
     for (i in seq_len(length(x) - 1)) {
-        transitions[x[i], x[i+1]] <- transitions[x[i], x[i+1]] + 1
+        transitions[x[i], x[i + 1]] <- transitions[x[i], x[i + 1]] + 1
     }
     dimnames(transitions) <- list(from = classes, to = classes)
     transitions
 }
 income_transitions <- lapply(seq_len(nrow(income)),
-                             function(i) getTransitions(income[i,], classes = 0:5))
+                        function(i) getTransitions(income[i,], classes = 0:5))
 ```
 
 Based on the transition matrices, the total transitions between the
@@ -1061,7 +1069,8 @@ knitr::kable(income_trans_male)
 We obtain the posterior mean estimates based on a uniform prior.
 
 ```{r}
-income_trans_female <- (1 + income_trans_female) / rowSums(1 + income_trans_female)
+income_trans_female <- (1 + income_trans_female) /
+  rowSums(1 + income_trans_female)
 income_trans_male <- (1 + income_trans_male) / rowSums(1 + income_trans_male)
 knitr::kable(income_trans_female, digits = 3)
 knitr::kable(income_trans_male, digits = 3)
@@ -1073,9 +1082,8 @@ if (pdfplots) {
   par(mar = c(2.6, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 2)
 }
 par(mfrow = c(1, 2))
-library("corrplot")
-corrplot(income_trans_female, method = "square",
-         is.corr = FALSE, col = 1, cl.pos = "n")
-corrplot(income_trans_male, method = "square",
-         is.corr = FALSE, col = 1, cl.pos = "n")
+corrplot::corrplot(income_trans_female, method = "square", is.corr = FALSE,
+                   col = 1, cl.pos = "n")
+corrplot::corrplot(income_trans_male, method = "square", is.corr = FALSE,
+                   col = 1, cl.pos = "n")
 ```
