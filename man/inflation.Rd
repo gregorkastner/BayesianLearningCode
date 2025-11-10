@@ -3,7 +3,7 @@
 \docType{data}
 \name{inflation}
 \alias{inflation}
-\title{Inflation data}
+\title{Inflation Data}
 \format{
 A sequence of length 342.
 }
