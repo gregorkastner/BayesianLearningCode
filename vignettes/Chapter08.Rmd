@@ -735,8 +735,8 @@ xnew <- seq(3, 5, length.out = 100)
 preds_all <- predict(ols_all, newdata = data.frame(log.Te = xnew),
                      interval = "prediction")
 ols_subset <- lm(log.light ~ log.Te, data = starsCYG[-index, ])
-preds_subset<- predict(ols_subset, newdata = data.frame(log.Te = xnew),
-                       interval = "prediction")
+preds_subset <- predict(ols_subset, newdata = data.frame(log.Te = xnew),
+                        interval = "prediction")
 ```
 
 We compare the expected values (full lines) and
