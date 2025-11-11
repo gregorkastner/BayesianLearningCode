@@ -87,8 +87,7 @@ for (i in seq_len(nrow(beta.hat))) {
 }
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-7-1.png) \### 6.2.2
-Bayesian Learning under Conjugate Priors
+#### 6.2.2 Bayesian Learning under Conjugate Priors
 
 Next we consider regression analysis under a conjugate prior. For this
 we define a function that yields the parameters of the posterior
@@ -151,7 +150,7 @@ improper prior.
 ``` r
 if (pdfplots) {
   pdf("6-4_2.pdf", width = 8, height = 3)
-  par(mar = c(2.5, 1.5, .1, .1), mgp = c(1.6, .6, 0))
+  par(mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.6, .6, 0))
 }
 par(mfrow = c(1, 3))
 for (i in seq_len(nrow(beta.hat))) {
@@ -161,21 +160,21 @@ for (i in seq_len(nrow(beta.hat))) {
     curve(dt((x- res_conj1$bN[i])/post.sd.conj1[i], df=2* res_conj1$cN), 
         from= res_conj1$bN[i]- 4*post.sd.conj1[i], 
         to= res_conj1$bN[i]+ 4*post.sd.conj1[i], 
-        add=TRUE, col=2,lty=2)
+        add=TRUE, col=2,lty=2,lwd=2)
     curve(dt((x- res_conj2$bN[i])/post.sd.conj2[i], df=2* res_conj2$cN), 
         from= res_conj2$bN[i]- 4*post.sd.conj2[i], 
         to= res_conj2$bN[i]+ 4*post.sd.conj2[i], 
-        add=TRUE, col=3,lty=3)
+        add=TRUE, col=3,lty=3,lwd=2)
     legend("topright", c("improper", "B0=10", "B0=1"),
-         col = 1:3, lty = 1:3)
+         col = 1:3, lty = 1:3,lwd=c(1,2,2))
 }
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-10-1.png) There is little
-difference to the improper prior for $B_{0} = 10\textbf{𝐈}$, however we
-see shrinkage to zero for $B_{0} = \textbf{𝐈}$. The effect of the prior
-is given by the weight matrix $\textbf{𝐖}$, which is computed for the
-prior \$\Normal\\\textbf{0}, \textbf{I}\\\$ below.
+There is little difference to the improper prior for
+$B_{0} = 10\textbf{𝐈}$, however we see shrinkage to zero for
+$B_{0} = \textbf{𝐈}$. The effect of the prior is given by the weight
+matrix $\textbf{𝐖}$, which is computed for the prior
+\$\Normal\\\textbf{0}, \textbf{I}\\\$ below.
 
 ``` r
 W=res_conj2$BN%*%solve(diag(rep(1,d)))
@@ -208,8 +207,6 @@ lines(beta, dnorm(beta), lty = 2) # Standard normal prior
 legend('topright', legend = c("Horseshoe", "Standard normal"), lty = 1:2,
        col = c("blue", "black"))
 ```
-
-![](Chapter06_files/figure-html/unnamed-chunk-12-1.png)
 
 ## Section 6.4
 
@@ -439,8 +436,6 @@ for (i in selection) {
 }
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-21-1.png)
-
 We next investigate the trace plots.
 
 ``` r
@@ -486,5 +481,3 @@ for (i in seq_len(ncol(beta.hs))) {
   }
 }
 ```
-
-![](Chapter06_files/figure-html/unnamed-chunk-24-1.png)
