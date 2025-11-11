@@ -342,7 +342,7 @@ colMeans(nonstationary)
 #> 0.0422 0.0088 0.0028
 ```
 
-## Section 7.2.3: Recovering Missing Time Series Data – An Introduction to Data Augmentation
+### Section 7.2.3: Recovering Missing Time Series Data – An Introduction to Data Augmentation
 
 Assume that the values at certain time points are missing. (Note that
 for our sampler, we require the missing time points to be far enough
@@ -501,7 +501,7 @@ for (i in 1:4) {
 
 ![](Chapter07_files/figure-html/unnamed-chunk-23-1.png)
 
-## Section 7.2.4: Imposing Stationarity via an Independence MH Algorithm
+### Section 7.2.4: Imposing Stationarity via an Independence MH Algorithm
 
 First, we fit an AR(0), i.e., an intercept-only, model, to the GDP data.
 
@@ -917,7 +917,7 @@ legend("topleft", c("Beta prior (flat)", "Beta prior (informative)"),
 
 ## Section 7.3: Some Extensions
 
-## Section 7.3.1: AR Models with a Unit Root
+### Section 7.3.1: AR Models with a Unit Root
 
 Let us check for stationarity of the exchange rate data. First, we load
 the data and visualize it as well as its empirical ACF. We do the same
@@ -1012,7 +1012,7 @@ for (i in index) {
 
 ![](Chapter07_files/figure-html/unnamed-chunk-42-1.png)
 
-### Example 7.14: Wage mobility data - comparing wage mobility of men and women
+### Example 7.14: Wage mobility data – comparing wage mobility of men and women
 
 We transform the data to obtain for each worker the matrix which
 contains the number of transitions from one class to the other, i.e.,
@@ -1108,7 +1108,7 @@ $\xi_{g,hk}$ for women and men.
 
 ``` r
 plot(c(0.5, 1), c(0, 100), type = "n", xlab = "", ylab = "",
-     main = "Posterior of various persistence probabilities")
+     main = "Posterior of persistence probs")
 pers_female <- cbind(diag(1 + N_female),
                      rowSums(1 + N_female) - diag(1 + N_female))
 pers_male <- cbind(diag(1 + N_male),
@@ -1121,11 +1121,11 @@ for (i in 2:6) {
 }
 legend("topleft", col = 2:6, lty = 1,
        legend = sapply(2:6, function(i)
-           substitute(eta[i], list(i = (i-1) * 11))))
+           substitute(xi[i], list(i = (i-1) * 11))))
 legend("topright", col = 1, lty = 1:2,
        legend = c("female", "male"))
 plot(c(0, 0.4), c(0, 90), type = "n", xlab = "", ylab = "",
-     main = "Posterior of various transition probabilities")
+     main = "Posterior of transition probs")
 trans_female <- cbind((1 + N_female)[cbind(1:5, 2:6)],
                       rowSums(1 + N_female)[1:5] - (1 + N_female)[cbind(1:5, 2:6)])
 trans_male <- cbind((1 + N_male)[cbind(1:5, 2:6)],
@@ -1138,20 +1138,20 @@ for (i in 2:5) {
 }
 legend("topleft", col = 2:5, lty = 1,
        legend = sapply(2:5, function(i)
-           substitute(eta[i], list(i = c(01, 12, 23, 34, 45)[i]))))
+           substitute(xi[i], list(i = c(01, 12, 23, 34, 45)[i]))))
 legend("topright", col = 1, lty = 1:2,
        legend = c("female", "male"))
 ```
 
 ![](Chapter07_files/figure-html/unnamed-chunk-47-1.png)
 
-### Example 7.15: Wage mobility data - long run
+### Example 7.15: Wage mobility data – long run
 
 We assume that both men and women start out in the labor market with the
 same wage distribution, where 70% start in wage category 1 and 30% in
-wage category 2, i.e., $\eta_{0} = (00.70.3000)$. We compare the
-evolution of the estimated wage distribution
-\$\hat{\mathbf{\eta}\_{g,t}\$ over the first ten years for females and
+wage category 2, i.e., ${\mathbf{η}}_{0} = (0,0.7,0.3,0,0,0)$. We
+compare the evolution of the estimated wage distribution
+${\widehat{\mathbf{η}}}_{g,t}$ over the first ten years for females and
 males.
 
 ``` r
