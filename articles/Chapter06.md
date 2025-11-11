@@ -76,7 +76,7 @@ We can also plot the marginal posterior distributions.
 
 ``` r
 if (pdfplots) {
-  pdf("6-4_1.pdf", width = 8, height = 5)
+  pdf("6-4_1.pdf", width = 8, height = 4)
   par(mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.6, .6, 0))
 }
 par(mfrow = c(1, 3))
@@ -124,8 +124,8 @@ knitr::kable(round(cbind(qt(0.025,df=2*cN)*post.sd.conj+bN.conj, bN.conj,
 | Vol-4-6   |      -22.808 |        -19.125 |       -15.441 |
 | Vol-1-3   |       20.959 |         24.727 |        28.495 |
 
-We plot the marginal posteriors together with those under the improper
-prior.
+We plot the marginal posteriors (in blue) together with those under the
+improper prior.
 
 ``` r
 if (pdfplots) {
@@ -143,7 +143,17 @@ for (i in seq_len(nrow(beta.hat))) {
 }
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-9-1.png)
+![](Chapter06_files/figure-html/unnamed-chunk-9-1.png) Compared to the
+improper prior we see shrinkage to zero under the conjugate prior.
+
+``` r
+W=BN.conj%*%B0.inv.conj
+print(round(W,3))
+#>            [,1]   [,2]   [,3]
+#> Intercept 0.005  0.000  0.000
+#> Vol-4-6   0.000  0.014 -0.012
+#> Vol-1-3   0.000 -0.012  0.015
+```
 
 ### Figure 6.1
 
@@ -165,7 +175,7 @@ legend('topright', legend = c("Horseshoe", "Standard normal"), lty = 1:2,
        col = c("blue", "black"))
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-10-1.png)
+![](Chapter06_files/figure-html/unnamed-chunk-11-1.png)
 
 ## Section 6.4
 
@@ -375,7 +385,7 @@ for (i in seq_len(d)) {
 }
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-18-1.png)![](Chapter06_files/figure-html/unnamed-chunk-18-2.png)
+![](Chapter06_files/figure-html/unnamed-chunk-19-1.png)![](Chapter06_files/figure-html/unnamed-chunk-19-2.png)
 
 For illustration purposes, we overlay four selected marginal posteriors
 in order to illustrate the shrinkage effect.
@@ -395,7 +405,7 @@ for (i in selection) {
 }
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-19-1.png)
+![](Chapter06_files/figure-html/unnamed-chunk-20-1.png)
 
 We next investigate the trace plots.
 
@@ -407,7 +417,7 @@ for (i in seq_len(d)) {
 }
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-20-1.png)![](Chapter06_files/figure-html/unnamed-chunk-20-2.png)
+![](Chapter06_files/figure-html/unnamed-chunk-21-1.png)![](Chapter06_files/figure-html/unnamed-chunk-21-2.png)
 
 To sum up, we visualize the posterior of the effects and corresponding
 (square root of the) shrinkage parameters. For visual inspection, we
@@ -443,4 +453,4 @@ for (i in seq_len(ncol(beta.hs))) {
 }
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-22-1.png)
+![](Chapter06_files/figure-html/unnamed-chunk-23-1.png)
