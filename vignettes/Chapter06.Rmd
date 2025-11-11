@@ -129,41 +129,54 @@ regression_conjugate <- function(y, X, b0 = 0, B0 = 1,
 We perform the regression analysis and report the posterior mean 
 with the 2.5\% and 97.5\% quantile of the posterior distribution.
 ```{r}
-res_conj1<-regression_conjugate(y,X,b0=0, B0=2)
+res_conj1<-regression_conjugate(y,X,b0=0, B0=10)
+post.sd.conj1=sqrt(diag((res_conj1$CN/res_conj1$cN)*res_conj1$BN))
 
-post.sd.conj=sqrt(diag((res_conj1$CN/res_conj1$cN)*res_conj1$BN))
+res_conj2<-regression_conjugate(y,X,b0=0, B0=1)
+post.sd.conj2=sqrt(diag((res_conj2$CN/res_conj2$cN)*res_conj2$BN))
 
-knitr::kable(round(cbind(qt(0.025,df=2*res_conj1$cN)*post.sd.conj+res_conj1$bN, 
+knitr::kable(round(cbind(qt(0.025,df=2*res_conj1$cN)*post.sd.conj1+res_conj1$bN, 
                          res_conj1$bN,
-                         qt(0.975,df=2*res_conj1$cN)*post.sd.conj+ res_conj1$bN),3),
-             col.names=c("2.5 quantile","posterior mean","97.5 quantile"))
+                         qt(0.975,df=2*res_conj1$cN)*post.sd.conj1+ res_conj1$bN),3),
+              col.names=c("2.5 quantile","posterior mean","97.5 quantile"))
          
 ```
 
 We plot the marginal posteriors (in blue) together with those under the improper prior.
 ```{r}
 if (pdfplots) {
-  pdf("6-4_2.pdf", width = 8, height = 5)
-  par(mar = c(2.5, 1.5, .1, .1), mgp = c(1.6, .6, 0))
+  pdf("6-4_2.pdf", width = 8, height = 3)
+  par(mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.6, .6, 0))
 }
 par(mfrow = c(1, 3))
 for (i in seq_len(nrow(beta.hat))) {
      curve(dt((x-beta.hat[i])/post.sd[i], df=2*cN), 
         from=beta.hat[i]- 4*post.sd[i], to=beta.hat[i]+ 4*post.sd[i], 
         ylab="", xlab="" , main=rownames(beta.hat)[i])
-  curve(dt((x- res_conj1$bN[i])/post.sd.conj[i], df=2* res_conj1$cN), 
-        from= res_conj1$bN[i]- 4*post.sd.conj[i], 
-        to= res_conj1$bN[i]+ 4*post.sd.conj[i], 
-        add=TRUE, col="blue")
+    curve(dt((x- res_conj1$bN[i])/post.sd.conj1[i], df=2* res_conj1$cN), 
+        from= res_conj1$bN[i]- 4*post.sd.conj1[i], 
+        to= res_conj1$bN[i]+ 4*post.sd.conj1[i], 
+        add=TRUE, col=2,lty=2,lwd=2)
+    curve(dt((x- res_conj2$bN[i])/post.sd.conj2[i], df=2* res_conj2$cN), 
+        from= res_conj2$bN[i]- 4*post.sd.conj2[i], 
+        to= res_conj2$bN[i]+ 4*post.sd.conj2[i], 
+        add=TRUE, col=3,lty=3,lwd=2)
+    legend("topright", c("improper", "B0=10", "B0=1"),
+         col = 1:3, lty = 1:3,lwd=c(1,2,2))
 }
 ```
-Compared to the improper prior we see shrinkage to zero under the conjugate prior.
-
+There is little difference to the improper prior for  $B_0=10\textbf{I}$, however
+we see   shrinkage to zero for $B_0=\textbf{I}$. The effect of the prior is 
+given by the weight matrix $\textbf{W}$, which is computed for the prior 
+$\Normal\{\textbf{0}, \textbf{I}\}$ below.
 
 ```{r}
-W=res_conj1$BN%*%solve(diag(rep(2, d)))
+W=res_conj2$BN%*%solve(diag(rep(1,d)))
 print(round(W,3))
 ```
+We see that weight of the prior mean is much smaller for the intercept than for
+the effects of the two covariates. 
+
 ## Figure 6.3?
 We start with a visualization of the normal and the horseshoe prior. 
 
