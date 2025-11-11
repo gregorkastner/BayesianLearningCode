@@ -76,7 +76,7 @@ We can also plot the marginal posterior distributions.
 
 ``` r
 if (pdfplots) {
-  pdf("6-4_1.pdf", width = 8, height = 4)
+  pdf("6-4_1.pdf", width = 8, height = 3)
   par(mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.6, .6, 0))
 }
 par(mfrow = c(1, 3))
@@ -90,39 +90,58 @@ for (i in seq_len(nrow(beta.hat))) {
 ![](Chapter06_files/figure-html/unnamed-chunk-7-1.png) \### 6.2.2
 Bayesian Learning under Conjugate Priors
 
-For the next analysis we consider a conjugate prior.
+Next we consider regression analysis under a conjugate prior. For this
+we define a function that yields the parameters of the posterior
+distribution.
 
 ``` r
-b0=rep(0,d)
-B0=diag(rep(2,d))
+regression_conjugate <- function(y, X, b0 = 0, B0 = 1,
+                                 c0 = 0.01, C0 = 0.01) {
+  
+   d <- ncol(X)
+  
+   if (length(b0) == 1L) b0 <- rep(b0, d)
+  
+  if (!is.matrix(B0)) {
+    if (length(B0) == 1L) {
+      B0 <- diag(rep(B0, d))
+    } else {
+      B0 <- diag(B0)
+    }
+  }
+     B0.inv <- solve(B0)
+     BN.inv <- solve(B0)+crossprod(X)
+     
+     BN <- solve(BN.inv)
+     bN <- BN%*% (B0.inv%*%b0+ t(X) %*% y)
 
-c0=2
-C0=100
+     cN <- c0+N/2
+     SS.eps <- as.numeric(crossprod(y) + t(b0)%*%B0.inv%*%b0 - 
+                        t(bN)%*%BN.inv%*%bN)
+     CN <- C0+SS.eps/2
+ list(bN=bN,BN=BN,cN=cN, CN=CN)
+}
+```
 
-B0.inv.conj=solve(B0)
+We perform the regression analysis and report the posterior mean with
+the 2.5% and 97.5% quantile of the posterior distribution.
 
-BN.inv.conj<-B0.inv.conj+crossprod(X)
-BN.conj <- solve(BN.inv.conj)
-bN.conj <- BN.conj%*% (B0.inv.conj%*%b0+ t(X) %*% y)
+``` r
+res_conj1<-regression_conjugate(y,X,b0=0, B0=2)
 
-cN.conj <- c0+N/2
-SS.eps <- as.numeric(crossprod(y) + t(b0)%*%B0.inv.conj%*%b0 - 
-                       t(bN.conj)%*%BN.inv.conj%*%bN.conj)
-CN.conj <- C0+SS.eps/2
+post.sd.conj=sqrt(diag((res_conj1$CN/res_conj1$cN)*res_conj1$BN))
 
-post.sigma.conj <- (CN.conj/cN.conj)*BN.conj
-post.sd.conj=sqrt(diag(post.sigma.conj))
-
-knitr::kable(round(cbind(qt(0.025,df=2*cN)*post.sd.conj+bN.conj, bN.conj,
-                         qt(0.975,df=2*cN)*post.sd.conj+bN.conj),3),
+knitr::kable(round(cbind(qt(0.025,df=2*res_conj1$cN)*post.sd.conj+res_conj1$bN, 
+                         res_conj1$bN,
+                         qt(0.975,df=2*res_conj1$cN)*post.sd.conj+ res_conj1$bN),3),
              col.names=c("2.5 quantile","posterior mean","97.5 quantile"))
 ```
 
 |           | 2.5 quantile | posterior mean | 97.5 quantile |
 |:----------|-------------:|---------------:|--------------:|
-| Intercept |       16.770 |         19.009 |        21.247 |
-| Vol-4-6   |      -22.808 |        -19.125 |       -15.441 |
-| Vol-1-3   |       20.959 |         24.727 |        28.495 |
+| Intercept |       16.744 |         19.009 |        21.274 |
+| Vol-4-6   |      -22.852 |        -19.125 |       -15.398 |
+| Vol-1-3   |       20.915 |         24.727 |        28.540 |
 
 We plot the marginal posteriors (in blue) together with those under the
 improper prior.
@@ -137,17 +156,18 @@ for (i in seq_len(nrow(beta.hat))) {
      curve(dt((x-beta.hat[i])/post.sd[i], df=2*cN), 
         from=beta.hat[i]- 4*post.sd[i], to=beta.hat[i]+ 4*post.sd[i], 
         ylab="", xlab="" , main=rownames(beta.hat)[i])
-  curve(dt((x-bN.conj[i])/post.sd.conj[i], df=2*cN.conj), 
-        from=bN.conj[i]- 4*post.sd.conj[i], to=bN.conj[i]+ 4*post.sd.conj[i], 
+  curve(dt((x- res_conj1$bN[i])/post.sd.conj[i], df=2* res_conj1$cN), 
+        from= res_conj1$bN[i]- 4*post.sd.conj[i], 
+        to= res_conj1$bN[i]+ 4*post.sd.conj[i], 
         add=TRUE, col="blue")
 }
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-9-1.png) Compared to the
+![](Chapter06_files/figure-html/unnamed-chunk-10-1.png) Compared to the
 improper prior we see shrinkage to zero under the conjugate prior.
 
 ``` r
-W=BN.conj%*%B0.inv.conj
+W=res_conj1$BN%*%solve(diag(rep(2, d)))
 print(round(W,3))
 #>            [,1]   [,2]   [,3]
 #> Intercept 0.005  0.000  0.000
@@ -155,7 +175,7 @@ print(round(W,3))
 #> Vol-1-3   0.000 -0.012  0.015
 ```
 
-### Figure 6.1
+### Figure 6.3?
 
 We start with a visualization of the normal and the horseshoe prior.
 
@@ -175,7 +195,7 @@ legend('topright', legend = c("Horseshoe", "Standard normal"), lty = 1:2,
        col = c("blue", "black"))
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-11-1.png)
+![](Chapter06_files/figure-html/unnamed-chunk-12-1.png)
 
 ## Section 6.4
 
@@ -385,7 +405,7 @@ for (i in seq_len(d)) {
 }
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-19-1.png)![](Chapter06_files/figure-html/unnamed-chunk-19-2.png)
+![](Chapter06_files/figure-html/unnamed-chunk-20-1.png)![](Chapter06_files/figure-html/unnamed-chunk-20-2.png)
 
 For illustration purposes, we overlay four selected marginal posteriors
 in order to illustrate the shrinkage effect.
@@ -405,7 +425,7 @@ for (i in selection) {
 }
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-20-1.png)
+![](Chapter06_files/figure-html/unnamed-chunk-21-1.png)
 
 We next investigate the trace plots.
 
@@ -417,7 +437,7 @@ for (i in seq_len(d)) {
 }
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-21-1.png)![](Chapter06_files/figure-html/unnamed-chunk-21-2.png)
+![](Chapter06_files/figure-html/unnamed-chunk-22-1.png)![](Chapter06_files/figure-html/unnamed-chunk-22-2.png)
 
 To sum up, we visualize the posterior of the effects and corresponding
 (square root of the) shrinkage parameters. For visual inspection, we
@@ -453,4 +473,4 @@ for (i in seq_len(ncol(beta.hs))) {
 }
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-23-1.png)
+![](Chapter06_files/figure-html/unnamed-chunk-24-1.png)
