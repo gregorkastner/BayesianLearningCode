@@ -996,6 +996,10 @@ income <- sapply(income, as.integer)
 colnames(income) <- gsub("income_", "", colnames(income))
 ```
 
+We plot individual wage mobility time series for three workers. The
+persistence of belonging to a certain wage class is obvious for any
+specific person.
+
 ``` r
 set.seed(1)
 index <- sample(nrow(income), 3)
@@ -1010,9 +1014,9 @@ for (i in index) {
 
 ### Example 7.14: Wage mobility data - comparing wage mobility of men and women
 
-We transform the data to obtain for each worker a matrix which contains
-the number of transitions from one class to the other, the matrices with
-values $N_{i,hk}$.
+We transform the data to obtain for each worker the matrix which
+contains the number of transitions from one class to the other, i.e.,
+the matrix with values $N_{i,hk}$.
 
 ``` r
 getTransitions <- function(x, classes) {
@@ -1031,9 +1035,9 @@ Based on the transition matrices, the total transitions between the wage
 categories for female and male workers can be obtained.
 
 ``` r
-income_trans_female <- Reduce("+", income_transitions[labor$female])
-income_trans_male <- Reduce("+", income_transitions[!labor$female])
-knitr::kable(income_trans_female)
+N_female <- Reduce("+", income_transitions[labor$female])
+N_male <- Reduce("+", income_transitions[!labor$female])
+knitr::kable(N_female)
 ```
 
 |     |    0 |    1 |    2 |   3 |   4 |   5 |
@@ -1046,7 +1050,7 @@ knitr::kable(income_trans_female)
 | 5   |   24 |    1 |    0 |   3 |  22 | 446 |
 
 ``` r
-knitr::kable(income_trans_male)
+knitr::kable(N_male)
 ```
 
 |     |    0 |   1 |   2 |    3 |    4 |    5 |
@@ -1058,13 +1062,12 @@ knitr::kable(income_trans_male)
 | 4   |   73 |   7 |  12 |  191 | 1755 |  199 |
 | 5   |   50 |   2 |   2 |   11 |  147 | 2391 |
 
-We obtain the posterior mean estimates based on a uniform prior.
+We obtain posterior mean estimates based on a uniform prior.
 
 ``` r
-income_trans_female <- (1 + income_trans_female) /
-  rowSums(1 + income_trans_female)
-income_trans_male <- (1 + income_trans_male) / rowSums(1 + income_trans_male)
-knitr::kable(income_trans_female, digits = 3)
+mean_xi_female <- (1 + N_female) / rowSums(1 + N_female)
+mean_xi_male <- (1 + N_male) / rowSums(1 + N_male)
+knitr::kable(mean_xi_female, digits = 3)
 ```
 
 |     |     0 |     1 |     2 |     3 |     4 |     5 |
@@ -1077,7 +1080,7 @@ knitr::kable(income_trans_female, digits = 3)
 | 5   | 0.050 | 0.004 | 0.002 | 0.008 | 0.046 | 0.890 |
 
 ``` r
-knitr::kable(income_trans_male, digits = 3)
+knitr::kable(mean_xi_male, digits = 3)
 ```
 
 |     |     0 |     1 |     2 |     3 |     4 |     5 |
@@ -1089,11 +1092,113 @@ knitr::kable(income_trans_male, digits = 3)
 | 4   | 0.033 | 0.004 | 0.006 | 0.086 | 0.783 | 0.089 |
 | 5   | 0.020 | 0.001 | 0.001 | 0.005 | 0.057 | 0.917 |
 
+We also visualize the posterior mean estimates for women and men.
+
 ``` r
-corrplot::corrplot(income_trans_female, method = "square", is.corr = FALSE,
+corrplot::corrplot(mean_xi_female, method = "square", is.corr = FALSE,
                    col = 1, cl.pos = "n")
-corrplot::corrplot(income_trans_male, method = "square", is.corr = FALSE,
+corrplot::corrplot(mean_xi_male, method = "square", is.corr = FALSE,
                    col = 1, cl.pos = "n")
 ```
 
 ![](Chapter07_files/figure-html/unnamed-chunk-46-1.png)
+
+We compare the posterior densities of various transition probabilities
+$\xi_{g,hk}$ for women and men.
+
+``` r
+plot(c(0.5, 1), c(0, 100), type = "n", xlab = "", ylab = "",
+     main = "Posterior of various persistence probabilities")
+pers_female <- cbind(diag(1 + N_female),
+                     rowSums(1 + N_female) - diag(1 + N_female))
+pers_male <- cbind(diag(1 + N_male),
+                     rowSums(1 + N_male) - diag(1 + N_male))
+for (i in 2:6) {
+    curve(dbeta(x, pers_female[i, 1], pers_female[i, 2]),
+          col = i, add = TRUE, n = 1001, lty = 1)
+    curve(dbeta(x, pers_male[i, 1], pers_male[i, 2]),
+          col = i, add = TRUE, n = 1001, lty = 2)
+}
+legend("topleft", col = 2:6, lty = 1,
+       legend = sapply(2:6, function(i)
+           substitute(eta[i], list(i = (i-1) * 11))))
+legend("topright", col = 1, lty = 1:2,
+       legend = c("female", "male"))
+plot(c(0, 0.4), c(0, 90), type = "n", xlab = "", ylab = "",
+     main = "Posterior of various transition probabilities")
+trans_female <- cbind((1 + N_female)[cbind(1:5, 2:6)],
+                      rowSums(1 + N_female)[1:5] - (1 + N_female)[cbind(1:5, 2:6)])
+trans_male <- cbind((1 + N_male)[cbind(1:5, 2:6)],
+                    rowSums(1 + N_male)[1:5] - (1 + N_male)[cbind(1:5, 2:6)])
+for (i in 2:5) {
+    curve(dbeta(x, trans_female[i, 1], trans_female[i, 2]),
+          col = i, add = TRUE, n = 1001, lty = 1)
+    curve(dbeta(x, trans_male[i, 1], trans_male[i, 2]),
+          col = i, add = TRUE, n = 1001, lty = 2)
+}
+legend("topleft", col = 2:5, lty = 1,
+       legend = sapply(2:5, function(i)
+           substitute(eta[i], list(i = c(01, 12, 23, 34, 45)[i]))))
+legend("topright", col = 1, lty = 1:2,
+       legend = c("female", "male"))
+```
+
+![](Chapter07_files/figure-html/unnamed-chunk-47-1.png)
+
+### Example 7.15: Wage mobility data - long run
+
+We assume that both men and women start out in the labor market with the
+same wage distribution, where 70% start in wage category 1 and 30% in
+wage category 2, i.e., $\eta_{0} = (00.70.3000)$. We compare the
+evolution of the estimated wage distribution
+\$\hat{\mathbf{\eta}\_{g,t}\$ over the first ten years for females and
+males.
+
+``` r
+eta_0 <- c(0, 0.7, 0.3, 0, 0, 0)
+eta_hat_male_t <- eta_hat_female_t <-
+    matrix(NA_real_, nrow = 6, ncol = 11,
+           dimnames = list(0:5, 0:10))
+eta_hat_male_t[, 1] <- eta_hat_female_t[, 1] <- eta_0
+for (i in 2:11) {
+    eta_hat_female_t[, i] <- eta_hat_female_t[, i - 1] %*% mean_xi_female
+    eta_hat_male_t[, i] <- eta_hat_male_t[, i - 1] %*% mean_xi_male
+}
+barplot(eta_hat_female_t, xlab = "year", ylab = "wage groups")
+barplot(eta_hat_male_t, xlab = "year", ylab = "wage groups")
+```
+
+![](Chapter07_files/figure-html/unnamed-chunk-48-1.png)
+
+We inspect the posterior distributions of $\eta_{t,2}$ for wage category
+2 (left-hand side) versus $\eta_{t,5}$ for wage category 5 (right-hand
+side) in year $t = 10$ for females (left-hand posterior in both plots)
+and males (right-hand posterior in both plots).
+
+``` r
+M <- 1000
+xi_female <- replicate(M, apply(1 + N_female, 1,
+                                function(alpha) rdirichlet(1, alpha)))
+xi_male <- replicate(M, apply(1 + N_male, 1,
+                              function(alpha) rdirichlet(1, alpha)))
+eta_male_t <- eta_female_t <- matrix(eta_0, nrow = M, ncol = 6,
+                                     byrow = TRUE)
+for (i in 2:11) {
+    eta_female_t <- t(sapply(1:M, function(m)
+        xi_female[,,m] %*% eta_female_t[m,]))
+    eta_male_t <- t(sapply(1:M, function(m)
+        xi_male[,,m] %*% eta_male_t[m,]))
+}
+breaks <- seq(0.15, 0.3, length.out = 20)
+hist(eta_female_t[, 3], breaks = breaks, xlim = range(breaks),
+     col = rgb(0, 0, 0, 0.2), xlab = "", main = "Wage category 2")
+hist(eta_male_t[, 3], breaks = breaks,
+     col = rgb(1, 0, 0, 0.2), add = TRUE)
+breaks <- seq(0, 0.15, length.out = 20)
+hist(eta_female_t[, 6], breaks = breaks, xlim = range(breaks),
+     col = rgb(0, 0, 0, 0.2), xlab = "", main = "Wage category 5")
+hist(eta_male_t[, 6], breaks = breaks,
+     col = rgb(1, 0, 0, 0.2), add = TRUE)
+```
+
+![](Chapter07_files/figure-html/unnamed-chunk-49-1.png)

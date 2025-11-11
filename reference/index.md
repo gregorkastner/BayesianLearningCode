@@ -2,6 +2,8 @@
 
 ## All functions
 
+- [`rdirichlet()`](https://gregorkastner.github.io/BayesianLearningCode/reference/Dirichlet.md)
+  : The Dirichlet Distribution
 - [`dinvgamma()`](https://gregorkastner.github.io/BayesianLearningCode/reference/InvGammaDist.md)
   [`pinvgamma()`](https://gregorkastner.github.io/BayesianLearningCode/reference/InvGammaDist.md)
   [`qinvgamma()`](https://gregorkastner.github.io/BayesianLearningCode/reference/InvGammaDist.md)
