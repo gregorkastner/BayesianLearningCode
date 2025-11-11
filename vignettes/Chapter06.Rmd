@@ -83,7 +83,7 @@ knitr::kable(round(cbind(qt(0.025,df=2*cN)*post.sd+beta.hat, beta.hat,
 We can also plot the marginal posterior distributions.
 ```{r}
 if (pdfplots) {
-  pdf("6-4_1.pdf", width = 8, height = 4)
+  pdf("6-4_1.pdf", width = 8, height = 3)
   par(mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.6, .6, 0))
 }
 par(mfrow = c(1, 3))
@@ -95,33 +95,51 @@ for (i in seq_len(nrow(beta.hat))) {
 ```
 ### 6.2.2 Bayesian Learning under Conjugate Priors
 
-For the next analysis we consider a conjugate prior.
+Next we consider regression analysis under a  conjugate prior. For this we
+define a function that yields the parameters of the posterior distribution.
 ```{r}
-b0=rep(0,d)
-B0=diag(rep(2,d))
+regression_conjugate <- function(y, X, b0 = 0, B0 = 1,
+                                 c0 = 0.01, C0 = 0.01) {
+  
+   d <- ncol(X)
+  
+   if (length(b0) == 1L) b0 <- rep(b0, d)
+  
+  if (!is.matrix(B0)) {
+    if (length(B0) == 1L) {
+      B0 <- diag(rep(B0, d))
+    } else {
+      B0 <- diag(B0)
+    }
+  }
+     B0.inv <- solve(B0)
+     BN.inv <- solve(B0)+crossprod(X)
+     
+     BN <- solve(BN.inv)
+     bN <- BN%*% (B0.inv%*%b0+ t(X) %*% y)
 
-c0=2
-C0=100
+     cN <- c0+N/2
+     SS.eps <- as.numeric(crossprod(y) + t(b0)%*%B0.inv%*%b0 - 
+                        t(bN)%*%BN.inv%*%bN)
+     CN <- C0+SS.eps/2
+ list(bN=bN,BN=BN,cN=cN, CN=CN)
+}
+```
 
-B0.inv.conj=solve(B0)
+We perform the regression analysis and report the posterior mean 
+with the 2.5\% and 97.5\% quantile of the posterior distribution.
+```{r}
+res_conj1<-regression_conjugate(y,X,b0=0, B0=2)
 
-BN.inv.conj<-B0.inv.conj+crossprod(X)
-BN.conj <- solve(BN.inv.conj)
-bN.conj <- BN.conj%*% (B0.inv.conj%*%b0+ t(X) %*% y)
+post.sd.conj=sqrt(diag((res_conj1$CN/res_conj1$cN)*res_conj1$BN))
 
-cN.conj <- c0+N/2
-SS.eps <- as.numeric(crossprod(y) + t(b0)%*%B0.inv.conj%*%b0 - 
-                       t(bN.conj)%*%BN.inv.conj%*%bN.conj)
-CN.conj <- C0+SS.eps/2
-
-post.sigma.conj <- (CN.conj/cN.conj)*BN.conj
-post.sd.conj=sqrt(diag(post.sigma.conj))
-
-knitr::kable(round(cbind(qt(0.025,df=2*cN)*post.sd.conj+bN.conj, bN.conj,
-                         qt(0.975,df=2*cN)*post.sd.conj+bN.conj),3),
+knitr::kable(round(cbind(qt(0.025,df=2*res_conj1$cN)*post.sd.conj+res_conj1$bN, 
+                         res_conj1$bN,
+                         qt(0.975,df=2*res_conj1$cN)*post.sd.conj+ res_conj1$bN),3),
              col.names=c("2.5 quantile","posterior mean","97.5 quantile"))
          
 ```
+
 We plot the marginal posteriors (in blue) together with those under the improper prior.
 ```{r}
 if (pdfplots) {
@@ -133,8 +151,9 @@ for (i in seq_len(nrow(beta.hat))) {
      curve(dt((x-beta.hat[i])/post.sd[i], df=2*cN), 
         from=beta.hat[i]- 4*post.sd[i], to=beta.hat[i]+ 4*post.sd[i], 
         ylab="", xlab="" , main=rownames(beta.hat)[i])
-  curve(dt((x-bN.conj[i])/post.sd.conj[i], df=2*cN.conj), 
-        from=bN.conj[i]- 4*post.sd.conj[i], to=bN.conj[i]+ 4*post.sd.conj[i], 
+  curve(dt((x- res_conj1$bN[i])/post.sd.conj[i], df=2* res_conj1$cN), 
+        from= res_conj1$bN[i]- 4*post.sd.conj[i], 
+        to= res_conj1$bN[i]+ 4*post.sd.conj[i], 
         add=TRUE, col="blue")
 }
 ```
@@ -142,11 +161,10 @@ Compared to the improper prior we see shrinkage to zero under the conjugate prio
 
 
 ```{r}
-W=BN.conj%*%B0.inv.conj
+W=res_conj1$BN%*%solve(diag(rep(2, d)))
 print(round(W,3))
-
 ```
-## Figure 6.1
+## Figure 6.3?
 We start with a visualization of the normal and the horseshoe prior. 
 
 ```{r, echo = -1}
