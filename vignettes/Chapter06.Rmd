@@ -35,12 +35,7 @@ provided by Lehrer and Xi (2017).
 library("BayesianLearningCode")
 data("movies", package = "BayesianLearningCode")
 ```
-First of all, as there is only one film of genre G, we set the baseline for the
-categorical covariate genre to  G or PG by removing PG from the data set.
 
-```{r}
-movies["PG"] <- NULL
-```
 
 ## Section 6.2.1 Bayesian Learning Under Improper Priors
 ### Example 6.2: Movie data
@@ -177,12 +172,114 @@ print(round(W,3))
 We see that weight of the prior mean is much smaller for the intercept than for
 the effects of the two covariates. 
 
-## Figure 6.3?
-We start with a visualization of the normal and the horseshoe prior. 
+## 6.3 Regression Analysis under the Semi-Conjugate Prior
+We now include not only the volume scores from twitter posts 4-6 and 1-3 weeks before starting of the film, but use also the  information on the sentiments in these time periods, 
+ the genres \textit{Comedy} and \textit{Thriller}, the MPAA ratings, the budget, the number of weeks as well as screens the film was planned to be shown. 
+ There is only one film with MPAA rating ``G'', hence we merge the two ratings ``G'' and ``PG'' into one category which we define as our baseline. Additionally we center all covariates at zero.
+
+```{r}
+movies["PG"] <- NULL
+```
+
+Next,  we center all covariates at zero and define the regressor matrix. 
+
+```{r}
+covs <- c("Comedy", "Thriller","PG13", "R", "Budget", "Weeks", "Screens", 
+          "S-4-6", "S-1-3", "Vol-4-6", "Vol-1-3")
+covs.cen <- scale(movies[, covs], scale = FALSE)
+
+
+N <- length(y)  # number of observations
+X <- cbind("Intercept" = rep(1, N), covs.cen) # regressor matrix
+
+d <- dim(X)[2] # number regression effects 
+p <- d - 1 # number of regression effects without intercept
+```
+
+
+To estimate the parameters of the regression model under a rather flat
+semi-conjugate prior we  set up the Gibbs sampler.
+
+```{r}
+set.seed(1)
+
+reg_semiconj <- function(y, X, b0 = 0, B0 = 10000, c0 = 2.5, C0 = 1.5,
+                   burnin = 1000L, M = 5000L) {
+    d <- dim(X)[2] 
+    B0inv <- diag(rep(1 / B0, d), nrow = d)
+    b0 <-  rep(b0, length.out = d)
+
+    # define quantities for the Gibbs sampler
+    XX <- crossprod(X)
+    Xy <- t(X) %*% y
+    cN <- c0 + N / 2
+    
+    # prepare storing of results
+   betas <- matrix(NA_real_, nrow = M, ncol = d)
+   colnames(betas) <- colnames(X)
+
+   sigma2s <- rep(NA_real_,  M)
+
+   # starting value for sigma2
+   sigma2 <- var(y) / 2
+
+   for (m in 1:(burnin + M)) {
+       # sample beta from the full conditional
+       BN <- solve(B0inv + XX / sigma2) 
+       bN <- BN %*% (B0inv %*% b0 + Xy / sigma2)
+       beta <- t(mvtnorm::rmvnorm(1, mean = bN, sigma = BN))
+    
+       # sample sigma^2 from its full conditional
+       eps <- y - X %*% beta
+       CN <- C0 + crossprod(eps) / 2
+       sigma2 <- rinvgamma(1, cN, CN)
+      
+       if (m > burnin) {
+          betas[m - burnin, ] <- beta
+          sigma2s[m- burnin] <- sigma2
+       }
+   }
+   return(post.draws=list(betas = betas, sigma2s=sigma2s) )
+}                              
+```
+
+We define the prior parameters and rum the sampler for 10000 iterations after
+a burnin of 1000.
+
+```{r}
+post.draws <- reg_semiconj(y,X,b0 = 0, B0 = 10000, c0 = 2.5, C0 = 1.5,
+                   burnin = 1000L, M = 5000L)
+```
+To summarize the results nicely, we compute equal-tailed 95% confidence
+intervals for the regression effects.
+
+```{r}
+res.mcmc <- function(x, lower = 0.025, upper = 0.975)
+  c(quantile(x, lower), mean(x), quantile(x, upper))
+
+beta.sc<-post.draws$betas
+
+res_beta.sc<- t(apply(beta.sc, 2, res.mcmc))
+colnames(res_beta.sc) <- c("2.5%", "Mean", "97.5%") 
+rownames(res_beta.sc) <- c("Intercept", covs)
+
+knitr::kable(round(res_beta.sc, 3))
+```
+
+We do the same for the error variances.
+
+```{r}
+res_sigma2.sc <- res.mcmc( post.draws$sigma2s)
+names(res_sigma2.sc) <- colnames(res_beta.sc)
+knitr::kable(t(round(res_sigma2.sc, 3)))
+```
+
+Next we will use the horseshoe prior to analyze the data. 
+We start with a visual comparison of the normal and the horseshoe prior. 
 
 ```{r, echo = -1}
 if (pdfplots) {
-  pdf("6-4_5.pdf", width = 8, height = 5)
+  pdf("6-4_3.pdf", width = 8, height = 5)
   par(mar = c(2.5, 1.5, .1, .1), mgp = c(1.6, .6, 0))
 }
 beta <- seq(from = -4, to = 4, by = 0.01)
@@ -200,151 +297,79 @@ legend('topright', legend = c("Horseshoe", "Standard normal"), lty = 1:2,
        col = c("blue", "black"))
 ```
 
-
-# Section 6.4
-Center the covariates at zero. 
+Next we set up the Gibbs  sampler  under the horse-shoe prior.
 
 ```{r}
-covs <- c("Comedy", "Thriller","PG13", "R", "Budget", "Weeks", "Screens", 
-          "S-4-6", "S-1-3", "Vol-4-6", "Vol-1-3")
-covs.cen <- scale(movies[, covs], scale = FALSE)
+reg_hs <- function(y, X,  b0=0, B0 = 10000, c0 = 2.5, C0 = 1.5,
+                   burnin = 1000L, M = 5000L) {
+   d <- dim(X)[2]
+   p <- d-1
+   
+   B00inv <- 1 / B0 # prior precision for the intercept
+   b0 <-  rep(b0, length.out = d)
 
+   # prepare storing of results
+   betas <- matrix(NA_real_, nrow = M, ncol = d)
+   colnames(betas) <- colnames(X)
+   
+   sigma2s<- rep(NA_real_, M)
+   tau2s <- matrix(NA_real_, nrow =  M, ncol = p)
+   lambda2s <- rep(NA_real_,  M)
+   
+   # define quantities for the Gibbs sampler
+   XX <- crossprod(X)
+   Xy <- t(X) %*% y
 
-N <- length(y)  # number of observations
-X <- cbind("Intercept" = rep(1, N), covs.cen) # regressor matrix
+   # set starting values 
+   sigma2 <- var(y) / 2
+   tau2 <- rep(1, p)
+   lambda2 <- 1
 
-d <- dim(X)[2] # number regression effects 
-p <- d - 1 # number of regression effects without intercept
+   for (m in seq_len(burnin + M)) {
+       # sample  beta from the full conditional
+       B0inv <- diag(c(B00inv, 1 / (lambda2 * tau2)))
+       BN <- solve(B0inv + XX / sigma2) 
+       bN <- BN %*% (B0inv %*% b0 + Xy / sigma2)
+  
+       beta <- t(mvtnorm::rmvnorm(1, mean = bN, sigma = BN))
+       beta.star <- beta[2:d]
+  
+       # sample sigma^2 from its full conditional
+       eps <- y - X %*% beta
+       CN <- C0 + crossprod(eps) / 2
+       sigma2 <- rinvgamma(1, cN, CN)
+  
+      # sample tau^2
+      xi  <- rexp(p, rate = 1 + 1 / tau2)
+      tau2 <- rinvgamma(p, 1, xi + 0.5 * beta.star^2 / lambda2)
+  
+      # sample lambda^2
+      zeta <- rexp(1, rate = 1 + 1 / lambda2)
+      lambda2 <- rinvgamma(1, (p + 1) / 2, zeta + 0.5 * sum(beta.star^2 / tau2))
+  
+      # store results
+      if (m > burnin) {
+         betas[m - burnin, ] <- beta
+         sigma2s[m- burnin] <- sigma2
+         tau2s[m- burnin,] <- tau2
+         lambda2s[m- burnin] <- lambda2
+      }
+   }
+   return(post.draws=list(betas = betas, sigma2s=sigma2s, tau2s=tau2s,lambda2s=lambda2s))
+}    
 ```
-
-
-
-We first estimate the parameters of the regression model under a rather flat
-semi-conjugate prior.
-
-```{r}
-set.seed(1)
-
-# define prior parameters of semi-conjugate prior
-B0inv <- diag(rep(1 / 10000, d), nrow = d)
-b0 <- rep(0, d)
-
-c0 <- 2.5 
-C0 <- 1.5
-
-# define quantities for the Gibbs sampler
-XX <- crossprod(X)
-Xy <- t(X) %*% y
-cN <- c0 + N / 2
-
-#define burnin and M
-burnin <- 1000
-M <- 100000
-
-# prepare storing of results
-betas <- matrix(NA_real_, nrow = burnin + M, ncol = d)
-sigma2s <- rep(NA_real_, burnin + M)
-colnames(betas) <- colnames(X)
-
-# starting value for sigma2
-sigma2 <- var(y) / 2
-
-for (m in 1:(burnin + M)) {
-    # sample beta from the full conditional
-    BN <- solve(B0inv + XX / sigma2) 
-    bN <- BN %*% (B0inv %*% b0 + Xy / sigma2)
-    beta <- t(mvtnorm::rmvnorm(1, mean = bN, sigma = BN))
-    
-    # sample sigma^2 from its full conditional
-    eps <- y - X %*% beta
-    CN <- C0 + crossprod(eps) / 2
-    sigma2 <- rinvgamma(1, cN, CN)
-    
-    betas[m, ] <- beta
-    sigma2s[m] <- sigma2
-}
-```
-
-To summarize the results nicely, we compute equal-tailed 95% confidence
-intervals for the regression effects.
-
-```{r}
-res.mcmc <- function(x, lower = 0.025, upper = 0.975)
-  c(quantile(x, lower), mean(x), quantile(x, upper))
-
-beta.sc <- betas[burnin + (1:M), ]
-
-res_beta.sc<- t(apply(beta.sc, 2, res.mcmc))
-colnames(res_beta.sc) <- c("2.5%", "Mean", "97.5%") 
-rownames(res_beta.sc) <- c("Intercept", covs)
-
-knitr::kable(round(res_beta.sc, 3))
-```
-
-We do the same for the error variances.
-
-```{r}
-res_sigma2.sc <- res.mcmc(sigma2s[burnin + (1:M)])
-names(res_sigma2.sc) <- colnames(res_beta.sc)
-knitr::kable(t(round(res_sigma2.sc, 3)))
-```
-
-Next we use the horseshoe prior to analyze the data. We use 
-the same prior on the intercept and the error variance as above but specify a
+We use the same prior on the intercept and the error variance as  as in the
+semi-conjugate prior, but the
 horseshoe prior on the  regression effects. 
-The prior variance of the intercept is set to the same value as in the
-semi-conjugate prior.
 
 ```{r}
-B00inv <- 1 / 10000 # prior precision for the intercept
-
-# prepare storing of results
-betas.hs <- matrix(NA_real_, nrow = burnin + M, ncol = d)
-colnames(betas.hs) <- colnames(X)
-sigma2s.hs <- rep(NA_real_, burnin + M)
-tau2s.hs <- matrix(NA_real_, nrow = burnin + M, ncol = p)
-lambda2s.hs <- rep(NA_real_, burnin + M)
-
-# set starting values 
-sigma2 <- var(y) / 2
-tau2 <- rep(1, p)
-lambda2 <- 1
-
-for (m in seq_len(burnin + M)) {
-  # sample  beta from the full conditional
-  B0inv <- diag(c(B00inv, 1 / (lambda2 * tau2)))
-  BN <- solve(B0inv + XX / sigma2) 
-  bN <- BN %*% (B0inv %*% b0 + Xy / sigma2)
-  
-  beta <- t(mvtnorm::rmvnorm(1, mean = bN, sigma = BN))
-  beta.star <- beta[2:d]
-  
-  # sample sigma^2 from its full conditional
-  eps <- y - X %*% beta
-  CN <- C0 + crossprod(eps) / 2
-  sigma2 <- rinvgamma(1, cN, CN)
-  
-  # sample tau^2
-  xi  <- rexp(p, rate = 1 + 1 / tau2)
-  tau2 <- rinvgamma(p, 1, xi + 0.5 * beta.star^2 / lambda2)
-  
-  # sample lambda^2
-  zeta <- rexp(1, rate = 1 + 1 / lambda2)
-  lambda2 <- rinvgamma(1, (p + 1) / 2, zeta + 0.5 * sum(beta.star^2 / tau2))
-  
-  # store results
-  betas.hs[m,] <- beta
-  sigma2s.hs[m] <- sigma2
-  tau2s.hs[m,] <- tau2
-  lambda2s.hs[m] <- lambda2
-}
+post.draws.hs<- reg_hs(y,X)
 ```
-
 Again, we show the posterior mean estimates and equal-tailed 95% credibility
 intervals in a table. First, for the regressions effects.
 
 ```{r}
-beta.hs <- betas.hs[burnin + (1:M),] 
+beta.hs<-post.draws.hs$betas
 res_beta.hs <- t(apply(beta.hs, 2, res.mcmc))
 colnames(res_beta.hs) <- c("2.5%", "Mean", "97.5%")
 rownames(res_beta.hs) <- colnames(X)
@@ -354,7 +379,7 @@ knitr::kable(round(res_beta.hs, 3))
 And for the variance.
 
 ```{r}
-res_sigma2.hs <- res.mcmc(sigma2s.hs[burnin + (1:M)])
+res_sigma2.hs <- res.mcmc(post.draws.hs$sigma2s)
 names(res_sigma2.hs) <- colnames(res_beta.hs)
 knitr::kable(t(round(res_sigma2.hs, 3)))
 ```
@@ -379,7 +404,7 @@ order to illustrate the shrinkage effect.
 
 ```{r, echo = -c(1:2)}
 if (pdfplots) {
-  pdf("6-4_6.pdf", width = 8, height = 5)
+  pdf("6-4_4.pdf", width = 8, height = 5)
 }
 par(mfrow = c(2, 2), mar = c(1.5, 1.5, 1.5, .1), mgp = c(1, .5, 0))
 selection <- c("Screens", "Weeks", "S-1-3", "Thriller")
@@ -406,7 +431,6 @@ for (i in seq_len(d)) {
 }
 ```
 
-
 To sum up, we visualize the posterior of the effects and corresponding
 (square root of the) shrinkage parameters. For visual inspection, we create
 a gap plot, where we remove the largest 5% of the local shrinkage parameter
@@ -414,7 +438,7 @@ draws and mirror them around 0. That way, we can easily identify ``significant''
 effects via clear bimodality or even a gap around zero -- hence the name.
 
 ```{r}
-tau2.hs <- tau2s.hs[burnin + (1:M), ]
+tau2.hs <- post.draws.hs$tau2s
 alpha <- 0.05
 truncate <- function(x, alpha) x[x <= quantile(x, 1 - alpha)] 
 tau2.hs.trunc <- apply(tau2.hs, 2, truncate, alpha = alpha)
@@ -426,7 +450,7 @@ visualize the gap plot.
 
 ```{r, echo = -(1:2), fig.width = 8, fig.height = 12}
 if (pdfplots) {
-  pdf("6-4_7.pdf", width = 9, height = 12)
+  pdf("6-4_5.pdf", width = 9, height = 12)
   par(mar = c(1.5, 1.5, 1.5, .1), mgp = c(1, .5, 0))
 }
 par(mfrow = c(12, 2))
