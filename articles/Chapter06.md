@@ -165,9 +165,9 @@ for (i in seq_len(nrow(beta.hat))) {
     curve(dt((x- res_conj2$bN[i])/post.sd.conj2[i], df=2* res_conj2$cN), 
         from= res_conj2$bN[i]- 4*post.sd.conj2[i], 
         to= res_conj2$bN[i]+ 4*post.sd.conj2[i], 
-        add=TRUE, col=3,lty=3,lwd=2)
+        add=TRUE, col=3,lty=4,lwd=2)
     legend("topright", c("improper", "B0=10", "B0=1"),
-         col = 1:3, lty = 1:3,lwd=c(1,2,2))
+         col = 1:3, lty = c(1,2,4),lwd=c(1,2,2))
 }
 ```
 
