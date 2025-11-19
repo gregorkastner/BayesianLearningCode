@@ -457,6 +457,7 @@ For illustration purposes, we overlay four selected marginal posteriors
 in order to illustrate the shrinkage effect.
 
 ``` r
+par(mfrow = c(2, 2), mar = c(1.5, 1.5, 1.5, .1), mgp = c(1, .5, 0))
 selection <- c("Screens", "Weeks", "S-1-3", "Thriller")
 for (i in selection) {
  breaks <- seq(min(beta.sc[,i], beta.hs[,i]), max(beta.sc[,i], beta.hs[,i]),
@@ -520,3 +521,20 @@ for (i in seq_len(ncol(beta.hs))) {
 ```
 
 ![](Chapter06_files/figure-html/unnamed-chunk-26-1.png)
+
+``` r
+if (pdfplots) {
+  pdf("6-4_6.pdf", width=8, height = 3)
+}
+post.draws.hs2<- reg_hs(y,X)
+
+par(mfrow = c(1, 2))
+qqplot(post.draws.hs$betas[,1],post.draws.hs2$betas[,1], 
+       main="Q-Q- Plot for the intercept", xlab="", ylab="" )
+abline(a = 0, b = 1)
+qqplot(post.draws.hs$sigma2s,post.draws.hs2$sigma2s,
+        main="Q-Q- Plot for the error variance", xlab="", ylab="" )
+abline(a = 0, b = 1)
+```
+
+![](Chapter06_files/figure-html/unnamed-chunk-27-1.png)
