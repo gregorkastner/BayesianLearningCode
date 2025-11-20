@@ -27,7 +27,8 @@ start.
 
 ``` r
 y <- movies[, "OpenBoxOffice"]
-covs <- c("Vol-4-6", "Vol-1-3")
+#covs <- c("Vol-4-6", "Vol-1-3")
+covs <- c("Weeks", "Screens")
 covs.cen <- scale(movies[, covs], scale = FALSE)
 
 N <- length(y)  # number of observations
@@ -60,27 +61,59 @@ knitr::kable(round(cbind(qt(0.025,df=2*cN)*post.sd+beta.hat, beta.hat,
 
 |           | 2.5 quantile | posterior mean | 97.5 quantile |
 |:----------|-------------:|---------------:|--------------:|
-| Intercept |       16.870 |          19.11 |        21.350 |
-| Vol-4-6   |      -23.442 |         -19.72 |       -15.997 |
-| Vol-1-3   |       21.541 |          25.35 |        29.159 |
+| Intercept |       16.029 |         19.110 |        22.191 |
+| Weeks     |        0.236 |          0.837 |         1.439 |
+| Screens   |        1.032 |          1.663 |         2.295 |
 
-We can also plot the marginal posterior distributions.
+We first plot the marginal posterior distribution of the intercept.
 
 ``` r
 if (pdfplots) {
   pdf("6-4_1.pdf", width = 8, height = 3)
   par(mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.6, .6, 0))
 }
-par(mfrow = c(1, 3))
-for (i in seq_len(nrow(beta.hat))) {
-    curve(dt((x-beta.hat[i])/post.sd[i], df=2*cN), 
-        from=beta.hat[i]- 4*post.sd[i], to=beta.hat[i]+ 4*post.sd[i], 
-        ylab="", xlab="" , main=rownames(beta.hat)[i])
-}
+par(mfrow = c(1, 1))
+curve(dt((x-beta.hat[1])/post.sd[1], df=2*cN), 
+        from=beta.hat[1]- 3*post.sd[1], to=beta.hat[1]+ 3*post.sd[1], 
+        ylab="", xlab="" , main=rownames(beta.hat)[1])
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-6-1.png) \### 6.2.2
-Bayesian Learning under Conjugate Priors
+![](Chapter06_files/figure-html/unnamed-chunk-6-1.png) Next we plot the
+marginals of the covariate effects
+
+``` r
+if (pdfplots) {
+  pdf("6-4_1a.pdf", width = 8, height = 4)
+  par(mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.6, .6, 0))
+}
+require(mvtnorm)
+#> Loading required package: mvtnorm
+
+f=function(x1,x2) dmvt(cbind(x1-beta.hat[2],x2-beta.hat[3]),
+                     sigma=post.sigma[2:3,2:3], df=2*cN, log=FALSE)
+c=3*max(post.sd[-1])
+xx1 <- seq(-c,c,length=201)+beta.hat[2]
+xx2 <-  seq(-c,c,length=201)+beta.hat[3]
+z=outer(xx1,xx2,f)
+
+nf <- layout(matrix(c(2,0,1,3),2,2,byrow=TRUE), c(3,1), c(1,3), TRUE)
+par(mar=c(3,3,1,1))
+contour(xx1,xx2,z,col="blue",add=FALSE)
+mtext(rownames(beta.hat)[2],1, line=2)
+mtext(rownames(beta.hat)[3],2, line=2)
+
+par(mar=c(0,3,1,1))
+mar.x1=dt((xx1-beta.hat[2])/post.sd[2], df=2*cN, log=FALSE)
+plot(xx1,mar.x1,col="blue", type="l",xaxt="n",ylab="")
+
+par(mar=c(3,0,1,1))
+mar.x2=dt((xx2-beta.hat[3])/post.sd[3], df=2*cN, log=FALSE)
+plot(mar.x2,xx2,col="blue", type="l",yaxt="n",xlab="")
+```
+
+![](Chapter06_files/figure-html/unnamed-chunk-7-1.png)
+
+#### 6.2.2 Bayesian Learning under Conjugate Priors
 
 Next we consider regression analysis under a conjugate prior. For this
 we define a function that yields the parameters of the posterior
@@ -133,9 +166,9 @@ knitr::kable(round(cbind(qt(0.025,df=2*res_conj1$cN)*post.sd.conj1+res_conj1$bN,
 
 |           | 2.5 quantile | posterior mean | 97.5 quantile |
 |:----------|-------------:|---------------:|--------------:|
-| Intercept |       16.874 |         19.090 |        21.305 |
-| Vol-4-6   |      -23.273 |        -19.598 |       -15.923 |
-| Vol-1-3   |       21.463 |         25.223 |        28.983 |
+| Intercept |       16.059 |         19.090 |        22.120 |
+| Weeks     |        0.245 |          0.837 |         1.429 |
+| Screens   |        1.041 |          1.663 |         2.285 |
 
 We plot the marginal posteriors (in blue) together with those under the
 improper prior.
@@ -163,7 +196,7 @@ for (i in seq_len(nrow(beta.hat))) {
 }
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-9-1.png) There is little
+![](Chapter06_files/figure-html/unnamed-chunk-10-1.png) There is little
 difference to the improper prior for $B_{0} = 10\textbf{𝐈}$, however we
 see shrinkage to zero for $B_{0} = \textbf{𝐈}$. The effect of the prior
 is given by the weight matrix $\textbf{𝐖}$, which is computed for the
@@ -172,10 +205,10 @@ prior \$\Normal\\\textbf{0}, \textbf{I}\\\$ below.
 ``` r
 W=res_conj2$BN%*%solve(diag(rep(1,d)))
 print(round(W,3))
-#>            [,1]   [,2]   [,3]
-#> Intercept 0.011  0.000  0.000
-#> Vol-4-6   0.000  0.028 -0.024
-#> Vol-1-3   0.000 -0.024  0.029
+#>            [,1] [,2] [,3]
+#> Intercept 0.011    0    0
+#> Weeks     0.000    0    0
+#> Screens   0.000    0    0
 ```
 
 We see that weight of the prior mean is much smaller for the intercept
@@ -327,7 +360,7 @@ legend('topright', legend = c("Horseshoe", "Standard normal"), lty = 1:2,
        col = c("blue", "black"))
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-17-1.png)
+![](Chapter06_files/figure-html/unnamed-chunk-18-1.png)
 
 Next we set up the Gibbs sampler under the horse-shoe prior.
 
@@ -451,7 +484,7 @@ for (i in seq_len(d)) {
 }
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-22-1.png)![](Chapter06_files/figure-html/unnamed-chunk-22-2.png)
+![](Chapter06_files/figure-html/unnamed-chunk-23-1.png)![](Chapter06_files/figure-html/unnamed-chunk-23-2.png)
 
 For illustration purposes, we overlay four selected marginal posteriors
 in order to illustrate the shrinkage effect.
@@ -472,7 +505,7 @@ for (i in selection) {
 }
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-23-1.png)
+![](Chapter06_files/figure-html/unnamed-chunk-24-1.png)
 
 We next investigate the trace plots.
 
@@ -484,7 +517,7 @@ for (i in seq_len(d)) {
 }
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-24-1.png)![](Chapter06_files/figure-html/unnamed-chunk-24-2.png)
+![](Chapter06_files/figure-html/unnamed-chunk-25-1.png)![](Chapter06_files/figure-html/unnamed-chunk-25-2.png)
 
 To sum up, we visualize the posterior of the effects and corresponding
 (square root of the) shrinkage parameters. For visual inspection, we
@@ -520,7 +553,7 @@ for (i in seq_len(ncol(beta.hs))) {
 }
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-26-1.png)
+![](Chapter06_files/figure-html/unnamed-chunk-27-1.png)
 
 ``` r
 if (pdfplots) {
@@ -537,4 +570,4 @@ qqplot(post.draws.hs$sigma2s,post.draws.hs2$sigma2s,
 abline(a = 0, b = 1)
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-27-1.png)
+![](Chapter06_files/figure-html/unnamed-chunk-28-1.png)
