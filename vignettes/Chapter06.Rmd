@@ -46,7 +46,8 @@ the covariates at their means. Hence the intercept is the  sales on the opening 
 
 ```{r}
 y <- movies[, "OpenBoxOffice"]
-covs <- c("Vol-4-6", "Vol-1-3")
+#covs <- c("Vol-4-6", "Vol-1-3")
+covs <- c("Weeks", "Screens")
 covs.cen <- scale(movies[, covs], scale = FALSE)
 
 N <- length(y)  # number of observations
@@ -75,19 +76,47 @@ knitr::kable(round(cbind(qt(0.025,df=2*cN)*post.sd+beta.hat, beta.hat,
              col.names=c("2.5 quantile","posterior mean","97.5 quantile"))
 ```
 
-We can also plot the marginal posterior distributions.
+We first plot the marginal posterior distribution of the intercept. 
 ```{r}
 if (pdfplots) {
   pdf("6-4_1.pdf", width = 8, height = 3)
   par(mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.6, .6, 0))
 }
-par(mfrow = c(1, 3))
-for (i in seq_len(nrow(beta.hat))) {
-    curve(dt((x-beta.hat[i])/post.sd[i], df=2*cN), 
-        from=beta.hat[i]- 4*post.sd[i], to=beta.hat[i]+ 4*post.sd[i], 
-        ylab="", xlab="" , main=rownames(beta.hat)[i])
-}
+par(mfrow = c(1, 1))
+curve(dt((x-beta.hat[1])/post.sd[1], df=2*cN), 
+        from=beta.hat[1]- 3*post.sd[1], to=beta.hat[1]+ 3*post.sd[1], 
+        ylab="", xlab="" , main=rownames(beta.hat)[1])
 ```
+Next we plot  the  marginals of the covariate  effects
+```{r}
+if (pdfplots) {
+  pdf("6-4_1a.pdf", width = 8, height = 4)
+  par(mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.6, .6, 0))
+}
+require(mvtnorm)
+
+f=function(x1,x2) dmvt(cbind(x1-beta.hat[2],x2-beta.hat[3]),
+                     sigma=post.sigma[2:3,2:3], df=2*cN, log=FALSE)
+c=3*max(post.sd[-1])
+xx1 <- seq(-c,c,length=201)+beta.hat[2]
+xx2 <-  seq(-c,c,length=201)+beta.hat[3]
+z=outer(xx1,xx2,f)
+
+nf <- layout(matrix(c(2,0,1,3),2,2,byrow=TRUE), c(3,1), c(1,3), TRUE)
+par(mar=c(3,3,1,1))
+contour(xx1,xx2,z,col="blue",add=FALSE)
+mtext(rownames(beta.hat)[2],1, line=2)
+mtext(rownames(beta.hat)[3],2, line=2)
+
+par(mar=c(0,3,1,1))
+mar.x1=dt((xx1-beta.hat[2])/post.sd[2], df=2*cN, log=FALSE)
+plot(xx1,mar.x1,col="blue", type="l",xaxt="n",ylab="")
+
+par(mar=c(3,0,1,1))
+mar.x2=dt((xx2-beta.hat[3])/post.sd[3], df=2*cN, log=FALSE)
+plot(mar.x2,xx2,col="blue", type="l",yaxt="n",xlab="")
+```
+
 ### 6.2.2 Bayesian Learning under Conjugate Priors
 
 Next we consider regression analysis under a  conjugate prior. For this we
