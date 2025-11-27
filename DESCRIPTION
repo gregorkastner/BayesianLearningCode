@@ -33,7 +33,8 @@ Imports:
     robustbase,
     stochvol,
     mvtnorm,
-    pgdraw
+    pgdraw,
+    coda
 Suggests: 
     knitr,
     rmarkdown
