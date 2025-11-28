@@ -991,12 +991,13 @@ We can see that the draws appear to come from the same distribution. Note,
 however, that the first sampler gets "stuck" slightly below 0.93 for a few
 draws, which isn't the case for the second sampler.
 
+To conclude, we compute ESSs and IFs for the sampler utilizing the optimized
+MH step.
+
 ```{r}
-library(coda)
 ess <- effectiveSize(stationary3)
 knitr::kable(rbind(ESS = round(ess), IF = round(ndraws / ess, 2)))
 ```
-
 
 # Section 7.3: Some Extensions
 ## Section 7.3.1: AR Models with a Unit Root
