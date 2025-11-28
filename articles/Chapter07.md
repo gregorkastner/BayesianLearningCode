@@ -683,150 +683,16 @@ for (m in seq_len(ndraws + nburn)) {
     phis[m - nburn] <- phi
   }
 }
-res1 <- data.frame(y0 = y0s, sigma2 = sigma2s, zeta = zetas, phi = phis)
+stationary1 <- data.frame(zeta = zetas, phi = phis, sigma2 = sigma2s, y0 = y0s)
 naccepts1 <- naccepts
 ```
 
-Let us investigate traceplots and empirical autocorrelation functions of
-the draws. In addition, we check the percentage of accepted draws in
-MH-step (d).
-
-``` r
-plot.ts(res1, xlab = "Draws after burn-in",
-        main = paste0("MH acceptance rate: ", 100 * naccepts1 / ndraws, "%"))
-```
-
-![](Chapter07_files/figure-html/unnamed-chunk-31-1.png)
-
-``` r
-acf(res1, ylab = "")
-```
-
-![](Chapter07_files/figure-html/unnamed-chunk-31-2.png)
-
-We now repeat this exercise, but use the conditional posterior resulting
-from an auxiliary moment-matched prior in Step (d).
-
-``` r
-# Compute mean and variance of the actual prior using properties of the beta
-priormean <- 2 * aphi / (aphi + bphi) - 1
-priorvar <- 4 * (aphi * bphi) / ((aphi + bphi)^2 * (aphi + bphi + 1))
-
-# Define the design matrix and y
-X <- matrix(NA_real_, nrow = length(y), 2)
-X[, 1] <- 1
-X[, 2] <- c(NA_real_, y[-length(y)])
-
-# Allocate some space for the posterior draws and initialize the parameters:
-y0s <- sigma2s <- zetas <- phis <- rep(NA_real_, ndraws)
-zeta <- 0
-phi <- .8
-sigma2 <- var(y) * (1 - phi)
-naccepts <- 0
-
-for (m in seq_len(ndraws + nburn)) {
-  # Step (a): Draw y0
-  y0 <- rnorm(1, zeta + phi * y[1], sqrt(sigma2))
-  
-  # Step (b): Draw the innovation variance
-  X[1, 2] <- y0
-  beta <- matrix(c(zeta, phi), nrow = 2)
-  tmp <- y - X %*% beta
-  sigma2 <- rinvgamma(1, c0 + (length(y) + 1) / 2,
-    C0 + .5 * (1 - phi^2) * (y0 - zeta / (1 - phi))^2 + .5 * crossprod(tmp))
-  
-  # Step (c): Draw the intercept
-  BT <- 1 / (1 / B0 + (length(y) + 1) / sigma2)
-  bT <- BT * (b0 / B0 + ((1 + phi) * y0 +
-    y[1] - phi * y0 + sum(y[-1] - phi * y[-length(y)])) / sigma2)
-  zeta <- rnorm(1, bT, sqrt(BT))
-  
-  # Step (d): Draw the persistence
-  tmp <- y0^2 + sum(y[-length(y)]^2)
-  propvar <- 1 / (1 / priorvar + tmp / sigma2)
-  propmean <- propvar * (priormean / priorvar + (y0 * (y[1] - zeta) +
-    sum(y[-length(y)] * (y[-1] - zeta))) / sigma2)
-  phiprop <- rnorm(1, propmean, sqrt(propvar))
-  if (-1 < phiprop & phiprop < 1) {
-    logR <- dbetarescaled(phiprop, aphi, bphi, log = TRUE) -
-      dbetarescaled(phi, aphi, bphi, log = TRUE) +
-      dnorm(y0, zeta / (1 - phiprop), sqrt(sigma2 / (1 - phiprop^2)),
-            log = TRUE) -
-      dnorm(y0, zeta / (1 - phi), sqrt(sigma2 / (1 - phi^2)), log = TRUE) +
-      dnorm(phi, priormean, sqrt(priorvar), log = TRUE) -
-      dnorm(phiprop, priormean, sqrt(priorvar), log = TRUE)
-    if (log(runif(1)) < logR) {
-      phi <- phiprop
-      if (m > nburn) naccepts <- naccepts + 1L
-    }
-  }
-  
-  # Store the draws
-  if (m > nburn) {
-    y0s[m - nburn] <- y0
-    sigma2s[m - nburn] <- sigma2
-    zetas[m - nburn] <- zeta
-    phis[m - nburn] <- phi
-  }
-}
-res2 <- data.frame(y0 = y0s, sigma2 = sigma2s, zeta = zetas, phi = phis)
-naccepts2 <- naccepts
-```
-
-Again, we investigate traceplots and empirical autocorrelation functions
-of the draws. In addition, we check the percentage of accepted draws in
-MH-step (d).
-
-``` r
-plot.ts(res2, xlab = "Draws after burn-in",
-        main = paste0("MH acceptance rate: ", 100 * naccepts2 / ndraws, "%"))
-```
-
-![](Chapter07_files/figure-html/unnamed-chunk-33-1.png)
-
-``` r
-acf(res2, ylab = "")
-```
-
-![](Chapter07_files/figure-html/unnamed-chunk-33-2.png)
-
-We now compare the draws from the two samplers; they should yield draws
-from the same distribution, irrespective of the acceptance rate and thus
-the mixing of the Markov chain. We graphically check this by comparing
-histograms and quantiles of draws from the marginal posterior of $\phi$.
-
-``` r
-mybreaks <- seq(min(res1$phi, res2$phi), max(res1$phi, res2$phi),
-                length.out = 50)
-hist(res1$phi, breaks = mybreaks, col = rgb(0, 0, 1, .3),
-     main = "Histogram", xlab = expression(phi), freq = FALSE)
-hist(res2$phi, breaks = mybreaks, col = rgb(1, 0, 0, .3), freq = FALSE,
-     add = TRUE)
-qqplot(res1$phi, res2$phi, xlab = "Sampler 1", ylab = "Sampler 2",
-       main = "QQ plot")
-abline(0, 1, col = 2)
-```
-
-![](Chapter07_files/figure-html/unnamed-chunk-34-1.png) We can see that
-the draws appear to come from the same distribution. Note, however, that
-the first sampler gets “stuck” slightly below 0.93 for a few draws,
-which isn’t the case for the second sampler.
-
-We now re-run the second sampler with a more informative beta prior.
+We repeat the exercise with a more informative beta prior.
 
 ``` r
 aphi <- 20
 bphi <- 1.5
 
-# Compute mean and variance of the actual prior using properties of the beta
-priormean <- 2 * aphi / (aphi + bphi) - 1
-priorvar <- 4 * (aphi * bphi) / ((aphi + bphi)^2 * (aphi + bphi + 1))
-
-# Define the design matrix and y
-X <- matrix(NA_real_, nrow = length(y), 2)
-X[, 1] <- 1
-X[, 2] <- c(NA_real_, y[-length(y)])
-
 # Allocate some space for the posterior draws and initialize the parameters:
 y0s <- sigma2s <- zetas <- phis <- rep(NA_real_, ndraws)
 zeta <- 0
@@ -853,18 +719,15 @@ for (m in seq_len(ndraws + nburn)) {
   
   # Step (d): Draw the persistence
   tmp <- y0^2 + sum(y[-length(y)]^2)
-  propvar <- 1 / (1 / priorvar + tmp / sigma2)
-  propmean <- propvar * (priormean / priorvar +
-    (y0 * (y[1] - zeta) + sum(y[-length(y)] * (y[-1] - zeta))) / sigma2)
+  propmean <- (y0 * (y[1] - zeta) + sum(y[-length(y)] * (y[-1] - zeta))) / tmp
+  propvar <- sigma2 / tmp
   phiprop <- rnorm(1, propmean, sqrt(propvar))
   if (-1 < phiprop & phiprop < 1) {
     logR <- dbetarescaled(phiprop, aphi, bphi, log = TRUE) -
       dbetarescaled(phi, aphi, bphi, log = TRUE) +
       dnorm(y0, zeta / (1 - phiprop), sqrt(sigma2 / (1 - phiprop^2)),
             log = TRUE) -
-      dnorm(y0, zeta / (1 - phi), sqrt(sigma2 / (1 - phi^2)), log = TRUE) +
-      dnorm(phi, priormean, sqrt(priorvar), log = TRUE) -
-      dnorm(phiprop, priormean, sqrt(priorvar), log = TRUE)
+      dnorm(y0, zeta / (1 - phi), sqrt(sigma2 / (1 - phi^2)), log = TRUE)
     if (log(runif(1)) < logR) {
       phi <- phiprop
       if (m > nburn) naccepts <- naccepts + 1L
@@ -879,8 +742,8 @@ for (m in seq_len(ndraws + nburn)) {
     phis[m - nburn] <- phi
   }
 }
-res3 <- data.frame(y0 = y0s, sigma2 = sigma2s, zeta = zetas, phi = phis)
-naccepts3 <- naccepts
+stationary2 <- data.frame(zeta = zetas, phi = phis, sigma2 = sigma2s, y0 = y0s)
+naccepts2 <- naccepts
 ```
 
 To conclude, we compare the posteriors of $\phi$ under the improper
@@ -889,7 +752,7 @@ stationarity, and the posterior under the stationary-enforcing shifted
 beta priors.
 
 ``` r
-mybreaks <- seq(floor(100 * .99 * min(res2$phi)) / 100,
+mybreaks <- seq(floor(100 * .99 * min(stationary2$phi)) / 100,
                 ceiling(100 * 1.01 * max(ar1draws)) / 100,
                 by = .0025)
 hist(ar1draws[!nonstationary[, 1]], breaks = mybreaks, col = rgb(0, 0, 1, .2),
@@ -897,9 +760,9 @@ hist(ar1draws[!nonstationary[, 1]], breaks = mybreaks, col = rgb(0, 0, 1, .2),
      freq = FALSE)
 hist(ar1draws, breaks = mybreaks, col = rgb(0, 1, 0, .2),
      freq = FALSE, add = TRUE)
-hist(res2$phi, breaks = mybreaks, col = rgb(1, 0, 0, .2),
+hist(stationary1$phi, breaks = mybreaks, col = rgb(1, 0, 0, .2),
      freq = FALSE, add = TRUE)
-hist(res3$phi, breaks = mybreaks, col = rgb(1, 1, 0, .2),
+hist(stationary2$phi, breaks = mybreaks, col = rgb(1, 1, 0, .2),
      freq = FALSE, add = TRUE)
 lines(mybreaks[mybreaks <= 1], lty = 3, lwd = 3,
       dbetarescaled(mybreaks[mybreaks <= 1], 1, 1))
@@ -913,7 +776,211 @@ legend("topleft", c("Beta prior (flat)", "Beta prior (informative)"),
        col = 1, lty = 3:2, lwd = 3)
 ```
 
+![](Chapter07_files/figure-html/unnamed-chunk-32-1.png)
+
+### Section 7.2.5: Evaluating the Efficiency of an MCMC Sampler
+
+#### Example 7.11: Improving the independence MH step
+
+Let us investigate traceplots and empirical autocorrelation functions of
+the posterior draws under the informative stationarity-inducing prior.
+
+``` r
+par(mfrow = c(4, 2), mar = c(2.5, 2.8, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
+for (i in seq_along(stationary2)) {
+  plot.ts(stationary2[i], xlab = "Draws after burn-in", ylab = labels[i])
+  if (i == 1) title("Traceplot")
+  acf(stationary2[i], ylab = "", main = "ACF")
+  if (i == 1) title("Empirical ACF")
+}
+```
+
+![](Chapter07_files/figure-html/unnamed-chunk-33-1.png)
+
+We now compute an estimate of the effective sample size (ESS) and the
+inefficiency factor (IF) use the coda package.
+
+``` r
+library(coda)
+ess1 <- effectiveSize(data.frame(zeta = res2[[1]]$betas[, 1],
+                               phi = res2[[1]]$betas[, 2],
+                               sigma2 = res2[[1]]$sigma2s))
+ess2 <- effectiveSize(data.frame(zeta = res2[[1]]$betas[!nonstationary[, 1], 1],
+                               phi = res2[[1]]$betas[!nonstationary[, 1], 2],
+                               sigma2 = res2[[1]]$sigma2s[!nonstationary[, 1]]))
+ess3 <- effectiveSize(stationary1)
+ess4 <- effectiveSize(stationary2)
+ess <- rbind(unrestricted = c(ess1, y0 = NA),
+             postprocessed = c(ess2, y0 = NA),
+             betapriorflat = ess3,
+             betapriorinformative = ess4)
+knitr::kable(round(ess))
+```
+
+|                      | zeta |  phi | sigma2 |   y0 |
+|:---------------------|-----:|-----:|-------:|-----:|
+| unrestricted         | 4904 | 5256 |   5000 |   NA |
+| postprocessed        | 4769 | 4789 |   4789 |   NA |
+| betapriorflat        | 1134 |  989 |   4718 | 5314 |
+| betapriorinformative | 1082 |  939 |   5000 | 5000 |
+
+``` r
+knitr::kable(round(ndraws / ess, 2))
+```
+
+|                      | zeta |  phi | sigma2 |   y0 |
+|:---------------------|-----:|-----:|-------:|-----:|
+| unrestricted         | 1.02 | 0.95 |   1.00 |   NA |
+| postprocessed        | 1.05 | 1.04 |   1.04 |   NA |
+| betapriorflat        | 4.41 | 5.06 |   1.06 | 0.94 |
+| betapriorinformative | 4.62 | 5.32 |   1.00 | 1.00 |
+
+We now repeat the above exercise, but use the conditional posterior
+resulting from an auxiliary moment-matched prior in Step (d).
+
+``` r
+method <- "fancy"
+if (method == "simple") {
+  # Add .5 to aphi and bphi (from the determinant of the initial state prior)
+  aphiprop <- aphi + .5
+  bphiprop <- bphi + .5
+
+  # Compute mean and variance of the proposal using properties of the beta
+  priormean <- 2 * aphiprop / (aphiprop + bphiprop) - 1
+  priorvar <- 4 * (aphiprop * bphiprop) /
+    ((aphiprop + bphiprop)^2 * (aphiprop + bphiprop + 1))
+
+} else if (method == "fancy") {
+  
+  # Alternatively, mode-and-curvature-match:
+  dprior <- function(phi, zeta, sigma2, y0, aphi, bphi, log = FALSE) {
+    inside <- phi <= 1 & phi >= -1
+    logdens <- -Inf
+    logdens[inside] <- dbetarescaled(phi[inside], aphi, bphi, log = TRUE) +
+      dnorm(y0, zeta / (1 - phi[inside]), sqrt(sigma2 / (1 - phi[inside]^2)),
+            log = TRUE)
+    if (log) logdens else exp(logdens)
+  }
+}
+
+# Allocate some space for the posterior draws and initialize the parameters:
+y0s <- sigma2s <- zetas <- phis <- rep(NA_real_, ndraws)
+zeta <- 0
+phi <- .8
+sigma2 <- var(y) * (1 - phi)
+naccepts <- 0
+
+for (m in seq_len(ndraws + nburn)) {
+  # Step (a): Draw y0
+  y0 <- rnorm(1, zeta + phi * y[1], sqrt(sigma2))
+  
+  # Step (b): Draw the innovation variance
+  X[1, 2] <- y0
+  beta <- matrix(c(zeta, phi), nrow = 2)
+  tmp <- y - X %*% beta
+  sigma2 <- rinvgamma(1, c0 + (length(y) + 1) / 2,
+    C0 + .5 * (1 - phi^2) * (y0 - zeta / (1 - phi))^2 + .5 * crossprod(tmp))
+  
+  # Step (c): Draw the intercept
+  BT <- 1 / (1 / B0 + (length(y) + 1) / sigma2)
+  bT <- BT * (b0 / B0 + ((1 + phi) * y0 +
+    y[1] - phi * y0 + sum(y[-1] - phi * y[-length(y)])) / sigma2)
+  zeta <- rnorm(1, bT, sqrt(BT))
+  
+  # Step (d): Draw the persistence
+  
+  if (method == "fancy") {
+    mode <- optimize(dprior, c(-1, 1), zeta = zeta, sigma2 = sigma2, y0 = y0,
+                     aphi = aphi, bphi = bphi, log = TRUE, maximum = TRUE)$maximum
+    dd <- numDeriv::hessian(dprior, mode, zeta = zeta, sigma2 = sigma2, y0 = y0,
+                            aphi = aphi, bphi = bphi)
+    priormean <- mode
+    priorvar <- -1 / as.numeric(dd)
+  }
+  
+  tmp <- y0^2 + sum(y[-length(y)]^2)
+  propvar <- 1 / (1 / priorvar + tmp / sigma2)
+  propmean <- propvar * (priormean / priorvar + (y0 * (y[1] - zeta) +
+    sum(y[-length(y)] * (y[-1] - zeta))) / sigma2)
+
+  phiprop <- rnorm(1, propmean, sqrt(propvar))
+  if (-1 < phiprop & phiprop < 1) {
+    logR <- dbetarescaled(phiprop, aphi, bphi, log = TRUE) -
+      dbetarescaled(phi, aphi, bphi, log = TRUE) +
+      dnorm(y0, zeta / (1 - phiprop), sqrt(sigma2 / (1 - phiprop^2)),
+            log = TRUE) -
+      dnorm(y0, zeta / (1 - phi), sqrt(sigma2 / (1 - phi^2)), log = TRUE) +
+      dnorm(phi, priormean, sqrt(priorvar), log = TRUE) -
+      dnorm(phiprop, priormean, sqrt(priorvar), log = TRUE)
+    if (log(runif(1)) < logR) {
+      phi <- phiprop
+      if (m > nburn) naccepts <- naccepts + 1L
+    }
+  }
+  
+  # Store the draws
+  if (m > nburn) {
+    y0s[m - nburn] <- y0
+    sigma2s[m - nburn] <- sigma2
+    zetas[m - nburn] <- zeta
+    phis[m - nburn] <- phi
+  }
+}
+stationary3 <- data.frame(zeta = zetas, phi = phis, sigma2 = sigma2s, y0 = y0s)
+naccepts3 <- naccepts
+```
+
+Again, we investigate traceplots and empirical autocorrelation functions
+of the draws. In addition, we check the percentage of accepted draws in
+MH-step (d).
+
+``` r
+par(mfrow = c(4, 2), mar = c(2.5, 2.8, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
+for (i in seq_along(stationary3)) {
+  plot.ts(stationary3[i], xlab = "Draws after burn-in", ylab = labels[i])
+  if (i == 1) title("Traceplot")
+  acf(stationary3[i], ylab = "", main = "ACF")
+  if (i == 1) title("Empirical ACF")
+}
+```
+
 ![](Chapter07_files/figure-html/unnamed-chunk-36-1.png)
+
+We now compare the draws from the two samplers; they should yield draws
+from the same distribution, irrespective of the acceptance rate and thus
+the mixing of the Markov chain. We graphically check this by comparing
+histograms and quantiles of draws from the marginal posterior of $\phi$.
+
+``` r
+mybreaks <- seq(min(stationary2$phi, stationary3$phi),
+                max(stationary2$phi, stationary3$phi),
+                length.out = 50)
+hist(stationary2$phi, breaks = mybreaks, col = rgb(0, 0, 1, .3),
+     main = "Histogram", xlab = expression(phi), freq = FALSE)
+hist(stationary3$phi, breaks = mybreaks, col = rgb(1, 0, 0, .3), freq = FALSE,
+     add = TRUE)
+qqplot(stationary1$phi, stationary3$phi, xlab = "Sampler 1", ylab = "Sampler 2",
+       main = "QQ plot")
+abline(0, 1, col = 2)
+```
+
+![](Chapter07_files/figure-html/unnamed-chunk-37-1.png) We can see that
+the draws appear to come from the same distribution. Note, however, that
+the first sampler gets “stuck” slightly below 0.93 for a few draws,
+which isn’t the case for the second sampler.
+
+To conclude, we compute ESSs and IFs for the sampler utilizing the
+optimized MH step.
+
+``` r
+ess <- effectiveSize(stationary3)
+knitr::kable(rbind(ESS = round(ess), IF = round(ndraws / ess, 2)))
+```
+
+|     |    zeta |     phi | sigma2 |      y0 |
+|:----|--------:|--------:|-------:|--------:|
+| ESS | 1294.00 | 1239.00 |   5000 | 4475.00 |
+| IF  |    3.86 |    4.03 |      1 |    1.12 |
 
 ## Section 7.3: Some Extensions
 
@@ -935,7 +1002,7 @@ acf(dat)
 acf(ret)
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-37-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-39-1.png)
 
 This clearly hints at non-stationarity of the exchange rate series and
 at (first order) stationarity of the returns. To check more formally, we
@@ -972,7 +1039,7 @@ for (i in seq_along(draws)) {
 }
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-39-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-41-1.png)
 
 ## Section 7.4: Markov modeling for a panel of categorical time series
 
@@ -1010,7 +1077,7 @@ for (i in index) {
 }
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-42-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-44-1.png)
 
 ### Example 7.14: Wage mobility data – comparing wage mobility of men and women
 
@@ -1101,7 +1168,7 @@ corrplot::corrplot(mean_xi_male, method = "square", is.corr = FALSE,
                    col = 1, cl.pos = "n")
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-46-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-48-1.png)
 
 We compare the posterior densities of various transition probabilities
 $\xi_{g,hk}$ for women and men.
@@ -1143,7 +1210,7 @@ legend("topright", col = 1, lty = 1:2,
        legend = c("female", "male"))
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-47-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-49-1.png)
 
 ### Example 7.15: Wage mobility data – long run
 
@@ -1168,7 +1235,7 @@ barplot(eta_hat_female_t, xlab = "year", ylab = "wage groups")
 barplot(eta_hat_male_t, xlab = "year", ylab = "wage groups")
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-48-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-50-1.png)
 
 We inspect the posterior distributions of $\eta_{t,2}$ for wage category
 2 (left-hand side) versus $\eta_{t,5}$ for wage category 5 (right-hand
@@ -1201,4 +1268,4 @@ hist(eta_male_t[, 6], breaks = breaks,
      col = rgb(1, 0, 0, 0.2), add = TRUE)
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-49-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-51-1.png)
