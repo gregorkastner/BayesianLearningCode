@@ -792,7 +792,7 @@ if (pdfplots) {
   pdf("7-2_12.pdf", width = 8, height = 5)
 }
 par(mfrow = c(1, 1), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
-mybreaks <- seq(floor(100 * .99 * min(stationary2$phi)) / 100,
+mybreaks <- seq(floor(100 * .99 * min(stationary1$phi, stationary2$phi)) / 100,
                 ceiling(100 * 1.01 * max(ar1draws)) / 100,
                 by = .0025)
 hist(ar1draws[!nonstationary[, 1]], breaks = mybreaks, col = rgb(0, 0, 1, .2),
