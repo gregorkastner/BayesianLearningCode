@@ -964,10 +964,11 @@ qqplot(stationary1$phi, stationary3$phi, xlab = "Sampler 1", ylab = "Sampler 2",
 abline(0, 1, col = 2)
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-37-1.png) We can see that
-the draws appear to come from the same distribution. Note, however, that
-the first sampler gets “stuck” slightly below 0.93 for a few draws,
-which isn’t the case for the second sampler.
+![](Chapter07_files/figure-html/unnamed-chunk-37-1.png)
+
+We can see that the draws appear to come from the same distribution.
+Note, however, that the first sampler gets “stuck” slightly below 0.93
+for a few draws, which isn’t the case for the second sampler.
 
 To conclude, we compute ESSs and IFs for the sampler utilizing the
 optimized MH step.
