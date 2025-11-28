@@ -752,7 +752,7 @@ stationarity, and the posterior under the stationary-enforcing shifted
 beta priors.
 
 ``` r
-mybreaks <- seq(floor(100 * .99 * min(stationary2$phi)) / 100,
+mybreaks <- seq(floor(100 * .99 * min(stationary1$phi, stationary2$phi)) / 100,
                 ceiling(100 * 1.01 * max(ar1draws)) / 100,
                 by = .0025)
 hist(ar1draws[!nonstationary[, 1]], breaks = mybreaks, col = rgb(0, 0, 1, .2),
