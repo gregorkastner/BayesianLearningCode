@@ -18,12 +18,13 @@ data("movies", package = "BayesianLearningCode")
 #### Example 6.2: Movie data
 
 Next, we prepare the variables for regression analysis. We define the
-response variable `OpenBoxOffice` as `y` and use as covariates the
-twitter volume scores 4-6 and 1-3 weeks before the film starts. For
-better interpretation we center the covariates at their means. Hence the
-intercept is the sales on the opening weekend box office for a film with
-a mean value score of twitter post in weeks 4-6 and 1-3 before its
-start.
+response variable `OpenBoxOffice` as `y` and use as covariates effects
+of the predetermined number of weeks (Weeks) and screens (Screens) the
+film studio forecast six weeks prior to opening that the specific film
+will be in theaters. For better interpretation we center the covariates
+at their means. Hence the intercept is the sales on the opening weekend
+box office for a film with a mean value weeks and screens the film is
+forecasted to be in the theaters.
 
 ``` r
 y <- movies[, "OpenBoxOffice"]
@@ -104,7 +105,7 @@ plot(mar.x2, xx2, col = "blue", type = "l", yaxt = "n", xlab = "")
 ### Section 6.2.2 Bayesian Learning under Conjugate Priors
 
 Next, we consider regression analysis under a conjugate prior. For this,
-we define a function that yields the parameters of the posterior
+we first define a function that yields the parameters of the posterior
 distribution.
 
 ``` r
@@ -122,7 +123,7 @@ regression_conjugate <- function(y, X, b0 = 0, B0 = 1, c0 = 0.01, C0 = 0.01) {
   }
   
   B0.inv <- solve(B0)
-  BN.inv <- solve(B0) + crossprod(X)
+  BN.inv <- B0.inv + crossprod(X)
   
   BN <- solve(BN.inv)
   bN <- BN %*% (B0.inv %*% b0 + crossprod(X, y))
@@ -135,8 +136,8 @@ regression_conjugate <- function(y, X, b0 = 0, B0 = 1, c0 = 0.01, C0 = 0.01) {
 }
 ```
 
-We perform the regression analysis and report the posterior mean with
-the 2.5% and 97.5% quantile of the posterior distribution.
+Now we perform the regression analysis and report the posterior mean
+with the 2.5% and 97.5% quantile of the posterior distribution.
 
 ``` r
 res_conj1 <- regression_conjugate(y, X, b0 = 0, B0 = 10)
@@ -201,13 +202,10 @@ than for the effects of the two covariates.
 
 ### 6.3 Regression Analysis under the Semi-Conjugate Prior
 
-We now include not only the volume scores from twitter posts 4-6 and 1-3
-weeks before starting of the film, but use also the information on the
-sentiments in these time periods, the genres and , the MPAA ratings, the
-budget, the number of weeks as well as screens the film was planned to
-be shown. There is only one film with MPAA rating
-`G'', hence we merge the two ratings`G’’ and \`\`PG’’ into one category
-which we define as our baseline.
+We now include all available covariates in the regression analysis. As
+there is only one film with MPAA rating
+`G'', we merge the two ratings`G’’ and \`\`PG’’ into one category which
+we define as our baseline.
 
 ``` r
 movies["PG"] <- NULL
@@ -228,7 +226,7 @@ p <- d - 1 # number of regression effects without intercept
 ```
 
 To estimate the parameters of the regression model under a rather flat
-semi-conjugate prior, we set up the Gibbs sampler.
+semi-conjugate prior, we first set up the Gibbs sampler.
 
 ``` r
 set.seed(1)
@@ -273,7 +271,7 @@ reg_semiconj <- function(y, X, b0 = 0, B0 = 10000, c0 = 2.5, C0 = 1.5,
 }                              
 ```
 
-We define the prior parameters and run the sampler.
+Next, we define the prior parameters and run the sampler.
 
 ``` r
 M <- 20000L # number of draws after burn-in
@@ -324,8 +322,10 @@ knitr::kable(t(round(res_sigma2.sc, 3)))
 |-------:|-------:|-------:|
 | 47.415 | 63.815 | 86.276 |
 
-Next we will use the horseshoe prior to analyze the data. We start with
-a visual comparison of the normal and the horseshoe prior.
+## 6.4 Regression Analysis Based on the Horseshoe Prior
+
+A comparison of the normal and the horseshoe prior shows that the latter
+has much more mass close to zero and fatter tails.
 
 ``` r
 beta <- seq(from = -4, to = 4, by = 0.01)
@@ -345,7 +345,9 @@ legend('topright', legend = c("Horseshoe", "Standard normal"), lty = 1:2,
 
 ![](Chapter06_files/figure-html/unnamed-chunk-17-1.png)
 
-Next we set up the Gibbs sampler under the horseshoe prior.
+Next we set up the Gibbs sampler of the regression model wIth a proper
+Normal prior on the intercept and horseshoe priors on the coviariate
+effects.
 
 ``` r
 reg_hs <- function(y, X,  b0 = 0, B0 = 10000, c0 = 2.5, C0 = 1.5,
@@ -407,15 +409,16 @@ reg_hs <- function(y, X,  b0 = 0, B0 = 10000, c0 = 2.5, C0 = 1.5,
 }    
 ```
 
-We use the same prior on the intercept and the error variance as in the
-semi-conjugate prior, but the horseshoe prior on the regression effects.
+To estimate the parameters in our regression model use the same prior on
+the intercept and the error variance as in the semi-conjugate prior, but
+the horseshoe prior on the regression effects.
 
 ``` r
 post.draws.hs <- reg_hs(y, X, M = M)
 ```
 
 Again, we show the posterior mean estimates and equal-tailed 95%
-credibility intervals in a table. First, for the regressions effects.
+credibility intervals in a table. First, for the regressions effects,
 
 ``` r
 beta.hs <- post.draws.hs$betas
@@ -440,7 +443,7 @@ knitr::kable(round(res_beta.hs, 3))
 | Vol-4-6   | -19.179 | -16.094 | -12.976 |
 | Vol-1-3   |  18.503 |  21.702 |  24.871 |
 
-And for the variance.
+as well as the error variance.
 
 ``` r
 res_sigma2.hs <- res.mcmc(post.draws.hs$sigma2s)
