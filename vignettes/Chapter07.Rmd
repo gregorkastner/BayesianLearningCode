@@ -395,7 +395,7 @@ names(ymiss) <- names(logret)[missing]
 For simplicity, we employ our improper prior and sample iteratively.
 
 ```{r}
-ndraws <- 500000
+ndraws <- 5000
 nburn <- 1000
 ind <- missing - 2
 
