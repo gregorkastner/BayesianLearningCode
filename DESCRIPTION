@@ -34,7 +34,8 @@ Imports:
     stochvol,
     mvtnorm,
     pgdraw,
-    coda
+    coda,
+    numDeriv
 Suggests: 
     knitr,
     rmarkdown
