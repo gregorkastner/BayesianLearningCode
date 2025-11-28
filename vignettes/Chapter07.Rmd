@@ -868,8 +868,8 @@ if (method == "simple") {
   bphiprop <- bphi + .5
 
   # Compute mean and variance of the proposal using properties of the beta
-  priormean <- 2 * aphiprop / (aphiprop + bphiprop) - 1
-  priorvar <- 4 * (aphiprop * bphiprop) /
+  auxpriormean <- 2 * aphiprop / (aphiprop + bphiprop) - 1
+  auxpriorvar <- 4 * (aphiprop * bphiprop) /
     ((aphiprop + bphiprop)^2 * (aphiprop + bphiprop + 1))
 
 } else if (method == "fancy") {
@@ -916,13 +916,13 @@ for (m in seq_len(ndraws + nburn)) {
                      aphi = aphi, bphi = bphi, log = TRUE, maximum = TRUE)$maximum
     dd <- numDeriv::hessian(dprior, mode, zeta = zeta, sigma2 = sigma2, y0 = y0,
                             aphi = aphi, bphi = bphi)
-    priormean <- mode
-    priorvar <- -1 / as.numeric(dd)
+    auxpriormean <- mode
+    auxpriorvar <- -1 / as.numeric(dd)
   }
   
   tmp <- y0^2 + sum(y[-length(y)]^2)
-  propvar <- 1 / (1 / priorvar + tmp / sigma2)
-  propmean <- propvar * (priormean / priorvar + (y0 * (y[1] - zeta) +
+  propvar <- 1 / (1 / auxpriorvar + tmp / sigma2)
+  propmean <- propvar * (auxpriormean / auxpriorvar + (y0 * (y[1] - zeta) +
     sum(y[-length(y)] * (y[-1] - zeta))) / sigma2)
 
   phiprop <- rnorm(1, propmean, sqrt(propvar))
@@ -932,8 +932,8 @@ for (m in seq_len(ndraws + nburn)) {
       dnorm(y0, zeta / (1 - phiprop), sqrt(sigma2 / (1 - phiprop^2)),
             log = TRUE) -
       dnorm(y0, zeta / (1 - phi), sqrt(sigma2 / (1 - phi^2)), log = TRUE) +
-      dnorm(phi, priormean, sqrt(priorvar), log = TRUE) -
-      dnorm(phiprop, priormean, sqrt(priorvar), log = TRUE)
+      dnorm(phi, auxpriormean, sqrt(auxpriorvar), log = TRUE) -
+      dnorm(phiprop, auxpriormean, sqrt(auxpriorvar), log = TRUE)
     if (log(runif(1)) < logR) {
       phi <- phiprop
       if (m > nburn) naccepts <- naccepts + 1L
