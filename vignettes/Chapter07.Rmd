@@ -1163,8 +1163,8 @@ if (pdfplots) {
   par(mar = c(1.5, 2, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 2)
 }
 par(mfrow = c(1, 2))
-plot(c(0.5, 1), c(0, 100), type = "n", xlab = "", ylab = "",
-     main = "Posterior of persistence probs")
+plot(c(0.52, 0.95), c(0, 100), type = "n", xlab = "", ylab = "",
+     main = "Posterior of persistence probabilities")
 pers_female <- cbind(diag(1 + N_female),
                      rowSums(1 + N_female) - diag(1 + N_female))
 pers_male <- cbind(diag(1 + N_male),
@@ -1180,12 +1180,12 @@ legend("topleft", col = 2:6, lty = 1,
            substitute(xi[i], list(i = (i-1) * 11))))
 legend("topright", col = 1, lty = 1:2,
        legend = c("female", "male"))
-plot(c(0, 0.4), c(0, 90), type = "n", xlab = "", ylab = "",
-     main = "Posterior of transition probs")
+plot(c(0.03, 0.23), c(0, 90), type = "n", xlab = "", ylab = "",
+     main = "Posterior of transition probabilities")
 trans_female <- cbind((1 + N_female)[cbind(1:5, 2:6)],
-                      rowSums(1 + N_female)[1:5] - (1 + N_female)[cbind(1:5, 2:6)])
+                  rowSums(1 + N_female)[1:5] - (1 + N_female)[cbind(1:5, 2:6)])
 trans_male <- cbind((1 + N_male)[cbind(1:5, 2:6)],
-                    rowSums(1 + N_male)[1:5] - (1 + N_male)[cbind(1:5, 2:6)])
+                  rowSums(1 + N_male)[1:5] - (1 + N_male)[cbind(1:5, 2:6)])
 for (i in 2:5) {
     curve(dbeta(x, trans_female[i, 1], trans_female[i, 2]),
           col = i, add = TRUE, n = 1001, lty = 1)
@@ -1223,14 +1223,13 @@ for (i in 2:11) {
     eta_hat_female_t[, i] <- eta_hat_female_t[, i - 1] %*% mean_xi_female
     eta_hat_male_t[, i] <- eta_hat_male_t[, i - 1] %*% mean_xi_male
 }
-barplot(eta_hat_female_t, xlab = "year", ylab = "wage groups")
-barplot(eta_hat_male_t, xlab = "year", ylab = "wage groups")
+barplot(eta_hat_female_t, main = "Women", xlab = "Year", ylab = "Wage groups")
+barplot(eta_hat_male_t, main = "Men", xlab = "Year", ylab = "Wage groups")
 ```
 
 We inspect the posterior distributions of $\eta_{t,2}$ for wage
 category 2 (left-hand side) versus $\eta_{t,5}$ for wage category 5
-(right-hand side) in year $t = 10$ for females (left-hand posterior in
-both plots) and males (right-hand posterior in both plots).
+(right-hand side) in year $t = 10$ for females and males.
 
 ```{r, echo = -c(1:2)}
 if (pdfplots) {
@@ -1251,14 +1250,17 @@ for (i in 2:11) {
     eta_male_t <- t(sapply(1:M, function(m)
         xi_male[,,m] %*% eta_male_t[m,]))
 }
-breaks <- seq(0.15, 0.3, length.out = 20)
-hist(eta_female_t[, 3], breaks = breaks, xlim = range(breaks),
-     col = rgb(0, 0, 0, 0.2), xlab = "", main = "Wage category 2")
-hist(eta_male_t[, 3], breaks = breaks,
-     col = rgb(1, 0, 0, 0.2), add = TRUE)
-breaks <- seq(0, 0.15, length.out = 20)
+
+breaks <- seq(0.14, 0.26, length.out = 30)
+hist(eta_male_t[, 3], breaks = breaks, xlim = range(breaks),
+     col = rgb(1, 0, 0, 0.2), xlab = "", main = "Wage category 2")
+hist(eta_female_t[, 3], breaks = breaks, col = rgb(0, 0, 0, 0.2), add = TRUE)
+legend("topright", c("female", "male"), fill = rgb(c(0, 1), 0, 0, 0.2))
+
+breaks <- seq(0, 0.15, length.out = 30)
 hist(eta_female_t[, 6], breaks = breaks, xlim = range(breaks),
      col = rgb(0, 0, 0, 0.2), xlab = "", main = "Wage category 5")
 hist(eta_male_t[, 6], breaks = breaks,
      col = rgb(1, 0, 0, 0.2), add = TRUE)
+legend("topright", c("female", "male"), fill = rgb(c(0, 1), 0, 0, 0.2))
 ```
