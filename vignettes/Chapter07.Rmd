@@ -1210,8 +1210,8 @@ males.
 
 ```{r, echo = -c(1:2)}
 if (pdfplots) {
-  pdf("7-4_4.pdf", width = 9, height = 3)
-  par(mar = c(2.6, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 2)
+  pdf("7-4_4.pdf", width = 10, height = 3.5)
+  par(mar = c(2.6, 2.6, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 2)
 }
 par(mfrow = c(1, 2))
 eta_0 <- c(0, 0.7, 0.3, 0, 0, 0)
