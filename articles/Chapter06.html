@@ -305,22 +305,30 @@ improper prior.</p>
 <p><img src="Chapter06_files/figure-html/unnamed-chunk-9-1.png" class="r-plt" width="768"></p>
 <p>There is little difference to the improper prior for the effects of
 Screens and Weeks, however the intercept intercept is shrunk to zero for
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>B</mi><mn>0</mn></msub><mo>=</mo><mtext mathvariant="bold">𝐈</mtext></mrow><annotation encoding="application/x-tex">B_0 = \textbf{I}</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>λ</mi><mn>2</mn></msup><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\lambda^2=1</annotation></semantics></math>
 and even more for
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>B</mi><mn>0</mn></msub><mo>=</mo><mn>0.1</mn><mtext mathvariant="bold">𝐈</mtext></mrow><annotation encoding="application/x-tex">B_0 = 0.1 \textbf{I}</annotation></semantics></math>.</p>
-<p>The effect of the prior is given by the weight matrix
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtext mathvariant="bold">𝐖</mtext><annotation encoding="application/x-tex">\textbf{W}</annotation></semantics></math>,
-which is computed for the prior <span class="math inline">$\Normal\{\textbf{0}, \textbf{I}\}$</span>
-below.</p>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>λ</mi><mn>2</mn></msup><mo>=</mo><mn>0.1</mn></mrow><annotation encoding="application/x-tex">\lambda^2=0.1</annotation></semantics></math>.</p>
+<p>To illustrate the effect of the prior we compute the the weight
+matrix
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtext mathvariant="bold">𝐖</mtext><annotation encoding="application/x-tex">\textbf{W}</annotation></semantics></math>
+for the conjugate prior with mean
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtext mathvariant="bold">𝟎</mtext><annotation encoding="application/x-tex">\textbf{0}</annotation></semantics></math>
+and covariance matrix
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>λ</mi><mn>2</mn></msup><mtext mathvariant="bold">𝐈</mtext></mrow><annotation encoding="application/x-tex">\lambda^2 \textbf{I}</annotation></semantics></math>
+for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>λ</mi><mn>2</mn></msup><mo>=</mo><mn>0.1</mn></mrow><annotation encoding="application/x-tex">\lambda^2=0.1</annotation></semantics></math>.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">W</span> <span class="op">&lt;-</span> <span class="va">res_conj3</span><span class="op">$</span><span class="va">BN</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/solve.html" class="external-link">solve</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">d</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">W</span> <span class="op">&lt;-</span> <span class="va">res_conj3</span><span class="op">$</span><span class="va">BN</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/solve.html" class="external-link">solve</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="va">d</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">W</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt;           [,1] [,2] [,3]</span></span>
-<span><span class="co">#&gt; Intercept 0.01    0    0</span></span>
-<span><span class="co">#&gt; Weeks     0.00    0    0</span></span>
-<span><span class="co">#&gt; Screens   0.00    0    0</span></span></code></pre></div>
-<p>We see that weight of the prior mean is much smaller for the
-intercept than for the effects of the two covariates.</p>
+<span><span class="co">#&gt;            [,1]   [,2]   [,3]</span></span>
+<span><span class="co">#&gt; Intercept 0.096  0.000  0.000</span></span>
+<span><span class="co">#&gt; Weeks     0.000  0.004 -0.001</span></span>
+<span><span class="co">#&gt; Screens   0.000 -0.001  0.004</span></span></code></pre></div>
+<p>Obviously the weight of the prior mean is much larger for the
+intercept than for the effects of the Weeks and Screens. Together with
+the high value of the posterior mean of the intercept this explains the
+considerable shrinkage to zero of the intercept, whereas the effects of
+the two covariates are almost unshrunk.</p>
 </div>
 <div class="section level3">
 <h3 id="regression-analysis-under-the-semi-conjugate-prior">6.3 Regression Analysis under the Semi-Conjugate Prior<a class="anchor" aria-label="anchor" href="#regression-analysis-under-the-semi-conjugate-prior"></a>

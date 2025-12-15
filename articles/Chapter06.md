@@ -206,23 +206,26 @@ for (i in seq_len(nrow(beta.hat))) {
 
 There is little difference to the improper prior for the effects of
 Screens and Weeks, however the intercept intercept is shrunk to zero for
-$B_{0} = \textbf{𝐈}$ and even more for $B_{0} = 0.1\textbf{𝐈}$.
+$\lambda^{2} = 1$ and even more for $\lambda^{2} = 0.1$.
 
-The effect of the prior is given by the weight matrix $\textbf{𝐖}$,
-which is computed for the prior \$\Normal\\\textbf{0}, \textbf{I}\\\$
-below.
+To illustrate the effect of the prior we compute the the weight matrix
+$\textbf{𝐖}$ for the conjugate prior with mean $\textbf{𝟎}$ and
+covariance matrix $\lambda^{2}\textbf{𝐈}$ for $\lambda^{2} = 0.1$.
 
 ``` r
-W <- res_conj3$BN %*% solve(diag(rep(1, d)))
+W <- res_conj3$BN %*% solve(diag(rep(0.1, d)))
 print(round(W, 3))
-#>           [,1] [,2] [,3]
-#> Intercept 0.01    0    0
-#> Weeks     0.00    0    0
-#> Screens   0.00    0    0
+#>            [,1]   [,2]   [,3]
+#> Intercept 0.096  0.000  0.000
+#> Weeks     0.000  0.004 -0.001
+#> Screens   0.000 -0.001  0.004
 ```
 
-We see that weight of the prior mean is much smaller for the intercept
-than for the effects of the two covariates.
+Obviously the weight of the prior mean is much larger for the intercept
+than for the effects of the Weeks and Screens. Together with the high
+value of the posterior mean of the intercept this explains the
+considerable shrinkage to zero of the intercept, whereas the effects of
+the two covariates are almost unshrunk.
 
 ### 6.3 Regression Analysis under the Semi-Conjugate Prior
 
