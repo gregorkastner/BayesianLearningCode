@@ -143,9 +143,6 @@ with the 2.5% and 97.5% quantile of the posterior distribution.
 res_conj1 <- regression_conjugate(y, X, b0 = 0, B0 = 10)
 post.sd.conj1 = sqrt(diag((res_conj1$CN / res_conj1$cN) * res_conj1$BN))
 
-res_conj2 <- regression_conjugate(y, X, b0 = 0, B0 = 1)
-post.sd.conj2 = sqrt(diag((res_conj2$CN / res_conj2$cN) * res_conj2$BN))
-
 knitr::kable(round(cbind(
     qt(0.025, df = 2 * res_conj1$cN) * post.sd.conj1 + res_conj1$bN,
     res_conj1$bN,
@@ -159,42 +156,69 @@ knitr::kable(round(cbind(
 | Weeks     |        0.245 |          0.837 |         1.429 |
 | Screens   |        1.041 |          1.663 |         2.285 |
 
-We plot the marginal posteriors (in blue) together with those under the
-improper prior.
+``` r
+
+
+res_conj2 <- regression_conjugate(y, X, b0 = 0, B0 = 1)
+post.sd.conj2 = sqrt(diag((res_conj2$CN / res_conj2$cN) * res_conj2$BN))
+
+res_conj3<- regression_conjugate(y, X, b0 = 0, B0 = 0.1)
+post.sd.conj3 = sqrt(diag((res_conj3$CN / res_conj3$cN) * res_conj3$BN))
+```
+
+We plot the marginal posteriors together with those under the improper
+prior.
 
 ``` r
 for (i in seq_len(nrow(beta.hat))) {
   curve(dt((x - beta.hat[i]) / post.sd[i], df = 2 * cN),
-    from = beta.hat[i] - 4 * post.sd[i], to = beta.hat[i] + 4 * post.sd[i],
+    from = beta.hat[i] - 4 * post.sd[i], 
+    to  =  beta.hat[i] + 4 * post.sd[i],
     ylab = "", xlab = "" , main = rownames(beta.hat)[i])
-  curve(dt((x - res_conj1$bN[i]) / post.sd.conj1[i], df = 2 * res_conj1$cN),
+  
+  curve(dt((x - res_conj1$bN[i]) / post.sd.conj1[i], 
+          df = 2 * res_conj1$cN),
     from = res_conj1$bN[i] - 4 * post.sd.conj1[i],
-    to = res_conj1$bN[i] + 4 * post.sd.conj1[i],
+    to  =  res_conj1$bN[i] + 4 * post.sd.conj1[i],
     add = TRUE, col = 2, lty = 2, lwd = 2)
-  curve(dt((x - res_conj2$bN[i]) / post.sd.conj2[i], df = 2 * res_conj2$cN),
+  
+  curve(dt((x - res_conj2$bN[i]) / post.sd.conj2[i], 
+           df = 2 * res_conj2$cN),
     from = res_conj2$bN[i] - 4 * post.sd.conj2[i],
-    to = res_conj2$bN[i] + 4 * post.sd.conj2[i], add = TRUE, col = 3,
-    lty = 4, lwd = 2)
-  legend("topright", c("improper", "B0 = 10", "B0 = 1"),
-    col = 1:3, lty = c(1, 2, 4), lwd = c(1, 2, 2))
+    to  =  res_conj2$bN[i] + 4 * post.sd.conj2[i], 
+    add = TRUE, col = 3,lty = 3, lwd = 2)
+  
+  curve(dt((x - res_conj3$bN[i]) / post.sd.conj3[i], 
+           df = 2 * res_conj3$cN),
+    from = res_conj3$bN[i] - 4 * post.sd.conj3[i],
+    to  =  res_conj3$bN[i] + 4 * post.sd.conj3[i],
+    add = TRUE, col = 4,lty = 4, lwd = 2)
+  
+  legend("topright", c("improper", 
+                       expression(paste(lambda^2,"=", 10)), 
+                       expression(paste(lambda^2, "=", 1)),
+                       expression(paste(lambda^2,"=", 0.1))),
+    col = 1:4, lty = 1:4, lwd = c(1, 2, 2, 2))
 }
 ```
 
 ![](Chapter06_files/figure-html/unnamed-chunk-9-1.png)
 
-There is little difference to the improper prior for
-$B_{0} = 10\textbf{𝐈}$, however we see shrinkage to zero for
-$B_{0} = \textbf{𝐈}$. The effect of the prior isgiven by the weight
-matrix $\textbf{𝐖}$, which is computed for the prior
-\$\Normal\\\textbf{0}, \textbf{I}\\\$ below.
+There is little difference to the improper prior for the effects of
+Screens and Weeks, however the intercept intercept is shrunk to zero for
+$B_{0} = \textbf{𝐈}$ and even more for $B_{0} = 0.1\textbf{𝐈}$.
+
+The effect of the prior is given by the weight matrix $\textbf{𝐖}$,
+which is computed for the prior \$\Normal\\\textbf{0}, \textbf{I}\\\$
+below.
 
 ``` r
-W <- res_conj2$BN %*% solve(diag(rep(1, d)))
+W <- res_conj3$BN %*% solve(diag(rep(1, d)))
 print(round(W, 3))
-#>            [,1] [,2] [,3]
-#> Intercept 0.011    0    0
-#> Weeks     0.000    0    0
-#> Screens   0.000    0    0
+#>           [,1] [,2] [,3]
+#> Intercept 0.01    0    0
+#> Weeks     0.00    0    0
+#> Screens   0.00    0    0
 ```
 
 We see that weight of the prior mean is much smaller for the intercept
