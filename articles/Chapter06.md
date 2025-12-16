@@ -39,7 +39,9 @@ d <- dim(X)[2] # number regression effects
 
 Next we compute the parameters of the posterior of the regression
 effects under the improper prior
-$p\left( \beta,\sigma^{2} \right) \propto \frac{1}{\sigma^{2}}$.
+$p\left( \beta,\sigma^{2} \right) \propto \frac{1}{\sigma^{2}}$. The
+posterior means are given together with the equal-tailed 95% credibility
+interval in the following table.
 
 ``` r
 BN <- solve(crossprod(X))
@@ -51,8 +53,8 @@ SSR <- as.numeric(crossprod(y - X %*% beta.hat))
 cN <- (N - d) / 2
 CN <- SSR / 2
 
-post.sigma <- (CN / cN) * BN
-post.sd = sqrt(diag(post.sigma))
+post.var <- (CN / cN) * BN
+post.sd = sqrt(diag(post.var))
 
 knitr::kable(round(cbind(qt(0.025,df = 2 * cN) * post.sd + beta.hat, beta.hat,
                          qt(0.975,df = 2 * cN) * post.sd + beta.hat), 3),
@@ -65,7 +67,7 @@ knitr::kable(round(cbind(qt(0.025,df = 2 * cN) * post.sd + beta.hat, beta.hat,
 | Weeks     |         0.236 |          0.837 |          1.439 |
 | Screens   |         1.032 |          1.663 |          2.295 |
 
-We plot the (univariate) marginal posterior distribution of the
+Next, we plot the (univariate) marginal posterior distribution of the
 intercept and the univariate and bivariate marginal posterior
 distribution(s) of the covariate effects.
 
@@ -78,7 +80,7 @@ mtext("Intercept", 1, line = 1.7)
 
 f <- function(x1, x2) {
   mvtnorm::dmvt(cbind(x1 - beta.hat[2], x2 - beta.hat[3]),
-                sigma = post.sigma[2:3, 2:3], df = 2 * cN, log = FALSE)
+                sigma = post.var[2:3, 2:3], df = 2 * cN, log = FALSE)
 }
 
 lim <- 3 * max(post.sd[-1])
@@ -102,14 +104,28 @@ plot(mar.x2, xx2, col = "blue", type = "l", yaxt = "n", xlab = "")
 
 ![](Chapter06_files/figure-html/unnamed-chunk-6-1.png)
 
+For completeness we report also the posterior mean of the error variance
+with the 95% credibility interval.
+
+``` r
+sigma2.hat <- CN /(cN-1)
+knitr::kable(round(cbind(qinvgamma(0.025,a=cN,b=CN), sigma2.hat,
+                     qinvgamma(0.975,a=cN,b=CN)),2),
+             col.names = c("2.5% quantile", "posterior mean", "97.5% quantile"))
+```
+
+| 2.5% quantile | posterior mean | 97.5% quantile |
+|--------------:|---------------:|---------------:|
+|        172.51 |         231.21 |         309.43 |
+
 ### Section 6.2.2 Bayesian Learning under Conjugate Priors
 
-Next, we consider regression analysis under a conjugate prior. For this,
+We now consider regression analysis under a conjugate prior. For this,
 we first define a function that yields the parameters of the posterior
 distribution.
 
 ``` r
-regression_conjugate <- function(y, X, b0 = 0, B0 = 1, c0 = 0.01, C0 = 0.01) {
+regression_conjugate <- function(y, X, b0 = 0, B0 = 10, c0 = 0.01, C0 = 0.01) {
   d <- ncol(X)
   if (length(b0) == 1L)
     b0 <- rep(b0, d)
@@ -136,11 +152,19 @@ regression_conjugate <- function(y, X, b0 = 0, B0 = 1, c0 = 0.01, C0 = 0.01) {
 }
 ```
 
-Now we perform the regression analysis and report the posterior mean
-with the 2.5% and 97.5% quantile of the posterior distribution.
+To perform the regression analysis under the conjugate prior, we specify
+a Normal prior with mean zero and
+$\mathbf{B}_{0} = \lambda^{2}\mathbf{I}$ with $\lambda^{2} = 10$ and the
+an inverse Gamma prior with $c_{0} = 2.5$ and $C_{0} = 1.5$ on
+$\sigma^{2}$. With this choice of the prior parameters $c0$ and $C_{0}$
+the prior is rather uninformative but guarantees existence of the
+posterior variance.
+
+We report the posterior mean of the regression effects together with the
+2.5% and 97.5% quantile of the posterior distribution.
 
 ``` r
-res_conj1 <- regression_conjugate(y, X, b0 = 0, B0 = 10)
+res_conj1 <- regression_conjugate(y, X, b0 = 0, B0 = 10,c0=2.5,C0=1.5)
 post.sd.conj1 = sqrt(diag((res_conj1$CN / res_conj1$cN) * res_conj1$BN))
 
 knitr::kable(round(cbind(
@@ -152,17 +176,19 @@ knitr::kable(round(cbind(
 
 |           | 2.5 quantile | posterior mean | 97.5 quantile |
 |:----------|-------------:|---------------:|--------------:|
-| Intercept |       16.059 |         19.090 |        22.120 |
-| Weeks     |        0.245 |          0.837 |         1.429 |
-| Screens   |        1.041 |          1.663 |         2.285 |
+| Intercept |       16.138 |         19.090 |        22.041 |
+| Weeks     |        0.260 |          0.837 |         1.414 |
+| Screens   |        1.058 |          1.663 |         2.269 |
+
+To illustrate the effects of a tighter prior on the regression effects
+we compute the posterior parameters also for $\lambda^{2} = 1$ and
+$\lambda^{2} = 0.1$.
 
 ``` r
-
-
-res_conj2 <- regression_conjugate(y, X, b0 = 0, B0 = 1)
+res_conj2 <- regression_conjugate(y, X, b0 = 0, B0 = 1,c0=2.5,C0=1.5)
 post.sd.conj2 = sqrt(diag((res_conj2$CN / res_conj2$cN) * res_conj2$BN))
 
-res_conj3<- regression_conjugate(y, X, b0 = 0, B0 = 0.1)
+res_conj3<- regression_conjugate(y, X, b0 = 0, B0 = 0.1,c0=2.5,C0=1.5)
 post.sd.conj3 = sqrt(diag((res_conj3$CN / res_conj3$cN) * res_conj3$BN))
 ```
 
@@ -202,7 +228,7 @@ for (i in seq_len(nrow(beta.hat))) {
 }
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-9-1.png)
+![](Chapter06_files/figure-html/unnamed-chunk-11-1.png)
 
 There is little difference to the improper prior for the effects of
 Screens and Weeks, however the intercept intercept is shrunk to zero for
@@ -370,9 +396,9 @@ legend('topright', legend = c("Horseshoe", "Standard normal"), lty = 1:2,
        col = c("blue", "black"))
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-17-1.png)
+![](Chapter06_files/figure-html/unnamed-chunk-19-1.png)
 
-Next we set up the Gibbs sampler of the regression model wIth a proper
+We now set up the Gibbs sampler of the regression model wIth a proper
 Normal prior on the intercept and horseshoe priors on the coviariate
 effects.
 
@@ -436,16 +462,16 @@ reg_hs <- function(y, X,  b0 = 0, B0 = 10000, c0 = 2.5, C0 = 1.5,
 }    
 ```
 
-To estimate the parameters in our regression model use the same prior on
-the intercept and the error variance as in the semi-conjugate prior, but
-the horseshoe prior on the regression effects.
+We estimate the parameters in the regression model with the same prior
+on intercept and error variance as in the semi-conjugate prior, but a
+horseshoe prior on the covariate effects.
 
 ``` r
 post.draws.hs <- reg_hs(y, X, M = M)
 ```
 
-Again, we show the posterior mean estimates and equal-tailed 95%
-credibility intervals in a table. First, for the regressions effects,
+Again, we show the posterior mean estimatesof the regression effects
+together with their equal-tailed 95% credibility intervals in a table.
 
 ``` r
 beta.hs <- post.draws.hs$betas
@@ -470,7 +496,7 @@ knitr::kable(round(res_beta.hs, 3))
 | Vol-4-6   | -19.179 | -16.094 | -12.976 |
 | Vol-1-3   |  18.503 |  21.702 |  24.871 |
 
-as well as the error variance.
+We also report the estimation results for the error variance.
 
 ``` r
 res_sigma2.hs <- res.mcmc(post.draws.hs$sigma2s)
@@ -482,12 +508,18 @@ knitr::kable(t(round(res_sigma2.hs, 3)))
 |-------:|-------:|------:|
 | 51.392 | 70.115 | 95.35 |
 
-We next have a look at the posterior distributions. First under the
-semi-conjugate priors and then under the horseshoe prior. Note that the
+Obviously, taking into account more covariates the posterior mean of the
+error variance is considerably lower than in the model with only Weeks
+and Screens used as covariates.
+
+We next have a look at the posterior distributions. The plots on the
+left hand side show the posterior distribution for the regression
+effects under the semi-conjugate prior, those on the right hand side the
+posterior distributions under the horseshoe prior. Note that the
 posterior distributions are symmetric under the semi-conjugate prior,
 whereas this is not the case under the horseshoe prior.
 
-![](Chapter06_files/figure-html/unnamed-chunk-22-1.png)![](Chapter06_files/figure-html/unnamed-chunk-22-2.png)
+![](Chapter06_files/figure-html/unnamed-chunk-24-1.png)![](Chapter06_files/figure-html/unnamed-chunk-24-2.png)
 
 For illustration purposes, we overlay four selected marginal posteriors
 in order to illustrate the shrinkage effect.
@@ -496,7 +528,7 @@ in order to illustrate the shrinkage effect.
 selection <- c("Screens", "Weeks", "S-1-3", "Thriller")
 for (i in selection) {
  breaks <- seq(min(beta.sc[,i], beta.hs[,i]), max(beta.sc[,i], beta.hs[,i]),
-                length.out = 50)
+                length.out = 100)
  h1 <- hist(beta.sc[,i], breaks = breaks, plot = FALSE)
  h2 <- hist(beta.hs[,i], breaks = breaks, plot = FALSE)
  col <- c(rgb(0, 0, 1, 0.25), rgb(1, 0, 0, 0.25))
@@ -507,9 +539,11 @@ for (i in selection) {
 }
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-23-1.png)
+![](Chapter06_files/figure-html/unnamed-chunk-25-1.png)
 
-We next investigate the trace plots.
+We next investigate the trace plots of the draws from the posterior. As
+above, the plots on the left are obtained under the semi-conjugate
+prior, those on the right under the horseshoe prior.
 
 ``` r
 par(mfrow = c(6, 2))
@@ -519,7 +553,7 @@ for (i in seq_len(d)) {
 }
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-24-1.png)![](Chapter06_files/figure-html/unnamed-chunk-24-2.png)
+![](Chapter06_files/figure-html/unnamed-chunk-26-1.png)![](Chapter06_files/figure-html/unnamed-chunk-26-2.png)
 
 To sum up, we visualize the posterior of the effects and corresponding
 (square root of the) shrinkage parameters. For visual inspection, we
@@ -536,8 +570,8 @@ tau2.hs.trunc <- apply(tau2.hs, 2, truncate, alpha = alpha)
 tau.hs.trunc.mirrored <- rbind(sqrt(tau2.hs.trunc), -sqrt(tau2.hs.trunc))
 ```
 
-On the left, we see the regression effects posteriors. On the right, we
-visualize the gap plot.
+On the left, we see the posteriors of the regression effects posteriors,
+on the right, we visualize the gap plot.
 
 ``` r
 for (i in seq_len(ncol(beta.hs))) {
@@ -555,7 +589,7 @@ for (i in seq_len(ncol(beta.hs))) {
 }
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-26-1.png)
+![](Chapter06_files/figure-html/unnamed-chunk-28-1.png)
 
 ``` r
 post.draws.hs2 <- reg_hs(y, X, M = M)
@@ -573,4 +607,4 @@ qqplot(post.draws.hs$sigma2s, post.draws.hs2$sigma2s,
 abline(a = 0, b = 1)
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-27-1.png)
+![](Chapter06_files/figure-html/unnamed-chunk-29-1.png)
