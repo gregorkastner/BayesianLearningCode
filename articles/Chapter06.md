@@ -366,7 +366,8 @@ knitr::kable(round(res_beta.sc, 3))
 We do the same for the error variances.
 
 ``` r
-res_sigma2.sc <- res.mcmc(post.draws$sigma2s)
+sigma2.sc<-post.draws$sigma2s
+res_sigma2.sc <- res.mcmc(sigma2.sc)
 names(res_sigma2.sc) <- colnames(res_beta.sc)
 knitr::kable(t(round(res_sigma2.sc, 3)))
 ```
@@ -499,8 +500,11 @@ knitr::kable(round(res_beta.hs, 3))
 We also report the estimation results for the error variance.
 
 ``` r
-res_sigma2.hs <- res.mcmc(post.draws.hs$sigma2s)
-names(res_sigma2.hs) <- colnames(res_beta.hs)
+sigma2.hs<-post.draws.hs$sigma2s
+
+res_sigma2.hs <- res.mcmc(sigma2.hs)
+names(res_sigma2.hs) <-c("2.5%", "Mean", "97.5%")
+
 knitr::kable(t(round(res_sigma2.hs, 3)))
 ```
 
@@ -589,7 +593,11 @@ for (i in seq_len(ncol(beta.hs))) {
 }
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-28-1.png)
+![](Chapter06_files/figure-html/unnamed-chunk-28-1.png) We verify
+convergence of the sampler by doing a second run of the six block
+sampler in Algorithm 6.2. In the Q-Q plot of the draws of the intercept
+and the error variance the draws are very close to the identity line and
+hence we can conclude that the sampler has converged.
 
 ``` r
 post.draws.hs2 <- reg_hs(y, X, M = M)
@@ -607,4 +615,25 @@ qqplot(post.draws.hs$sigma2s, post.draws.hs2$sigma2s,
 abline(a = 0, b = 1)
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-29-1.png)
+![](Chapter06_files/figure-html/unnamed-chunk-29-1.png) Next we want to
+predict the box office sale for a movie with MPAA rating `G'' or`PG’’,
+of genre comedy, with average values of and {Weeks} as well as the
+sentiments and volumes of Twitter-posts set, but different values of .
+
+``` r
+nf=3
+X_new <- cbind(rep(1,nf), matrix(0,nrow=nf,ncol=p))
+colnames(X_new)<-colnames(X)
+X_new[,"Comedy"]=rep(1,3)
+X_new[,"Screens"]=c(0,3,10)
+
+ypred.sc=X_new%*%t(beta.sc)+rnorm(sqrt(sigma2.sc))
+pred.int.sc<- apply(ypred.sc,1, quantile, probs=c(0.025,0.5, 0.975))
+
+ypred.hs<-X_new%*%t(beta.hs)+rnorm(sqrt(sigma2.hs))
+pred.int.hs<- apply(ypred.hs,1, quantile, probs=c(0.025,0.5, 0.975))
+```
+
+plot predicted expectation,the median of the predictive distribution,
+together with vertical bars indicating the pointwise equal-tailed
+95%-predictive interval
