@@ -340,7 +340,8 @@ knitr::kable(round(res_beta.sc, 3))
 We do the same for the error variances.
 
 ```{r}
-res_sigma2.sc <- res.mcmc(post.draws$sigma2s)
+sigma2.sc<-post.draws$sigma2s
+res_sigma2.sc <- res.mcmc(sigma2.sc)
 names(res_sigma2.sc) <- colnames(res_beta.sc)
 knitr::kable(t(round(res_sigma2.sc, 3)))
 ```
@@ -451,8 +452,11 @@ knitr::kable(round(res_beta.hs, 3))
 
 We also report the estimation results for the error variance.
 ```{r}
-res_sigma2.hs <- res.mcmc(post.draws.hs$sigma2s)
-names(res_sigma2.hs) <- colnames(res_beta.hs)
+sigma2.hs<-post.draws.hs$sigma2s
+
+res_sigma2.hs <- res.mcmc(sigma2.hs)
+names(res_sigma2.hs) <-c("2.5%", "Mean", "97.5%")
+
 knitr::kable(t(round(res_sigma2.hs, 3)))
 ```
 Obviously, taking into account more covariates the posterior mean
@@ -545,7 +549,9 @@ for (i in seq_len(ncol(beta.hs))) {
   }
 }
 ```
-
+We verify convergence of the sampler by doing a second run of the six block sampler 
+in Algorithm 6.2. In the  Q-Q plot of the draws of the intercept and the error variance
+the  draws are very close to the identity line and hence we can conclude that the sampler has converged. 
 
 ```{r, echo = -1}
 if (pdfplots) {
@@ -566,3 +572,18 @@ qqplot(post.draws.hs$sigma2s, post.draws.hs2$sigma2s,
        main = "Q-Q plot for the error variance", xlab = "", ylab = "")
 abline(a = 0, b = 1)
 ```
+ Next we want to predict the box office sale for a movie with MPAA rating ``G'' or
+  ``PG'', of no specific genre, with average values of \textit{Budget} and {Weeks}  as well as the sentiments and volumes of Twitter-posts set, however for different values of \textif{Screens}.
+ 
+ ```{r}
+nf=3
+ X_new <- cbind(rep(1,nf), matrix(0,nrow=nf,ncol=p))
+ colnames(X_new)<-colnames(X)
+ X_new[,"Screens"]=c(0,3,10)
+ 
+ ypred.sc=X_new%*%t(beta.sc)+rnorm(sqrt(sigma2.sc))
+ pred.int.sc<- apply(ypred.sc,1, quantile, probs=c(0.025, 0.975))
+ 
+ ypred.hs<-X_new%*%t(beta.hs)+rnorm(sqrt(sigma2.hs))
+ pred.int.hs<- apply(ypred.hs,1, quantile, probs=c(0.025, 0.975))
+ ```
