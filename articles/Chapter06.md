@@ -577,22 +577,6 @@ tau.hs.trunc.mirrored <- rbind(sqrt(tau2.hs.trunc), -sqrt(tau2.hs.trunc))
 On the left, we see the posteriors of the regression effects posteriors,
 on the right, we visualize the gap plot.
 
-``` r
-for (i in seq_len(ncol(beta.hs))) {
-  breaks <- seq(min(beta.hs[, i]), max(beta.hs[, i]), length.out = 100)
-  hist(beta.hs[, i], breaks = breaks, xlab = "", ylab = "", 
-       main = c("Intercept", covs)[i])
-  if (i == 1) {
-    plot.new()
-  } else {
-    breaks <- seq(min(tau.hs.trunc.mirrored[, i - 1]),
-                      max(tau.hs.trunc.mirrored[, i - 1]), length.out = 100)
-    hist(tau.hs.trunc.mirrored[, i - 1], breaks = breaks, xlab = "", ylab = "",
-         main = covs[i - 1])
-  }
-}
-```
-
 ![](Chapter06_files/figure-html/unnamed-chunk-28-1.png) We verify
 convergence of the sampler by doing a second run of the six block
 sampler in Algorithm 6.2. In the Q-Q plot of the draws of the intercept
@@ -621,28 +605,24 @@ of genre comedy, with average values of and {Weeks} as well as the
 sentiments and volumes of Twitter-posts set, but different values of .
 
 ``` r
-if (pdfplots) {
- pdf("6-4_7.pdf", width = 8, height = 4)
- par(mar = c(1.5, 1.5, 1.5, .1), mgp = c(1, .5, 0))
-}
-nf=4
-X_new <- cbind(rep(1,nf), matrix(0,nrow=nf,ncol=p))
-colnames(X_new)<-colnames(X)
-
-X_new[2,"Comedy"]=1
-X_new[3:4,"Thriller"]=1
-X_new[3,"PG13"]=1
-X_new[4,"R"]=1
+ nf=4
+ X_new <- cbind(rep(1,nf), matrix(0,nrow=nf,ncol=p))
+ colnames(X_new)<-colnames(X)
  
-X_new[,"Budget"]=c(10)
-
-ypred.sc=X_new%*%t(beta.sc)+rnorm(sqrt(sigma2.sc))
-pred.int.sc<- apply(ypred.sc,1, quantile, probs=c(0.025,0.5, 0.975))
-pred.mean.sc<- rowMeans(ypred.sc)
-
-ypred.hs<-X_new%*%t(beta.hs)+rnorm(sqrt(sigma2.hs))
-pred.int.hs<- apply(ypred.hs,1, quantile, probs=c(0.025,0.5, 0.975))
-pred.mean.hs<- rowMeans(ypred.hs)
+ X_new[2,"Comedy"]=1
+ X_new[3:4,"Thriller"]=1
+ X_new[3,"PG13"]=1
+ X_new[4,"R"]=1
+  
+ X_new[,"Budget"]=c(10)
+ 
+ ypred.sc=X_new%*%t(beta.sc)+rnorm(sqrt(sigma2.sc))
+ pred.int.sc<- apply(ypred.sc,1, quantile, probs=c(0.025,0.5, 0.975))
+ pred.mean.sc<- rowMeans(ypred.sc)
+ 
+ ypred.hs<-X_new%*%t(beta.hs)+rnorm(sqrt(sigma2.hs))
+ pred.int.hs<- apply(ypred.hs,1, quantile, probs=c(0.025,0.5, 0.975))
+ pred.mean.hs<- rowMeans(ypred.hs)
 ```
 
 plot predicted expectation,the median of the predictive distribution,
@@ -650,7 +630,6 @@ together with vertical bars indicating the pointwise equal-tailed
 95%-predictive interval
 
 ``` r
-par(mfrow=c(1,1))
 
 matplot(x=t(matrix(1:nf,ncol=3, nrow=nf)),y=pred.int.sc,col="blue",type = "l",pch=16,lty=1,ylim=c(8,32), xlim=c(0.5,nf+0.5), xlab="Scenarios", ylab="Predicted Open Box Office",xaxt="n")
 points(x = 1:nf, y = pred.int.sc[2,], pch=19,col="blue",cex=1.2)
