@@ -621,19 +621,43 @@ of genre comedy, with average values of and {Weeks} as well as the
 sentiments and volumes of Twitter-posts set, but different values of .
 
 ``` r
-nf=3
+nf=4
 X_new <- cbind(rep(1,nf), matrix(0,nrow=nf,ncol=p))
 colnames(X_new)<-colnames(X)
-X_new[,"Comedy"]=rep(1,3)
-X_new[,"Screens"]=c(0,3,10)
+
+X_new[2,"Comedy"]=1
+X_new[3:4,"Thriller"]=1
+X_new[3,"PG13"]=1
+X_new[4,"R"]=1
+ 
+X_new[,"Budget"]=c(10)
 
 ypred.sc=X_new%*%t(beta.sc)+rnorm(sqrt(sigma2.sc))
 pred.int.sc<- apply(ypred.sc,1, quantile, probs=c(0.025,0.5, 0.975))
+pred.mean.sc<- rowMeans(ypred.sc)
 
 ypred.hs<-X_new%*%t(beta.hs)+rnorm(sqrt(sigma2.hs))
 pred.int.hs<- apply(ypred.hs,1, quantile, probs=c(0.025,0.5, 0.975))
+pred.mean.hs<- rowMeans(ypred.hs)
 ```
 
 plot predicted expectation,the median of the predictive distribution,
 together with vertical bars indicating the pointwise equal-tailed
 95%-predictive interval
+
+``` r
+par(mfrow=c(1,1))
+
+matplot(x=t(matrix(1:nf,ncol=3, nrow=nf)),y=pred.int.sc,col="blue",type = "l",pch=16,lty=1,ylim=c(5,35), xlim=c(0,nf+1), xlab="Scenarios", ylab="Prediction",xaxt="n")
+points(x = 1:nf, y = pred.int.sc[2,], pch=16,col="blue")
+points(x = 1:nf, y = pred.mean.sc, pch=16,col="red")
+
+matplot(x=t(matrix((1:nf)+0.2,ncol=3, nrow=nf)),y=pred.int.hs,col="blue",type = "l",pch=16,lty=1,add=TRUE) 
+
+points(x = (1:nf)+0.2, y = pred.int.hs[2,], pch=16,col="blue")
+points(x = (1:nf)+0.2, y = pred.mean.hs, pch=16,col="red")     
+
+axis(1,at=1:nf,labels=c("A","B","C","D"))
+```
+
+![](Chapter06_files/figure-html/unnamed-chunk-31-1.png)
