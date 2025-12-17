@@ -621,6 +621,10 @@ of genre comedy, with average values of and {Weeks} as well as the
 sentiments and volumes of Twitter-posts set, but different values of .
 
 ``` r
+if (pdfplots) {
+ pdf("6-4_7.pdf", width = 8, height = 4)
+ par(mar = c(1.5, 1.5, 1.5, .1), mgp = c(1, .5, 0))
+}
 nf=4
 X_new <- cbind(rep(1,nf), matrix(0,nrow=nf,ncol=p))
 colnames(X_new)<-colnames(X)
