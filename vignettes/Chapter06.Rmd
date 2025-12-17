@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
   fig.height = 6
 )
 knitr::opts_knit$set(global.par = TRUE)
-pdfplots <- TRUE #default: FALSE; set this to TRUE only if you like pdf figures
+pdfplots <- FALSE #default: FALSE; set this to TRUE only if you like pdf figures
 ```
 
 ```{r, include = FALSE}
@@ -603,8 +603,9 @@ pointwise equal-tailed 95%-predictive interval
 ```{r,echo = -c(1:3)}
 if (pdfplots) {
   pdf("6-4_7.pdf", width = 8, height = 4)
-  par(mar = c(2., 2., 1.5, .1), mgp = c(1, .5, 0))
+  par(mar = c(2., 2., 1.5, .1), mgp = c(1, .2, 0))
 }
+
 par(mfrow=c(1,1))
 
 matplot(x=t(matrix(1:nf,ncol=3, nrow=nf)),y=pred.int.sc,col="blue",type = "l",pch=16,lty=1,ylim=c(8,32), xlim=c(0.5,nf+0.5), xlab="Scenarios", ylab="Predicted Open Box Office",xaxt="n")
