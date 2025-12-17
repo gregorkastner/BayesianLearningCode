@@ -648,13 +648,13 @@ together with vertical bars indicating the pointwise equal-tailed
 ``` r
 par(mfrow=c(1,1))
 
-matplot(x=t(matrix(1:nf,ncol=3, nrow=nf)),y=pred.int.sc,col="blue",type = "l",pch=16,lty=1,ylim=c(5,35), xlim=c(0,nf+1), xlab="Scenarios", ylab="Prediction",xaxt="n")
-points(x = 1:nf, y = pred.int.sc[2,], pch=16,col="blue")
+matplot(x=t(matrix(1:nf,ncol=3, nrow=nf)),y=pred.int.sc,col="blue",type = "l",pch=16,lty=1,ylim=c(8,32), xlim=c(0.5,nf+0.5), xlab="Scenarios", ylab="Predicted Open Box Office",xaxt="n")
+points(x = 1:nf, y = pred.int.sc[2,], pch=19,col="blue",cex=1.2)
 points(x = 1:nf, y = pred.mean.sc, pch=16,col="red")
 
 matplot(x=t(matrix((1:nf)+0.2,ncol=3, nrow=nf)),y=pred.int.hs,col="blue",type = "l",pch=16,lty=1,add=TRUE) 
 
-points(x = (1:nf)+0.2, y = pred.int.hs[2,], pch=16,col="blue")
+points(x = (1:nf)+0.2, y = pred.int.hs[2,], pch=19,col="blue",cex=1.2)
 points(x = (1:nf)+0.2, y = pred.mean.hs, pch=16,col="red")     
 
 axis(1,at=1:nf,labels=c("A","B","C","D"))
