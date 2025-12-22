@@ -2,12 +2,7 @@ Package: BayesianLearningCode
 Title: Accompanying Code to a Future Book
 Version: 0.0.1
 Authors@R: 
-    c(person(given = "Gregor",
-             family = "Kastner",
-             email = "gregor.kastner@aau.at",
-             role = c("aut", "cre"),
-             comment = c(ORCID = "0000-0002-8237-8271")),
-      person(given = "Sylvia",
+    c(person(given = "Sylvia",
              family = "Frühwirth-Schnatter",
              email = "sylvia.fruehwirth-schnatter@wu.ac.at",
              role = "aut",
@@ -17,6 +12,11 @@ Authors@R:
              email = "bettina.gruen@wu.ac.at",
              role = "aut",
              comment = c(ORCID = "0000-0001-7265-4773")),
+      person(given = "Gregor",
+             family = "Kastner",
+             email = "gregor.kastner@aau.at",
+             role = c("aut", "cre"),
+             comment = c(ORCID = "0000-0002-8237-8271")),
       person(given = "Helga",
              family = "Wagner",
              email = "helga.wagner@jku.at",
