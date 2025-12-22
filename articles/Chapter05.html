@@ -104,7 +104,7 @@ Beta-Bernoulli model from earlier.</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topright"</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"N ="</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">20</span>, <span class="fl">40</span>, <span class="fl">60</span>, <span class="fl">80</span>, <span class="fl">100</span><span class="op">)</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>         col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/rgb.html" class="external-link">rgb</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">.2</span> <span class="op">+</span> <span class="fl">.4</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">20</span>, <span class="fl">40</span>, <span class="fl">60</span>, <span class="fl">80</span>, <span class="fl">100</span><span class="op">)</span><span class="op">/</span><span class="va">N</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p><img src="Chapter05_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" width="768"></p>
+<p><img src="Chapter05_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 </div>
 <div class="section level2">
@@ -212,7 +212,7 @@ on the two axes, yielding the corresponding univariate regions
 <span>       <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">HPDdrawssigma2</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>,</span>
 <span>       col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/rgb.html" class="external-link">rgb</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">.2</span><span class="op">)</span>, border <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p><img src="Chapter05_files/figure-html/unnamed-chunk-9-1.png" class="r-plt" width="768"></p>
+<p><img src="Chapter05_files/figure-html/unnamed-chunk-9-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 <div class="section level3">
 <h3 id="example-5-6-the-law-of-large-numbers-in-a-bayesian-context">Example 5.6: The law of large numbers in a Bayesian context<a class="anchor" aria-label="anchor" href="#example-5-6-the-law-of-large-numbers-in-a-bayesian-context"></a>
@@ -280,7 +280,7 @@ draws, as in the previous chapter.</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">M</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/cumsum.html" class="external-link">cumsum</a></span><span class="op">(</span><span class="va">sigma2draws</span><span class="op">[</span><span class="va">indices</span><span class="op">]</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">M</span><span class="op">)</span>, col <span class="op">=</span> <span class="va">i</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>h <span class="op">=</span> <span class="va">e</span>, lty <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Chapter05_files/figure-html/unnamed-chunk-13-1.png" class="r-plt" width="768"></p>
+<p><img src="Chapter05_files/figure-html/unnamed-chunk-13-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 </div>
 <div class="section level2">
@@ -317,7 +317,7 @@ draws, as in the previous chapter.</p>
 <span>           col <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span></span>
 <span>  <span class="op">}</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p><img src="Chapter05_files/figure-html/unnamed-chunk-14-1.png" class="r-plt" width="768"></p>
+<p><img src="Chapter05_files/figure-html/unnamed-chunk-14-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 <div class="section level3">
 <h3 id="figure-5-5-bayesian-asymptotics-2">Figure 5.5: Bayesian asymptotics 2<a class="anchor" aria-label="anchor" href="#figure-5-5-bayesian-asymptotics-2"></a>
@@ -344,7 +344,7 @@ draws, as in the previous chapter.</p>
 <span>    </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topright"</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Beta(1,1)"</span>, <span class="st">"Beta(2,4)"</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, col <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p><img src="Chapter05_files/figure-html/unnamed-chunk-15-1.png" class="r-plt" width="768"></p>
+<p><img src="Chapter05_files/figure-html/unnamed-chunk-15-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 <div class="section level3">
 <h3 id="figure-5-6-bayesian-asymptotics-3">Figure 5.6: Bayesian asymptotics 3<a class="anchor" aria-label="anchor" href="#figure-5-6-bayesian-asymptotics-3"></a>
@@ -380,7 +380,7 @@ polynomials and visualize these.</p>
 <span>    <span class="op">}</span></span>
 <span>  <span class="op">}</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p><img src="Chapter05_files/figure-html/unnamed-chunk-16-1.png" class="r-plt" width="768"></p>
+<p><img src="Chapter05_files/figure-html/unnamed-chunk-16-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 <div class="section level3">
 <h3 id="table-5-1-point-estimates">Table 5.1: Point estimates<a class="anchor" aria-label="anchor" href="#table-5-1-point-estimates"></a>
@@ -937,7 +937,7 @@ densities.</p>
 <span>     xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">eta</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">eta</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu">deta</span><span class="op">(</span><span class="va">eta</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>, <span class="fl">10</span><span class="op">)</span>, type <span class="op">=</span> <span class="st">"l"</span>, ylab <span class="op">=</span> <span class="st">""</span>,</span>
 <span>     xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">eta</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Chapter05_files/figure-html/unnamed-chunk-28-1.png" class="r-plt" width="768"></p>
+<p><img src="Chapter05_files/figure-html/unnamed-chunk-28-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -947,7 +947,7 @@ densities.</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Gregor Kastner, Sylvia Frühwirth-Schnatter, Bettina Grün, Helga Wagner.</p>
+  <p>Developed by Sylvia Frühwirth-Schnatter, Bettina Grün, Gregor Kastner, Helga Wagner.</p>
 </div>
 
 <div class="pkgdown-footer-right">
