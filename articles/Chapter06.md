@@ -102,8 +102,6 @@ mar.x2 <- dt((xx2 - beta.hat[3]) / post.sd[3], df = 2 * cN, log = FALSE)
 plot(mar.x2, xx2, col = "blue", type = "l", yaxt = "n", xlab = "")
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-6-1.png)
-
 For completeness we report also the posterior mean of the error variance
 with the 95% credibility interval.
 
@@ -142,15 +140,17 @@ compare the observed Box office sales and the predictions from our
 Bayesian regression model.
 
 ``` r
+par(mar = c(3, 3, 1, 1))
+plot(X_new[,2],ypred, col="blue", type="l",ylim=c(-50,70),xlab="Weeks (centered at 0) ",ylab="predicited Box office sales") 
 lines(X_new[,2], pred.low, col="blue", lty=2) 
 lines(X_new[,2], pred.up, col="blue", lty=2) 
 
+
+par(mar = c(3, 3, 1, 1))
 y.pred <- X%*%beta.hat
 plot(y, y.pred,xlim=c(-20,160), ylim=c(-20,160), col="blue", xlab="observed", ylab="predicted")
 abline(a=0, b=1)
 ```
-
-![](Chapter06_files/figure-html/unnamed-chunk-9-1.png)
 
 ### Section 6.2.2 Bayesian Learning under Conjugate Priors
 
@@ -261,8 +261,6 @@ for (i in seq_len(nrow(beta.hat))) {
     col = 1:4, lty = 1:4, lwd = c(1, 2, 2, 2))
 }
 ```
-
-![](Chapter06_files/figure-html/unnamed-chunk-13-1.png)
 
 There is little difference to the improper prior for the effects of
 Screens and Weeks, however the intercept intercept is shrunk to zero for
@@ -431,8 +429,6 @@ legend('topright', legend = c("Horseshoe", "Standard normal"), lty = 1:2,
        col = c("blue", "black"))
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-21-1.png)
-
 We now set up the Gibbs sampler of the regression model wIth a proper
 Normal prior on the intercept and horseshoe priors on the coviariate
 effects.
@@ -577,8 +573,6 @@ for (i in selection) {
 }
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-27-1.png)
-
 We next investigate the trace plots of the draws from the posterior. As
 above, the plots on the left are obtained under the semi-conjugate
 prior, those on the right under the horseshoe prior.
@@ -611,11 +605,10 @@ tau.hs.trunc.mirrored <- rbind(sqrt(tau2.hs.trunc), -sqrt(tau2.hs.trunc))
 On the left, we see the posteriors of the regression effects posteriors,
 on the right, we visualize the gap plot.
 
-![](Chapter06_files/figure-html/unnamed-chunk-30-1.png) We verify
-convergence of the sampler by doing a second run of the six block
-sampler in Algorithm 6.2. In the Q-Q plot of the draws of the intercept
-and the error variance the draws are very close to the identity line and
-hence we can conclude that the sampler has converged.
+We verify convergence of the sampler by doing a second run of the six
+block sampler in Algorithm 6.2. In the Q-Q plot of the draws of the
+intercept and the error variance the draws are very close to the
+identity line and hence we can conclude that the sampler has converged.
 
 ``` r
 post.draws.hs2 <- reg_hs(y, X, M = M)
@@ -633,10 +626,10 @@ qqplot(post.draws.hs$sigma2s, post.draws.hs2$sigma2s,
 abline(a = 0, b = 1)
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-31-1.png) Next we want to
-predict the box office sale for a movie with MPAA rating `G'' or`PG’’,
-of genre comedy, with average values of and {Weeks} as well as the
-sentiments and volumes of Twitter-posts set, but different values of .
+Next we want to predict the box office sale for a movie with MPAA rating
+`G'' or`PG’’, of genre comedy, with average values of and {Weeks} as
+well as the sentiments and volumes of Twitter-posts set, but different
+values of .
 
 ``` r
  nf=4
@@ -676,5 +669,3 @@ points(x = (1:nf)+0.2, y = pred.mean.hs, pch=16,col="red")
 
 axis(1,at=1:nf,labels=c("A","B","C","D"))
 ```
-
-![](Chapter06_files/figure-html/unnamed-chunk-33-1.png)
