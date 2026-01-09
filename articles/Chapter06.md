@@ -23,8 +23,8 @@ of the predetermined number of weeks (Weeks) and screens (Screens) the
 film studio forecast six weeks prior to opening that the specific film
 will be in theaters. For better interpretation we center the covariates
 at their means. Hence the intercept is the sales on the opening weekend
-box office for a film with a mean value weeks and screens the film is
-forecasted to be in the theaters.
+box office for a film forecasted to be in the theaters with an average
+value weeks and an average value of screens.
 
 ``` r
 y <- movies[, "OpenBoxOffice"]
@@ -117,6 +117,44 @@ knitr::kable(round(cbind(qinvgamma(0.025,a=cN,b=CN), sigma2.hat,
 | 2.5% quantile | posterior mean | 97.5% quantile |
 |--------------:|---------------:|---------------:|
 |        172.51 |         231.21 |         309.43 |
+
+## Exercise 6.3.
+
+We now compute the predictions of the box the sales on the opening
+weekend box office for a film with an average number of for a range of
+values for .
+
+``` r
+ nf<-35
+ X_new <- cbind(rep(1,nf), -22:12,rep(0,nf))
+ colnames(X_new)<-colnames(X)
+ 
+ ypred=X_new %*% beta.hat 
+ ypred.var=rep(NA, nf)
+ for (i in (1:nf)){
+      ypred.var[i] <-sigma2.hat*(t(X_new[i,])%*%solve(crossprod(X))%*%X_new[i,]+1)
+}
+ pred.up  <- ypred + sqrt(ypred.var)*qt(0.975, df=2*cN)
+ pred.low <- ypred - sqrt(ypred.var)*qt(0.975, df=2*cN)
+```
+
+We plot the point predictions with the 95% prediction interval.
+
+``` r
+lines(X_new[,2], pred.low, col="blue", lty=2) 
+lines(X_new[,2], pred.up, col="blue", lty=2) 
+```
+
+![](Chapter06_files/figure-html/unnamed-chunk-9-1.png)
+
+Finally we compare the observed Box office sales and the predictions
+from our first Bayesian regression model.
+
+``` r
+abline(a=0, b=1)
+```
+
+![](Chapter06_files/figure-html/unnamed-chunk-10-1.png)
 
 ### Section 6.2.2 Bayesian Learning under Conjugate Priors
 
@@ -228,7 +266,7 @@ for (i in seq_len(nrow(beta.hat))) {
 }
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-11-1.png)
+![](Chapter06_files/figure-html/unnamed-chunk-14-1.png)
 
 There is little difference to the improper prior for the effects of
 Screens and Weeks, however the intercept intercept is shrunk to zero for
@@ -397,7 +435,7 @@ legend('topright', legend = c("Horseshoe", "Standard normal"), lty = 1:2,
        col = c("blue", "black"))
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-19-1.png)
+![](Chapter06_files/figure-html/unnamed-chunk-22-1.png)
 
 We now set up the Gibbs sampler of the regression model wIth a proper
 Normal prior on the intercept and horseshoe priors on the coviariate
@@ -523,7 +561,7 @@ posterior distributions under the horseshoe prior. Note that the
 posterior distributions are symmetric under the semi-conjugate prior,
 whereas this is not the case under the horseshoe prior.
 
-![](Chapter06_files/figure-html/unnamed-chunk-24-1.png)![](Chapter06_files/figure-html/unnamed-chunk-24-2.png)
+![](Chapter06_files/figure-html/unnamed-chunk-27-1.png)![](Chapter06_files/figure-html/unnamed-chunk-27-2.png)
 
 For illustration purposes, we overlay four selected marginal posteriors
 in order to illustrate the shrinkage effect.
@@ -543,7 +581,7 @@ for (i in selection) {
 }
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-25-1.png)
+![](Chapter06_files/figure-html/unnamed-chunk-28-1.png)
 
 We next investigate the trace plots of the draws from the posterior. As
 above, the plots on the left are obtained under the semi-conjugate
@@ -557,7 +595,7 @@ for (i in seq_len(d)) {
 }
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-26-1.png)![](Chapter06_files/figure-html/unnamed-chunk-26-2.png)
+![](Chapter06_files/figure-html/unnamed-chunk-29-1.png)![](Chapter06_files/figure-html/unnamed-chunk-29-2.png)
 
 To sum up, we visualize the posterior of the effects and corresponding
 (square root of the) shrinkage parameters. For visual inspection, we
@@ -577,7 +615,7 @@ tau.hs.trunc.mirrored <- rbind(sqrt(tau2.hs.trunc), -sqrt(tau2.hs.trunc))
 On the left, we see the posteriors of the regression effects posteriors,
 on the right, we visualize the gap plot.
 
-![](Chapter06_files/figure-html/unnamed-chunk-28-1.png) We verify
+![](Chapter06_files/figure-html/unnamed-chunk-31-1.png) We verify
 convergence of the sampler by doing a second run of the six block
 sampler in Algorithm 6.2. In the Q-Q plot of the draws of the intercept
 and the error variance the draws are very close to the identity line and
@@ -599,7 +637,7 @@ qqplot(post.draws.hs$sigma2s, post.draws.hs2$sigma2s,
 abline(a = 0, b = 1)
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-29-1.png) Next we want to
+![](Chapter06_files/figure-html/unnamed-chunk-32-1.png) Next we want to
 predict the box office sale for a movie with MPAA rating `G'' or`PG’’,
 of genre comedy, with average values of and {Weeks} as well as the
 sentiments and volumes of Twitter-posts set, but different values of .
@@ -643,4 +681,4 @@ points(x = (1:nf)+0.2, y = pred.mean.hs, pch=16,col="red")
 axis(1,at=1:nf,labels=c("A","B","C","D"))
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-31-1.png)
+![](Chapter06_files/figure-html/unnamed-chunk-34-1.png)
