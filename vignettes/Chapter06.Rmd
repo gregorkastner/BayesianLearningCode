@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
   fig.height = 6
 )
 knitr::opts_knit$set(global.par = TRUE)
-pdfplots <- FALSE #default: FALSE; set this to TRUE only if you like pdf figures
+pdfplots <-TRUE #default: FALSE; set this to TRUE only if you like pdf figures
 ```
 
 ```{r, include = FALSE}
@@ -154,10 +154,14 @@ if (pdfplots) {
   par(mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.6, .6, 0))
 }
 par(mfrow=c(1,2))
+
+par(mar = c(3, 3, 1, 1))
 plot(X_new[,2],ypred, col="blue", type="l",ylim=c(-50,70),xlab="Weeks (centered at 0) ",ylab="predicited Box office sales") 
 lines(X_new[,2], pred.low, col="blue", lty=2) 
 lines(X_new[,2], pred.up, col="blue", lty=2) 
 
+
+par(mar = c(3, 3, 1, 1))
 y.pred <- X%*%beta.hat
 plot(y, y.pred,xlim=c(-20,160), ylim=c(-20,160), col="blue", xlab="observed", ylab="predicted")
 abline(a=0, b=1)
