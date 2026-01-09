@@ -43,9 +43,8 @@ variable `OpenBoxOffice` as `y` and use as covariates effects of the predetermin
 number of weeks (Weeks) and screens (Screens) the film studio forecast six weeks 
 prior to opening that the specific film will be in theaters.
 For better interpretation we center 
-the covariates at their means. Hence the intercept is the  sales on the opening
-weekend box office for a film with a mean value weeks and screens 
-the film is forecasted to be in the theaters.
+the covariates at their means. Hence the intercept is the  sales on the opening weekend box office for a film forecasted to be in the theaters with an average value weeks and an average value of screens. 
+
 
 ```{r}
 y <- movies[, "OpenBoxOffice"]
@@ -131,6 +130,22 @@ knitr::kable(round(cbind(qinvgamma(0.025,a=cN,b=CN), sigma2.hat,
                      qinvgamma(0.975,a=cN,b=CN)),2),
              col.names = c("2.5% quantile", "posterior mean", "97.5% quantile"))
 ```
+# Exercise 6.3.
+We now predict the box the  sales on the opening weekend box office for a film with  an average number of \emph{Weeks} for a range of \emph{Screens} from
+ to 
+```{r}
+ nf<-33
+ X_new <- cbind(rep(1,nf),rep(0,nf),-21:11)
+ colnames(X_new)<-colnames(X)
+ 
+ ypred.hat=X_new%*%t(beta.hat)
+ ypred.var <-sigma2.hat*(t(Xnew)%*%solve(crossprod(X))%*%Xnew+1))
+
+ pred.int.sc<- apply(ypred.hat)
+ 
+
+```
+
 ## Section 6.2.2 Bayesian Learning under Conjugate Priors
 
 We now consider regression analysis under a conjugate prior. For this, we
