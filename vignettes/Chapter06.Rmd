@@ -131,19 +131,43 @@ knitr::kable(round(cbind(qinvgamma(0.025,a=cN,b=CN), sigma2.hat,
              col.names = c("2.5% quantile", "posterior mean", "97.5% quantile"))
 ```
 # Exercise 6.3.
-We now predict the box the  sales on the opening weekend box office for a film with  an average number of \emph{Weeks} for a range of \emph{Screens} from
- to 
+We now compute the predictions of  the box the  sales on the opening weekend box office for a film with  an average number of \emph{Screens} for a range of values for  \emph{Screens}.
 ```{r}
- nf<-33
- X_new <- cbind(rep(1,nf),rep(0,nf),-21:11)
+ nf<-35
+ X_new <- cbind(rep(1,nf), -22:12,rep(0,nf))
  colnames(X_new)<-colnames(X)
  
- ypred.hat=X_new%*%t(beta.hat)
- ypred.var <-sigma2.hat*(t(Xnew)%*%solve(crossprod(X))%*%Xnew+1))
+ ypred=X_new %*% beta.hat 
+ ypred.var=rep(NA, nf)
+ for (i in (1:nf)){
+      ypred.var[i] <-sigma2.hat*(t(X_new[i,])%*%solve(crossprod(X))%*%X_new[i,]+1)
+}
+ pred.up  <- ypred + sqrt(ypred.var)*qt(0.975, df=2*cN)
+ pred.low <- ypred - sqrt(ypred.var)*qt(0.975, df=2*cN)
+```
 
- pred.int.sc<- apply(ypred.hat)
+We plot the point predictions with the 95\% prediction interval.
  
-
+```{r, echo = -c(1:3)}
+if (pdfplots) {
+  pdf("6-4_1a.pdf", width = 9, height = 6)
+  par(mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.6, .6, 0))
+}
+par(mfrow=c(1,1))
+plot(X_new[,2],ypred, col="blue", type="l",ylim=c(-50,70),xlab="Weeks (centered at 0) ",ylab="predicited Box office sales") 
+lines(X_new[,2], pred.low, col="blue", lty=2) 
+lines(X_new[,2], pred.up, col="blue", lty=2) 
+```
+ 
+Finally we compare the observed Box office sales and the predictions from our first Bayesian regression model.
+```{r, echo = -c(1:3)}
+if (pdfplots) {
+  pdf("6-4_1b.pdf", width = 9, height = 6)
+  par(mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.6, .6, 0))
+}
+y.pred <- X%*%beta.hat
+plot(y, y.pred,xlim=c(-20,160), ylim=c(-20,160), col="blue", xlab="observed", ylab="predicted")
+abline(a=0, b=1)
 ```
 
 ## Section 6.2.2 Bayesian Learning under Conjugate Priors
