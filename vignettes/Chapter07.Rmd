@@ -727,8 +727,8 @@ naccepts1 <- naccepts
 We repeat the exercise with a more informative beta prior.
 
 ```{r}
-aphi <- 20
-bphi <- 1.5
+aphi <- 10
+bphi <- 10
 
 # Allocate some space for the posterior draws and initialize the parameters:
 y0s <- sigma2s <- zetas <- phis <- rep(NA_real_, ndraws)
@@ -810,7 +810,7 @@ lines(mybreaks[mybreaks <= 1], lty = 2, lwd = 3,
       dbetarescaled(mybreaks[mybreaks <= 1], aphi, bphi))
 legend("topright",
        c("Unrestricted posterior", "Post-processed posterior",
-         "Beta prior posterior (flat)", "Beta prior posterior (informative)"),
+         "Beta prior posterior (flat)", "Beta prior posterior (shrunken)"),
        fill = rgb(c(0, 0, 1, 1), c(1, 0, 0, 1), c(0, 1, 0, 0), .2))
 legend("topleft", c("Beta prior (flat)", "Beta prior (informative)"),
        col = 1, lty = 3:2, lwd = 3)
