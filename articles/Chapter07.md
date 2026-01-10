@@ -39,7 +39,7 @@ library(BayesianLearningCode)
 library(mvtnorm)
 
 regression <- function(y, X, prior = "improper", b0 = 0, B0 = 1, c0 = 0.01,
-                       C0 = 0.01, nburn = 1000L, M = 5000L) {
+                       C0 = 0.01, nburn = 1000L, M = 10000L) {
   
   N <- nrow(X)
   d <- ncol(X)
@@ -339,7 +339,7 @@ nonstationary[, 2] <- ar2draws[,1] + ar2draws[,2] > 1 |
 nonstationary[ ,3] <- apply(Mod(eigenvalues) > 1, 1, any)
 colMeans(nonstationary)
 #>      1      2      3 
-#> 0.0422 0.0088 0.0028
+#> 0.0405 0.0107 0.0031
 ```
 
 ### Section 7.2.3: Recovering Missing Time Series Data – An Introduction to Data Augmentation
@@ -811,12 +811,12 @@ ess <- rbind(unrestricted = c(ess1, y0 = NA),
 knitr::kable(round(ess))
 ```
 
-|                      | zeta |  phi | sigma2 |    y0 |
-|:---------------------|-----:|-----:|-------:|------:|
-| unrestricted         | 4904 | 5256 |   5000 |    NA |
-| postprocessed        | 4769 | 4789 |   4789 |    NA |
-| betapriorflat        | 2158 | 1835 |  10000 |  9622 |
-| betapriorinformative |  693 |  331 |   5745 | 10000 |
+|                      | zeta |   phi | sigma2 |    y0 |
+|:---------------------|-----:|------:|-------:|------:|
+| unrestricted         | 9562 | 10000 |  10000 |    NA |
+| postprocessed        | 9202 |  9595 |   9595 |    NA |
+| betapriorflat        | 2179 |  1955 |   9490 |  9255 |
+| betapriorinformative |  783 |   398 |   5194 | 10000 |
 
 ``` r
 knitr::kable(round(ndraws / ess, 2))
@@ -824,10 +824,10 @@ knitr::kable(round(ndraws / ess, 2))
 
 |                      |  zeta |   phi | sigma2 |   y0 |
 |:---------------------|------:|------:|-------:|-----:|
-| unrestricted         |  2.04 |  1.90 |   2.00 |   NA |
-| postprocessed        |  2.10 |  2.09 |   2.09 |   NA |
-| betapriorflat        |  4.63 |  5.45 |   1.00 | 1.04 |
-| betapriorinformative | 14.42 | 30.21 |   1.74 | 1.00 |
+| unrestricted         |  1.05 |  1.00 |   1.00 |   NA |
+| postprocessed        |  1.09 |  1.04 |   1.04 |   NA |
+| betapriorflat        |  4.59 |  5.12 |   1.05 | 1.08 |
+| betapriorinformative | 12.77 | 25.15 |   1.93 | 1.00 |
 
 We now repeat the above exercise, but use the conditional posterior
 resulting from an auxiliary moment-matched prior in Step (d).
@@ -994,8 +994,8 @@ knitr::kable(round(ess))
 
 |           | zeta | phi | sigma2 |    y0 |
 |:----------|-----:|----:|-------:|------:|
-| Sampler 1 |  693 | 331 |   5745 | 10000 |
-| Sampler 2 |  835 | 443 |   6443 | 10040 |
+| Sampler 1 |  783 | 398 |   5194 | 10000 |
+| Sampler 2 | 1042 | 549 |   6342 | 10000 |
 
 ``` r
 knitr::kable(round(ndraws / ess, 2))
@@ -1003,8 +1003,8 @@ knitr::kable(round(ndraws / ess, 2))
 
 |           |  zeta |   phi | sigma2 |  y0 |
 |:----------|------:|------:|-------:|----:|
-| Sampler 1 | 14.42 | 30.21 |   1.74 |   1 |
-| Sampler 2 | 11.97 | 22.56 |   1.55 |   1 |
+| Sampler 1 | 12.77 | 25.15 |   1.93 |   1 |
+| Sampler 2 |  9.60 | 18.23 |   1.58 |   1 |
 
 ## Section 7.3: Some Extensions
 
