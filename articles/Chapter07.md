@@ -366,7 +366,7 @@ names(ymiss) <- names(logret)[missing]
 For simplicity, we employ our improper prior and sample iteratively.
 
 ``` r
-ndraws <- 5000
+ndraws <- 10000
 nburn <- 1000
 ind <- missing - 2
 
@@ -690,8 +690,8 @@ naccepts1 <- naccepts
 We repeat the exercise with a more informative beta prior.
 
 ``` r
-aphi <- 20
-bphi <- 1.5
+aphi <- 10
+bphi <- 10
 
 # Allocate some space for the posterior draws and initialize the parameters:
 y0s <- sigma2s <- zetas <- phis <- rep(NA_real_, ndraws)
@@ -752,8 +752,8 @@ stationarity, and the posterior under the stationary-enforcing shifted
 beta priors.
 
 ``` r
-mybreaks <- seq(floor(100 * .99 * min(stationary1$phi, stationary2$phi)) / 100,
-                ceiling(100 * 1.01 * max(ar1draws)) / 100,
+mybreaks <- seq(floor(100 * .995 * min(stationary1$phi, stationary2$phi)) / 100,
+                ceiling(100 * 1.015 * max(ar1draws)) / 100,
                 by = .0025)
 hist(ar1draws[!nonstationary[, 1]], breaks = mybreaks, col = rgb(0, 0, 1, .2),
      main = "Histogram of posterior draws", xlab = expression(phi),
@@ -764,16 +764,10 @@ hist(stationary1$phi, breaks = mybreaks, col = rgb(1, 0, 0, .2),
      freq = FALSE, add = TRUE)
 hist(stationary2$phi, breaks = mybreaks, col = rgb(1, 1, 0, .2),
      freq = FALSE, add = TRUE)
-lines(mybreaks[mybreaks <= 1], lty = 3, lwd = 3,
-      dbetarescaled(mybreaks[mybreaks <= 1], 1, 1))
-lines(mybreaks[mybreaks <= 1], lty = 2, lwd = 3,
-      dbetarescaled(mybreaks[mybreaks <= 1], aphi, bphi))
 legend("topright",
        c("Unrestricted posterior", "Post-processed posterior",
-         "Beta prior posterior (flat)", "Beta prior posterior (informative)"),
+         "Beta prior posterior (flat)", "Beta prior posterior (shrunken)"),
        fill = rgb(c(0, 0, 1, 1), c(1, 0, 0, 1), c(0, 1, 0, 0), .2))
-legend("topleft", c("Beta prior (flat)", "Beta prior (informative)"),
-       col = 1, lty = 3:2, lwd = 3)
 ```
 
 ![](Chapter07_files/figure-html/unnamed-chunk-32-1.png)
@@ -817,42 +811,60 @@ ess <- rbind(unrestricted = c(ess1, y0 = NA),
 knitr::kable(round(ess))
 ```
 
-|                      | zeta |  phi | sigma2 |   y0 |
-|:---------------------|-----:|-----:|-------:|-----:|
-| unrestricted         | 4904 | 5256 |   5000 |   NA |
-| postprocessed        | 4769 | 4789 |   4789 |   NA |
-| betapriorflat        | 1134 |  989 |   4718 | 5314 |
-| betapriorinformative | 1082 |  939 |   5000 | 5000 |
+|                      | zeta |  phi | sigma2 |    y0 |
+|:---------------------|-----:|-----:|-------:|------:|
+| unrestricted         | 4904 | 5256 |   5000 |    NA |
+| postprocessed        | 4769 | 4789 |   4789 |    NA |
+| betapriorflat        | 2158 | 1835 |  10000 |  9622 |
+| betapriorinformative |  693 |  331 |   5745 | 10000 |
 
 ``` r
 knitr::kable(round(ndraws / ess, 2))
 ```
 
-|                      | zeta |  phi | sigma2 |   y0 |
-|:---------------------|-----:|-----:|-------:|-----:|
-| unrestricted         | 1.02 | 0.95 |   1.00 |   NA |
-| postprocessed        | 1.05 | 1.04 |   1.04 |   NA |
-| betapriorflat        | 4.41 | 5.06 |   1.06 | 0.94 |
-| betapriorinformative | 4.62 | 5.32 |   1.00 | 1.00 |
+|                      |  zeta |   phi | sigma2 |   y0 |
+|:---------------------|------:|------:|-------:|-----:|
+| unrestricted         |  2.04 |  1.90 |   2.00 |   NA |
+| postprocessed        |  2.10 |  2.09 |   2.09 |   NA |
+| betapriorflat        |  4.63 |  5.45 |   1.00 | 1.04 |
+| betapriorinformative | 14.42 | 30.21 |   1.74 | 1.00 |
 
 We now repeat the above exercise, but use the conditional posterior
 resulting from an auxiliary moment-matched prior in Step (d).
 
+Note: Currently, three methods are implemented:
+
+1.  Ignore the part coming from $y_{0}$ and only moment-match the
+    shifted beta prior. This is currently described in the manuscript
+    (auxprior = analytical1)
+
+2.  Use a part coming from the determinant of the density of $y_{0}$,
+    resulting in a shifted
+    $\mathcal{B}\left( a^{\phi} + 0.5,b^{\phi} + 0.5 \right)$ (auxprior
+    = analytical2)
+
+3.  Numerically approximate mode and curvature of the distribution at
+    every iteration (auxprior = numerical)
+
 ``` r
-method <- "fancy"
-if (method == "simple") {
+auxprior <- "analytical1"
+
+if (auxprior == "analytical1") {
+  aphiprop <- aphi
+  bphiprop <- bphi
+} else if (auxprior == "analytical2") {
   # Add .5 to aphi and bphi (from the determinant of the initial state prior)
   aphiprop <- aphi + .5
   bphiprop <- bphi + .5
+}
 
+if (auxprior != "numerical") {
   # Compute mean and variance of the proposal using properties of the beta
   auxpriormean <- 2 * aphiprop / (aphiprop + bphiprop) - 1
   auxpriorvar <- 4 * (aphiprop * bphiprop) /
     ((aphiprop + bphiprop)^2 * (aphiprop + bphiprop + 1))
-
-} else if (method == "fancy") {
-  
-  # Alternatively, mode-and-curvature-match:
+} else {
+  # For the numerical method, we need the density function of the target
   dprior <- function(phi, zeta, sigma2, y0, aphi, bphi, log = FALSE) {
     inside <- phi <= 1 & phi >= -1
     logdens <- -Inf
@@ -888,8 +900,7 @@ for (m in seq_len(ndraws + nburn)) {
   zeta <- rnorm(1, bT, sqrt(BT))
   
   # Step (d): Draw the persistence
-  
-  if (method == "fancy") {
+  if (auxprior == "numerical") { # overwrites pre-defined mean and variance
     mode <- optimize(dprior, c(-1, 1), zeta = zeta, sigma2 = sigma2, y0 = y0,
                      aphi = aphi, bphi = bphi, log = TRUE, maximum = TRUE)$maximum
     dd <- numDeriv::hessian(dprior, mode, zeta = zeta, sigma2 = sigma2, y0 = y0,
@@ -954,12 +965,12 @@ histograms and quantiles of draws from the marginal posterior of $\phi$.
 ``` r
 mybreaks <- seq(min(stationary2$phi, stationary3$phi),
                 max(stationary2$phi, stationary3$phi),
-                length.out = 50)
+                length.out = 30)
 hist(stationary2$phi, breaks = mybreaks, col = rgb(0, 0, 1, .3),
      main = "Histogram", xlab = expression(phi), freq = FALSE)
 hist(stationary3$phi, breaks = mybreaks, col = rgb(1, 0, 0, .3), freq = FALSE,
      add = TRUE)
-qqplot(stationary1$phi, stationary3$phi, xlab = "Sampler 1", ylab = "Sampler 2",
+qqplot(stationary2$phi, stationary3$phi, xlab = "Sampler 1", ylab = "Sampler 2",
        main = "QQ plot")
 abline(0, 1, col = 2)
 ```
@@ -974,14 +985,25 @@ To conclude, we compute ESSs and IFs for the sampler utilizing the
 optimized MH step.
 
 ``` r
-ess <- effectiveSize(stationary3)
-knitr::kable(rbind(ESS = round(ess), IF = round(ndraws / ess, 2)))
+ess1 <- effectiveSize(stationary2)
+ess2 <- effectiveSize(stationary3)
+ess <- rbind(`Sampler 1` = ess1, `Sampler 2` = ess2)
+knitr::kable(round(ess))
 ```
 
-|     |    zeta |     phi | sigma2 |      y0 |
-|:----|--------:|--------:|-------:|--------:|
-| ESS | 1294.00 | 1239.00 |   5000 | 4475.00 |
-| IF  |    3.86 |    4.03 |      1 |    1.12 |
+|           | zeta | phi | sigma2 |    y0 |
+|:----------|-----:|----:|-------:|------:|
+| Sampler 1 |  693 | 331 |   5745 | 10000 |
+| Sampler 2 |  835 | 443 |   6443 | 10040 |
+
+``` r
+knitr::kable(round(ndraws / ess, 2))
+```
+
+|           |  zeta |   phi | sigma2 |  y0 |
+|:----------|------:|------:|-------:|----:|
+| Sampler 1 | 14.42 | 30.21 |   1.74 |   1 |
+| Sampler 2 | 11.97 | 22.56 |   1.55 |   1 |
 
 ## Section 7.3: Some Extensions
 

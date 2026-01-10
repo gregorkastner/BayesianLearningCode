@@ -413,7 +413,7 @@ values).</p>
 <p>For simplicity, we employ our improper prior and sample
 iteratively.</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">ndraws</span> <span class="op">&lt;-</span> <span class="fl">5000</span></span>
+<code class="sourceCode R"><span><span class="va">ndraws</span> <span class="op">&lt;-</span> <span class="fl">10000</span></span>
 <span><span class="va">nburn</span> <span class="op">&lt;-</span> <span class="fl">1000</span></span>
 <span><span class="va">ind</span> <span class="op">&lt;-</span> <span class="va">missing</span> <span class="op">-</span> <span class="fl">2</span></span>
 <span></span>
@@ -705,8 +705,8 @@ as well as the design matrix.</p>
 <span><span class="va">naccepts1</span> <span class="op">&lt;-</span> <span class="va">naccepts</span></span></code></pre></div>
 <p>We repeat the exercise with a more informative beta prior.</p>
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">aphi</span> <span class="op">&lt;-</span> <span class="fl">20</span></span>
-<span><span class="va">bphi</span> <span class="op">&lt;-</span> <span class="fl">1.5</span></span>
+<code class="sourceCode R"><span><span class="va">aphi</span> <span class="op">&lt;-</span> <span class="fl">10</span></span>
+<span><span class="va">bphi</span> <span class="op">&lt;-</span> <span class="fl">10</span></span>
 <span></span>
 <span><span class="co"># Allocate some space for the posterior draws and initialize the parameters:</span></span>
 <span><span class="va">y0s</span> <span class="op">&lt;-</span> <span class="va">sigma2s</span> <span class="op">&lt;-</span> <span class="va">zetas</span> <span class="op">&lt;-</span> <span class="va">phis</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA_real_</span>, <span class="va">ndraws</span><span class="op">)</span></span>
@@ -765,8 +765,8 @@ under the improper prior, the posterior obtained after post-processing
 draws to obtain stationarity, and the posterior under the
 stationary-enforcing shifted beta priors.</p>
 <div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">mybreaks</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">floor</a></span><span class="op">(</span><span class="fl">100</span> <span class="op">*</span> <span class="fl">.99</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">stationary1</span><span class="op">$</span><span class="va">phi</span>, <span class="va">stationary2</span><span class="op">$</span><span class="va">phi</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span> <span class="fl">100</span>,</span>
-<span>                <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">ceiling</a></span><span class="op">(</span><span class="fl">100</span> <span class="op">*</span> <span class="fl">1.01</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">ar1draws</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span> <span class="fl">100</span>,</span>
+<code class="sourceCode R"><span><span class="va">mybreaks</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">floor</a></span><span class="op">(</span><span class="fl">100</span> <span class="op">*</span> <span class="fl">.995</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">stationary1</span><span class="op">$</span><span class="va">phi</span>, <span class="va">stationary2</span><span class="op">$</span><span class="va">phi</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span> <span class="fl">100</span>,</span>
+<span>                <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">ceiling</a></span><span class="op">(</span><span class="fl">100</span> <span class="op">*</span> <span class="fl">1.015</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">ar1draws</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span> <span class="fl">100</span>,</span>
 <span>                by <span class="op">=</span> <span class="fl">.0025</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">ar1draws</span><span class="op">[</span><span class="op">!</span><span class="va">nonstationary</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span><span class="op">]</span>, breaks <span class="op">=</span> <span class="va">mybreaks</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/rgb.html" class="external-link">rgb</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">.2</span><span class="op">)</span>,</span>
 <span>     main <span class="op">=</span> <span class="st">"Histogram of posterior draws"</span>, xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">phi</span><span class="op">)</span>,</span>
@@ -777,16 +777,10 @@ stationary-enforcing shifted beta priors.</p>
 <span>     freq <span class="op">=</span> <span class="cn">FALSE</span>, add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">stationary2</span><span class="op">$</span><span class="va">phi</span>, breaks <span class="op">=</span> <span class="va">mybreaks</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/rgb.html" class="external-link">rgb</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">.2</span><span class="op">)</span>,</span>
 <span>     freq <span class="op">=</span> <span class="cn">FALSE</span>, add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">mybreaks</span><span class="op">[</span><span class="va">mybreaks</span> <span class="op">&lt;=</span> <span class="fl">1</span><span class="op">]</span>, lty <span class="op">=</span> <span class="fl">3</span>, lwd <span class="op">=</span> <span class="fl">3</span>,</span>
-<span>      <span class="fu">dbetarescaled</span><span class="op">(</span><span class="va">mybreaks</span><span class="op">[</span><span class="va">mybreaks</span> <span class="op">&lt;=</span> <span class="fl">1</span><span class="op">]</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">mybreaks</span><span class="op">[</span><span class="va">mybreaks</span> <span class="op">&lt;=</span> <span class="fl">1</span><span class="op">]</span>, lty <span class="op">=</span> <span class="fl">2</span>, lwd <span class="op">=</span> <span class="fl">3</span>,</span>
-<span>      <span class="fu">dbetarescaled</span><span class="op">(</span><span class="va">mybreaks</span><span class="op">[</span><span class="va">mybreaks</span> <span class="op">&lt;=</span> <span class="fl">1</span><span class="op">]</span>, <span class="va">aphi</span>, <span class="va">bphi</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topright"</span>,</span>
 <span>       <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Unrestricted posterior"</span>, <span class="st">"Post-processed posterior"</span>,</span>
-<span>         <span class="st">"Beta prior posterior (flat)"</span>, <span class="st">"Beta prior posterior (informative)"</span><span class="op">)</span>,</span>
-<span>       fill <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/rgb.html" class="external-link">rgb</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>, <span class="fl">.2</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topleft"</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Beta prior (flat)"</span>, <span class="st">"Beta prior (informative)"</span><span class="op">)</span>,</span>
-<span>       col <span class="op">=</span> <span class="fl">1</span>, lty <span class="op">=</span> <span class="fl">3</span><span class="op">:</span><span class="fl">2</span>, lwd <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
+<span>         <span class="st">"Beta prior posterior (flat)"</span>, <span class="st">"Beta prior posterior (shrunken)"</span><span class="op">)</span>,</span>
+<span>       fill <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/rgb.html" class="external-link">rgb</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>, <span class="fl">.2</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="Chapter07_files/figure-html/unnamed-chunk-32-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 <div class="section level3">
@@ -849,17 +843,17 @@ inefficiency factor (IF) use the coda package.</p>
 </tr>
 <tr class="odd">
 <td align="left">betapriorflat</td>
-<td align="right">1134</td>
-<td align="right">989</td>
-<td align="right">4718</td>
-<td align="right">5314</td>
+<td align="right">2158</td>
+<td align="right">1835</td>
+<td align="right">10000</td>
+<td align="right">9622</td>
 </tr>
 <tr class="even">
 <td align="left">betapriorinformative</td>
-<td align="right">1082</td>
-<td align="right">939</td>
-<td align="right">5000</td>
-<td align="right">5000</td>
+<td align="right">693</td>
+<td align="right">331</td>
+<td align="right">5745</td>
+<td align="right">10000</td>
 </tr>
 </tbody>
 </table>
@@ -876,51 +870,69 @@ inefficiency factor (IF) use the coda package.</p>
 <tbody>
 <tr class="odd">
 <td align="left">unrestricted</td>
-<td align="right">1.02</td>
-<td align="right">0.95</td>
-<td align="right">1.00</td>
+<td align="right">2.04</td>
+<td align="right">1.90</td>
+<td align="right">2.00</td>
 <td align="right">NA</td>
 </tr>
 <tr class="even">
 <td align="left">postprocessed</td>
-<td align="right">1.05</td>
-<td align="right">1.04</td>
-<td align="right">1.04</td>
+<td align="right">2.10</td>
+<td align="right">2.09</td>
+<td align="right">2.09</td>
 <td align="right">NA</td>
 </tr>
 <tr class="odd">
 <td align="left">betapriorflat</td>
-<td align="right">4.41</td>
-<td align="right">5.06</td>
-<td align="right">1.06</td>
-<td align="right">0.94</td>
+<td align="right">4.63</td>
+<td align="right">5.45</td>
+<td align="right">1.00</td>
+<td align="right">1.04</td>
 </tr>
 <tr class="even">
 <td align="left">betapriorinformative</td>
-<td align="right">4.62</td>
-<td align="right">5.32</td>
-<td align="right">1.00</td>
+<td align="right">14.42</td>
+<td align="right">30.21</td>
+<td align="right">1.74</td>
 <td align="right">1.00</td>
 </tr>
 </tbody>
 </table>
 <p>We now repeat the above exercise, but use the conditional posterior
 resulting from an auxiliary moment-matched prior in Step (d).</p>
+<p>Note: Currently, three methods are implemented:</p>
+<ol style="list-style-type: decimal">
+<li><p>Ignore the part coming from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>y</mi><mn>0</mn></msub><annotation encoding="application/x-tex">y_0</annotation></semantics></math>
+and only moment-match the shifted beta prior. This is currently
+described in the manuscript (auxprior = analytical1)</p></li>
+<li><p>Use a part coming from the determinant of the density of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>y</mi><mn>0</mn></msub><annotation encoding="application/x-tex">y_0</annotation></semantics></math>,
+resulting in a shifted
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ℬ</mi><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>a</mi><mi>ϕ</mi></msup><mo>+</mo><mn>0.5</mn><mo>,</mo><msup><mi>b</mi><mi>ϕ</mi></msup><mo>+</mo><mn>0.5</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathcal{B}(a^\phi + 0.5, b^\phi + 0.5)</annotation></semantics></math>
+(auxprior = analytical2)</p></li>
+<li><p>Numerically approximate mode and curvature of the distribution at
+every iteration (auxprior = numerical)</p></li>
+</ol>
 <div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">method</span> <span class="op">&lt;-</span> <span class="st">"fancy"</span></span>
-<span><span class="kw">if</span> <span class="op">(</span><span class="va">method</span> <span class="op">==</span> <span class="st">"simple"</span><span class="op">)</span> <span class="op">{</span></span>
+<code class="sourceCode R"><span><span class="va">auxprior</span> <span class="op">&lt;-</span> <span class="st">"analytical1"</span></span>
+<span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="va">auxprior</span> <span class="op">==</span> <span class="st">"analytical1"</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">aphiprop</span> <span class="op">&lt;-</span> <span class="va">aphi</span></span>
+<span>  <span class="va">bphiprop</span> <span class="op">&lt;-</span> <span class="va">bphi</span></span>
+<span><span class="op">}</span> <span class="kw">else</span> <span class="kw">if</span> <span class="op">(</span><span class="va">auxprior</span> <span class="op">==</span> <span class="st">"analytical2"</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="co"># Add .5 to aphi and bphi (from the determinant of the initial state prior)</span></span>
 <span>  <span class="va">aphiprop</span> <span class="op">&lt;-</span> <span class="va">aphi</span> <span class="op">+</span> <span class="fl">.5</span></span>
 <span>  <span class="va">bphiprop</span> <span class="op">&lt;-</span> <span class="va">bphi</span> <span class="op">+</span> <span class="fl">.5</span></span>
+<span><span class="op">}</span></span>
 <span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="va">auxprior</span> <span class="op">!=</span> <span class="st">"numerical"</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="co"># Compute mean and variance of the proposal using properties of the beta</span></span>
 <span>  <span class="va">auxpriormean</span> <span class="op">&lt;-</span> <span class="fl">2</span> <span class="op">*</span> <span class="va">aphiprop</span> <span class="op">/</span> <span class="op">(</span><span class="va">aphiprop</span> <span class="op">+</span> <span class="va">bphiprop</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span></span>
 <span>  <span class="va">auxpriorvar</span> <span class="op">&lt;-</span> <span class="fl">4</span> <span class="op">*</span> <span class="op">(</span><span class="va">aphiprop</span> <span class="op">*</span> <span class="va">bphiprop</span><span class="op">)</span> <span class="op">/</span></span>
 <span>    <span class="op">(</span><span class="op">(</span><span class="va">aphiprop</span> <span class="op">+</span> <span class="va">bphiprop</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span> <span class="op">*</span> <span class="op">(</span><span class="va">aphiprop</span> <span class="op">+</span> <span class="va">bphiprop</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="op">}</span> <span class="kw">else</span> <span class="kw">if</span> <span class="op">(</span><span class="va">method</span> <span class="op">==</span> <span class="st">"fancy"</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  </span>
-<span>  <span class="co"># Alternatively, mode-and-curvature-match:</span></span>
+<span><span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
+<span>  <span class="co"># For the numerical method, we need the density function of the target</span></span>
 <span>  <span class="va">dprior</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">phi</span>, <span class="va">zeta</span>, <span class="va">sigma2</span>, <span class="va">y0</span>, <span class="va">aphi</span>, <span class="va">bphi</span>, <span class="va">log</span> <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="va">inside</span> <span class="op">&lt;-</span> <span class="va">phi</span> <span class="op">&lt;=</span> <span class="fl">1</span> <span class="op">&amp;</span> <span class="va">phi</span> <span class="op">&gt;=</span> <span class="op">-</span><span class="fl">1</span></span>
 <span>    <span class="va">logdens</span> <span class="op">&lt;-</span> <span class="op">-</span><span class="cn">Inf</span></span>
@@ -956,8 +968,7 @@ resulting from an auxiliary moment-matched prior in Step (d).</p>
 <span>  <span class="va">zeta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">bT</span>, <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">BT</span><span class="op">)</span><span class="op">)</span></span>
 <span>  </span>
 <span>  <span class="co"># Step (d): Draw the persistence</span></span>
-<span>  </span>
-<span>  <span class="kw">if</span> <span class="op">(</span><span class="va">method</span> <span class="op">==</span> <span class="st">"fancy"</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="kw">if</span> <span class="op">(</span><span class="va">auxprior</span> <span class="op">==</span> <span class="st">"numerical"</span><span class="op">)</span> <span class="op">{</span> <span class="co"># overwrites pre-defined mean and variance</span></span>
 <span>    <span class="va">mode</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/optimize.html" class="external-link">optimize</a></span><span class="op">(</span><span class="va">dprior</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>, zeta <span class="op">=</span> <span class="va">zeta</span>, sigma2 <span class="op">=</span> <span class="va">sigma2</span>, y0 <span class="op">=</span> <span class="va">y0</span>,</span>
 <span>                     aphi <span class="op">=</span> <span class="va">aphi</span>, bphi <span class="op">=</span> <span class="va">bphi</span>, log <span class="op">=</span> <span class="cn">TRUE</span>, maximum <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">$</span><span class="va">maximum</span></span>
 <span>    <span class="va">dd</span> <span class="op">&lt;-</span> <span class="fu">numDeriv</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/numDeriv/man/hessian.html" class="external-link">hessian</a></span><span class="op">(</span><span class="va">dprior</span>, <span class="va">mode</span>, zeta <span class="op">=</span> <span class="va">zeta</span>, sigma2 <span class="op">=</span> <span class="va">sigma2</span>, y0 <span class="op">=</span> <span class="va">y0</span>,</span>
@@ -1017,12 +1028,12 @@ of
 <div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mybreaks</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">stationary2</span><span class="op">$</span><span class="va">phi</span>, <span class="va">stationary3</span><span class="op">$</span><span class="va">phi</span><span class="op">)</span>,</span>
 <span>                <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">stationary2</span><span class="op">$</span><span class="va">phi</span>, <span class="va">stationary3</span><span class="op">$</span><span class="va">phi</span><span class="op">)</span>,</span>
-<span>                length.out <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span>
+<span>                length.out <span class="op">=</span> <span class="fl">30</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">stationary2</span><span class="op">$</span><span class="va">phi</span>, breaks <span class="op">=</span> <span class="va">mybreaks</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/rgb.html" class="external-link">rgb</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">.3</span><span class="op">)</span>,</span>
 <span>     main <span class="op">=</span> <span class="st">"Histogram"</span>, xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">phi</span><span class="op">)</span>, freq <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">stationary3</span><span class="op">$</span><span class="va">phi</span>, breaks <span class="op">=</span> <span class="va">mybreaks</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/rgb.html" class="external-link">rgb</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">.3</span><span class="op">)</span>, freq <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>     add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/stats/qqnorm.html" class="external-link">qqplot</a></span><span class="op">(</span><span class="va">stationary1</span><span class="op">$</span><span class="va">phi</span>, <span class="va">stationary3</span><span class="op">$</span><span class="va">phi</span>, xlab <span class="op">=</span> <span class="st">"Sampler 1"</span>, ylab <span class="op">=</span> <span class="st">"Sampler 2"</span>,</span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/qqnorm.html" class="external-link">qqplot</a></span><span class="op">(</span><span class="va">stationary2</span><span class="op">$</span><span class="va">phi</span>, <span class="va">stationary3</span><span class="op">$</span><span class="va">phi</span>, xlab <span class="op">=</span> <span class="st">"Sampler 1"</span>, ylab <span class="op">=</span> <span class="st">"Sampler 2"</span>,</span>
 <span>       main <span class="op">=</span> <span class="st">"QQ plot"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, col <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <p><img src="Chapter07_files/figure-html/unnamed-chunk-37-1.png" class="r-plt" alt="" width="768"></p>
@@ -1032,8 +1043,10 @@ for a few draws, which isn’t the case for the second sampler.</p>
 <p>To conclude, we compute ESSs and IFs for the sampler utilizing the
 optimized MH step.</p>
 <div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">ess</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/coda/man/effectiveSize.html" class="external-link">effectiveSize</a></span><span class="op">(</span><span class="va">stationary3</span><span class="op">)</span></span>
-<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span>ESS <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">ess</span><span class="op">)</span>, IF <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">ndraws</span> <span class="op">/</span> <span class="va">ess</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">ess1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/coda/man/effectiveSize.html" class="external-link">effectiveSize</a></span><span class="op">(</span><span class="va">stationary2</span><span class="op">)</span></span>
+<span><span class="va">ess2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/coda/man/effectiveSize.html" class="external-link">effectiveSize</a></span><span class="op">(</span><span class="va">stationary3</span><span class="op">)</span></span>
+<span><span class="va">ess</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span>`Sampler 1` <span class="op">=</span> <span class="va">ess1</span>, `Sampler 2` <span class="op">=</span> <span class="va">ess2</span><span class="op">)</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">ess</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
 <th align="left"></th>
@@ -1044,18 +1057,45 @@ optimized MH step.</p>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td align="left">ESS</td>
-<td align="right">1294.00</td>
-<td align="right">1239.00</td>
-<td align="right">5000</td>
-<td align="right">4475.00</td>
+<td align="left">Sampler 1</td>
+<td align="right">693</td>
+<td align="right">331</td>
+<td align="right">5745</td>
+<td align="right">10000</td>
 </tr>
 <tr class="even">
-<td align="left">IF</td>
-<td align="right">3.86</td>
-<td align="right">4.03</td>
+<td align="left">Sampler 2</td>
+<td align="right">835</td>
+<td align="right">443</td>
+<td align="right">6443</td>
+<td align="right">10040</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">ndraws</span> <span class="op">/</span> <span class="va">ess</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left"></th>
+<th align="right">zeta</th>
+<th align="right">phi</th>
+<th align="right">sigma2</th>
+<th align="right">y0</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">Sampler 1</td>
+<td align="right">14.42</td>
+<td align="right">30.21</td>
+<td align="right">1.74</td>
 <td align="right">1</td>
-<td align="right">1.12</td>
+</tr>
+<tr class="even">
+<td align="left">Sampler 2</td>
+<td align="right">11.97</td>
+<td align="right">22.56</td>
+<td align="right">1.55</td>
+<td align="right">1</td>
 </tr>
 </tbody>
 </table>
@@ -1071,7 +1111,7 @@ optimized MH step.</p>
 <p>Let us check for stationarity of the exchange rate data. First, we
 load the data and visualize it as well as its empirical ACF. We do the
 same for the absolute returns.</p>
-<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"exrates"</span>, package <span class="op">=</span> <span class="st">"stochvol"</span><span class="op">)</span></span>
 <span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="va">exrates</span><span class="op">$</span><span class="va">USD</span> <span class="op">/</span> <span class="va">exrates</span><span class="op">$</span><span class="va">CHF</span></span>
 <span><span class="va">ret</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/diff.html" class="external-link">diff</a></span><span class="op">(</span><span class="va">dat</span><span class="op">)</span></span>
@@ -1085,7 +1125,7 @@ same for the absolute returns.</p>
 <p>This clearly hints at non-stationarity of the exchange rate series
 and at (first order) stationarity of the returns. To check more
 formally, we fit an AR(2) model to both.</p>
-<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="va">dat</span>, <span class="op">-</span><span class="fl">2</span><span class="op">)</span></span>
 <span><span class="va">Xy</span> <span class="op">&lt;-</span> <span class="fu">ARdesignmatrix</span><span class="op">(</span><span class="va">dat</span>, <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="va">ar2dat</span> <span class="op">&lt;-</span> <span class="fu">regression</span><span class="op">(</span><span class="va">y</span>, <span class="va">Xy</span>, prior <span class="op">=</span> <span class="st">"improper"</span><span class="op">)</span></span>
@@ -1093,7 +1133,7 @@ formally, we fit an AR(2) model to both.</p>
 <span><span class="va">Xy</span> <span class="op">&lt;-</span> <span class="fu">ARdesignmatrix</span><span class="op">(</span><span class="va">ret</span>, <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="va">ar2ret</span> <span class="op">&lt;-</span> <span class="fu">regression</span><span class="op">(</span><span class="va">y</span>, <span class="va">Xy</span>, prior <span class="op">=</span> <span class="st">"improper"</span><span class="op">)</span></span></code></pre></div>
 <p>Now we can graphically investigate stationarity as above.</p>
-<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">draws</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">ar2dat</span><span class="op">$</span><span class="va">betas</span><span class="op">[</span>,<span class="fl">2</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span>, <span class="va">ar2ret</span><span class="op">$</span><span class="va">betas</span><span class="op">[</span>,<span class="fl">2</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="va">eigenvalues</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="cn">NA_complex_</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">draws</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">draws</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">mains</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"AR(2) on the raw series"</span>, <span class="st">"AR(2) on the returns"</span><span class="op">)</span></span>
@@ -1123,20 +1163,20 @@ series<a class="anchor" aria-label="anchor" href="#section-7-4-markov-modeling-f
 </h3>
 <p>We load the data and only consider workers from the birth cohort
 1946-1960.</p>
-<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"labor"</span>, package <span class="op">=</span> <span class="st">"BayesianLearningCode"</span><span class="op">)</span></span>
 <span><span class="va">labor</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">labor</span>, <span class="va">birthyear</span> <span class="op">&gt;=</span> <span class="fl">1946</span> <span class="op">&amp;</span> <span class="va">birthyear</span> <span class="op">&lt;=</span> <span class="fl">1960</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">labor</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 1538</span></span></code></pre></div>
 <p>We extract the columns about the income over time:</p>
-<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">income</span> <span class="op">&lt;-</span> <span class="va">labor</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"^income"</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">labor</span><span class="op">)</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="va">income</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">income</span>, <span class="va">as.integer</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">income</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">gsub</a></span><span class="op">(</span><span class="st">"income_"</span>, <span class="st">""</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">income</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>We plot individual wage mobility time series for three workers. The
 persistence of belonging to a certain wage class is obvious for any
 specific person.</p>
-<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">index</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">income</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="va">index</span><span class="op">)</span> <span class="op">{</span></span>
@@ -1154,7 +1194,7 @@ and women<a class="anchor" aria-label="anchor" href="#example-7-14-wage-mobility
 contains the number of transitions from one class to the other, i.e.,
 the matrix with values
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>N</mi><mrow><mi>i</mi><mo>,</mo><mi>h</mi><mi>k</mi></mrow></msub><annotation encoding="application/x-tex">N_{i,hk}</annotation></semantics></math>.</p>
-<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">getTransitions</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">classes</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="va">transitions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">classes</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">classes</span><span class="op">)</span><span class="op">)</span></span>
 <span>    <span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
@@ -1167,7 +1207,7 @@ the matrix with values
 <span>                        <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span> <span class="fu">getTransitions</span><span class="op">(</span><span class="va">income</span><span class="op">[</span><span class="va">i</span>,<span class="op">]</span>, classes <span class="op">=</span> <span class="fl">0</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Based on the transition matrices, the total transitions between the
 wage categories for female and male workers can be obtained.</p>
-<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">N_female</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/funprog.html" class="external-link">Reduce</a></span><span class="op">(</span><span class="st">"+"</span>, <span class="va">income_transitions</span><span class="op">[</span><span class="va">labor</span><span class="op">$</span><span class="va">female</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="va">N_male</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/funprog.html" class="external-link">Reduce</a></span><span class="op">(</span><span class="st">"+"</span>, <span class="va">income_transitions</span><span class="op">[</span><span class="op">!</span><span class="va">labor</span><span class="op">$</span><span class="va">female</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">N_female</span><span class="op">)</span></span></code></pre></div>
@@ -1238,7 +1278,7 @@ wage categories for female and male workers can be obtained.</p>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">N_male</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
@@ -1308,7 +1348,7 @@ wage categories for female and male workers can be obtained.</p>
 </tbody>
 </table>
 <p>We obtain posterior mean estimates based on a uniform prior.</p>
-<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mean_xi_female</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="va">N_female</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="va">N_female</span><span class="op">)</span></span>
 <span><span class="va">mean_xi_male</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="va">N_male</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="va">N_male</span><span class="op">)</span></span>
 <span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">mean_xi_female</span>, digits <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
@@ -1379,7 +1419,7 @@ wage categories for female and male workers can be obtained.</p>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb50"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">mean_xi_male</span>, digits <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
@@ -1449,7 +1489,7 @@ wage categories for female and male workers can be obtained.</p>
 </tbody>
 </table>
 <p>We also visualize the posterior mean estimates for women and men.</p>
-<div class="sourceCode" id="cb50"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">corrplot</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/corrplot/man/corrplot.html" class="external-link">corrplot</a></span><span class="op">(</span><span class="va">mean_xi_female</span>, method <span class="op">=</span> <span class="st">"square"</span>, is.corr <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>                   col <span class="op">=</span> <span class="fl">1</span>, cl.pos <span class="op">=</span> <span class="st">"n"</span><span class="op">)</span></span>
 <span><span class="fu">corrplot</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/corrplot/man/corrplot.html" class="external-link">corrplot</a></span><span class="op">(</span><span class="va">mean_xi_male</span>, method <span class="op">=</span> <span class="st">"square"</span>, is.corr <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -1459,7 +1499,7 @@ wage categories for female and male workers can be obtained.</p>
 probabilities
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>ξ</mi><mrow><mi>g</mi><mo>,</mo><mi>h</mi><mi>k</mi></mrow></msub><annotation encoding="application/x-tex">\xi_{g,hk}</annotation></semantics></math>
 for women and men.</p>
-<div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb52"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.52</span>, <span class="fl">0.95</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">100</span><span class="op">)</span>, type <span class="op">=</span> <span class="st">"n"</span>, xlab <span class="op">=</span> <span class="st">""</span>, ylab <span class="op">=</span> <span class="st">""</span>,</span>
 <span>     main <span class="op">=</span> <span class="st">"Posterior of persistence probabilities"</span><span class="op">)</span></span>
 <span><span class="va">pers_female</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="va">N_female</span><span class="op">)</span>,</span>
@@ -1507,7 +1547,7 @@ in wage category 2, i.e.,
 estimated wage distribution
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mover><mi>𝛈</mi><mo accent="true">̂</mo></mover><mrow><mi>g</mi><mo>,</mo><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">\hat{\mathbf{\eta}}_{g,t}</annotation></semantics></math>
 over the first ten years for females and males.</p>
-<div class="sourceCode" id="cb52"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">eta_0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.7</span>, <span class="fl">0.3</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span></span>
 <span><span class="va">eta_hat_male_t</span> <span class="op">&lt;-</span> <span class="va">eta_hat_female_t</span> <span class="op">&lt;-</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="cn">NA_real_</span>, nrow <span class="op">=</span> <span class="fl">6</span>, ncol <span class="op">=</span> <span class="fl">11</span>,</span>
@@ -1527,7 +1567,7 @@ for wage category 2 (left-hand side) versus
 for wage category 5 (right-hand side) in year
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><mn>10</mn></mrow><annotation encoding="application/x-tex">t = 10</annotation></semantics></math>
 for females and males.</p>
-<div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb54"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">M</span> <span class="op">&lt;-</span> <span class="fl">1000</span></span>
 <span><span class="va">xi_female</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">replicate</a></span><span class="op">(</span><span class="va">M</span>, <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="va">N_female</span>, <span class="fl">1</span>,</span>
 <span>                                <span class="kw">function</span><span class="op">(</span><span class="va">alpha</span><span class="op">)</span> <span class="fu"><a href="../reference/Dirichlet.html">rdirichlet</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">alpha</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
