@@ -1005,8 +1005,11 @@ To conclude, we compute ESSs and IFs for the sampler utilizing the optimized
 MH step.
 
 ```{r}
-ess <- effectiveSize(stationary3)
-knitr::kable(rbind(ESS = round(ess), IF = round(ndraws / ess, 2)))
+ess1 <- effectiveSize(stationary2)
+ess2 <- effectiveSize(stationary3)
+ess <- rbind(`Sampler 1` = ess1, `Sampler 2` = ess2)
+knitr::kable(round(ess))
+knitr::kable(round(ndraws / ess, 2))
 ```
 
 # Section 7.3: Some Extensions
