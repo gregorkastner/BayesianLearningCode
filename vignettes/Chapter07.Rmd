@@ -1037,16 +1037,19 @@ acf(ret)
 ```
 
 This clearly hints at non-stationarity of the exchange rate series and at
-(first order) stationarity of the returns. To check more formally, we fit an
-AR(2) model to both.
+(first order) stationarity of the returns. To check more formally, we fit AR(p)
+models to both.
 
 ```{r}
-y <- tail(dat, -2)
-Xy <- ARdesignmatrix(dat, 2)
-ar2dat <- regression(y, Xy, prior = "improper")
-y <- tail(ret, -2)
-Xy <- ARdesignmatrix(ret, 2)
-ar2ret <- regression(y, Xy, prior = "improper")
+ardat <- arret <- list()
+for (p in 1:4) {
+  y <- tail(dat, -p)
+  Xy <- ARdesignmatrix(dat, p)
+  ardat[[p]] <- regression(y, Xy, prior = "improper")
+  y <- tail(ret, -p)
+  Xy <- ARdesignmatrix(ret, p)
+  arret[[p]] <- regression(y, Xy, prior = "improper")
+}
 ```
 
 Now we can graphically investigate stationarity as above.
@@ -1056,7 +1059,7 @@ if (pdfplots) {
   pdf("7-3_2.pdf", width = 8, height = 4)
 }
 par(mfrow = c(2, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 2)
-draws <- list(ar2dat$betas[,2:3], ar2ret$betas[,2:3])
+draws <- list(ardat[[2]]$betas[,2:3], arret[[2]]$betas[,2:3])
 eigenvalues <- matrix(NA_complex_, nrow(draws[[1]]), ncol(draws[[1]]))
 mains <- c("AR(2) on the raw series", "AR(2) on the returns")
 for (i in seq_along(draws)) {
