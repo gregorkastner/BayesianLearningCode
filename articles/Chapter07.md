@@ -1030,21 +1030,24 @@ acf(ret)
 
 This clearly hints at non-stationarity of the exchange rate series and
 at (first order) stationarity of the returns. To check more formally, we
-fit an AR(2) model to both.
+fit AR(p) models to both.
 
 ``` r
-y <- tail(dat, -2)
-Xy <- ARdesignmatrix(dat, 2)
-ar2dat <- regression(y, Xy, prior = "improper")
-y <- tail(ret, -2)
-Xy <- ARdesignmatrix(ret, 2)
-ar2ret <- regression(y, Xy, prior = "improper")
+ardat <- arret <- list()
+for (p in 1:4) {
+  y <- tail(dat, -p)
+  Xy <- ARdesignmatrix(dat, p)
+  ardat[[p]] <- regression(y, Xy, prior = "improper")
+  y <- tail(ret, -p)
+  Xy <- ARdesignmatrix(ret, p)
+  arret[[p]] <- regression(y, Xy, prior = "improper")
+}
 ```
 
 Now we can graphically investigate stationarity as above.
 
 ``` r
-draws <- list(ar2dat$betas[,2:3], ar2ret$betas[,2:3])
+draws <- list(ardat[[2]]$betas[,2:3], arret[[2]]$betas[,2:3])
 eigenvalues <- matrix(NA_complex_, nrow(draws[[1]]), ncol(draws[[1]]))
 mains <- c("AR(2) on the raw series", "AR(2) on the returns")
 for (i in seq_along(draws)) {
@@ -1064,6 +1067,18 @@ for (i in seq_along(draws)) {
 ```
 
 ![](Chapter07_files/figure-html/unnamed-chunk-41-1.png)
+
+To explore whether the nonstationarity of the raw series could be caused
+by a unit root, we investigate the posterior of
+$1 - \phi_{1} - \ldots - \phi_{p}$ for $p = 1,\ldots,4$.
+
+``` r
+for (p in 1:4) {
+  hist(1 - rowSums(ardat[[p]]$betas[, 2:(p + 1), drop = FALSE]), freq = FALSE)
+}
+```
+
+![](Chapter07_files/figure-html/unnamed-chunk-42-1.png)
 
 ## Section 7.4: Markov modeling for a panel of categorical time series
 
@@ -1101,7 +1116,7 @@ for (i in index) {
 }
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-44-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-45-1.png)
 
 ### Example 7.14: Wage mobility data – comparing wage mobility of men and women
 
@@ -1192,7 +1207,7 @@ corrplot::corrplot(mean_xi_male, method = "square", is.corr = FALSE,
                    col = 1, cl.pos = "n")
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-48-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-49-1.png)
 
 We compare the posterior densities of various transition probabilities
 $\xi_{g,hk}$ for women and men.
@@ -1234,7 +1249,7 @@ legend("topright", col = 1, lty = 1:2,
        legend = c("female", "male"))
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-49-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-50-1.png)
 
 ### Example 7.15: Wage mobility data – long run
 
@@ -1259,7 +1274,7 @@ barplot(eta_hat_female_t, main = "Women", xlab = "Year", ylab = "Wage groups")
 barplot(eta_hat_male_t, main = "Men", xlab = "Year", ylab = "Wage groups")
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-50-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-51-1.png)
 
 We inspect the posterior distributions of $\eta_{t,2}$ for wage category
 2 (left-hand side) versus $\eta_{t,5}$ for wage category 5 (right-hand
@@ -1294,4 +1309,4 @@ hist(eta_male_t[, 6], breaks = breaks,
 legend("topright", c("female", "male"), fill = rgb(c(0, 1), 0, 0, 0.2))
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-51-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-52-1.png)
