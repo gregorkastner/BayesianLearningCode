@@ -991,7 +991,7 @@ hist(stationary2$phi, breaks = mybreaks, col = rgb(0, 0, 1, .3),
      main = "Histogram", xlab = expression(phi), freq = FALSE)
 hist(stationary3$phi, breaks = mybreaks, col = rgb(1, 0, 0, .3), freq = FALSE,
      add = TRUE)
-qqplot(stationary1$phi, stationary3$phi, xlab = "Sampler 1", ylab = "Sampler 2",
+qqplot(stationary2$phi, stationary3$phi, xlab = "Sampler 1", ylab = "Sampler 2",
        main = "QQ plot")
 abline(0, 1, col = 2)
 ```
