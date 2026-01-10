@@ -854,21 +854,36 @@ knitr::kable(round(ndraws / ess, 2))
 We now repeat the above exercise, but use the conditional posterior resulting
 from an auxiliary moment-matched prior in Step (d).
 
+Note: Currently, three methods are implemented:
+
+1. Ignore the part coming from $y_0$ and only moment-match the shifted beta
+prior. This is currently described in the manuscript (auxprior = analytical1)
+
+2. Use a part coming from the determinant of the density of $y_0$, resulting in
+a shifted $\mathcal{B}(a^\phi + 0.5, b^\phi + 0.5)$ (auxprior = analytical2)
+
+3. Numerically approximate mode and curvature of the distribution at every
+iteration (auxprior = numerical)
+
 ```{r}
-method <- "fancy"
-if (method == "simple") {
+auxprior <- "analytical1"
+
+if (auxprior == "analytical1") {
+  aphiprop <- aphi
+  bphiprop <- bphi
+} else if (auxprior == "analytical2") {
   # Add .5 to aphi and bphi (from the determinant of the initial state prior)
   aphiprop <- aphi + .5
   bphiprop <- bphi + .5
+}
 
+if (auxprior != "numerical") {
   # Compute mean and variance of the proposal using properties of the beta
   auxpriormean <- 2 * aphiprop / (aphiprop + bphiprop) - 1
   auxpriorvar <- 4 * (aphiprop * bphiprop) /
     ((aphiprop + bphiprop)^2 * (aphiprop + bphiprop + 1))
-
-} else if (method == "fancy") {
-  
-  # Alternatively, mode-and-curvature-match:
+} else {
+  # For the numerical method, we need the density function of the target
   dprior <- function(phi, zeta, sigma2, y0, aphi, bphi, log = FALSE) {
     inside <- phi <= 1 & phi >= -1
     logdens <- -Inf
@@ -904,8 +919,7 @@ for (m in seq_len(ndraws + nburn)) {
   zeta <- rnorm(1, bT, sqrt(BT))
   
   # Step (d): Draw the persistence
-  
-  if (method == "fancy") {
+  if (auxprior == "numerical") { # overwrites pre-defined mean and variance
     mode <- optimize(dprior, c(-1, 1), zeta = zeta, sigma2 = sigma2, y0 = y0,
                      aphi = aphi, bphi = bphi, log = TRUE, maximum = TRUE)$maximum
     dd <- numDeriv::hessian(dprior, mode, zeta = zeta, sigma2 = sigma2, y0 = y0,
