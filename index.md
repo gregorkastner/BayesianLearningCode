@@ -11,7 +11,8 @@ Click on **Articles** on top of the page to view the R code.
 
 If for some reason you’d like to have the entire package on your
 computer, you can do so by installing the development version of
-BayesianLearningCode from [GitHub](https://github.com/) with:
+BayesianLearningCode from
+[GitHub](https://github.com/gregorkastner/BayesianLearningCode/) with:
 
 ``` r
 # install.packages("pak")

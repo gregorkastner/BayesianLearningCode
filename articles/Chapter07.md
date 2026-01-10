@@ -752,17 +752,17 @@ stationarity, and the posterior under the stationary-enforcing shifted
 beta priors.
 
 ``` r
-mybreaks <- seq(floor(100 * .995 * min(stationary1$phi, stationary2$phi)) / 100,
-                ceiling(100 * 1.015 * max(ar1draws)) / 100,
-                by = .0025)
-hist(ar1draws[!nonstationary[, 1]], breaks = mybreaks, col = rgb(0, 0, 1, .2),
+mybreaks <- seq(floor(100 * min(stationary1$phi, stationary2$phi)) / 100,
+                ceiling(100 * max(ar1draws)) / 100,
+                by = .005)
+hist(stationary2$phi, breaks = mybreaks, col = rgb(1, 1, 0, .2),
      main = "Histogram of posterior draws", xlab = expression(phi),
-     freq = FALSE)
-hist(ar1draws, breaks = mybreaks, col = rgb(0, 1, 0, .2),
-     freq = FALSE, add = TRUE)
+     freq = FALSE, ylab = "")
 hist(stationary1$phi, breaks = mybreaks, col = rgb(1, 0, 0, .2),
      freq = FALSE, add = TRUE)
-hist(stationary2$phi, breaks = mybreaks, col = rgb(1, 1, 0, .2),
+hist(ar1draws[!nonstationary[, 1]], breaks = mybreaks, col = rgb(0, 0, 1, .2),
+     freq = FALSE, add = TRUE)
+hist(ar1draws, breaks = mybreaks, col = rgb(0, 1, 0, .2),
      freq = FALSE, add = TRUE)
 legend("topright",
        c("Unrestricted posterior", "Post-processed posterior",
@@ -967,9 +967,10 @@ mybreaks <- seq(min(stationary2$phi, stationary3$phi),
                 max(stationary2$phi, stationary3$phi),
                 length.out = 30)
 hist(stationary2$phi, breaks = mybreaks, col = rgb(0, 0, 1, .3),
-     main = "Histogram", xlab = expression(phi), freq = FALSE)
+     main = "Histogram", xlab = expression(phi), freq = FALSE, ylab = "")
 hist(stationary3$phi, breaks = mybreaks, col = rgb(1, 0, 0, .3), freq = FALSE,
      add = TRUE)
+legend("topleft", c("Sampler 1", "Sampler 2"), fill = rgb(0:1, 0, 1:0, .3))
 qqplot(stationary2$phi, stationary3$phi, xlab = "Sampler 1", ylab = "Sampler 2",
        main = "QQ plot")
 abline(0, 1, col = 2)
