@@ -56,8 +56,8 @@ Before we move on, we define a function yielding posterior draws under a
 standard regression model, using the tools developed in Chapter 6.
 
 ```{r}
-library(BayesianLearningCode)
-library(mvtnorm)
+library("BayesianLearningCode")
+library("mvtnorm")
 
 regression <- function(y, X, prior = "improper", b0 = 0, B0 = 1, c0 = 0.01,
                        C0 = 0.01, nburn = 1000L, M = 10000L) {
@@ -87,7 +87,7 @@ regression <- function(y, X, prior = "improper", b0 = 0, B0 = 1, c0 = 0.01,
     
     sigma2s <- rinvgamma(M, cN, CN)
     betas <- matrix(NA_real_, M, d)
-    for (i in seq_len(M)) betas[i,] <- rmvnorm(1, bN, sigma2s[i] * BN)
+    for (i in seq_len(M)) betas[i, ] <- rmvnorm(1, bN, sigma2s[i] * BN)
   
   } else if (prior == "conjugate") {
     
@@ -102,7 +102,7 @@ regression <- function(y, X, prior = "improper", b0 = 0, B0 = 1, c0 = 0.01,
     
     sigma2s <- rinvgamma(M, cN, CN)
     betas <- matrix(NA_real_, M, d)
-    for (i in seq_len(M)) betas[i,] <- rmvnorm(1, bN, sigma2s[i] * BN)
+    for (i in seq_len(M)) betas[i, ] <- rmvnorm(1, bN, sigma2s[i] * BN)
   
   } else if (prior == "semi-conjugate") {
     
@@ -135,7 +135,7 @@ regression <- function(y, X, prior = "improper", b0 = 0, B0 = 1, c0 = 0.01,
       
       # Store the results
       if (m > nburn) {
-        betas[m - nburn,] <- beta
+        betas[m - nburn, ] <- beta
         sigma2s[m - nburn] <- sigma2
       }
     }
@@ -202,20 +202,20 @@ Xy <- ARdesignmatrix(logret, 3)
 res_improper <- res[[3]]
 
 res_conj_1 <- regression(y, Xy, prior = "conjugate",
-                              b0 = rep(0, 4), B0 = diag(rep(1, 4)),
-                              c0 = 2, C0 = 0.001)
+                         b0 = rep(0, 4), B0 = diag(rep(1, 4)),
+                         c0 = 2, C0 = 0.001)
 
 res_semi_1 <- regression(y, Xy, prior = "semi-conjugate",
-                              b0 = rep(0, 4), B0 = diag(rep(1, 4)),
-                              c0 = 2, C0 = 0.001)
+                         b0 = rep(0, 4), B0 = diag(rep(1, 4)),
+                         c0 = 2, C0 = 0.001)
 
 res_conj_2 <- regression(y, Xy, prior = "conjugate",
-                              b0 = rep(0, 4), B0 = diag(rep(100, 4)),
-                              c0 = 2, C0 = 0.001)
+                         b0 = rep(0, 4), B0 = diag(rep(100, 4)),
+                         c0 = 2, C0 = 0.001)
 
 res_semi_2 <- regression(y, Xy, prior = "semi-conjugate",
-                              b0 = rep(0, 4), B0 = diag(rep(100, 4)),
-                              c0 = 2, C0 = 0.001)
+                         b0 = rep(0, 4), B0 = diag(rep(100, 4)),
+                         c0 = 2, C0 = 0.001)
 
 ```
 
@@ -275,19 +275,19 @@ if (pdfplots) {
   pdf("7-2_4.pdf", width = 7, height = 2.33)
 }
 par(mfrow = c(1, 3), mar = c(2.5, 2.5, 1.2, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
-hist(res[[1]]$betas[,2], breaks = 20, freq = FALSE, main = "AR(1)",
+hist(res[[1]]$betas[, 2], breaks = 20, freq = FALSE, main = "AR(1)",
      xlab = bquote(phi), ylab = "")
 
-plot(res[[2]]$betas[,2:3], main = "AR(2)", xlab = bquote(phi[1]),
+plot(res[[2]]$betas[, 2:3], main = "AR(2)", xlab = bquote(phi[1]),
      ylab = bquote(phi[2]), xlim = c(-2, 2), ylim = c(-1, 1),
      col = rgb(0, 0, 0, .05), pch = 16)
 polygon(c(-2, 0, 2, -2), c(-1, 1, -1, -1), border = 2)
 
-draws <- res[[3]]$betas[,2:4]
+draws <- res[[3]]$betas[, 2:4]
 eigenvalues <- matrix(NA_complex_, nrow(draws), ncol(draws))
 for (m in seq_len(nrow(draws))) {
-  Phi <- matrix(c(draws[m,], c(1, 0, 0), c(0, 1, 0)), byrow = TRUE, nrow = 3)
-  eigenvalues[m,] <- eigen(Phi, only.values = TRUE)$values
+  Phi <- matrix(c(draws[m, ], c(1, 0, 0), c(0, 1, 0)), byrow = TRUE, nrow = 3)
+  eigenvalues[m, ] <- eigen(Phi, only.values = TRUE)$values
 }
 plot(eigenvalues, xlim = c(-1, 1), ylim = c(-1, 1), asp = 1,
      main = "AR(3)", col = rgb(0, 0, 0, .05), pch = 16)
@@ -309,7 +309,7 @@ if (pdfplots) {
   pdf("7-2_5.pdf", width = 12, height = 5)
   par(mar = c(2.6, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 2)
 }
-par(mfrow = c(1,2))
+par(mfrow = c(1, 2))
 ts.plot(inflation, main = "EU inflation")
 acf(inflation, main = "")
 title("Empirical autocorrelation function")
@@ -334,9 +334,9 @@ if (pdfplots) {
   pdf("7-2_6.pdf", width = 7, height = 2.33)
 }
 par(mfrow = c(1, 3), mar = c(2.5, 2.5, 1.2, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
-ar1draws <- res2[[1]]$betas[,2]
-ar2draws <- res2[[2]]$betas[,2:3]
-ar3draws <- res2[[3]]$betas[,2:4]
+ar1draws <- res2[[1]]$betas[, 2]
+ar2draws <- res2[[2]]$betas[, 2:3]
+ar3draws <- res2[[3]]$betas[, 2:4]
 
 hist(ar1draws, breaks = 20, freq = FALSE, main = "AR(1)",
      xlab = bquote(phi), ylab = "")
@@ -349,8 +349,8 @@ polygon(c(-2, 0, 2, -2), c(-1, 1, -1, -1), border = 2)
 
 eigenvalues <- matrix(NA_complex_, nrow(ar3draws), ncol(ar3draws))
 for (m in seq_len(nrow(ar3draws))) {
-  Phi <- matrix(c(ar3draws[m,], c(1, 0, 0), c(0, 1, 0)), byrow = TRUE, nrow = 3)
-  eigenvalues[m,] <- eigen(Phi, only.values = TRUE)$values
+  Phi <- matrix(c(ar3draws[m, ], c(1, 0, 0), c(0, 1, 0)), byrow = TRUE, nrow = 3)
+  eigenvalues[m, ] <- eigen(Phi, only.values = TRUE)$values
 }
 plot(eigenvalues, xlim = c(-1, 1), ylim = c(-1, 1), asp = 1,
      main = "AR(3)", col = rgb(0, 0, 0, .05), pch = 16)
@@ -364,10 +364,10 @@ draws outside of the stationarity region.
 nonstationary <- matrix(NA, nrow(ar3draws), 3,
                         dimnames = list(NULL, order = 1:3))
 nonstationary[, 1] <- abs(ar1draws) > 1
-nonstationary[, 2] <- ar2draws[,1] + ar2draws[,2] > 1 |
-     abs(ar2draws[,2]) > 1 |
-     ar2draws[,2] > 1 + ar2draws[,1]
-nonstationary[ ,3] <- apply(Mod(eigenvalues) > 1, 1, any)
+nonstationary[, 2] <- ar2draws[, 1] + ar2draws[, 2] > 1 |
+    abs(ar2draws[, 2]) > 1 |
+    ar2draws[, 2] > 1 + ar2draws[, 1]
+nonstationary[, 3] <- apply(Mod(eigenvalues) > 1, 1, any)
 colMeans(nonstationary)
 ```
 
@@ -380,7 +380,7 @@ restriction is not substantial, though.)
 ```{r}
 missing <- seq(10, 100, by = 10)
 yaug <- logret
-yaug[missing] <- NA
+yaug[missing] <- NA_real_
 ```
 
 To set up the Gibbs sampler, we need starting values for
@@ -438,7 +438,7 @@ for (m in seq_len(ndraws + nburn)) {
   if (m > nburn) {
     betas[m - nburn, ] <- beta
     sigma2s[m - nburn] <- sigma2
-    ymisses[m - nburn,] <- ymiss
+    ymisses[m - nburn, ] <- ymiss
   }
 }
 ```
@@ -447,16 +447,16 @@ Let us briefly check some trace plots and ACFs of the draws.
 
 ```{r}
 par(mfrow = c(5, 2))
-ts.plot(betas[,1])
-acf(betas[,1])
-ts.plot(betas[,2])
-acf(betas[,1])
-ts.plot(betas[,3])
-acf(betas[,3])
+ts.plot(betas[, 1])
+acf(betas[, 1])
+ts.plot(betas[, 2])
+acf(betas[, 2])
+ts.plot(betas[, 3])
+acf(betas[, 3])
 ts.plot(sigma2s)
 acf(sigma2s)
-ts.plot(ymisses[,1])
-acf(ymisses[,1])
+ts.plot(ymisses[, 1])
+acf(ymisses[, 1])
 ```
 
 Seems like the mixing is perfect and there is no cause for concern.
@@ -825,7 +825,7 @@ par(mfrow = c(4, 2), mar = c(2.5, 2.8, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
 for (i in seq_along(stationary2)) {
   plot.ts(stationary2[i], xlab = "Draws after burn-in", ylab = labels[i])
   if (i == 1) title("Traceplot")
-  acf(stationary2[i], ylab = "", main = "ACF")
+  acf(stationary2[i], ylab = "")
   if (i == 1) title("Empirical ACF")
 }
 ```
@@ -834,13 +834,13 @@ We now compute an estimate of the effective sample size (ESS) and the
 inefficiency factor (IF) use the coda package.
 
 ```{r}
-library(coda)
+library("coda")
 ess1 <- effectiveSize(data.frame(zeta = res2[[1]]$betas[, 1],
-                               phi = res2[[1]]$betas[, 2],
-                               sigma2 = res2[[1]]$sigma2s))
+                                 phi = res2[[1]]$betas[, 2],
+                                 sigma2 = res2[[1]]$sigma2s))
 ess2 <- effectiveSize(data.frame(zeta = res2[[1]]$betas[!nonstationary[, 1], 1],
-                               phi = res2[[1]]$betas[!nonstationary[, 1], 2],
-                               sigma2 = res2[[1]]$sigma2s[!nonstationary[, 1]]))
+                                 phi = res2[[1]]$betas[!nonstationary[, 1], 2],
+                                 sigma2 = res2[[1]]$sigma2s[!nonstationary[, 1]]))
 ess3 <- effectiveSize(stationary1)
 ess4 <- effectiveSize(stationary2)
 ess <- rbind(unrestricted = c(ess1, y0 = NA),
@@ -968,7 +968,7 @@ par(mfrow = c(4, 2), mar = c(2.5, 2.8, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
 for (i in seq_along(stationary3)) {
   plot.ts(stationary3[i], xlab = "Draws after burn-in", ylab = labels[i])
   if (i == 1) title("Traceplot")
-  acf(stationary3[i], ylab = "", main = "ACF")
+  acf(stationary3[i], ylab = "")
   if (i == 1) title("Empirical ACF")
 }
 ```
@@ -1059,7 +1059,7 @@ if (pdfplots) {
   pdf("7-3_2.pdf", width = 8, height = 4)
 }
 par(mfrow = c(2, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 2)
-draws <- list(ardat[[2]]$betas[,2:3], arret[[2]]$betas[,2:3])
+draws <- list(ardat[[2]]$betas[, 2:3], arret[[2]]$betas[, 2:3])
 eigenvalues <- matrix(NA_complex_, nrow(draws[[1]]), ncol(draws[[1]]))
 mains <- c("AR(2) on the raw series", "AR(2) on the returns")
 for (i in seq_along(draws)) {
@@ -1069,8 +1069,8 @@ for (i in seq_along(draws)) {
   polygon(c(-2, 0, 2, -2), c(-1, 1, -1, -1), border = 2)
 
   for (m in seq_len(nrow(draws[[i]]))) {
-    Phi <- matrix(c(draws[[i]][m,], c(1, 0)), byrow = TRUE, nrow = 2)
-    eigenvalues[m,] <- eigen(Phi, only.values = TRUE)$values
+    Phi <- matrix(c(draws[[i]][m, ], c(1, 0)), byrow = TRUE, nrow = 2)
+    eigenvalues[m, ] <- eigen(Phi, only.values = TRUE)$values
   }
   plot(eigenvalues, xlim = c(-1, 1), ylim = c(-1, 1), asp = 1,
        main = mains[i], col = rgb(0, 0, 0, .05), pch = 16)
@@ -1169,8 +1169,9 @@ getTransitions <- function(x, classes) {
     dimnames(transitions) <- list(from = classes, to = classes)
     transitions
 }
-income_transitions <- lapply(seq_len(nrow(income)),
-                        function(i) getTransitions(income[i,], classes = 0:5))
+income_transitions <-
+    lapply(seq_len(nrow(income)),
+           function(i) getTransitions(income[i, ], classes = 0:5))
 ```
 
 Based on the transition matrices, the total transitions between the
@@ -1298,9 +1299,9 @@ eta_male_t <- eta_female_t <- matrix(eta_0, nrow = M, ncol = 6,
                                      byrow = TRUE)
 for (i in 2:11) {
     eta_female_t <- t(sapply(1:M, function(m)
-        xi_female[,,m] %*% eta_female_t[m,]))
+        xi_female[, , m] %*% eta_female_t[m, ]))
     eta_male_t <- t(sapply(1:M, function(m)
-        xi_male[,,m] %*% eta_male_t[m,]))
+        xi_male[, , m] %*% eta_male_t[m, ]))
 }
 
 breaks <- seq(0.14, 0.26, length.out = 30)
