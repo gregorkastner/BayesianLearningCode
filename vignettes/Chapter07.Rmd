@@ -1101,9 +1101,6 @@ for (p in 1:4) {
   y <- tail(dat, -p)
   Xy <- ARdesignmatrix(dat, p)
   ardat[[p]] <- regression(y, Xy, prior = "improper")
-  y <- tail(ret, -p)
-  Xy <- ARdesignmatrix(ret, p)
-  arret[[p]] <- regression(y, Xy, prior = "improper")
 }
 ```
 
