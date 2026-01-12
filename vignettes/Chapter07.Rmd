@@ -1092,8 +1092,29 @@ for (p in 1:4) {
        main = paste0("AR(", p, ")"), xlab = expression(delta), ylab = "")
 }
 ```
+
+We do the same for the inflation data.
+
+```{r}
+ardat <- arret <- list()
 for (p in 1:4) {
-  hist(1 - rowSums(ardat[[p]]$betas[, 2:(p + 1), drop = FALSE]), freq = FALSE)
+  y <- tail(dat, -p)
+  Xy <- ARdesignmatrix(dat, p)
+  ardat[[p]] <- regression(y, Xy, prior = "improper")
+  y <- tail(ret, -p)
+  Xy <- ARdesignmatrix(ret, p)
+  arret[[p]] <- regression(y, Xy, prior = "improper")
+}
+```
+
+```{r, echo = -c(1:2), fig.width = 8, fig.height = 3}
+if (pdfplots) {
+  pdf("7-3_4.pdf", width = 8, height = 3)
+}
+par(mfrow = c(1, 4), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 2)
+for (p in 1:4) {
+  hist(1 - rowSums(ardat[[p]]$betas[, 2:(p + 1), drop = FALSE]), freq = FALSE,
+       main = paste0("AR(", p, ")"), xlab = expression(delta), ylab = "")
 }
 ```
 
