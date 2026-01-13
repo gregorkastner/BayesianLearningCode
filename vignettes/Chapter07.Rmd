@@ -1098,8 +1098,8 @@ We do the same for the inflation data.
 ```{r}
 ardat <- arret <- list()
 for (p in 1:4) {
-  y <- tail(dat, -p)
-  Xy <- ARdesignmatrix(dat, p)
+  y <- tail(inflation, -p)
+  Xy <- ARdesignmatrix(inflation, p)
   ardat[[p]] <- regression(y, Xy, prior = "improper")
 }
 ```
