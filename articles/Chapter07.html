@@ -1171,8 +1171,8 @@ for
 <div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ardat</span> <span class="op">&lt;-</span> <span class="va">arret</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">p</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="va">dat</span>, <span class="op">-</span><span class="va">p</span><span class="op">)</span></span>
-<span>  <span class="va">Xy</span> <span class="op">&lt;-</span> <span class="fu">ARdesignmatrix</span><span class="op">(</span><span class="va">dat</span>, <span class="va">p</span><span class="op">)</span></span>
+<span>  <span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="va">inflation</span>, <span class="op">-</span><span class="va">p</span><span class="op">)</span></span>
+<span>  <span class="va">Xy</span> <span class="op">&lt;-</span> <span class="fu">ARdesignmatrix</span><span class="op">(</span><span class="va">inflation</span>, <span class="va">p</span><span class="op">)</span></span>
 <span>  <span class="va">ardat</span><span class="op">[[</span><span class="va">p</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu">regression</span><span class="op">(</span><span class="va">y</span>, <span class="va">Xy</span>, prior <span class="op">=</span> <span class="st">"improper"</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
@@ -1181,6 +1181,11 @@ for
 <span>       main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"AR("</span>, <span class="va">p</span>, <span class="st">")"</span><span class="op">)</span>, xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">delta</span><span class="op">)</span>, ylab <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p><img src="Chapter07_files/figure-html/unnamed-chunk-44-1.png" class="r-plt" alt="" width="768"></p>
+</div>
+<div class="section level3">
+<h3 id="section-7-3-2-bayesian-learning-of-an-ma1-model">Section 7.3.2: Bayesian Learning of an MA(1) Model<a class="anchor" aria-label="anchor" href="#section-7-3-2-bayesian-learning-of-an-ma1-model"></a>
+</h3>
+<p>We now implement the MCMC sampler for fitting an MA(1) model.</p>
 </div>
 </div>
 <div class="section level2">
