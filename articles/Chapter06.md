@@ -37,26 +37,39 @@ X <- as.matrix(cbind("Intercept" = rep(1, N), covs.cen)) # regressor matrix
 d <- dim(X)[2] # number regression effects
 ```
 
-Next we compute the parameters of the posterior of the regression
-effects under the improper prior
-$p\left( \beta,\sigma^{2} \right) \propto \frac{1}{\sigma^{2}}$. The
-posterior means are given together with the equal-tailed 95% credibility
-interval in the following table.
+Next we define a function to compute the parameters of the posterior of
+the regression effects under the improper prior
+$p\left( \beta,\sigma^{2} \right) \propto \frac{1}{\sigma^{2}}$.
 
 ``` r
-BN <- solve(crossprod(X))
-Xy <- crossprod(X, y)
-beta.hat <- BN %*% Xy
+regression_improper <- function(y, X) {
+  
+   BN <- solve(crossprod(X))
+   Xy <- crossprod(X, y)
+   beta.hat <- BN %*% Xy
 
-SSR <- as.numeric(crossprod(y - X %*% beta.hat))
+   SSR <- as.numeric(crossprod(y - X %*% beta.hat))
 
-cN <- (N - d) / 2
-CN <- SSR / 2
+   cN <- (N - d) / 2
+   CN <- SSR / 2
 
-post.var <- (CN / cN) * BN
-post.sd = sqrt(diag(post.var))
+   post.var <- (CN / cN) * BN
+   list(beta.hat = beta.hat, BN = BN, cN = cN, CN = CN, post.var=post.var)
+}
+```
 
-knitr::kable(round(cbind(qt(0.025,df = 2 * cN) * post.sd + beta.hat, beta.hat,
+The posterior means are given together with the equal-tailed 95%
+credibility interval in the following table.
+
+``` r
+reg.improp <- regression_improper(y,X)
+
+beta.hat <- reg.improp$beta.hat
+post.sd = sqrt(diag(reg.improp$post.var))
+cN<- reg.improp$cN
+
+knitr::kable(round(cbind(qt(0.025,df = 2 * cN) * post.sd + beta.hat,
+                          beta.hat,
                          qt(0.975,df = 2 * cN) * post.sd + beta.hat), 3),
              col.names = c("2.5% quantile", "posterior mean", "97.5% quantile"))
 ```
@@ -69,10 +82,10 @@ knitr::kable(round(cbind(qt(0.025,df = 2 * cN) * post.sd + beta.hat, beta.hat,
 
 Next, we plot the (univariate) marginal posterior distribution of the
 intercept and the univariate and bivariate marginal posterior
-distribution(s) of the covariate effects.
+distributions of the covariate effects.
 
 ``` r
-curve(dt((x - beta.hat[1]) / post.sd[1], df = 2 * cN),
+curve(dt((x - beta.hat[1]) / post.sd[1], df = 2 *cN),
       from = beta.hat[1] - 3 * post.sd[1],
       to = beta.hat[1] + 3 * post.sd[1],
       ylab = "", xlab = "", main = "", col = "blue")
@@ -80,7 +93,7 @@ mtext("Intercept", 1, line = 1.7)
 
 f <- function(x1, x2) {
   mvtnorm::dmvt(cbind(x1 - beta.hat[2], x2 - beta.hat[3]),
-                sigma = post.var[2:3, 2:3], df = 2 * cN, log = FALSE)
+                sigma = reg.improp$post.var[2:3, 2:3], df = 2 * reg.improp$cN, log = FALSE)
 }
 
 lim <- 3 * max(post.sd[-1])
@@ -94,21 +107,23 @@ mtext(rownames(beta.hat)[2], 1, line = 1.7)
 mtext(rownames(beta.hat)[3], 2, line = 1.7)
 
 par(mar = c(0, 3, 1, 1))
-mar.x1 <- dt((xx1 - beta.hat[2]) / post.sd[2], df = 2 * cN, log = FALSE)
+mar.x1 <- dt((xx1 - beta.hat[2]) / post.sd[2], df = 2 * reg.improp$cN, log = FALSE)
 plot(xx1, mar.x1, col = "blue", type = "l", xaxt = "n", ylab = "")
 
 par(mar = c(3, 0, 1, 1))
-mar.x2 <- dt((xx2 - beta.hat[3]) / post.sd[3], df = 2 * cN, log = FALSE)
+mar.x2 <- dt((xx2 - beta.hat[3]) / post.sd[3], df = 2 * reg.improp$cN, log = FALSE)
 plot(mar.x2, xx2, col = "blue", type = "l", yaxt = "n", xlab = "")
 ```
+
+![](Chapter06_files/figure-html/unnamed-chunk-7-1.png)
 
 For completeness we report also the posterior mean of the error variance
 with the 95% credibility interval.
 
 ``` r
-sigma2.hat <- CN /(cN-1)
-knitr::kable(round(cbind(qinvgamma(0.025,a=cN,b=CN), sigma2.hat,
-                     qinvgamma(0.975,a=cN,b=CN)),2),
+sigma2.hat <- reg.improp$CN /(cN-1)
+knitr::kable(round(cbind(qinvgamma(0.025,a=cN,b=reg.improp$CN), sigma2.hat,
+                     qinvgamma(0.975,a=cN,b=reg.improp$CN)),2),
              col.names = c("2.5% quantile", "posterior mean", "97.5% quantile"))
 ```
 
@@ -122,8 +137,9 @@ We now compute the predictions of the box office sales on the opening
 weekend for a film with an average number of for a range of values for .
 
 ``` r
- nf<-35
- X_new <- cbind(rep(1,nf), -22:12,rep(0,nf))
+ xvals <-  -10:17
+ nf <-length(xvals) 
+ X_new <- cbind(rep(1,nf),xvals,rep(0,nf))
  colnames(X_new)<-colnames(X)
  
  ypred=X_new %*% beta.hat 
@@ -141,16 +157,56 @@ Bayesian regression model.
 
 ``` r
 par(mar = c(3, 3, 1, 1))
-plot(X_new[,2],ypred, col="blue", type="l",ylim=c(-50,70),xlab="Weeks (centered at 0) ",ylab="predicited Box office sales") 
-lines(X_new[,2], pred.low, col="blue", lty=2) 
-lines(X_new[,2], pred.up, col="blue", lty=2) 
+week=X_new[,2]+mean(movies[, "Weeks"])
+plot(week,ypred, col="blue", type="l",ylim=c(-50,70),xlab="Weeks",ylab="predicited Box office sales") 
+lines(week, pred.low, col="blue", lty=2) 
+lines(week, pred.up, col="blue", lty=2) 
 
 
 par(mar = c(3, 3, 1, 1))
 y.pred <- X%*%beta.hat
-plot(y, y.pred,xlim=c(-20,160), ylim=c(-20,160), col="blue", xlab="observed", ylab="predicted")
+plot(y, y.pred,xlim=c(-20,160), ylim=c(-20,160), col="blue", xlab="observed sales", ylab="predicted sales")
 abline(a=0, b=1)
 ```
+
+![](Chapter06_files/figure-html/unnamed-chunk-10-1.png)
+
+As the Box sales are positive, the model is not really adequate. Hence
+we try a linear regression model for the log transformed sales.
+
+``` r
+log.y <- log(movies[, "OpenBoxOffice"])
+
+reg.lny<- regression_improper(log.y,X)
+
+
+lny.pred <- X_new %*% reg.lny$beta.hat 
+sigma2.hat <- reg.lny$CN /(reg.lny$cN-1)
+
+lny.pred.var=rep(NA, nf)
+for (i in (1:nf)){
+      lny.pred.var[i] <- sigma2.hat*(t(X_new[i,])%*%solve(crossprod(X))%*%X_new[i,]+1)
+}
+ pred.up  <- exp(lny.pred + sqrt(lny.pred.var)*qt(0.975, df=2*reg.lny$cN))
+ pred.low <- exp(lny.pred - sqrt(lny.pred.var)*qt(0.975, df=2*reg.lny$cN))
+```
+
+We plot the point predictions of the sales with the 95% prediction
+interval
+
+``` r
+par(mar = c(3, 3, 1, 1))
+plot(week,exp(lny.pred), col="blue", type="l",ylim=c(-50,70),xlab="Weeks",ylab="predicited Box office sales") 
+lines(week, pred.low, col="blue", lty=2) 
+lines(week, pred.up, col="blue", lty=2) 
+
+par(mar = c(3, 3, 1, 1))
+plot(y, y.pred,xlim=c(-20,160), ylim=c(-20,160), col="blue", xlab="observed sales", ylab="predicted sales")
+points(y,exp(X%*%reg.lny$beta.hat),col="red")
+abline(a=0, b=1)
+```
+
+![](Chapter06_files/figure-html/unnamed-chunk-12-1.png)
 
 ### Section 6.2.2 Bayesian Learning under Conjugate Priors
 
@@ -261,6 +317,8 @@ for (i in seq_len(nrow(beta.hat))) {
     col = 1:4, lty = 1:4, lwd = c(1, 2, 2, 2))
 }
 ```
+
+![](Chapter06_files/figure-html/unnamed-chunk-16-1.png)
 
 There is little difference to the improper prior for the effects of
 Screens and Weeks, however the intercept intercept is shrunk to zero for
@@ -429,6 +487,8 @@ legend('topright', legend = c("Horseshoe", "Standard normal"), lty = 1:2,
        col = c("blue", "black"))
 ```
 
+![](Chapter06_files/figure-html/unnamed-chunk-24-1.png)
+
 We now set up the Gibbs sampler of the regression model wIth a proper
 Normal prior on the intercept and horseshoe priors on the coviariate
 effects.
@@ -553,7 +613,7 @@ posterior distributions under the horseshoe prior. Note that the
 posterior distributions are symmetric under the semi-conjugate prior,
 whereas this is not the case under the horseshoe prior.
 
-![](Chapter06_files/figure-html/unnamed-chunk-26-1.png)![](Chapter06_files/figure-html/unnamed-chunk-26-2.png)
+![](Chapter06_files/figure-html/unnamed-chunk-29-1.png)![](Chapter06_files/figure-html/unnamed-chunk-29-2.png)
 
 For illustration purposes, we overlay four selected marginal posteriors
 in order to illustrate the shrinkage effect.
@@ -573,6 +633,8 @@ for (i in selection) {
 }
 ```
 
+![](Chapter06_files/figure-html/unnamed-chunk-30-1.png)
+
 We next investigate the trace plots of the draws from the posterior. As
 above, the plots on the left are obtained under the semi-conjugate
 prior, those on the right under the horseshoe prior.
@@ -585,7 +647,7 @@ for (i in seq_len(d)) {
 }
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-28-1.png)![](Chapter06_files/figure-html/unnamed-chunk-28-2.png)
+![](Chapter06_files/figure-html/unnamed-chunk-31-1.png)![](Chapter06_files/figure-html/unnamed-chunk-31-2.png)
 
 To sum up, we visualize the posterior of the effects and corresponding
 (square root of the) shrinkage parameters. For visual inspection, we
@@ -605,10 +667,11 @@ tau.hs.trunc.mirrored <- rbind(sqrt(tau2.hs.trunc), -sqrt(tau2.hs.trunc))
 On the left, we see the posteriors of the regression effects posteriors,
 on the right, we visualize the gap plot.
 
-We verify convergence of the sampler by doing a second run of the six
-block sampler in Algorithm 6.2. In the Q-Q plot of the draws of the
-intercept and the error variance the draws are very close to the
-identity line and hence we can conclude that the sampler has converged.
+![](Chapter06_files/figure-html/unnamed-chunk-33-1.png) We verify
+convergence of the sampler by doing a second run of the six block
+sampler in Algorithm 6.2. In the Q-Q plot of the draws of the intercept
+and the error variance the draws are very close to the identity line and
+hence we can conclude that the sampler has converged.
 
 ``` r
 post.draws.hs2 <- reg_hs(y, X, M = M)
@@ -626,10 +689,10 @@ qqplot(post.draws.hs$sigma2s, post.draws.hs2$sigma2s,
 abline(a = 0, b = 1)
 ```
 
-Next we want to predict the box office sale for a movie with MPAA rating
-`G'' or`PG’’, of genre comedy, with average values of and {Weeks} as
-well as the sentiments and volumes of Twitter-posts set, but different
-values of .
+![](Chapter06_files/figure-html/unnamed-chunk-34-1.png) Next we want to
+predict the box office sale for a movie with MPAA rating `G'' or`PG’’,
+of genre comedy, with average values of and {Weeks} as well as the
+sentiments and volumes of Twitter-posts set, but different values of .
 
 ``` r
  nf=4
@@ -668,4 +731,15 @@ points(x = (1:nf)+0.2, y = pred.int.hs[2,], pch=19,col="blue",cex=1.2)
 points(x = (1:nf)+0.2, y = pred.mean.hs, pch=16,col="red")     
 
 axis(1,at=1:nf,labels=c("A","B","C","D"))
+```
+
+![](Chapter06_files/figure-html/unnamed-chunk-36-1.png)
+
+## Section 6.5: Shrinkage beyond the Horseshoeprior
+
+### Example 6.10
+
+``` r
+beta <- seq(from = -4, to = 4, by = 0.01)
+#logp= lgamma(a_lambda+2)+lgamma(a_lambda)+a_lambda*log(a_lambda)-(a_lambda+2)log(a_lambda+beta1°2+beta2^2)
 ```
