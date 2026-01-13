@@ -1115,6 +1115,10 @@ for (p in 1:4) {
 }
 ```
 
+## Section 7.3.2: Bayesian Learning of an MA(1) Model
+
+We now implement the MCMC sampler for fitting an MA(1) model. 
+
 # Section 7.4: Markov modeling for a panel of categorical time series
 
 ## Example 7.13: Wage mobility data
