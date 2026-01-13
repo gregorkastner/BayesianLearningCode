@@ -57,30 +57,41 @@ X <- as.matrix(cbind("Intercept" = rep(1, N), covs.cen)) # regressor matrix
 d <- dim(X)[2] # number regression effects
 ```
 
-Next we compute the parameters of the  posterior of the regression effects under the improper prior  $p(\beta, \sigma^2) \propto \frac{1}{\sigma^2}$.
+Next we define a function to compute the parameters of the  posterior of the regression effects under the improper prior  $p(\beta, \sigma^2) \propto \frac{1}{\sigma^2}$. 
+
+```{r}
+regression_improper <- function(y, X) {
+  
+   BN <- solve(crossprod(X))
+   Xy <- crossprod(X, y)
+   beta.hat <- BN %*% Xy
+
+   SSR <- as.numeric(crossprod(y - X %*% beta.hat))
+
+   cN <- (N - d) / 2
+   CN <- SSR / 2
+
+   post.var <- (CN / cN) * BN
+   list(beta.hat = beta.hat, BN = BN, cN = cN, CN = CN, post.var=post.var)
+}
+```
 The posterior means are given together with the equal-tailed 95\% credibility interval in the following table.  
 
 ```{r}
-BN <- solve(crossprod(X))
-Xy <- crossprod(X, y)
-beta.hat <- BN %*% Xy
+reg.improp <- regression_improper(y,X)
 
-SSR <- as.numeric(crossprod(y - X %*% beta.hat))
+beta.hat <- reg.improp$beta.hat
+post.sd = sqrt(diag(reg.improp$post.var))
+cN<- reg.improp$cN
 
-cN <- (N - d) / 2
-CN <- SSR / 2
-
-post.var <- (CN / cN) * BN
-post.sd = sqrt(diag(post.var))
-
-knitr::kable(round(cbind(qt(0.025,df = 2 * cN) * post.sd + beta.hat, beta.hat,
+knitr::kable(round(cbind(qt(0.025,df = 2 * cN) * post.sd + beta.hat,
+                          beta.hat,
                          qt(0.975,df = 2 * cN) * post.sd + beta.hat), 3),
              col.names = c("2.5% quantile", "posterior mean", "97.5% quantile"))
 ```
 
-
 Next, we plot the (univariate) marginal posterior distribution of the intercept
-and the univariate and bivariate marginal posterior distribution(s) of the
+and the univariate and bivariate marginal posterior distributions of the
 covariate effects.
 
 ```{r, echo = -c(1:3)}
@@ -91,7 +102,7 @@ if (pdfplots) {
 layout(matrix(c(0, 1, 3, 2, 0, 4), nrow = 2), widths = c(2, 3, 1),
        heights = c(1, 3), respect = TRUE)
 par(mar = c(3, 2, 1, 1))
-curve(dt((x - beta.hat[1]) / post.sd[1], df = 2 * cN),
+curve(dt((x - beta.hat[1]) / post.sd[1], df = 2 *cN),
       from = beta.hat[1] - 3 * post.sd[1],
       to = beta.hat[1] + 3 * post.sd[1],
       ylab = "", xlab = "", main = "", col = "blue")
@@ -99,7 +110,7 @@ mtext("Intercept", 1, line = 1.7)
 
 f <- function(x1, x2) {
   mvtnorm::dmvt(cbind(x1 - beta.hat[2], x2 - beta.hat[3]),
-                sigma = post.var[2:3, 2:3], df = 2 * cN, log = FALSE)
+                sigma = reg.improp$post.var[2:3, 2:3], df = 2 * reg.improp$cN, log = FALSE)
 }
 
 lim <- 3 * max(post.sd[-1])
@@ -113,21 +124,22 @@ mtext(rownames(beta.hat)[2], 1, line = 1.7)
 mtext(rownames(beta.hat)[3], 2, line = 1.7)
 
 par(mar = c(0, 3, 1, 1))
-mar.x1 <- dt((xx1 - beta.hat[2]) / post.sd[2], df = 2 * cN, log = FALSE)
+mar.x1 <- dt((xx1 - beta.hat[2]) / post.sd[2], df = 2 * reg.improp$cN, log = FALSE)
 plot(xx1, mar.x1, col = "blue", type = "l", xaxt = "n", ylab = "")
 
 par(mar = c(3, 0, 1, 1))
-mar.x2 <- dt((xx2 - beta.hat[3]) / post.sd[3], df = 2 * cN, log = FALSE)
+mar.x2 <- dt((xx2 - beta.hat[3]) / post.sd[3], df = 2 * reg.improp$cN, log = FALSE)
 plot(mar.x2, xx2, col = "blue", type = "l", yaxt = "n", xlab = "")
 ```
 
 
 For completeness we report also the posterior mean of the  error variance with the 95\%
 credibility interval.
+
 ```{r}
-sigma2.hat <- CN /(cN-1)
-knitr::kable(round(cbind(qinvgamma(0.025,a=cN,b=CN), sigma2.hat,
-                     qinvgamma(0.975,a=cN,b=CN)),2),
+sigma2.hat <- reg.improp$CN /(cN-1)
+knitr::kable(round(cbind(qinvgamma(0.025,a=cN,b=reg.improp$CN), sigma2.hat,
+                     qinvgamma(0.975,a=cN,b=reg.improp$CN)),2),
              col.names = c("2.5% quantile", "posterior mean", "97.5% quantile"))
 ```
 # Exercise 6.3.
@@ -169,6 +181,44 @@ plot(y, y.pred,xlim=c(-20,160), ylim=c(-20,160), col="blue", xlab="observed sale
 abline(a=0, b=1)
 ```
 
+As the Box sales are positive, the model is not really adequate. Hence we try a linear regression model for the log transformed sales.
+
+```{r}
+log.y <- log(movies[, "OpenBoxOffice"])
+
+reg.lny<- regression_improper(log.y,X)
+
+
+lny.pred <- X_new %*% reg.lny$beta.hat 
+sigma2.hat <- reg.lny$CN /(reg.lny$cN-1)
+
+lny.pred.var=rep(NA, nf)
+for (i in (1:nf)){
+      lny.pred.var[i] <- sigma2.hat*(t(X_new[i,])%*%solve(crossprod(X))%*%X_new[i,]+1)
+}
+ pred.up  <- exp(lny.pred + sqrt(lny.pred.var)*qt(0.975, df=2*reg.lny$cN))
+ pred.low <- exp(lny.pred - sqrt(lny.pred.var)*qt(0.975, df=2*reg.lny$cN))
+```
+ 
+ We plot the point predictions of the sales with the 95\% prediction interval 
+ 
+```{r, echo = -c(1:3)}
+if (pdfplots) {
+  pdf("6-4_1b.pdf", width = 9, height = 6)
+  par(mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.6, .6, 0))
+}
+par(mfrow=c(1,2))
+
+par(mar = c(3, 3, 1, 1))
+plot(week,exp(lny.pred), col="blue", type="l",ylim=c(-50,70),xlab="Weeks",ylab="predicited Box office sales") 
+lines(week, pred.low, col="blue", lty=2) 
+lines(week, pred.up, col="blue", lty=2) 
+
+par(mar = c(3, 3, 1, 1))
+plot(y, y.pred,xlim=c(-20,160), ylim=c(-20,160), col="blue", xlab="observed sales", ylab="predicted sales")
+points(y,exp(X%*%reg.lny$beta.hat),col="red")
+abline(a=0, b=1)
+```
 
 ## Section 6.2.2 Bayesian Learning under Conjugate Priors
 
@@ -657,4 +707,15 @@ points(x = (1:nf)+0.2, y = pred.int.hs[2,], pch=19,col="blue",cex=1.2)
 points(x = (1:nf)+0.2, y = pred.mean.hs, pch=16,col="red")     
 
 axis(1,at=1:nf,labels=c("A","B","C","D"))
+```
+
+# Section 6.5: Shrinkage beyond the Horseshoeprior
+## Example 6.10 
+```{r, echo = -1}
+if (pdfplots) {
+  pdf("6-4_8.pdf", width = 8, height = 5)
+  par(mar = c(2.5, 1.5, .1, .1), mgp = c(1.6, .6, 0))
+}
+beta <- seq(from = -4, to = 4, by = 0.01)
+#logp= lgamma(a_lambda+2)+lgamma(a_lambda)+a_lambda*log(a_lambda)-(a_lambda+2)log(a_lambda+beta1°2+beta2^2)
 ```
