@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
   fig.height = 6
 )
 knitr::opts_knit$set(global.par = TRUE)
-pdfplots <-FALSE #default: FALSE; set this to TRUE only if you like pdf figures
+pdfplots <- FALSE #default: FALSE; set this to TRUE only if you like pdf figures
 ```
 
 ```{r, include = FALSE}
