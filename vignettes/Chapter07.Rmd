@@ -1114,7 +1114,7 @@ par(mfrow = c(1, 4), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 2)
 for (p in 1:4) {
   hist(1 - rowSums(ardat[[p]]$betas[, 2:(p + 1), drop = FALSE]), freq = FALSE,
        main = paste0("AR(", p, ")"), xlab = expression(delta), ylab = "",
-       breaks = 20)
+       breaks = 16)
   abline(v = 0, lty = 2, col = 2)
 }
 ```
