@@ -1098,7 +1098,7 @@ for (p in 1:4) {
 for (p in 1:4) {
   hist(1 - rowSums(ardat[[p]]$betas[, 2:(p + 1), drop = FALSE]), freq = FALSE,
        main = paste0("AR(", p, ")"), xlab = expression(delta), ylab = "",
-       breaks = 20)
+       breaks = 16)
   abline(v = 0, lty = 2, col = 2)
 }
 ```
@@ -1126,6 +1126,7 @@ sigma2 <- var(dat) / 2
 
 # Allocate space for the draws
 eps0s <- sigma2s <- thetas <- rep(NA_real_, ndraws)
+naccepts <- 0L
 
 for (m in seq_len(ndraws + nburn)) {
   # Sample epsilon_0
@@ -1148,7 +1149,10 @@ for (m in seq_len(ndraws + nburn)) {
     dunif(thetaprop, -1, 1, log = TRUE) - 
     dunif(theta, -1, 1, log = TRUE)
   
-  if (log(runif(1)) < logR) theta <- thetaprop
+  if (log(runif(1)) < logR) {
+    theta <- thetaprop
+    if (m > nburn) naccepts <- naccepts + 1L
+  }
   
   # Store the results
   if (m > nburn) {
