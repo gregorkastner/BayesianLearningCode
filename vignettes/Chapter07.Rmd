@@ -1134,9 +1134,6 @@ c0 <- C0 <- 0.01
 cthetas <- c(.01, .1, 1)
 
 # Allocate space for the draws
-  # Sample epsilon_0
-  eps0 <- rnorm(1, theta * dat[1] / (1 + theta^2), sqrt(sigma2 / (1 + theta^2)))
-  
   # Compute the epsilons recursively
   eps <- filter(dat, -theta, "recursive", init = eps0)
   
@@ -1162,6 +1159,12 @@ for (i in seq_along(cthetas)) {
 
   # MCMC loop
   for (m in seq_len(ndraws + nburn)) {
+    # Sample epsilon_0
+    bs <- (-theta)^seq_along(dat)
+    as <- filter(dat, -theta, "recursive")
+    tmp <- 1 + sum(bs^2)
+    eps0 <- rnorm(1, -sum(as * bs) / tmp, sqrt(sigma2 / tmp))
+    
   
   if (log(runif(1)) < logR) {
     theta <- thetaprop
