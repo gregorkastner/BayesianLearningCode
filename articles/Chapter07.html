@@ -1199,80 +1199,89 @@ is assumed to be a priori uniform on
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">[</mo><mo>−</mo><mn>1</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[-1,1]</annotation></semantics></math>.</p>
 <div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Specify prior hyperparameters</span></span>
-<span><span class="va">c0</span> <span class="op">&lt;-</span> <span class="va">C0</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
+<span><span class="va">c0</span> <span class="op">&lt;-</span> <span class="va">C0</span> <span class="op">&lt;-</span> <span class="fl">0.01</span></span>
 <span></span>
 <span><span class="co"># standard deviation for random walk MH proposal</span></span>
-<span><span class="va">ctheta</span> <span class="op">&lt;-</span> <span class="fl">.01</span></span>
-<span></span>
-<span><span class="co"># Set the starting values</span></span>
-<span><span class="va">theta</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
-<span><span class="va">sigma2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">var</a></span><span class="op">(</span><span class="va">dat</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span></span>
+<span><span class="va">cthetas</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.01</span>, <span class="fl">.1</span>, <span class="fl">1</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Allocate space for the draws</span></span>
-<span><span class="va">eps0s</span> <span class="op">&lt;-</span> <span class="va">sigma2s</span> <span class="op">&lt;-</span> <span class="va">thetas</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA_real_</span>, <span class="va">ndraws</span><span class="op">)</span></span>
-<span><span class="va">naccepts</span> <span class="op">&lt;-</span> <span class="fl">0L</span></span>
+<span><span class="va">eps0s</span> <span class="op">&lt;-</span> <span class="va">sigma2s</span> <span class="op">&lt;-</span> <span class="va">thetas</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="cn">NA_real_</span>, <span class="va">ndraws</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">cthetas</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">naccepts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0L</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">cthetas</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="kw">for</span> <span class="op">(</span><span class="va">m</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">ndraws</span> <span class="op">+</span> <span class="va">nburn</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="co"># Sample epsilon_0</span></span>
-<span>  <span class="va">eps0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">theta</span> <span class="op">*</span> <span class="va">dat</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">/</span> <span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="va">theta</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">sigma2</span> <span class="op">/</span> <span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="va">theta</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span>  </span>
-<span>  <span class="co"># Compute the epsilons recursively</span></span>
-<span>  <span class="va">eps</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">dat</span>, <span class="op">-</span><span class="va">theta</span>, <span class="st">"recursive"</span>, init <span class="op">=</span> <span class="va">eps0</span><span class="op">)</span></span>
-<span>  </span>
-<span>  <span class="co"># Sample sigma^2</span></span>
-<span>  <span class="va">cN</span> <span class="op">&lt;-</span> <span class="va">c0</span> <span class="op">+</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">dat</span><span class="op">)</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span></span>
-<span>  <span class="va">CN</span> <span class="op">&lt;-</span> <span class="va">C0</span> <span class="op">+</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="op">(</span><span class="va">eps0</span><span class="op">^</span><span class="fl">2</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">eps</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
-<span>  <span class="va">sigma2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvGammaDist.html">rinvgamma</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">cN</span>, <span class="va">CN</span><span class="op">)</span></span>
-<span>  </span>
-<span>  <span class="co"># Sample theta via RW-MH</span></span>
-<span>  <span class="va">thetaprop</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">theta</span>, <span class="va">ctheta</span><span class="op">)</span></span>
-<span>  <span class="va">epsprop</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">dat</span>, <span class="op">-</span><span class="va">thetaprop</span>, <span class="st">"recursive"</span>, init <span class="op">=</span> <span class="va">eps0</span><span class="op">)</span></span>
-<span>  </span>
-<span>  <span class="va">logR</span> <span class="op">&lt;-</span> <span class="op">-</span><span class="fl">0.5</span> <span class="op">/</span> <span class="va">sigma2</span> <span class="op">*</span> <span class="op">(</span><span class="va">eps0</span><span class="op">^</span><span class="fl">2</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">epsprop</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span> <span class="op">-</span></span>
-<span>          <span class="op">-</span><span class="fl">0.5</span> <span class="op">/</span> <span class="va">sigma2</span> <span class="op">*</span> <span class="op">(</span><span class="va">eps0</span><span class="op">^</span><span class="fl">2</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">eps</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">dunif</a></span><span class="op">(</span><span class="va">thetaprop</span>, <span class="op">-</span><span class="fl">1</span>, <span class="fl">1</span>, log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">-</span> </span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">dunif</a></span><span class="op">(</span><span class="va">theta</span>, <span class="op">-</span><span class="fl">1</span>, <span class="fl">1</span>, log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span>  </span>
-<span>  <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span> <span class="op">&lt;</span> <span class="va">logR</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="va">theta</span> <span class="op">&lt;-</span> <span class="va">thetaprop</span></span>
-<span>    <span class="kw">if</span> <span class="op">(</span><span class="va">m</span> <span class="op">&gt;</span> <span class="va">nburn</span><span class="op">)</span> <span class="va">naccepts</span> <span class="op">&lt;-</span> <span class="va">naccepts</span> <span class="op">+</span> <span class="fl">1L</span></span>
-<span>  <span class="op">}</span></span>
-<span>  </span>
-<span>  <span class="co"># Store the results</span></span>
-<span>  <span class="kw">if</span> <span class="op">(</span><span class="va">m</span> <span class="op">&gt;</span> <span class="va">nburn</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="va">eps0s</span><span class="op">[</span><span class="va">m</span> <span class="op">-</span> <span class="va">nburn</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">eps0</span></span>
-<span>    <span class="va">sigma2s</span><span class="op">[</span><span class="va">m</span> <span class="op">-</span> <span class="va">nburn</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">sigma2</span></span>
-<span>    <span class="va">thetas</span><span class="op">[</span><span class="va">m</span> <span class="op">-</span> <span class="va">nburn</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">theta</span></span>
-<span>  <span class="op">}</span></span>
-<span><span class="op">}</span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">cthetas</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="co"># Set the starting values</span></span>
+<span>  <span class="va">theta</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
+<span>  <span class="va">sigma2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">var</a></span><span class="op">(</span><span class="va">dat</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/stats/plot.ts.html" class="external-link">plot.ts</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">eps0s</span>, <span class="va">sigma2s</span>, <span class="va">thetas</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Chapter07_files/figure-html/unnamed-chunk-45-1.png" class="r-plt" alt="" width="768"></p>
-</div>
-</div>
-<div class="section level2">
-<h2 id="section-7-4-markov-modeling-for-a-panel-of-categorical-time-series">Section 7.4: Markov modeling for a panel of categorical time
-series<a class="anchor" aria-label="anchor" href="#section-7-4-markov-modeling-for-a-panel-of-categorical-time-series"></a>
-</h2>
-<div class="section level3">
-<h3 id="example-7-13-wage-mobility-data">Example 7.13: Wage mobility data<a class="anchor" aria-label="anchor" href="#example-7-13-wage-mobility-data"></a>
-</h3>
-<p>We load the data and only consider workers from the birth cohort
-1946-1960.</p>
+<span>  <span class="co"># MCMC loop</span></span>
+<span>  <span class="kw">for</span> <span class="op">(</span><span class="va">m</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">ndraws</span> <span class="op">+</span> <span class="va">nburn</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="co"># Sample epsilon_0</span></span>
+<span>    <span class="va">bs</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="op">-</span><span class="va">theta</span><span class="op">)</span><span class="op">^</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">dat</span><span class="op">)</span></span>
+<span>    <span class="va">as</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">dat</span>, <span class="op">-</span><span class="va">theta</span>, <span class="st">"recursive"</span><span class="op">)</span></span>
+<span>    <span class="va">tmp</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">bs</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span></span>
+<span>    <span class="va">eps0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1</span>, <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">as</span> <span class="op">*</span> <span class="va">bs</span><span class="op">)</span> <span class="op">/</span> <span class="va">tmp</span>, <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">sigma2</span> <span class="op">/</span> <span class="va">tmp</span><span class="op">)</span><span class="op">)</span></span>
+<span>    </span>
+<span>    <span class="co"># Sample sigma^2</span></span>
+<span>    <span class="va">eps</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">dat</span>, <span class="op">-</span><span class="va">theta</span>, <span class="st">"recursive"</span>, init <span class="op">=</span> <span class="va">eps0</span><span class="op">)</span></span>
+<span>    <span class="va">cN</span> <span class="op">&lt;-</span> <span class="va">c0</span> <span class="op">+</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">dat</span><span class="op">)</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span></span>
+<span>    <span class="va">CN</span> <span class="op">&lt;-</span> <span class="va">C0</span> <span class="op">+</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="op">(</span><span class="va">eps0</span><span class="op">^</span><span class="fl">2</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">eps</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="va">sigma2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvGammaDist.html">rinvgamma</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">cN</span>, <span class="va">CN</span><span class="op">)</span></span>
+<span>  </span>
+<span>    <span class="co"># Sample theta via RW-MH</span></span>
+<span>    <span class="va">thetaprop</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">theta</span>, <span class="va">cthetas</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span></span>
+<span>    <span class="va">epsprop</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">dat</span>, <span class="op">-</span><span class="va">thetaprop</span>, <span class="st">"recursive"</span>, init <span class="op">=</span> <span class="va">eps0</span><span class="op">)</span></span>
+<span>    </span>
+<span>    <span class="co"># Now we accept/reject. Note that because we have a uniform prior on</span></span>
+<span>    <span class="co"># (-1, 1), it suffices to check whether the proposed value is in that</span></span>
+<span>    <span class="co"># interval and we do not need to include the prior in the acceptance ratio</span></span>
+<span>    <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">thetaprop</span><span class="op">)</span> <span class="op">&lt;</span> <span class="fl">1</span><span class="op">)</span> <span class="op">{</span></span>
+<span>      <span class="va">logR</span> <span class="op">&lt;-</span> <span class="op">-</span><span class="fl">0.5</span> <span class="op">/</span> <span class="va">sigma2</span> <span class="op">*</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">epsprop</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">eps</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span>      <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span> <span class="op">&lt;</span> <span class="va">logR</span><span class="op">)</span> <span class="op">{</span></span>
+<span>        <span class="va">theta</span> <span class="op">&lt;-</span> <span class="va">thetaprop</span></span>
+<span>        <span class="kw">if</span> <span class="op">(</span><span class="va">m</span> <span class="op">&gt;</span> <span class="va">nburn</span><span class="op">)</span> <span class="va">naccepts</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">naccepts</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">+</span> <span class="fl">1L</span></span>
+<span>      <span class="op">}</span></span>
+<span>    <span class="op">}</span></span>
+<span>  </span>
+<span>    <span class="co"># Store the results</span></span>
+<span>    <span class="kw">if</span> <span class="op">(</span><span class="va">m</span> <span class="op">&gt;</span> <span class="va">nburn</span><span class="op">)</span> <span class="op">{</span></span>
+<span>      <span class="va">eps0s</span><span class="op">[</span><span class="va">m</span> <span class="op">-</span> <span class="va">nburn</span>, <span class="va">i</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">eps0</span></span>
+<span>      <span class="va">sigma2s</span><span class="op">[</span><span class="va">m</span> <span class="op">-</span> <span class="va">nburn</span>, <span class="va">i</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">sigma2</span></span>
+<span>      <span class="va">thetas</span><span class="op">[</span><span class="va">m</span> <span class="op">-</span> <span class="va">nburn</span>, <span class="va">i</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">theta</span></span>
+<span>    <span class="op">}</span></span>
+<span>  <span class="op">}</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+<p>Now we plot the ACFs.</p>
 <div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"labor"</span>, package <span class="op">=</span> <span class="st">"BayesianLearningCode"</span><span class="op">)</span></span>
-<span><span class="va">labor</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">labor</span>, <span class="va">birthyear</span> <span class="op">&gt;=</span> <span class="fl">1946</span> <span class="op">&amp;</span> <span class="va">birthyear</span> <span class="op">&lt;=</span> <span class="fl">1960</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">labor</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 1538</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">cthetas</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/ts.plot.html" class="external-link">ts.plot</a></span><span class="op">(</span><span class="va">thetas</span><span class="op">[</span>, <span class="va">i</span><span class="op">]</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/acf.html" class="external-link">acf</a></span><span class="op">(</span><span class="va">thetas</span><span class="op">[</span>, <span class="va">i</span><span class="op">]</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/title.html" class="external-link">title</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Acceptance rate:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">naccepts</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">/</span> <span class="va">ndraws</span>, <span class="fl">3</span><span class="op">)</span>, <span class="st">"|"</span>,</span>
+<span>              <span class="st">"IF:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">ndraws</span> <span class="op">/</span> <span class="fu">coda</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/coda/man/effectiveSize.html" class="external-link">effectiveSize</a></span><span class="op">(</span><span class="va">thetas</span><span class="op">[</span>, <span class="va">i</span><span class="op">]</span><span class="op">)</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+<p><img src="Chapter07_files/figure-html/unnamed-chunk-46-1.png" class="r-plt" alt="" width="768"></p>
+<pre><code>
+# Section 7.4: Markov modeling for a panel of categorical time series
+
+## Example 7.13: Wage mobility data
+
+We load the data and only consider workers from the birth cohort
+1946-1960.
+
+
+``` r
+data("labor", package = "BayesianLearningCode")
+labor &lt;- subset(labor, birthyear &gt;= 1946 &amp; birthyear &lt;= 1960)
+nrow(labor)
+#&gt; [1] 1538</code></pre>
 <p>We extract the columns about the income over time:</p>
-<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">income</span> <span class="op">&lt;-</span> <span class="va">labor</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"^income"</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">labor</span><span class="op">)</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="va">income</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">income</span>, <span class="va">as.integer</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">income</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">gsub</a></span><span class="op">(</span><span class="st">"income_"</span>, <span class="st">""</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">income</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>We plot individual wage mobility time series for three workers. The
 persistence of belonging to a certain wage class is obvious for any
 specific person.</p>
-<div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb50"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">index</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">income</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="va">index</span><span class="op">)</span> <span class="op">{</span></span>
@@ -1280,7 +1289,7 @@ specific person.</p>
 <span>         main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Person"</span>, <span class="va">i</span><span class="op">)</span>, pch <span class="op">=</span> <span class="fl">19</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">5</span><span class="op">)</span>,</span>
 <span>         xlab <span class="op">=</span> <span class="st">"Year"</span>, ylab <span class="op">=</span> <span class="st">"Income class"</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p><img src="Chapter07_files/figure-html/unnamed-chunk-48-1.png" class="r-plt" alt="" width="768"></p>
+<p><img src="Chapter07_files/figure-html/unnamed-chunk-49-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 <div class="section level3">
 <h3 id="example-7-14-wage-mobility-data-comparing-wage-mobility-of-men-and-women">Example 7.14: Wage mobility data – comparing wage mobility of men
@@ -1290,7 +1299,7 @@ and women<a class="anchor" aria-label="anchor" href="#example-7-14-wage-mobility
 contains the number of transitions from one class to the other, i.e.,
 the matrix with values
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>N</mi><mrow><mi>i</mi><mo>,</mo><mi>h</mi><mi>k</mi></mrow></msub><annotation encoding="application/x-tex">N_{i,hk}</annotation></semantics></math>.</p>
-<div class="sourceCode" id="cb50"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">getTransitions</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">classes</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="va">transitions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">classes</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">classes</span><span class="op">)</span><span class="op">)</span></span>
 <span>    <span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
@@ -1304,7 +1313,7 @@ the matrix with values
 <span>           <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span> <span class="fu">getTransitions</span><span class="op">(</span><span class="va">income</span><span class="op">[</span><span class="va">i</span>, <span class="op">]</span>, classes <span class="op">=</span> <span class="fl">0</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Based on the transition matrices, the total transitions between the
 wage categories for female and male workers can be obtained.</p>
-<div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb52"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">N_female</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/funprog.html" class="external-link">Reduce</a></span><span class="op">(</span><span class="st">"+"</span>, <span class="va">income_transitions</span><span class="op">[</span><span class="va">labor</span><span class="op">$</span><span class="va">female</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="va">N_male</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/funprog.html" class="external-link">Reduce</a></span><span class="op">(</span><span class="st">"+"</span>, <span class="va">income_transitions</span><span class="op">[</span><span class="op">!</span><span class="va">labor</span><span class="op">$</span><span class="va">female</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">N_female</span><span class="op">)</span></span></code></pre></div>
@@ -1375,7 +1384,7 @@ wage categories for female and male workers can be obtained.</p>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb52"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">N_male</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
@@ -1445,7 +1454,7 @@ wage categories for female and male workers can be obtained.</p>
 </tbody>
 </table>
 <p>We obtain posterior mean estimates based on a uniform prior.</p>
-<div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb54"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mean_xi_female</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="va">N_female</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="va">N_female</span><span class="op">)</span></span>
 <span><span class="va">mean_xi_male</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="va">N_male</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="va">N_male</span><span class="op">)</span></span>
 <span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">mean_xi_female</span>, digits <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
@@ -1516,7 +1525,7 @@ wage categories for female and male workers can be obtained.</p>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb54"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb55"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">mean_xi_male</span>, digits <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
@@ -1586,17 +1595,17 @@ wage categories for female and male workers can be obtained.</p>
 </tbody>
 </table>
 <p>We also visualize the posterior mean estimates for women and men.</p>
-<div class="sourceCode" id="cb55"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb56"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">corrplot</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/corrplot/man/corrplot.html" class="external-link">corrplot</a></span><span class="op">(</span><span class="va">mean_xi_female</span>, method <span class="op">=</span> <span class="st">"square"</span>, is.corr <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>                   col <span class="op">=</span> <span class="fl">1</span>, cl.pos <span class="op">=</span> <span class="st">"n"</span><span class="op">)</span></span>
 <span><span class="fu">corrplot</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/corrplot/man/corrplot.html" class="external-link">corrplot</a></span><span class="op">(</span><span class="va">mean_xi_male</span>, method <span class="op">=</span> <span class="st">"square"</span>, is.corr <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>                   col <span class="op">=</span> <span class="fl">1</span>, cl.pos <span class="op">=</span> <span class="st">"n"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Chapter07_files/figure-html/unnamed-chunk-52-1.png" class="r-plt" alt="" width="768"></p>
+<p><img src="Chapter07_files/figure-html/unnamed-chunk-53-1.png" class="r-plt" alt="" width="768"></p>
 <p>We compare the posterior densities of various transition
 probabilities
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>ξ</mi><mrow><mi>g</mi><mo>,</mo><mi>h</mi><mi>k</mi></mrow></msub><annotation encoding="application/x-tex">\xi_{g,hk}</annotation></semantics></math>
 for women and men.</p>
-<div class="sourceCode" id="cb56"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb57"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.52</span>, <span class="fl">0.95</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">100</span><span class="op">)</span>, type <span class="op">=</span> <span class="st">"n"</span>, xlab <span class="op">=</span> <span class="st">""</span>, ylab <span class="op">=</span> <span class="st">""</span>,</span>
 <span>     main <span class="op">=</span> <span class="st">"Posterior of persistence probabilities"</span><span class="op">)</span></span>
 <span><span class="va">pers_female</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="va">N_female</span><span class="op">)</span>,</span>
@@ -1631,7 +1640,7 @@ for women and men.</p>
 <span>           <span class="fu"><a href="https://rdrr.io/r/base/substitute.html" class="external-link">substitute</a></span><span class="op">(</span><span class="va">xi</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>i <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">01</span>, <span class="fl">12</span>, <span class="fl">23</span>, <span class="fl">34</span>, <span class="fl">45</span><span class="op">)</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topright"</span>, col <span class="op">=</span> <span class="fl">1</span>, lty <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span>,</span>
 <span>       legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"female"</span>, <span class="st">"male"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Chapter07_files/figure-html/unnamed-chunk-53-1.png" class="r-plt" alt="" width="768"></p>
+<p><img src="Chapter07_files/figure-html/unnamed-chunk-54-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 <div class="section level3">
 <h3 id="example-7-15-wage-mobility-data-long-run">Example 7.15: Wage mobility data – long run<a class="anchor" aria-label="anchor" href="#example-7-15-wage-mobility-data-long-run"></a>
@@ -1644,7 +1653,7 @@ in wage category 2, i.e.,
 estimated wage distribution
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mover><mi>𝛈</mi><mo accent="true">̂</mo></mover><mrow><mi>g</mi><mo>,</mo><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">\hat{\mathbf{\eta}}_{g,t}</annotation></semantics></math>
 over the first ten years for females and males.</p>
-<div class="sourceCode" id="cb57"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb58"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">eta_0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.7</span>, <span class="fl">0.3</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span></span>
 <span><span class="va">eta_hat_male_t</span> <span class="op">&lt;-</span> <span class="va">eta_hat_female_t</span> <span class="op">&lt;-</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="cn">NA_real_</span>, nrow <span class="op">=</span> <span class="fl">6</span>, ncol <span class="op">=</span> <span class="fl">11</span>,</span>
@@ -1656,7 +1665,7 @@ over the first ten years for females and males.</p>
 <span><span class="op">}</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html" class="external-link">barplot</a></span><span class="op">(</span><span class="va">eta_hat_female_t</span>, main <span class="op">=</span> <span class="st">"Women"</span>, xlab <span class="op">=</span> <span class="st">"Year"</span>, ylab <span class="op">=</span> <span class="st">"Wage groups"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html" class="external-link">barplot</a></span><span class="op">(</span><span class="va">eta_hat_male_t</span>, main <span class="op">=</span> <span class="st">"Men"</span>, xlab <span class="op">=</span> <span class="st">"Year"</span>, ylab <span class="op">=</span> <span class="st">"Wage groups"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Chapter07_files/figure-html/unnamed-chunk-54-1.png" class="r-plt" alt="" width="768"></p>
+<p><img src="Chapter07_files/figure-html/unnamed-chunk-55-1.png" class="r-plt" alt="" width="768"></p>
 <p>We inspect the posterior distributions of
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>η</mi><mrow><mi>t</mi><mo>,</mo><mn>2</mn></mrow></msub><annotation encoding="application/x-tex">\eta_{t,2}</annotation></semantics></math>
 for wage category 2 (left-hand side) versus
@@ -1664,7 +1673,7 @@ for wage category 2 (left-hand side) versus
 for wage category 5 (right-hand side) in year
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><mn>10</mn></mrow><annotation encoding="application/x-tex">t = 10</annotation></semantics></math>
 for females and males.</p>
-<div class="sourceCode" id="cb58"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb59"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">M</span> <span class="op">&lt;-</span> <span class="fl">1000</span></span>
 <span><span class="va">xi_female</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">replicate</a></span><span class="op">(</span><span class="va">M</span>, <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="va">N_female</span>, <span class="fl">1</span>,</span>
 <span>                                <span class="kw">function</span><span class="op">(</span><span class="va">alpha</span><span class="op">)</span> <span class="fu"><a href="../reference/Dirichlet.html">rdirichlet</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">alpha</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
@@ -1691,7 +1700,7 @@ for females and males.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">eta_male_t</span><span class="op">[</span>, <span class="fl">6</span><span class="op">]</span>, breaks <span class="op">=</span> <span class="va">breaks</span>,</span>
 <span>     col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/rgb.html" class="external-link">rgb</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0.2</span><span class="op">)</span>, add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topright"</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"female"</span>, <span class="st">"male"</span><span class="op">)</span>, fill <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/rgb.html" class="external-link">rgb</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0.2</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Chapter07_files/figure-html/unnamed-chunk-55-1.png" class="r-plt" alt="" width="768"></p>
+<p><img src="Chapter07_files/figure-html/unnamed-chunk-56-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

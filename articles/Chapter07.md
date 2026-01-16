@@ -1115,71 +1115,85 @@ $\theta$ is assumed to be a priori uniform on $\lbrack - 1,1\rbrack$.
 
 ``` r
 # Specify prior hyperparameters
-c0 <- C0 <- 1
+c0 <- C0 <- 0.01
 
 # standard deviation for random walk MH proposal
-ctheta <- .01
-
-# Set the starting values
-theta <- 0
-sigma2 <- var(dat) / 2
+cthetas <- c(.01, .1, 1)
 
 # Allocate space for the draws
-eps0s <- sigma2s <- thetas <- rep(NA_real_, ndraws)
-naccepts <- 0L
+eps0s <- sigma2s <- thetas <- matrix(NA_real_, ndraws, length(cthetas))
+naccepts <- rep(0L, length(cthetas))
 
-for (m in seq_len(ndraws + nburn)) {
-  # Sample epsilon_0
-  eps0 <- rnorm(1, theta * dat[1] / (1 + theta^2), sqrt(sigma2 / (1 + theta^2)))
+for (i in seq_along(cthetas)) {
+  # Set the starting values
+  theta <- 0
+  sigma2 <- var(dat) / 2
+
+  # MCMC loop
+  for (m in seq_len(ndraws + nburn)) {
+    # Sample epsilon_0
+    bs <- (-theta)^seq_along(dat)
+    as <- filter(dat, -theta, "recursive")
+    tmp <- 1 + sum(bs^2)
+    eps0 <- rnorm(1, -sum(as * bs) / tmp, sqrt(sigma2 / tmp))
+    
+    # Sample sigma^2
+    eps <- filter(dat, -theta, "recursive", init = eps0)
+    cN <- c0 + (length(dat) + 1) / 2
+    CN <- C0 + 0.5 * (eps0^2 + sum(eps^2))
+    sigma2 <- rinvgamma(1, cN, CN)
   
-  # Compute the epsilons recursively
-  eps <- filter(dat, -theta, "recursive", init = eps0)
+    # Sample theta via RW-MH
+    thetaprop <- rnorm(1, theta, cthetas[i])
+    epsprop <- filter(dat, -thetaprop, "recursive", init = eps0)
+    
+    # Now we accept/reject. Note that because we have a uniform prior on
+    # (-1, 1), it suffices to check whether the proposed value is in that
+    # interval and we do not need to include the prior in the acceptance ratio
+    if (abs(thetaprop) < 1) {
+      logR <- -0.5 / sigma2 * (sum(epsprop^2) - sum(eps^2))
+      if (log(runif(1)) < logR) {
+        theta <- thetaprop
+        if (m > nburn) naccepts[i] <- naccepts[i] + 1L
+      }
+    }
   
-  # Sample sigma^2
-  cN <- c0 + (length(dat) + 1) / 2
-  CN <- C0 + 0.5 * (eps0^2 + sum(eps^2))
-  sigma2 <- rinvgamma(1, cN, CN)
-  
-  # Sample theta via RW-MH
-  thetaprop <- rnorm(1, theta, ctheta)
-  epsprop <- filter(dat, -thetaprop, "recursive", init = eps0)
-  
-  logR <- -0.5 / sigma2 * (eps0^2 + sum(epsprop^2)) -
-          -0.5 / sigma2 * (eps0^2 + sum(eps^2)) +
-    dunif(thetaprop, -1, 1, log = TRUE) - 
-    dunif(theta, -1, 1, log = TRUE)
-  
-  if (log(runif(1)) < logR) {
-    theta <- thetaprop
-    if (m > nburn) naccepts <- naccepts + 1L
-  }
-  
-  # Store the results
-  if (m > nburn) {
-    eps0s[m - nburn] <- eps0
-    sigma2s[m - nburn] <- sigma2
-    thetas[m - nburn] <- theta
+    # Store the results
+    if (m > nburn) {
+      eps0s[m - nburn, i] <- eps0
+      sigma2s[m - nburn, i] <- sigma2
+      thetas[m - nburn, i] <- theta
+    }
   }
 }
-
-plot.ts(cbind(eps0s, sigma2s, thetas))
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-45-1.png)
-
-## Section 7.4: Markov modeling for a panel of categorical time series
-
-### Example 7.13: Wage mobility data
-
-We load the data and only consider workers from the birth cohort
-1946-1960.
+Now we plot the ACFs.
 
 ``` r
-data("labor", package = "BayesianLearningCode")
-labor <- subset(labor, birthyear >= 1946 & birthyear <= 1960)
-nrow(labor)
-#> [1] 1538
+for (i in seq_along(cthetas)) {
+  ts.plot(thetas[, i])
+  acf(thetas[, i])
+  title(paste("Acceptance rate:", round(naccepts[i] / ndraws, 3), "|",
+              "IF:", round(ndraws / coda::effectiveSize(thetas[, i]), 1)))
+}
 ```
+
+![](Chapter07_files/figure-html/unnamed-chunk-46-1.png)
+
+    # Section 7.4: Markov modeling for a panel of categorical time series
+
+    ## Example 7.13: Wage mobility data
+
+    We load the data and only consider workers from the birth cohort
+    1946-1960.
+
+
+    ``` r
+    data("labor", package = "BayesianLearningCode")
+    labor <- subset(labor, birthyear >= 1946 & birthyear <= 1960)
+    nrow(labor)
+    #> [1] 1538
 
 We extract the columns about the income over time:
 
@@ -1203,7 +1217,7 @@ for (i in index) {
 }
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-48-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-49-1.png)
 
 ### Example 7.14: Wage mobility data – comparing wage mobility of men and women
 
@@ -1295,7 +1309,7 @@ corrplot::corrplot(mean_xi_male, method = "square", is.corr = FALSE,
                    col = 1, cl.pos = "n")
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-52-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-53-1.png)
 
 We compare the posterior densities of various transition probabilities
 $\xi_{g,hk}$ for women and men.
@@ -1337,7 +1351,7 @@ legend("topright", col = 1, lty = 1:2,
        legend = c("female", "male"))
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-53-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-54-1.png)
 
 ### Example 7.15: Wage mobility data – long run
 
@@ -1362,7 +1376,7 @@ barplot(eta_hat_female_t, main = "Women", xlab = "Year", ylab = "Wage groups")
 barplot(eta_hat_male_t, main = "Men", xlab = "Year", ylab = "Wage groups")
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-54-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-55-1.png)
 
 We inspect the posterior distributions of $\eta_{t,2}$ for wage category
 2 (left-hand side) versus $\eta_{t,5}$ for wage category 5 (right-hand
@@ -1397,4 +1411,4 @@ hist(eta_male_t[, 6], breaks = breaks,
 legend("topright", c("female", "male"), fill = rgb(c(0, 1), 0, 0, 0.2))
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-55-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-56-1.png)
