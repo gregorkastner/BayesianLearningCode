@@ -1190,10 +1190,11 @@ if (pdfplots) {
 par(mfcol = c(2, 3), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 2)
 for (i in seq_along(cthetas)) {
   ts.plot(thetas[, i], ylim = range(thetas), ylab = expression(theta),
-          xlab = "Iterations", main = bquote(c[theta] == .(cthetas[i])))
-  acf(thetas[, i])
-  title(paste("Acceptance rate:", round(naccepts[i] / ndraws, 3), "|",
-              "IF:", round(ndraws / coda::effectiveSize(thetas[, i]), 1)))
+          xlab = "Iterations")
+  title(bquote(Traceplot ~ (c[theta] == .(cthetas[i]))))
+  acf(thetas[, i], ylab = "")
+  title(bquote(ACF ~ (acceptance == .(round(naccepts[i] / ndraws, 3))*","~  
+               IF == .(round(ndraws / coda::effectiveSize(thetas[, i]), 1)))))
 }
 ```
 
