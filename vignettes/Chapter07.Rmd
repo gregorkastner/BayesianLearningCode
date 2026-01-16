@@ -1179,8 +1179,23 @@ for (i in seq_along(cthetas)) {
     }
   }
 }
+```
 
-plot.ts(cbind(eps0s, sigma2s, thetas))
+Now we plot the ACFs.
+
+```{r, echo = -c(1:2), fig.width = 8, fig.height = 3}
+if (pdfplots) {
+  pdf("7-3_4.pdf", width = 8, height = 5)
+}
+par(mfcol = c(2, 3), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 2)
+for (i in seq_along(cthetas)) {
+  ts.plot(thetas[, i])
+  acf(thetas[, i])
+  title(paste("Acceptance rate:", round(naccepts[i] / ndraws, 3), "|",
+              "IF:", round(ndraws / coda::effectiveSize(thetas[, i]), 1)))
+}
+```
+
 ```
 
 # Section 7.4: Markov modeling for a panel of categorical time series
