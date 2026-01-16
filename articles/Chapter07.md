@@ -1118,7 +1118,7 @@ $\theta$ is assumed to be a priori uniform on $\lbrack - 1,1\rbrack$.
 c0 <- C0 <- 0.01
 
 # standard deviation for random walk MH proposal
-cthetas <- c(.01, .1, 1)
+cthetas <- c(.0005, .005, .05)
 
 # Allocate space for the draws
 eps0s <- sigma2s <- thetas <- matrix(NA_real_, ndraws, length(cthetas))
@@ -1126,7 +1126,7 @@ naccepts <- rep(0L, length(cthetas))
 
 for (i in seq_along(cthetas)) {
   # Set the starting values
-  theta <- 0
+  theta <- 0.9
   sigma2 <- var(dat) / 2
 
   # MCMC loop
@@ -1172,28 +1172,30 @@ Now we plot the ACFs.
 
 ``` r
 for (i in seq_along(cthetas)) {
-  ts.plot(thetas[, i])
-  acf(thetas[, i])
-  title(paste("Acceptance rate:", round(naccepts[i] / ndraws, 3), "|",
-              "IF:", round(ndraws / coda::effectiveSize(thetas[, i]), 1)))
+  ts.plot(thetas[, i], ylim = range(thetas), ylab = expression(theta),
+          xlab = "Iterations")
+  title(bquote(Traceplot ~ (c[theta] == .(cthetas[i]))))
+  acf(thetas[, i], ylab = "")
+  title(bquote(ACF ~ (acceptance == .(round(naccepts[i] / ndraws, 3))*","~  
+               IF == .(round(ndraws / coda::effectiveSize(thetas[, i]), 1)))))
 }
 ```
 
 ![](Chapter07_files/figure-html/unnamed-chunk-46-1.png)
 
-    # Section 7.4: Markov modeling for a panel of categorical time series
+## Section 7.4: Markov modeling for a panel of categorical time series
 
-    ## Example 7.13: Wage mobility data
+### Example 7.13: Wage mobility data
 
-    We load the data and only consider workers from the birth cohort
-    1946-1960.
+We load the data and only consider workers from the birth cohort
+1946-1960.
 
-
-    ``` r
-    data("labor", package = "BayesianLearningCode")
-    labor <- subset(labor, birthyear >= 1946 & birthyear <= 1960)
-    nrow(labor)
-    #> [1] 1538
+``` r
+data("labor", package = "BayesianLearningCode")
+labor <- subset(labor, birthyear >= 1946 & birthyear <= 1960)
+nrow(labor)
+#> [1] 1538
+```
 
 We extract the columns about the income over time:
 
