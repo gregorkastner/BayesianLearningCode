@@ -1134,13 +1134,6 @@ c0 <- C0 <- 0.01
 cthetas <- c(.01, .1, 1)
 
 # Allocate space for the draws
-  # Sample theta via RW-MH
-  epsprop <- filter(dat, -thetaprop, "recursive", init = eps0)
-  
-  logR <- -0.5 / sigma2 * (eps0^2 + sum(epsprop^2)) -
-          -0.5 / sigma2 * (eps0^2 + sum(eps^2)) +
-    dunif(thetaprop, -1, 1, log = TRUE) - 
-    dunif(theta, -1, 1, log = TRUE)
 eps0s <- sigma2s <- thetas <- matrix(NA_real_, ndraws, length(cthetas))
 naccepts <- rep(0L, length(cthetas))
 
@@ -1163,11 +1156,20 @@ for (i in seq_along(cthetas)) {
     CN <- C0 + 0.5 * (eps0^2 + sum(eps^2))
     sigma2 <- rinvgamma(1, cN, CN)
   
-  if (log(runif(1)) < logR) {
-    theta <- thetaprop
-  }
+    # Sample theta via RW-MH
     thetaprop <- rnorm(1, theta, cthetas[i])
+    epsprop <- filter(dat, -thetaprop, "recursive", init = eps0)
+    
+    # Now we accept/reject. Note that because we have a uniform prior on
+    # (-1, 1), it suffices to check whether the proposed value is in that
+    # interval and we do not need to include the prior in the acceptance ratio
+    if (abs(thetaprop) < 1) {
+      logR <- -0.5 / sigma2 * (sum(epsprop^2) - sum(eps^2))
+      if (log(runif(1)) < logR) {
+        theta <- thetaprop
         if (m > nburn) naccepts[i] <- naccepts[i] + 1L
+      }
+    }
   
     # Store the results
     if (m > nburn) {
