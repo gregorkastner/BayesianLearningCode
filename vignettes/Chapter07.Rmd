@@ -1131,7 +1131,7 @@ to be a priori uniform on $[-1,1]$.
 c0 <- C0 <- 0.01
 
 # standard deviation for random walk MH proposal
-cthetas <- c(.002, .02, .2)
+cthetas <- c(.0005, .005, .05)
 
 # Allocate space for the draws
 eps0s <- sigma2s <- thetas <- matrix(NA_real_, ndraws, length(cthetas))
