@@ -1131,17 +1131,9 @@ to be a priori uniform on $[-1,1]$.
 c0 <- C0 <- 0.01
 
 # standard deviation for random walk MH proposal
-ctheta <- .01
-
-# Set the starting values
-theta <- 0
-sigma2 <- var(dat) / 2
+cthetas <- c(.01, .1, 1)
 
 # Allocate space for the draws
-eps0s <- sigma2s <- thetas <- rep(NA_real_, ndraws)
-naccepts <- 0L
-
-for (m in seq_len(ndraws + nburn)) {
   # Sample epsilon_0
   eps0 <- rnorm(1, theta * dat[1] / (1 + theta^2), sqrt(sigma2 / (1 + theta^2)))
   
@@ -1154,24 +1146,35 @@ for (m in seq_len(ndraws + nburn)) {
   sigma2 <- rinvgamma(1, cN, CN)
   
   # Sample theta via RW-MH
-  thetaprop <- rnorm(1, theta, ctheta)
   epsprop <- filter(dat, -thetaprop, "recursive", init = eps0)
   
   logR <- -0.5 / sigma2 * (eps0^2 + sum(epsprop^2)) -
           -0.5 / sigma2 * (eps0^2 + sum(eps^2)) +
     dunif(thetaprop, -1, 1, log = TRUE) - 
     dunif(theta, -1, 1, log = TRUE)
+eps0s <- sigma2s <- thetas <- matrix(NA_real_, ndraws, length(cthetas))
+naccepts <- rep(0L, length(cthetas))
+
+for (i in seq_along(cthetas)) {
+  # Set the starting values
+  theta <- 0
+  sigma2 <- var(dat) / 2
+
+  # MCMC loop
+  for (m in seq_len(ndraws + nburn)) {
   
   if (log(runif(1)) < logR) {
     theta <- thetaprop
-    if (m > nburn) naccepts <- naccepts + 1L
   }
+    thetaprop <- rnorm(1, theta, cthetas[i])
+        if (m > nburn) naccepts[i] <- naccepts[i] + 1L
   
-  # Store the results
-  if (m > nburn) {
-    eps0s[m - nburn] <- eps0
-    sigma2s[m - nburn] <- sigma2
-    thetas[m - nburn] <- theta
+    # Store the results
+    if (m > nburn) {
+      eps0s[m - nburn, i] <- eps0
+      sigma2s[m - nburn, i] <- sigma2
+      thetas[m - nburn, i] <- theta
+    }
   }
 }
 
