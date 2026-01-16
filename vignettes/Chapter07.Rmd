@@ -1128,7 +1128,7 @@ to be a priori uniform on $[-1,1]$.
 
 ```{r}
 # Specify prior hyperparameters
-c0 <- C0 <- 1
+c0 <- C0 <- 0.01
 
 # standard deviation for random walk MH proposal
 ctheta <- .01
