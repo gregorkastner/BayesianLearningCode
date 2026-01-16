@@ -1134,14 +1134,6 @@ c0 <- C0 <- 0.01
 cthetas <- c(.01, .1, 1)
 
 # Allocate space for the draws
-  # Compute the epsilons recursively
-  eps <- filter(dat, -theta, "recursive", init = eps0)
-  
-  # Sample sigma^2
-  cN <- c0 + (length(dat) + 1) / 2
-  CN <- C0 + 0.5 * (eps0^2 + sum(eps^2))
-  sigma2 <- rinvgamma(1, cN, CN)
-  
   # Sample theta via RW-MH
   epsprop <- filter(dat, -thetaprop, "recursive", init = eps0)
   
@@ -1165,6 +1157,11 @@ for (i in seq_along(cthetas)) {
     tmp <- 1 + sum(bs^2)
     eps0 <- rnorm(1, -sum(as * bs) / tmp, sqrt(sigma2 / tmp))
     
+    # Sample sigma^2
+    eps <- filter(dat, -theta, "recursive", init = eps0)
+    cN <- c0 + (length(dat) + 1) / 2
+    CN <- C0 + 0.5 * (eps0^2 + sum(eps^2))
+    sigma2 <- rinvgamma(1, cN, CN)
   
   if (log(runif(1)) < logR) {
     theta <- thetaprop
