@@ -18,13 +18,16 @@ data("movies", package = "BayesianLearningCode")
 #### Example 6.2: Movie data
 
 Next, we prepare the variables for regression analysis. We define the
-response variable `OpenBoxOffice` as `y` and use as covariates effects
-of the predetermined number of weeks (Weeks) and screens (Screens) the
+response variable `OpenBoxOffice`, which contains the box office sales
+at the opening weekend in Mio.\$ as `y`. As covariates we use the
+predetermined number of weeks (Weeks) and screens (Screens in 1000) the
 film studio forecast six weeks prior to opening that the specific film
-will be in theaters. For better interpretation we center the covariates
-at their means. Hence the intercept is the sales on the opening weekend
-box office for a film forecasted to be in the theaters with an average
-value weeks and an average value of screens.
+will be in theaters.
+
+For better interpretation we center the covariates at their means. Hence
+the intercept is the sales on the opening weekend box office (in Mio.
+\$) of a film forecasted to be in the theaters for an average value
+weeks and on an average value of screens.
 
 ``` r
 y <- movies[, "OpenBoxOffice"]
@@ -37,7 +40,7 @@ X <- as.matrix(cbind("Intercept" = rep(1, N), covs.cen)) # regressor matrix
 d <- dim(X)[2] # number regression effects
 ```
 
-Next we define a function to compute the parameters of the posterior of
+We now define a function to compute the parameters of the posterior of
 the regression effects under the improper prior
 $p\left( \beta,\sigma^{2} \right) \propto \frac{1}{\sigma^{2}}$.
 
@@ -107,11 +110,13 @@ mtext(rownames(beta.hat)[2], 1, line = 1.7)
 mtext(rownames(beta.hat)[3], 2, line = 1.7)
 
 par(mar = c(0, 3, 1, 1))
-mar.x1 <- dt((xx1 - beta.hat[2]) / post.sd[2], df = 2 * reg.improp$cN, log = FALSE)
+mar.x1 <- dt((xx1 - beta.hat[2]) / post.sd[2], df = 2 * reg.improp$cN,
+             log = FALSE)
 plot(xx1, mar.x1, col = "blue", type = "l", xaxt = "n", ylab = "")
 
 par(mar = c(3, 0, 1, 1))
-mar.x2 <- dt((xx2 - beta.hat[3]) / post.sd[3], df = 2 * reg.improp$cN, log = FALSE)
+mar.x2 <- dt((xx2 - beta.hat[3]) / post.sd[3], df = 2 * reg.improp$cN,
+             log = FALSE)
 plot(mar.x2, xx2, col = "blue", type = "l", yaxt = "n", xlab = "")
 ```
 
@@ -145,10 +150,8 @@ weekend for a film with an average number of for a range of values for .
  ypred=X_new %*% beta.hat 
  ypred.var=rep(NA, nf)
  for (i in (1:nf)){
-      ypred.var[i] <-sigma2.hat*(t(X_new[i,])%*%solve(crossprod(X))%*%X_new[i,]+1)
-}
- pred.up  <- ypred + sqrt(ypred.var)*qt(0.975, df=2*cN)
- pred.low <- ypred - sqrt(ypred.var)*qt(0.975, df=2*cN)
+      ypred.var[i] <-sigma2.hat*(t(X_new[i,])%*%reg.improp$BN%*%X_new[i,]+1)
+ }
 ```
 
 We plot the point predictions with the 95% prediction interval and
@@ -158,14 +161,18 @@ Bayesian regression model.
 ``` r
 par(mar = c(3, 3, 1, 1))
 week=X_new[,2]+mean(movies[, "Weeks"])
-plot(week,ypred, col="blue", type="l",ylim=c(-50,70),xlab="Weeks",ylab="predicited Box office sales") 
-lines(week, pred.low, col="blue", lty=2) 
-lines(week, pred.up, col="blue", lty=2) 
+plot(week,ypred, col="blue", type="l",ylim=c(-50,70),xlab="Weeks",ylab="predicited Box office sales")
 
+pred.levels=c(0.5,0.8)
+for (j in (1:length(pred.levels))){
+     pred.quantile <- qt(1-(1-pred.levels[j])/2,df=2*cN)
+     lines(week, ypred - sqrt(ypred.var)*pred.quantile, col="blue", lty=j+1)
+     lines(week, ypred + sqrt(ypred.var)*pred.quantile,col="blue", lty=j+1)
+}
 
 par(mar = c(3, 3, 1, 1))
 y.pred <- X%*%beta.hat
-plot(y, y.pred,xlim=c(-20,160), ylim=c(-20,160), col="blue", xlab="observed sales", ylab="predicted sales")
+plot(y, y.pred,xlim=c(-20,160), ylim=c(-20,160), col="blue",xlab="observed sales", ylab="predicted sales")
 abline(a=0, b=1)
 ```
 
@@ -176,29 +183,31 @@ we try a linear regression model for the log transformed sales.
 
 ``` r
 log.y <- log(movies[, "OpenBoxOffice"])
-
 reg.lny<- regression_improper(log.y,X)
-
 
 lny.pred <- X_new %*% reg.lny$beta.hat 
 sigma2.hat <- reg.lny$CN /(reg.lny$cN-1)
 
 lny.pred.var=rep(NA, nf)
 for (i in (1:nf)){
-      lny.pred.var[i] <- sigma2.hat*(t(X_new[i,])%*%solve(crossprod(X))%*%X_new[i,]+1)
+     lny.pred.var[i]<-sigma2.hat*(t(X_new[i,])%*%reg.lny$BN%*%X_new[i,]+1)
 }
- pred.up  <- exp(lny.pred + sqrt(lny.pred.var)*qt(0.975, df=2*reg.lny$cN))
- pred.low <- exp(lny.pred - sqrt(lny.pred.var)*qt(0.975, df=2*reg.lny$cN))
 ```
 
 We plot the point predictions of the sales with the 95% prediction
-interval
+interval.
 
 ``` r
 par(mar = c(3, 3, 1, 1))
-plot(week,exp(lny.pred), col="blue", type="l",ylim=c(-50,70),xlab="Weeks",ylab="predicited Box office sales") 
-lines(week, pred.low, col="blue", lty=2) 
-lines(week, pred.up, col="blue", lty=2) 
+plot(week,exp(lny.pred), col="blue", type="l",ylim=c(-50,70),xlab="Weeks",ylab="predicited Box office sales")
+
+for (j in (1:length(pred.levels))){
+     pred.quantile <- qt(1-(1-pred.levels[j])/2,df=2*reg.lny$cN)
+     lines(week, exp(lny.pred - sqrt(lny.pred.var)*pred.quantile), 
+           col="blue", lty=j+1)
+     lines(week, exp(lny.pred + sqrt(lny.pred.var)*pred.quantile), 
+           col="blue", lty=j+1)
+}
 
 par(mar = c(3, 3, 1, 1))
 plot(y, y.pred,xlim=c(-20,160), ylim=c(-20,160), col="blue", xlab="observed sales", ylab="predicted sales")
@@ -206,7 +215,10 @@ points(y,exp(X%*%reg.lny$beta.hat),col="red")
 abline(a=0, b=1)
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-12-1.png)
+![](Chapter06_files/figure-html/unnamed-chunk-12-1.png) Predicted sales
+are larger than 0 in this model, however the observed box office sales
+of 152 Mio.\$ on opening week end are predicted only slightly higher
+than in the previous model.
 
 ### Section 6.2.2 Bayesian Learning under Conjugate Priors
 
