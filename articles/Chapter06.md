@@ -19,19 +19,19 @@ data("movies", package = "BayesianLearningCode")
 
 Next, we prepare the variables for regression analysis. We define the
 response variable `OpenBoxOffice`, which contains the box office sales
-at the opening weekend in Mio.\$ as `y`. As covariates we use the
-predetermined number of weeks (Weeks) and screens (Screens in 1000) the
-film studio forecast six weeks prior to opening that the specific film
-will be in theaters.
+at the opening weekend in Mio.\$ as `y`. As covariates we use the Budget
+(`Budget`, in Mio.\$) and the predetermined number of screens
+(`Screens`, in 1000) the film studio forecast the film to be in theaters
+six weeks prior to opening.
 
 For better interpretation we center the covariates at their means. Hence
 the intercept is the sales on the opening weekend box office (in Mio.
-\$) of a film forecasted to be in the theaters for an average value
-weeks and on an average value of screens.
+\$) of a film with an average Budget and forecasted to be in the
+theaters on an average value of screens.
 
 ``` r
 y <- movies[, "OpenBoxOffice"]
-covs <- c("Weeks", "Screens")
+covs <- c("Budget", "Screens")
 covs.cen <- scale(movies[, covs], scale = FALSE) # center the covariates
 
 N <- length(y)  # number of observations
@@ -79,18 +79,26 @@ knitr::kable(round(cbind(qt(0.025,df = 2 * cN) * post.sd + beta.hat,
 
 |           | 2.5% quantile | posterior mean | 97.5% quantile |
 |:----------|--------------:|---------------:|---------------:|
-| Intercept |        16.029 |         19.110 |         22.191 |
-| Weeks     |         0.236 |          0.837 |          1.439 |
-| Screens   |         1.032 |          1.663 |          2.295 |
+| Intercept |        15.977 |         19.110 |         22.243 |
+| Budget    |         0.009 |          0.174 |          0.339 |
+| Screens   |         1.073 |          1.719 |          2.365 |
 
-Next, we plot the (univariate) marginal posterior distribution of the
+The average sales on the opening weekend box office is 19.11 Mio.\$ for
+a film with an average and forecast to be shown on an average number of
+. For a film shown on the average number of screens with 1 Mio.\$ more
+budget the average box office sales on the opening weekend are 0.174
+Mio.\$ higher; for a film to be shown on 1000 screens more with an
+average budget the increase in box office sales is 1.719 Mio.\$.
+
+Next we plot the (univariate) marginal posterior distribution of the
 intercept and the univariate and bivariate marginal posterior
 distributions of the covariate effects.
 
 ``` r
+par(mar = c(3, 2, 1, 1))
 curve(dt((x - beta.hat[1]) / post.sd[1], df = 2 *cN),
-      from = beta.hat[1] - 3 * post.sd[1],
-      to = beta.hat[1] + 3 * post.sd[1],
+      from = beta.hat[1] - lim[1],
+      to = beta.hat[1] + lim[1],
       ylab = "", xlab = "", main = "", col = "blue")
 mtext("Intercept", 1, line = 1.7)
 
@@ -99,9 +107,8 @@ f <- function(x1, x2) {
                 sigma = reg.improp$post.var[2:3, 2:3], df = 2 * reg.improp$cN, log = FALSE)
 }
 
-lim <- 3 * max(post.sd[-1])
-xx1 <- seq(-lim, lim, length = 201) + beta.hat[2]
-xx2 <- seq(-lim, lim, length = 201) + beta.hat[3]
+xx1 <- seq(-lim[2], lim[2], length = 201) + beta.hat[2]
+xx2 <- seq(-lim[3], lim[3], length = 201) + beta.hat[3]
 z <- outer(xx1, xx2, f)
 
 par(mar = c(3, 3, 1, 1))
@@ -122,8 +129,8 @@ plot(mar.x2, xx2, col = "blue", type = "l", yaxt = "n", xlab = "")
 
 ![](Chapter06_files/figure-html/unnamed-chunk-7-1.png)
 
-For completeness we report also the posterior mean of the error variance
-with the 95% credibility interval.
+For completeness we finally report also the posterior mean of the error
+variance and its 95% credibility interval.
 
 ``` r
 sigma2.hat <- reg.improp$CN /(cN-1)
@@ -134,7 +141,7 @@ knitr::kable(round(cbind(qinvgamma(0.025,a=cN,b=reg.improp$CN), sigma2.hat,
 
 | 2.5% quantile | posterior mean | 97.5% quantile |
 |--------------:|---------------:|---------------:|
-|        172.51 |         231.21 |         309.43 |
+|        178.38 |         239.07 |         319.96 |
 
 ## Exercise 6.3.
 
@@ -142,7 +149,7 @@ We now compute the predictions of the box office sales on the opening
 weekend for a film with an average number of for a range of values for .
 
 ``` r
- xvals <-  -10:17
+ xvals <-  -30:50
  nf <-length(xvals) 
  X_new <- cbind(rep(1,nf),xvals,rep(0,nf))
  colnames(X_new)<-colnames(X)
@@ -154,31 +161,33 @@ weekend for a film with an average number of for a range of values for .
  }
 ```
 
-We plot the point predictions with the 95% prediction interval and
+We plot the point predictions with the 95% prediction intervals and
 compare the observed Box office sales and the predictions from our
 Bayesian regression model.
 
 ``` r
-par(mar = c(3, 3, 1, 1))
-week=X_new[,2]+mean(movies[, "Weeks"])
-plot(week,ypred, col="blue", type="l",ylim=c(-50,70),xlab="Weeks",ylab="predicited Box office sales")
+budget=X_new[,2]+mean(movies[, "Budget"])
+plot(budget,ypred, col="blue", type="l",ylim=c(-50,70),xlab="budget",ylab="predicited Box office sales")
 
 pred.levels=c(0.5,0.8)
 for (j in (1:length(pred.levels))){
      pred.quantile <- qt(1-(1-pred.levels[j])/2,df=2*cN)
-     lines(week, ypred - sqrt(ypred.var)*pred.quantile, col="blue", lty=j+1)
-     lines(week, ypred + sqrt(ypred.var)*pred.quantile,col="blue", lty=j+1)
+     lines(budget, ypred - sqrt(ypred.var)*pred.quantile, col="blue", lty=j+2)
+     lines(budget, ypred + sqrt(ypred.var)*pred.quantile,col="blue", lty=j+2)
 }
-
-par(mar = c(3, 3, 1, 1))
-y.pred <- X%*%beta.hat
-plot(y, y.pred,xlim=c(-20,160), ylim=c(-20,160), col="blue",xlab="observed sales", ylab="predicted sales")
-abline(a=0, b=1)
 ```
 
 ![](Chapter06_files/figure-html/unnamed-chunk-10-1.png)
 
-As the Box sales are positive, the model is not really adequate. Hence
+``` r
+plot(y, y.pred,xlim=c(-20,160), ylim=c(-20,160), col="blue",xlab="observed sales", ylab="predicted sales")
+abline(a=0, b=1)
+```
+
+![](Chapter06_files/figure-html/unnamed-chunk-11-1.png) The model is not
+really adequate: the box office sales are positive, however the lower
+limit of the 80%-prediction interval is negative for a budget below ~55
+Mio.\$. To take into account that box office sales are always positive
 we try a linear regression model for the log transformed sales.
 
 ``` r
@@ -194,28 +203,30 @@ for (i in (1:nf)){
 }
 ```
 
-We plot the point predictions of the sales with the 95% prediction
-interval.
+We plot again the point predictions with the 95% prediction intervals of
+the sales for a film with an average number of for a range of values for
+.
 
 ``` r
-par(mar = c(3, 3, 1, 1))
-plot(week,exp(lny.pred), col="blue", type="l",ylim=c(-50,70),xlab="Weeks",ylab="predicited Box office sales")
+plot(budget,exp(lny.pred), col="blue", type="l",ylim=c(-50,70),xlab="Budget",ylab="predicited Box office sales")
 
 for (j in (1:length(pred.levels))){
      pred.quantile <- qt(1-(1-pred.levels[j])/2,df=2*reg.lny$cN)
-     lines(week, exp(lny.pred - sqrt(lny.pred.var)*pred.quantile), 
+     lines(budget, exp(lny.pred - sqrt(lny.pred.var)*pred.quantile), 
            col="blue", lty=j+1)
-     lines(week, exp(lny.pred + sqrt(lny.pred.var)*pred.quantile), 
+     lines(budget, exp(lny.pred + sqrt(lny.pred.var)*pred.quantile), 
            col="blue", lty=j+1)
 }
+```
 
-par(mar = c(3, 3, 1, 1))
-plot(y, y.pred,xlim=c(-20,160), ylim=c(-20,160), col="blue", xlab="observed sales", ylab="predicted sales")
+![](Chapter06_files/figure-html/unnamed-chunk-13-1.png)
+
+``` r
 points(y,exp(X%*%reg.lny$beta.hat),col="red")
 abline(a=0, b=1)
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-12-1.png) Predicted sales
+![](Chapter06_files/figure-html/unnamed-chunk-14-1.png) Predicted sales
 are larger than 0 in this model, however the observed box office sales
 of 152 Mio.\$ on opening week end are predicted only slightly higher
 than in the previous model.
@@ -278,9 +289,9 @@ knitr::kable(round(cbind(
 
 |           | 2.5 quantile | posterior mean | 97.5 quantile |
 |:----------|-------------:|---------------:|--------------:|
-| Intercept |       16.138 |         19.090 |        22.041 |
-| Weeks     |        0.260 |          0.837 |         1.414 |
-| Screens   |        1.058 |          1.663 |         2.269 |
+| Intercept |       16.088 |         19.090 |        22.091 |
+| Budget    |        0.016 |          0.174 |         0.332 |
+| Screens   |        1.099 |          1.719 |         2.339 |
 
 To illustrate the effects of a tighter prior on the regression effects
 we compute the posterior parameters also for $\lambda^{2} = 1$ and
@@ -330,7 +341,7 @@ for (i in seq_len(nrow(beta.hat))) {
 }
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-16-1.png)
+![](Chapter06_files/figure-html/unnamed-chunk-18-1.png)
 
 There is little difference to the improper prior for the effects of
 Screens and Weeks, however the intercept intercept is shrunk to zero for
@@ -343,10 +354,10 @@ covariance matrix $\lambda^{2}\textbf{𝐈}$ for $\lambda^{2} = 0.1$.
 ``` r
 W <- res_conj3$BN %*% solve(diag(rep(0.1, d)))
 print(round(W, 3))
-#>            [,1]   [,2]   [,3]
-#> Intercept 0.096  0.000  0.000
-#> Weeks     0.000  0.004 -0.001
-#> Screens   0.000 -0.001  0.004
+#>            [,1] [,2]  [,3]
+#> Intercept 0.096    0 0.000
+#> Budget    0.000    0 0.000
+#> Screens   0.000    0 0.005
 ```
 
 Obviously the weight of the prior mean is much larger for the intercept
@@ -499,7 +510,7 @@ legend('topright', legend = c("Horseshoe", "Standard normal"), lty = 1:2,
        col = c("blue", "black"))
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-24-1.png)
+![](Chapter06_files/figure-html/unnamed-chunk-26-1.png)
 
 We now set up the Gibbs sampler of the regression model wIth a proper
 Normal prior on the intercept and horseshoe priors on the coviariate
@@ -625,7 +636,7 @@ posterior distributions under the horseshoe prior. Note that the
 posterior distributions are symmetric under the semi-conjugate prior,
 whereas this is not the case under the horseshoe prior.
 
-![](Chapter06_files/figure-html/unnamed-chunk-29-1.png)![](Chapter06_files/figure-html/unnamed-chunk-29-2.png)
+![](Chapter06_files/figure-html/unnamed-chunk-31-1.png)![](Chapter06_files/figure-html/unnamed-chunk-31-2.png)
 
 For illustration purposes, we overlay four selected marginal posteriors
 in order to illustrate the shrinkage effect.
@@ -645,7 +656,7 @@ for (i in selection) {
 }
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-30-1.png)
+![](Chapter06_files/figure-html/unnamed-chunk-32-1.png)
 
 We next investigate the trace plots of the draws from the posterior. As
 above, the plots on the left are obtained under the semi-conjugate
@@ -659,7 +670,7 @@ for (i in seq_len(d)) {
 }
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-31-1.png)![](Chapter06_files/figure-html/unnamed-chunk-31-2.png)
+![](Chapter06_files/figure-html/unnamed-chunk-33-1.png)![](Chapter06_files/figure-html/unnamed-chunk-33-2.png)
 
 To sum up, we visualize the posterior of the effects and corresponding
 (square root of the) shrinkage parameters. For visual inspection, we
@@ -679,7 +690,7 @@ tau.hs.trunc.mirrored <- rbind(sqrt(tau2.hs.trunc), -sqrt(tau2.hs.trunc))
 On the left, we see the posteriors of the regression effects posteriors,
 on the right, we visualize the gap plot.
 
-![](Chapter06_files/figure-html/unnamed-chunk-33-1.png) We verify
+![](Chapter06_files/figure-html/unnamed-chunk-35-1.png) We verify
 convergence of the sampler by doing a second run of the six block
 sampler in Algorithm 6.2. In the Q-Q plot of the draws of the intercept
 and the error variance the draws are very close to the identity line and
@@ -701,7 +712,7 @@ qqplot(post.draws.hs$sigma2s, post.draws.hs2$sigma2s,
 abline(a = 0, b = 1)
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-34-1.png) Next we want to
+![](Chapter06_files/figure-html/unnamed-chunk-36-1.png) Next we want to
 predict the box office sale for a movie with MPAA rating `G'' or`PG’’,
 of genre comedy, with average values of and {Weeks} as well as the
 sentiments and volumes of Twitter-posts set, but different values of .
@@ -745,7 +756,7 @@ points(x = (1:nf)+0.2, y = pred.mean.hs, pch=16,col="red")
 axis(1,at=1:nf,labels=c("A","B","C","D"))
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-36-1.png)
+![](Chapter06_files/figure-html/unnamed-chunk-38-1.png)
 
 ## Section 6.5: Shrinkage beyond the Horseshoeprior
 
