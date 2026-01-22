@@ -38,16 +38,17 @@ data("movies", package = "BayesianLearningCode")
 
 ## Section 6.2.1 Bayesian Learning Under Improper Priors
 ### Example 6.2: Movie data
+
 Next, we prepare the variables for regression analysis. We define the response
-variable `OpenBoxOffice`, which contains the box office sales at the opening weekend in Mio.$ as `y`. As  covariates  we use the predetermined 
-number of weeks (Weeks) and screens (Screens in 1000) the film studio forecast six weeks prior to opening that the specific film will be in theaters.
+variable `OpenBoxOffice`, which contains the box office sales at the opening weekend in Mio.$ as `y`. As  covariates  we use the Budget (`Budget`, in Mio.$) and the  predetermined 
+number of screens (`Screens`, in 1000) the film studio forecast the  film to be in theaters six weeks prior to opening. 
 
 For better interpretation we center 
-the covariates at their means. Hence the intercept is the  sales on the opening weekend box office (in Mio. $) of a film forecasted to be in the theaters for an average value weeks and on an average value of screens. 
+the covariates at their means. Hence the intercept is the  sales on the opening weekend box office (in Mio. $) of a film with an average Budget and forecasted to be in the theaters  on an average value of screens. 
 
 ```{r}
 y <- movies[, "OpenBoxOffice"]
-covs <- c("Weeks", "Screens")
+covs <- c("Budget", "Screens")
 covs.cen <- scale(movies[, covs], scale = FALSE) # center the covariates
 
 N <- length(y)  # number of observations
@@ -88,8 +89,11 @@ knitr::kable(round(cbind(qt(0.025,df = 2 * cN) * post.sd + beta.hat,
                          qt(0.975,df = 2 * cN) * post.sd + beta.hat), 3),
              col.names = c("2.5% quantile", "posterior mean", "97.5% quantile"))
 ```
+The average sales on the opening weekend box office is 19.11 Mio.\$ for a film with an average \emph{Budget} and forecast to be shown on an average number of \textit{Screens}.
+For a  film  shown on the average number of screens  with 1 Mio.\$ more  budget the average box office sales on the opening weekend are 0.174  Mio.\$ higher; for a film to be shown on 1000 screens more  with an average budget the increase in box office sales is  1.719 Mio.\$.
 
-Next, we plot the (univariate) marginal posterior distribution of the intercept
+
+Next we  plot the (univariate) marginal posterior distribution of the intercept
 and the univariate and bivariate marginal posterior distributions of the
 covariate effects.
 
@@ -98,12 +102,13 @@ if (pdfplots) {
   pdf("6-4_1.pdf", width = 9, height = 6)
   par(mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.6, .6, 0))
 }
+lim=round(3*post.sd,2)
 layout(matrix(c(0, 1, 3, 2, 0, 4), nrow = 2), widths = c(2, 3, 1),
        heights = c(1, 3), respect = TRUE)
 par(mar = c(3, 2, 1, 1))
 curve(dt((x - beta.hat[1]) / post.sd[1], df = 2 *cN),
-      from = beta.hat[1] - 3 * post.sd[1],
-      to = beta.hat[1] + 3 * post.sd[1],
+      from = beta.hat[1] - lim[1],
+      to = beta.hat[1] + lim[1],
       ylab = "", xlab = "", main = "", col = "blue")
 mtext("Intercept", 1, line = 1.7)
 
@@ -112,9 +117,8 @@ f <- function(x1, x2) {
                 sigma = reg.improp$post.var[2:3, 2:3], df = 2 * reg.improp$cN, log = FALSE)
 }
 
-lim <- 3 * max(post.sd[-1])
-xx1 <- seq(-lim, lim, length = 201) + beta.hat[2]
-xx2 <- seq(-lim, lim, length = 201) + beta.hat[3]
+xx1 <- seq(-lim[2], lim[2], length = 201) + beta.hat[2]
+xx2 <- seq(-lim[3], lim[3], length = 201) + beta.hat[3]
 z <- outer(xx1, xx2, f)
 
 par(mar = c(3, 3, 1, 1))
@@ -133,8 +137,7 @@ mar.x2 <- dt((xx2 - beta.hat[3]) / post.sd[3], df = 2 * reg.improp$cN,
 plot(mar.x2, xx2, col = "blue", type = "l", yaxt = "n", xlab = "")
 ```
 
-
-For completeness we report also the posterior mean of the  error variance with the 95\% credibility interval.
+For completeness we finally report also  the posterior mean of the  error variance and its 95\% credibility interval.
 
 ```{r}
 sigma2.hat <- reg.improp$CN /(cN-1)
@@ -142,10 +145,12 @@ knitr::kable(round(cbind(qinvgamma(0.025,a=cN,b=reg.improp$CN), sigma2.hat,
                      qinvgamma(0.975,a=cN,b=reg.improp$CN)),2),
              col.names = c("2.5% quantile", "posterior mean", "97.5% quantile"))
 ```
+
 # Exercise 6.3.
-We now compute the predictions of  the box office   sales on the opening weekend  for a film with  an average number of \emph{Screens} for a range of values for  \emph{Weeks}.
+
+We now compute the predictions of  the  box office  sales on the opening weekend  for a film with  an average number of \emph{Screens} for a range of values for  \emph{Budget}.
 ```{r}
- xvals <-  -10:17
+ xvals <-  -30:50
  nf <-length(xvals) 
  X_new <- cbind(rep(1,nf),xvals,rep(0,nf))
  colnames(X_new)<-colnames(X)
@@ -157,33 +162,39 @@ We now compute the predictions of  the box office   sales on the opening weekend
  }
 ```
 
-We plot the point predictions with the 95\% prediction interval and compare the observed Box office sales and the predictions from our Bayesian regression model.
+We plot the point predictions with the 95\% prediction intervals and compare the observed Box office sales and the predictions from our Bayesian regression model.
  
 ```{r, echo = -c(1:3)}
 if (pdfplots) {
   pdf("6-4_1a.pdf", width = 9, height = 6)
   par(mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.6, .6, 0))
 }
-par(mfrow=c(1,2))
-
+par(mfrow=c(1,1))
 par(mar = c(3, 3, 1, 1))
-week=X_new[,2]+mean(movies[, "Weeks"])
-plot(week,ypred, col="blue", type="l",ylim=c(-50,70),xlab="Weeks",ylab="predicited Box office sales")
+budget=X_new[,2]+mean(movies[, "Budget"])
+plot(budget,ypred, col="blue", type="l",ylim=c(-50,70),xlab="budget",ylab="predicited Box office sales")
 
 pred.levels=c(0.5,0.8)
 for (j in (1:length(pred.levels))){
      pred.quantile <- qt(1-(1-pred.levels[j])/2,df=2*cN)
-     lines(week, ypred - sqrt(ypred.var)*pred.quantile, col="blue", lty=j+1)
-     lines(week, ypred + sqrt(ypred.var)*pred.quantile,col="blue", lty=j+1)
+     lines(budget, ypred - sqrt(ypred.var)*pred.quantile, col="blue", lty=j+2)
+     lines(budget, ypred + sqrt(ypred.var)*pred.quantile,col="blue", lty=j+2)
 }
+```
 
+```{r, echo = -c(1:3)}
+if (pdfplots) {
+  pdf("6-4_1b.pdf", width = 9, height = 6)
+  par(mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.6, .6, 0))
+}
 par(mar = c(3, 3, 1, 1))
 y.pred <- X%*%beta.hat
 plot(y, y.pred,xlim=c(-20,160), ylim=c(-20,160), col="blue",xlab="observed sales", ylab="predicted sales")
 abline(a=0, b=1)
 ```
-
-As the Box sales are positive, the model is not really adequate. Hence we try a linear regression model for the log transformed sales.
+The model is not really adequate: the box office sales are positive, however the lower limit of the 80\%-prediction interval is negative for a budget below ~55 Mio.\$.
+To take into account that box office sales are always positive we 
+try a linear regression model for the log transformed sales.
 
 ```{r}
 log.y <- log(movies[, "OpenBoxOffice"])
@@ -198,30 +209,37 @@ for (i in (1:nf)){
 }
 ```
  
- We plot the point predictions of the sales with the 95\% prediction interval. 
- 
+We plot again  the point predictions with the 95\% prediction intervals of the sales  for a film with  an average number of \emph{Screens} for a range of values for  \emph{Budget}.
 ```{r, echo = -c(1:3)}
 if (pdfplots) {
-  pdf("6-4_1b.pdf", width = 9, height = 6)
+  pdf("6-4_1c.pdf", width = 9, height = 6)
   par(mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.6, .6, 0))
 }
-par(mfrow=c(1,2))
 
 par(mar = c(3, 3, 1, 1))
-plot(week,exp(lny.pred), col="blue", type="l",ylim=c(-50,70),xlab="Weeks",ylab="predicited Box office sales")
+plot(budget,exp(lny.pred), col="blue", type="l",ylim=c(-50,70),xlab="Budget",ylab="predicited Box office sales")
 
 for (j in (1:length(pred.levels))){
      pred.quantile <- qt(1-(1-pred.levels[j])/2,df=2*reg.lny$cN)
-     lines(week, exp(lny.pred - sqrt(lny.pred.var)*pred.quantile), 
+     lines(budget, exp(lny.pred - sqrt(lny.pred.var)*pred.quantile), 
            col="blue", lty=j+1)
-     lines(week, exp(lny.pred + sqrt(lny.pred.var)*pred.quantile), 
+     lines(budget, exp(lny.pred + sqrt(lny.pred.var)*pred.quantile), 
            col="blue", lty=j+1)
 }
+```
 
+
+```{r, echo = -c(1:3)}
+if (pdfplots) {
+  pdf("6-4_1d.pdf", width = 9, height = 6)
+  par(mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.6, .6, 0))
+}
 par(mar = c(3, 3, 1, 1))
 plot(y, y.pred,xlim=c(-20,160), ylim=c(-20,160), col="blue", xlab="observed sales", ylab="predicted sales")
 points(y,exp(X%*%reg.lny$beta.hat),col="red")
 abline(a=0, b=1)
+
+
 ```
 Predicted sales are larger than 0 in this model, however the  observed box office sales of 152 Mio.$ on opening week end are predicted only slightly higher than in the previous  model. 
 
