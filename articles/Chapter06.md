@@ -17,17 +17,16 @@ data("movies", package = "BayesianLearningCode")
 
 #### Example 6.2: Movie data
 
-Next, we prepare the variables for regression analysis. We define the
-response variable `OpenBoxOffice`, which contains the box office sales
-at the opening weekend in Mio.\$ as `y`. As covariates we use the Budget
+We define the response variable `OpenBoxOffice`, which contains the box
+office sales at the opening weekend in Mio.\$ as `y` and use the budget
 (`Budget`, in Mio.\$) and the predetermined number of screens
-(`Screens`, in 1000) the film studio forecast the film to be in theaters
-six weeks prior to opening.
+(`Screens`, in 1000) the film was forecast to be in theaters six weeks
+prior to opening as covariates.
 
-For better interpretation we center the covariates at their means. Hence
-the intercept is the sales on the opening weekend box office (in Mio.
-\$) of a film with an average Budget and forecasted to be in the
-theaters on an average value of screens.
+We center the covariates budget and screens at their means in the data
+set. Thus the intercept is the sales on the opening weekend box office
+(in Mio. \$) of a film with average budget and forecast to be in the
+theaters on the average number of screens .
 
 ``` r
 y <- movies[, "OpenBoxOffice"]
@@ -40,8 +39,8 @@ X <- as.matrix(cbind("Intercept" = rep(1, N), covs.cen)) # regressor matrix
 d <- dim(X)[2] # number regression effects
 ```
 
-We now define a function to compute the parameters of the posterior of
-the regression effects under the improper prior
+We then define a function to compute the parameters of the posterior
+distribution of the regression effects under the improper prior
 $p\left( \beta,\sigma^{2} \right) \propto \frac{1}{\sigma^{2}}$.
 
 ``` r
@@ -61,8 +60,8 @@ regression_improper <- function(y, X) {
 }
 ```
 
-The posterior means are given together with the equal-tailed 95%
-credibility interval in the following table.
+The following table reports the posterior means together with their
+equal-tailed 95% credibility intervals.
 
 ``` r
 reg.improp <- regression_improper(y,X)
@@ -83,23 +82,24 @@ knitr::kable(round(cbind(qt(0.025,df = 2 * cN) * post.sd + beta.hat,
 | Budget    |         0.009 |          0.174 |          0.339 |
 | Screens   |         1.073 |          1.719 |          2.365 |
 
-The average sales on the opening weekend box office is 19.11 Mio.\$ for
+The expected sales on the opening weekend box office is 19.11 Mio.\$ for
 a film with an average and forecast to be shown on an average number of
-. For a film shown on the average number of screens with 1 Mio.\$ more
-budget the average box office sales on the opening weekend are 0.174
-Mio.\$ higher; for a film to be shown on 1000 screens more with an
-average budget the increase in box office sales is 1.719 Mio.\$.
+. For such a film the expected box office sales on the opening weekend
+are 0.174 Mio.\$ higher if the budget is 1 Mio.\$ higher; for a film to
+be shown on 1000 screens more with an average budget the expected box
+office sales are 1.719 Mio.\$ higher.
 
-Next we plot the (univariate) marginal posterior distribution of the
-intercept and the univariate and bivariate marginal posterior
-distributions of the covariate effects.
+To show the uncertainty of the estimates, we plot the (univariate)
+marginal posterior distribution of the intercept as well as the
+univariate and bivariate marginal posterior distributions of the
+covariate effects.
 
 ``` r
 par(mar = c(3, 2, 1, 1))
 curve(dt((x - beta.hat[1]) / post.sd[1], df = 2 *cN),
       from = beta.hat[1] - lim[1],
       to = beta.hat[1] + lim[1],
-      ylab = "", xlab = "", main = "", col = "blue")
+      ylab = "", xlab = "", main = "")
 mtext("Intercept", 1, line = 1.7)
 
 f <- function(x1, x2) {
@@ -112,25 +112,25 @@ xx2 <- seq(-lim[3], lim[3], length = 201) + beta.hat[3]
 z <- outer(xx1, xx2, f)
 
 par(mar = c(3, 3, 1, 1))
-contour(xx1, xx2, z, col = "blue", add = FALSE)
+contour(xx1, xx2, z, add = FALSE)
 mtext(rownames(beta.hat)[2], 1, line = 1.7)
 mtext(rownames(beta.hat)[3], 2, line = 1.7)
 
 par(mar = c(0, 3, 1, 1))
 mar.x1 <- dt((xx1 - beta.hat[2]) / post.sd[2], df = 2 * reg.improp$cN,
              log = FALSE)
-plot(xx1, mar.x1, col = "blue", type = "l", xaxt = "n", ylab = "")
+plot(xx1, mar.x1,  type = "l", xaxt = "n", ylab = "")
 
 par(mar = c(3, 0, 1, 1))
 mar.x2 <- dt((xx2 - beta.hat[3]) / post.sd[3], df = 2 * reg.improp$cN,
              log = FALSE)
-plot(mar.x2, xx2, col = "blue", type = "l", yaxt = "n", xlab = "")
+plot(mar.x2, xx2,  type = "l", yaxt = "n", xlab = "")
 ```
 
 ![](Chapter06_files/figure-html/unnamed-chunk-7-1.png)
 
-For completeness we finally report also the posterior mean of the error
-variance and its 95% credibility interval.
+For completeness we finally report also the posterior expectation of the
+error variance and its 95% credibility interval.
 
 ``` r
 sigma2.hat <- reg.improp$CN /(cN-1)
@@ -145,11 +145,12 @@ knitr::kable(round(cbind(qinvgamma(0.025,a=cN,b=reg.improp$CN), sigma2.hat,
 
 ## Exercise 6.3.
 
-We now compute the predictions of the box office sales on the opening
-weekend for a film with an average number of for a range of values for .
+We now are interested in predicting of the box office sales on the
+opening weekend. We compute the predicted box office sales for a film
+with an average number of for a range of values for .
 
 ``` r
- xvals <-  -30:50
+ xvals <-  -30:60
  nf <-length(xvals) 
  X_new <- cbind(rep(1,nf),xvals,rep(0,nf))
  colnames(X_new)<-colnames(X)
@@ -161,34 +162,42 @@ weekend for a film with an average number of for a range of values for .
  }
 ```
 
-We plot the point predictions with the 95% prediction intervals and
-compare the observed Box office sales and the predictions from our
-Bayesian regression model.
+The following plot shows the point predictions together with the 50% and
+80% prediction intervals.
 
 ``` r
+par(mar = c(3, 3, 1, 1))
 budget=X_new[,2]+mean(movies[, "Budget"])
-plot(budget,ypred, col="blue", type="l",ylim=c(-50,70),xlab="budget",ylab="predicited Box office sales")
+plot(budget,ypred, type="l",lwd=2,ylim=c(-20,60),
+     xlab="Budget",ylab="Predicted box office sales")
 
 pred.levels=c(0.5,0.8)
 for (j in (1:length(pred.levels))){
      pred.quantile <- qt(1-(1-pred.levels[j])/2,df=2*cN)
-     lines(budget, ypred - sqrt(ypred.var)*pred.quantile, col="blue", lty=j+2)
-     lines(budget, ypred + sqrt(ypred.var)*pred.quantile,col="blue", lty=j+2)
+     lines(budget, ypred - sqrt(ypred.var)*pred.quantile, lty=j+1)
+     lines(budget, ypred + sqrt(ypred.var)*pred.quantile, lty=j+1)
 }
+legend("bottomright", c("Predicted mean",
+            paste(pred.levels[1]*100,"% Prediction interval"),                                   paste(pred.levels[2]*100,"% Prediction interval"))  ,
+            lty = 1:3, lwd = c(2, 1, 1))
 ```
 
 ![](Chapter06_files/figure-html/unnamed-chunk-10-1.png)
 
 ``` r
-plot(y, y.pred,xlim=c(-20,160), ylim=c(-20,160), col="blue",xlab="observed sales", ylab="predicted sales")
+plot(y, y.pred,xlim=c(-20,160), ylim=c(-20,160), 
+     xlab="observed sales", ylab="predicted sales")
 abline(a=0, b=1)
+abline(h=0,lty=2)
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-11-1.png) The model is not
-really adequate: the box office sales are positive, however the lower
-limit of the 80%-prediction interval is negative for a budget below ~55
-Mio.\$. To take into account that box office sales are always positive
-we try a linear regression model for the log transformed sales.
+![](Chapter06_files/figure-html/unnamed-chunk-11-1.png) The prediction
+interval is symmetric around the posterior mean, but obviously the model
+is not adequate, as the lower limit of the 80%-prediction interval is
+negative for a budget below ~55 Mio.\$.
+
+We can take into account that box office sales are always positive by
+fitting a linear regression model on the log transformed sales.
 
 ``` r
 log.y <- log(movies[, "OpenBoxOffice"])
@@ -203,12 +212,17 @@ for (i in (1:nf)){
 }
 ```
 
-We plot again the point predictions with the 95% prediction intervals of
-the sales for a film with an average number of for a range of values for
-.
+From the estimation results we determine the point predictions and
+prediction intervals for the logarithm of the box office sales and
+exponentiate the results to obtain the predictions for the sales.
+
+The following figure shows the point prediction with the 50% and 80%
+prediction intervals for the box office sales for a film shown on an
+average number of for a range of values for derived from this model.
 
 ``` r
-plot(budget,exp(lny.pred), col="blue", type="l",ylim=c(-50,70),xlab="Budget",ylab="predicited Box office sales")
+plot(budget,exp(lny.pred), type="l",ylim=c(-20,60),col="blue",
+     xlab="Budget",ylab="Predicted box office sales", lwd=2)
 
 for (j in (1:length(pred.levels))){
      pred.quantile <- qt(1-(1-pred.levels[j])/2,df=2*reg.lny$cN)
@@ -217,23 +231,39 @@ for (j in (1:length(pred.levels))){
      lines(budget, exp(lny.pred + sqrt(lny.pred.var)*pred.quantile), 
            col="blue", lty=j+1)
 }
+legend("bottomright", c("Predicted mean",
+            paste(pred.levels[1]*100,"% Prediction interval"),                                   paste(pred.levels[2]*100,"% Prediction interval"))  ,
+            col="blue",lty = 1:3, lwd = c(2, 1, 1))
 ```
 
 ![](Chapter06_files/figure-html/unnamed-chunk-13-1.png)
 
+We see that the bounds of the prediction intervals are positive, but –
+due to the exponential transormation – the prediction intervals are no
+longer symmetric around the point predictions.
+
+We next compare the point predctions from both models to the observed
+sales.
+
 ``` r
-points(y,exp(X%*%reg.lny$beta.hat),col="red")
+
+plot(y, y.pred,xlim=c(-20,160), ylim=c(-20,160),  xlab="Observed sales", ylab="Predicted sales")
+
+points(y,exp(X%*%reg.lny$beta.hat),col="blue", pch=16)
 abline(a=0, b=1)
+abline(h=0,lty=2)
+legend("bottomright", c("Linear regression on y","Linear regression on ln(y)"),
+                      col=c("black","blue"),lty=1)
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-14-1.png) Predicted sales
-are larger than 0 in this model, however the observed box office sales
-of 152 Mio.\$ on opening week end are predicted only slightly higher
-than in the previous model.
+![](Chapter06_files/figure-html/unnamed-chunk-14-1.png) We see that
+those from the regression model on the logarithm of the box office sales
+are slightly better, but the observed box office sales of 152 Mio.\$ are
+still predicted much too low.
 
 ### Section 6.2.2 Bayesian Learning under Conjugate Priors
 
-We now consider regression analysis under a conjugate prior. For this,
+We next consider regression analysis under a conjugate prior. For this,
 we first define a function that yields the parameters of the posterior
 distribution.
 
@@ -265,26 +295,26 @@ regression_conjugate <- function(y, X, b0 = 0, B0 = 10, c0 = 0.01, C0 = 0.01) {
 }
 ```
 
-To perform the regression analysis under the conjugate prior, we specify
-a Normal prior with mean zero and
-$\mathbf{B}_{0} = \lambda^{2}\mathbf{I}$ with $\lambda^{2} = 10$ and the
-an inverse Gamma prior with $c_{0} = 2.5$ and $C_{0} = 1.5$ on
-$\sigma^{2}$. With this choice of the prior parameters $c0$ and $C_{0}$
-the prior is rather uninformative but guarantees existence of the
-posterior variance.
+We specify a Normal prior with mean zero and
+$\mathbf{B}_{0} = \lambda^{2}\mathbf{I}$ with $\lambda^{2} = 10$ on the
+regression effects and an inverse Gamma prior with $c_{0} = 2.5$ and
+$C_{0} = 1.5$ on $\sigma^{2}$. With this choice of the prior parameters
+$c0$ and $C_{0}$ the prior is rather uninformative but guarantees
+existence of the posterior variance.
 
-We report the posterior mean of the regression effects together with the
-2.5% and 97.5% quantile of the posterior distribution.
+We perform a regression analysis on the box office sales $y$ and report
+the posterior mean of the regression effects together with the 2.5% and
+97.5% quantile of the posterior distribution in the following table.
 
 ``` r
-res_conj1 <- regression_conjugate(y, X, b0 = 0, B0 = 10,c0=2.5,C0=1.5)
+res_conj1 <- regression_conjugate(y, X, b0 = 0, B0 = 10, c0=2.5, C0=1.5)
 post.sd.conj1 = sqrt(diag((res_conj1$CN / res_conj1$cN) * res_conj1$BN))
 
 knitr::kable(round(cbind(
     qt(0.025, df = 2 * res_conj1$cN) * post.sd.conj1 + res_conj1$bN,
     res_conj1$bN,
-    qt(0.975, df = 2 * res_conj1$cN) * post.sd.conj1 + res_conj1$bN
-  ), 3), col.names = c("2.5 quantile", "posterior mean", "97.5 quantile"))
+    qt(0.975, df = 2 * res_conj1$cN) * post.sd.conj1 + res_conj1$bN), 3), 
+    col.names = c("2.5 quantile", "posterior mean", "97.5 quantile"))
 ```
 
 |           | 2.5 quantile | posterior mean | 97.5 quantile |
@@ -294,14 +324,14 @@ knitr::kable(round(cbind(
 | Screens   |        1.099 |          1.719 |         2.339 |
 
 To illustrate the effects of a tighter prior on the regression effects
-we compute the posterior parameters also for $\lambda^{2} = 1$ and
+we next compute the posterior parameters also for $\lambda^{2} = 1$ and
 $\lambda^{2} = 0.1$.
 
 ``` r
-res_conj2 <- regression_conjugate(y, X, b0 = 0, B0 = 1,c0=2.5,C0=1.5)
+res_conj2 <- regression_conjugate(y, X, b0 = 0, B0 = 1, c0=2.5, C0=1.5)
 post.sd.conj2 = sqrt(diag((res_conj2$CN / res_conj2$cN) * res_conj2$BN))
 
-res_conj3<- regression_conjugate(y, X, b0 = 0, B0 = 0.1,c0=2.5,C0=1.5)
+res_conj3<- regression_conjugate(y, X, b0 = 0, B0 = 0.1, c0=2.5, C0=1.5)
 post.sd.conj3 = sqrt(diag((res_conj3$CN / res_conj3$cN) * res_conj3$BN))
 ```
 
@@ -344,8 +374,8 @@ for (i in seq_len(nrow(beta.hat))) {
 ![](Chapter06_files/figure-html/unnamed-chunk-18-1.png)
 
 There is little difference to the improper prior for the effects of
-Screens and Weeks, however the intercept intercept is shrunk to zero for
-$\lambda^{2} = 1$ and even more for $\lambda^{2} = 0.1$.
+Budget and Screens, however the intercept intercept is shrunk to zero
+for $\lambda^{2} = 1$ and even more for $\lambda^{2} = 0.1$.
 
 To illustrate the effect of the prior we compute the the weight matrix
 $\textbf{𝐖}$ for the conjugate prior with mean $\textbf{𝟎}$ and
@@ -353,7 +383,7 @@ covariance matrix $\lambda^{2}\textbf{𝐈}$ for $\lambda^{2} = 0.1$.
 
 ``` r
 W <- res_conj3$BN %*% solve(diag(rep(0.1, d)))
-print(round(W, 3))
+print(round(W, 3),digits=3)
 #>            [,1] [,2]  [,3]
 #> Intercept 0.096    0 0.000
 #> Budget    0.000    0 0.000
