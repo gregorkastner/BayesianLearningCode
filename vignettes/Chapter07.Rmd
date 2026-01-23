@@ -1349,6 +1349,24 @@ for (i in seq_along(cthetas)) {
 }
 ```
 
+We again plot traceplots and ACFs.
+
+```{r, echo = -c(1:2), fig.width = 8, fig.height = 3}
+if (pdfplots) {
+  pdf("7-3_7.pdf", width = 8, height = 5)
+}
+par(mfcol = c(2, 3), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 2)
+for (i in seq_along(cthetas)) {
+  ts.plot(thetas[, i], ylim = range(thetas), ylab = expression(theta),
+          xlab = "Iterations")
+  title(bquote(Traceplot ~ (c[theta] == .(cthetas[i]))))
+  acf(thetas[, i], ylab = "")
+  title(bquote(ACF ~ (acceptance == .(round(naccepts[i] / ndraws, 3))*","~  
+               IF == .(round(ndraws / coda::effectiveSize(thetas[, i]), 1)))))
+}
+```
+
+
 # Section 7.4: Markov modeling for a panel of categorical time series
 
 ## Example 7.13: Wage mobility data
