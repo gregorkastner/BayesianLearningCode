@@ -1207,12 +1207,6 @@ We repeat the exercise above, but now use a truncated Gaussian proposal for
 the random walk MH algorithm.
 
 ```{r}
-# Specify prior hyperparameters
-c0 <- C0 <- 0.01
-
-# standard deviation for random walk MH proposal
-cthetas <- c(.0005, .005, .05)
-
 # Allocate space for the draws
 eps0s <- sigma2s <- thetas <- matrix(NA_real_, ndraws, length(cthetas))
 naccepts <- rep(0L, length(cthetas))
@@ -1292,9 +1286,6 @@ $\log(1 + \theta) - \log(1 - \theta)$.
 # Define the transformation and its inverse
 trans <- function(theta) log(1 + theta) - log(1 - theta)
 invtrans <- function(thetatrans) (exp(thetatrans) - 1) / (exp(thetatrans) + 1)
-
-# Specify prior hyperparameters
-c0 <- C0 <- 0.01
 
 # standard deviation for random walk MH proposal
 cthetas <- c(.005, .05, .5)
