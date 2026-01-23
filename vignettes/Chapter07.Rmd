@@ -1181,7 +1181,7 @@ for (i in seq_along(cthetas)) {
 }
 ```
 
-Now we plot the ACFs.
+Now we plot traceplots and ACFs.
 
 ```{r, echo = -c(1:2), fig.width = 8, fig.height = 3}
 if (pdfplots) {
