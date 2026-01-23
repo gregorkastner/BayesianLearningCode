@@ -1416,38 +1416,38 @@ proposal on
 samplers.</p>
 <div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">accepts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">naccepts</span>, <span class="va">naccepts2</span>, <span class="va">naccepts3</span><span class="op">)</span> <span class="op">/</span> <span class="va">ndraws</span>,</span>
-<span>                  nrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">naccepts</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
+<span>                  nrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">naccepts</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fl">3</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">ESS</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu">coda</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/coda/man/effectiveSize.html" class="external-link">effectiveSize</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">thetas</span>, <span class="va">thetas2</span>, <span class="va">thetas3</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>              nrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">thetas</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">ESS</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">accepts</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tiny"</span>, <span class="st">"medium"</span>, <span class="st">"huge"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">ESS</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">accepts</span><span class="op">)</span> <span class="op">&lt;-</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Gaussian RW"</span>, <span class="st">"truncated RW"</span>, <span class="st">"transformed RW"</span><span class="op">)</span></span>
+<span>              nrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">thetas</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fl">3</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">ESS</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">accepts</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tiny"</span>, <span class="st">"medium"</span>, <span class="st">"huge"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">ESS</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">accepts</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Gaussian RW"</span>, <span class="st">"truncated RW"</span>,</span>
+<span>                                        <span class="st">"transformed RW"</span><span class="op">)</span></span>
 <span><span class="va">IF</span> <span class="op">&lt;-</span> <span class="va">ndraws</span> <span class="op">/</span> <span class="va">ESS</span></span>
 <span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">accepts</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
 <th align="left"></th>
-<th align="right">Gaussian RW</th>
-<th align="right">truncated RW</th>
-<th align="right">transformed RW</th>
+<th align="right">tiny</th>
+<th align="right">medium</th>
+<th align="right">huge</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td align="left">tiny</td>
+<td align="left">Gaussian RW</td>
 <td align="right">0.87</td>
-<td align="right">0.87</td>
-<td align="right">0.93</td>
+<td align="right">0.31</td>
+<td align="right">0.03</td>
 </tr>
 <tr class="even">
-<td align="left">medium</td>
-<td align="right">0.31</td>
+<td align="left">truncated RW</td>
+<td align="right">0.87</td>
 <td align="right">0.35</td>
-<td align="right">0.52</td>
+<td align="right">0.06</td>
 </tr>
 <tr class="odd">
-<td align="left">huge</td>
-<td align="right">0.03</td>
-<td align="right">0.06</td>
+<td align="left">transformed RW</td>
+<td align="right">0.93</td>
+<td align="right">0.52</td>
 <td align="right">0.07</td>
 </tr>
 </tbody>
@@ -1457,27 +1457,27 @@ samplers.</p>
 <table class="table">
 <thead><tr class="header">
 <th align="left"></th>
-<th align="right">Gaussian RW</th>
-<th align="right">truncated RW</th>
-<th align="right">transformed RW</th>
+<th align="right">tiny</th>
+<th align="right">medium</th>
+<th align="right">huge</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td align="left">tiny</td>
+<td align="left">Gaussian RW</td>
 <td align="right">41.3</td>
-<td align="right">36.5</td>
-<td align="right">155.6</td>
+<td align="right">5.4</td>
+<td align="right">46.7</td>
 </tr>
 <tr class="even">
-<td align="left">medium</td>
-<td align="right">5.4</td>
+<td align="left">truncated RW</td>
+<td align="right">36.5</td>
 <td align="right">5.2</td>
-<td align="right">4.7</td>
+<td align="right">31.5</td>
 </tr>
 <tr class="odd">
-<td align="left">huge</td>
-<td align="right">46.7</td>
-<td align="right">31.5</td>
+<td align="left">transformed RW</td>
+<td align="right">155.6</td>
+<td align="right">4.7</td>
 <td align="right">20.8</td>
 </tr>
 </tbody>

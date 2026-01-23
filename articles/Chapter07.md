@@ -1356,31 +1356,31 @@ samplers.
 
 ``` r
 accepts <- matrix(c(naccepts, naccepts2, naccepts3) / ndraws,
-                  nrow = length(naccepts), ncol = 3)
+                  nrow = length(naccepts), ncol = 3, byrow = TRUE)
 ESS <- matrix(coda::effectiveSize(cbind(thetas, thetas2, thetas3)),
-              nrow = ncol(thetas), ncol = 3)
-rownames(ESS) <- rownames(accepts) <- c("tiny", "medium", "huge")
-colnames(ESS) <- colnames(accepts) <-
-  c("Gaussian RW", "truncated RW", "transformed RW")
+              nrow = ncol(thetas), ncol = 3, byrow = TRUE)
+colnames(ESS) <- colnames(accepts) <- c("tiny", "medium", "huge")
+rownames(ESS) <- rownames(accepts) <- c("Gaussian RW", "truncated RW",
+                                        "transformed RW")
 IF <- ndraws / ESS
 knitr::kable(round(accepts, 2))
 ```
 
-|        | Gaussian RW | truncated RW | transformed RW |
-|:-------|------------:|-------------:|---------------:|
-| tiny   |        0.87 |         0.87 |           0.93 |
-| medium |        0.31 |         0.35 |           0.52 |
-| huge   |        0.03 |         0.06 |           0.07 |
+|                | tiny | medium | huge |
+|:---------------|-----:|-------:|-----:|
+| Gaussian RW    | 0.87 |   0.31 | 0.03 |
+| truncated RW   | 0.87 |   0.35 | 0.06 |
+| transformed RW | 0.93 |   0.52 | 0.07 |
 
 ``` r
 knitr::kable(round(IF, 1))
 ```
 
-|        | Gaussian RW | truncated RW | transformed RW |
-|:-------|------------:|-------------:|---------------:|
-| tiny   |        41.3 |         36.5 |          155.6 |
-| medium |         5.4 |          5.2 |            4.7 |
-| huge   |        46.7 |         31.5 |           20.8 |
+|                |  tiny | medium | huge |
+|:---------------|------:|-------:|-----:|
+| Gaussian RW    |  41.3 |    5.4 | 46.7 |
+| truncated RW   |  36.5 |    5.2 | 31.5 |
+| transformed RW | 155.6 |    4.7 | 20.8 |
 
 ## Section 7.4: Markov modeling for a panel of categorical time series
 
