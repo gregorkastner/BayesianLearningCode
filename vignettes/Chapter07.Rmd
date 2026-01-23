@@ -1370,6 +1370,21 @@ qqplot(thetas[, 2], thetas3[, 2])
 abline(c(0, 1), col = 2)
 ```
 
+Now, we compare acceptance rates and inefficiency factors for all 9 samplers.
+
+```{r}
+accepts <- matrix(c(naccepts, naccepts2, naccepts3) / ndraws,
+                  nrow = length(naccepts), ncol = 3)
+ESS <- matrix(coda::effectiveSize(cbind(thetas, thetas2, thetas3)),
+              nrow = ncol(thetas), ncol = 3)
+rownames(ESS) <- rownames(accepts) <- c("tiny", "medium", "huge")
+colnames(ESS) <- colnames(accepts) <-
+  c("Gaussian RW", "truncated RW", "transformed RW")
+IF <- ndraws / ESS
+knitr::kable(round(accepts, 2))
+knitr::kable(round(IF, 1))
+```
+
 # Section 7.4: Markov modeling for a panel of categorical time series
 
 ## Example 7.13: Wage mobility data
