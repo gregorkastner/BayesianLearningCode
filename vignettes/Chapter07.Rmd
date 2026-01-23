@@ -1295,7 +1295,7 @@ cthetas3 <- c(.05, .5, 5)
 
 # Allocate space for the draws
 eps0s3 <- sigma2s3 <- thetas3 <- matrix(NA_real_, ndraws, length(cthetas3))
-naccepts <- rep(0L, length(cthetas3))
+naccepts3 <- rep(0L, length(cthetas3))
 
 for (i in seq_along(cthetas3)) {
   # Set the starting values
