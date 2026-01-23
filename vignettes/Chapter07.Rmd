@@ -1285,6 +1285,69 @@ for (i in seq_along(cthetas)) {
 }
 ```
 
+We repeat the exercise above once more, but now use a random walk proposal on
+$\log(1 + \theta) - \log(1 - \theta)$.
+
+```{r}
+# Define the transformation and its inverse
+trans <- function(theta) log(1 + theta) - log(1 - theta)
+invtrans <- function(thetatrans) (exp(thetatrans) - 1) / (exp(thetatrans) + 1)
+
+# Specify prior hyperparameters
+c0 <- C0 <- 0.01
+
+# standard deviation for random walk MH proposal
+cthetas <- c(.005, .05, .5)
+
+# Allocate space for the draws
+eps0s <- sigma2s <- thetas <- matrix(NA_real_, ndraws, length(cthetas))
+naccepts <- rep(0L, length(cthetas))
+
+for (i in seq_along(cthetas)) {
+  # Set the starting values
+  theta <- 0.9
+  sigma2 <- var(dat) / 2
+
+  # MCMC loop
+  for (m in seq_len(ndraws + nburn)) {
+    # Sample epsilon_0
+    bs <- (-theta)^seq_along(dat)
+    as <- filter(dat, -theta, "recursive")
+    tmp <- 1 + sum(bs^2)
+    eps0 <- rnorm(1, -sum(as * bs) / tmp, sqrt(sigma2 / tmp))
+    
+    # Sample sigma^2
+    eps <- filter(dat, -theta, "recursive", init = eps0)
+    cN <- c0 + (length(dat) + 1) / 2
+    CN <- C0 + 0.5 * (eps0^2 + sum(eps^2))
+    sigma2 <- rinvgamma(1, cN, CN)
+  
+    # Sample theta via RW-MH on a trans(theta)
+    thetatransprop <- rnorm(1, trans(theta), cthetas[i])
+    thetaprop <- invtrans(thetatransprop)
+    epsprop <- filter(dat, -thetaprop, "recursive", init = eps0)
+    
+    # Now we accept/reject. Note that because we have a uniform prior on
+    # (-1, 1) and, due to the transformation, we can be sure that a
+    # value within (-1, 1) is proposed, we do not need to include the
+    # prior in the acceptance ratio. However, we need to cater for the
+    # asymmetry of the proposal!
+    logR <- -0.5 / sigma2 * (sum(epsprop^2) - sum(eps^2)) +
+      log(1 - thetaprop^2) - log(1 - theta^2)
+    if (log(runif(1)) < logR) {
+      theta <- thetaprop
+      if (m > nburn) naccepts[i] <- naccepts[i] + 1L
+    }
+  
+    # Store the results
+    if (m > nburn) {
+      eps0s[m - nburn, i] <- eps0
+      sigma2s[m - nburn, i] <- sigma2
+      thetas[m - nburn, i] <- theta
+    }
+  }
+}
+```
 
 # Section 7.4: Markov modeling for a panel of categorical time series
 
