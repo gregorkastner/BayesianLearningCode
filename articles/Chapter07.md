@@ -1073,10 +1073,13 @@ by a unit root, we investigate the posterior of
 $1 - \phi_{1} - \ldots - \phi_{p}$ for $p = 1,\ldots,4$.
 
 ``` r
+toplot <- matrix(NA_real_, ndraws, 4)
+for (p in 1:4)
+  toplot[, p] <- 1 - rowSums(ardat[[p]]$betas[, 2:(p + 1), drop = FALSE])
 for (p in 1:4) {
-  hist(1 - rowSums(ardat[[p]]$betas[, 2:(p + 1), drop = FALSE]), freq = FALSE,
-       main = paste0("AR(", p, ")"), xlab = expression(delta), ylab = "",
-       breaks = 16)
+  hist(toplot[, p], freq = FALSE,
+       breaks = seq(min(toplot), max(toplot), length.out = 20),
+       main = paste0("AR(", p, ")"), xlab = expression(delta), ylab = "")
   abline(v = 0, lty = 2, col = 2)
 }
 ```
@@ -1095,10 +1098,12 @@ for (p in 1:4) {
 ```
 
 ``` r
+for (p in 1:4)
+  toplot[, p] <- 1 - rowSums(ardat[[p]]$betas[, 2:(p + 1), drop = FALSE])
 for (p in 1:4) {
-  hist(1 - rowSums(ardat[[p]]$betas[, 2:(p + 1), drop = FALSE]), freq = FALSE,
-       main = paste0("AR(", p, ")"), xlab = expression(delta), ylab = "",
-       breaks = 16)
+  hist(toplot[, p], freq = FALSE,
+       breaks = seq(min(toplot), max(toplot), length.out = 20),
+       main = paste0("AR(", p, ")"), xlab = expression(delta), ylab = "")
   abline(v = 0, lty = 2, col = 2)
 }
 ```
@@ -1168,7 +1173,7 @@ for (i in seq_along(cthetas)) {
 }
 ```
 
-Now we plot the ACFs.
+Now we plot traceplots and ACFs.
 
 ``` r
 for (i in seq_along(cthetas)) {
@@ -1182,6 +1187,200 @@ for (i in seq_along(cthetas)) {
 ```
 
 ![](Chapter07_files/figure-html/unnamed-chunk-46-1.png)
+
+We repeat the exercise above, but now use a truncated Gaussian proposal
+for the random walk MH algorithm.
+
+``` r
+# standard deviation for random walk MH proposal
+cthetas2 <- cthetas
+
+# Allocate space for the draws
+eps0s2 <- sigma2s2 <- thetas2 <- matrix(NA_real_, ndraws, length(cthetas2))
+naccepts2 <- rep(0L, length(cthetas2))
+
+for (i in seq_along(cthetas2)) {
+  # Set the starting values
+  theta <- 0.9
+  sigma2 <- var(dat) / 2
+
+  # MCMC loop
+  for (m in seq_len(ndraws + nburn)) {
+    # Sample epsilon_0
+    bs <- (-theta)^seq_along(dat)
+    as <- filter(dat, -theta, "recursive")
+    tmp <- 1 + sum(bs^2)
+    eps0 <- rnorm(1, -sum(as * bs) / tmp, sqrt(sigma2 / tmp))
+    
+    # Sample sigma^2
+    eps <- filter(dat, -theta, "recursive", init = eps0)
+    cN <- c0 + (length(dat) + 1) / 2
+    CN <- C0 + 0.5 * (eps0^2 + sum(eps^2))
+    sigma2 <- rinvgamma(1, cN, CN)
+  
+    # Sample theta via RW-MH using inverse transform sampling
+    # for the truncated Gaussian
+    pL <- pnorm(-1, theta, cthetas2[i])
+    pU <- pnorm(1, theta, cthetas2[i])
+    norm <- pU - pL
+    U <- runif(1)
+    thetaprop <- qnorm(pL + U * norm, theta, cthetas2[i])
+    epsprop <- filter(dat, -thetaprop, "recursive", init = eps0)
+    normprop <- diff(pnorm(c(-1, 1), thetaprop, cthetas2[i]))
+    
+    # Now we accept/reject. Note that because we have a uniform prior on
+    # (-1, 1) and, due to the truncated proposal, we can be sure that a
+    # value within (-1, 1) is proposed, we do not need to include the
+    # prior in the acceptance ratio. However, we need to cater for the
+    # asymmetry of the proposal!
+    logR <- -0.5 / sigma2 * (sum(epsprop^2) - sum(eps^2)) +
+      log(norm) - log(normprop)
+    if (log(runif(1)) < logR) {
+      theta <- thetaprop
+      if (m > nburn) naccepts2[i] <- naccepts2[i] + 1L
+    }
+  
+    # Store the results
+    if (m > nburn) {
+      eps0s2[m - nburn, i] <- eps0
+      sigma2s2[m - nburn, i] <- sigma2
+      thetas2[m - nburn, i] <- theta
+    }
+  }
+}
+```
+
+We again plot traceplots and ACFs.
+
+``` r
+for (i in seq_along(cthetas2)) {
+  ts.plot(thetas2[, i], ylim = range(thetas2), ylab = expression(theta),
+          xlab = "Iterations")
+  title(bquote(Traceplot ~ (c[theta] == .(cthetas2[i]))))
+  acf(thetas2[, i], ylab = "")
+  title(bquote(ACF ~ (acceptance == .(round(naccepts2[i] / ndraws, 3))*","~  
+               IF == .(round(ndraws / coda::effectiveSize(thetas2[, i]), 1)))))
+}
+```
+
+![](Chapter07_files/figure-html/unnamed-chunk-48-1.png)
+
+We repeat the exercise above once more, but now use a random walk
+proposal on $\log(1 + \theta) - \log(1 - \theta)$.
+
+``` r
+# Define the transformation and its inverse
+trans <- function(theta) log(1 + theta) - log(1 - theta)
+invtrans <- function(thetatrans) (exp(thetatrans) - 1) / (exp(thetatrans) + 1)
+
+# standard deviation for random walk MH proposal
+cthetas3 <- 100 * cthetas2
+
+# Allocate space for the draws
+eps0s3 <- sigma2s3 <- thetas3 <- matrix(NA_real_, ndraws, length(cthetas3))
+naccepts3 <- rep(0L, length(cthetas3))
+
+for (i in seq_along(cthetas3)) {
+  # Set the starting values
+  theta <- 0.9
+  sigma2 <- var(dat) / 2
+
+  # MCMC loop
+  for (m in seq_len(ndraws + nburn)) {
+    # Sample epsilon_0
+    bs <- (-theta)^seq_along(dat)
+    as <- filter(dat, -theta, "recursive")
+    tmp <- 1 + sum(bs^2)
+    eps0 <- rnorm(1, -sum(as * bs) / tmp, sqrt(sigma2 / tmp))
+    
+    # Sample sigma^2
+    eps <- filter(dat, -theta, "recursive", init = eps0)
+    cN <- c0 + (length(dat) + 1) / 2
+    CN <- C0 + 0.5 * (eps0^2 + sum(eps^2))
+    sigma2 <- rinvgamma(1, cN, CN)
+  
+    # Sample theta via RW-MH on a trans(theta)
+    thetatransprop <- rnorm(1, trans(theta), cthetas3[i])
+    thetaprop <- invtrans(thetatransprop)
+    epsprop <- filter(dat, -thetaprop, "recursive", init = eps0)
+    
+    # Now we accept/reject. Note that because we have a uniform prior on
+    # (-1, 1) and, due to the transformation, we can be sure that a
+    # value within (-1, 1) is proposed, we do not need to include the
+    # prior in the acceptance ratio. However, we need to cater for the
+    # asymmetry of the proposal!
+    logR <- -0.5 / sigma2 * (sum(epsprop^2) - sum(eps^2)) +
+      log(1 - thetaprop^2) - log(1 - theta^2)
+    if (log(runif(1)) < logR) {
+      theta <- thetaprop
+      if (m > nburn) naccepts3[i] <- naccepts3[i] + 1L
+    }
+  
+    # Store the results
+    if (m > nburn) {
+      eps0s3[m - nburn, i] <- eps0
+      sigma2s3[m - nburn, i] <- sigma2
+      thetas3[m - nburn, i] <- theta
+    }
+  }
+}
+```
+
+We again plot traceplots and ACFs.
+
+``` r
+for (i in seq_along(cthetas3)) {
+  ts.plot(thetas3[, i], ylim = range(thetas3), ylab = expression(theta),
+          xlab = "Iterations")
+  title(bquote(Traceplot ~ (c[theta] == .(cthetas3[i]))))
+  acf(thetas3[, i], ylab = "")
+  title(bquote(ACF ~ (acceptance == .(round(naccepts3[i] / ndraws, 3))*","~  
+               IF == .(round(ndraws / coda::effectiveSize(thetas3[, i]), 1)))))
+}
+```
+
+![](Chapter07_files/figure-html/unnamed-chunk-50-1.png)
+
+Let’s also check some QQ plots for equivalence.
+
+``` r
+abline(c(0, 1), col = 2)
+qqplot(thetas[, 2], thetas3[, 2])
+abline(c(0, 1), col = 2)
+```
+
+![](Chapter07_files/figure-html/unnamed-chunk-51-1.png)
+
+Now, we compare acceptance rates and inefficiency factors for all 9
+samplers.
+
+``` r
+accepts <- matrix(c(naccepts, naccepts2, naccepts3) / ndraws,
+                  nrow = length(naccepts), ncol = 3)
+ESS <- matrix(coda::effectiveSize(cbind(thetas, thetas2, thetas3)),
+              nrow = ncol(thetas), ncol = 3)
+rownames(ESS) <- rownames(accepts) <- c("tiny", "medium", "huge")
+colnames(ESS) <- colnames(accepts) <-
+  c("Gaussian RW", "truncated RW", "transformed RW")
+IF <- ndraws / ESS
+knitr::kable(round(accepts, 2))
+```
+
+|        | Gaussian RW | truncated RW | transformed RW |
+|:-------|------------:|-------------:|---------------:|
+| tiny   |        0.87 |         0.87 |           0.93 |
+| medium |        0.31 |         0.35 |           0.52 |
+| huge   |        0.03 |         0.06 |           0.07 |
+
+``` r
+knitr::kable(round(IF, 1))
+```
+
+|        | Gaussian RW | truncated RW | transformed RW |
+|:-------|------------:|-------------:|---------------:|
+| tiny   |        41.3 |         36.5 |          155.6 |
+| medium |         5.4 |          5.2 |            4.7 |
+| huge   |        46.7 |         31.5 |           20.8 |
 
 ## Section 7.4: Markov modeling for a panel of categorical time series
 
@@ -1219,7 +1418,7 @@ for (i in index) {
 }
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-49-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-55-1.png)
 
 ### Example 7.14: Wage mobility data – comparing wage mobility of men and women
 
@@ -1311,7 +1510,7 @@ corrplot::corrplot(mean_xi_male, method = "square", is.corr = FALSE,
                    col = 1, cl.pos = "n")
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-53-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-59-1.png)
 
 We compare the posterior densities of various transition probabilities
 $\xi_{g,hk}$ for women and men.
@@ -1353,7 +1552,7 @@ legend("topright", col = 1, lty = 1:2,
        legend = c("female", "male"))
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-54-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-60-1.png)
 
 ### Example 7.15: Wage mobility data – long run
 
@@ -1378,7 +1577,7 @@ barplot(eta_hat_female_t, main = "Women", xlab = "Year", ylab = "Wage groups")
 barplot(eta_hat_male_t, main = "Men", xlab = "Year", ylab = "Wage groups")
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-55-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-61-1.png)
 
 We inspect the posterior distributions of $\eta_{t,2}$ for wage category
 2 (left-hand side) versus $\eta_{t,5}$ for wage category 5 (right-hand
@@ -1413,4 +1612,4 @@ hist(eta_male_t[, 6], breaks = breaks,
 legend("topright", c("female", "male"), fill = rgb(c(0, 1), 0, 0, 0.2))
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-56-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-62-1.png)
