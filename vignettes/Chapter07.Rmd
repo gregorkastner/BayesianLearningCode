@@ -1272,7 +1272,7 @@ We again plot traceplots and ACFs.
 
 ```{r, echo = -c(1:2), fig.width = 8, fig.height = 3}
 if (pdfplots) {
-  pdf("7-3_5.pdf", width = 8, height = 5)
+  pdf("7-3_6.pdf", width = 8, height = 5)
 }
 par(mfcol = c(2, 3), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 2)
 for (i in seq_along(cthetas)) {
