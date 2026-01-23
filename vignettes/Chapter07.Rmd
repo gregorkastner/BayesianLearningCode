@@ -1288,7 +1288,7 @@ trans <- function(theta) log(1 + theta) - log(1 - theta)
 invtrans <- function(thetatrans) (exp(thetatrans) - 1) / (exp(thetatrans) + 1)
 
 # standard deviation for random walk MH proposal
-cthetas <- c(.005, .05, .5)
+cthetas <- c(.05, .5, 5)
 
 # Allocate space for the draws
 eps0s <- sigma2s <- thetas <- matrix(NA_real_, ndraws, length(cthetas))
