@@ -1251,7 +1251,8 @@ for (i in seq_along(cthetas)) {
     # value within (-1, 1) is proposed, we do not need to include the
     # prior in the acceptance ratio. However, we need to cater for the
     # asymmetry of the proposal!
-    logR <- -0.5 / sigma2 * (sum(epsprop^2) - sum(eps^2)) + norm - normprop
+    logR <- -0.5 / sigma2 * (sum(epsprop^2) - sum(eps^2)) +
+      log(norm) - log(normprop)
     if (log(runif(1)) < logR) {
       theta <- thetaprop
       if (m > nburn) naccepts[i] <- naccepts[i] + 1L
