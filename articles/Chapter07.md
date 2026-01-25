@@ -754,20 +754,21 @@ beta priors.
 ``` r
 mybreaks <- seq(floor(100 * min(stationary1$phi, stationary2$phi)) / 100,
                 ceiling(100 * max(ar1draws)) / 100,
-                by = .005)
-hist(stationary2$phi, breaks = mybreaks, col = rgb(1, 1, 0, .2),
-     main = "Histogram of posterior draws", xlab = expression(phi),
-     freq = FALSE, ylab = "")
+                by = .0025)
+hist(stationary2$phi, breaks = mybreaks, col = rgb(1, 1, 0, .3),
+     main = "Histograms of posterior draws", xlab = expression(phi),
+     freq = FALSE, ylab = "", border = NA)
 hist(stationary1$phi, breaks = mybreaks, col = rgb(1, 0, 0, .2),
-     freq = FALSE, add = TRUE)
-hist(ar1draws[!nonstationary[, 1]], breaks = mybreaks, col = rgb(0, 0, 1, .2),
-     freq = FALSE, add = TRUE)
+     freq = FALSE, add = TRUE, border = NA)
+hist(ar1draws[!nonstationary[, 1]], breaks = mybreaks, col = rgb(0, 0, 1, .15),
+     freq = FALSE, add = TRUE, border = NA)
 hist(ar1draws, breaks = mybreaks, col = rgb(0, 1, 0, .2),
-     freq = FALSE, add = TRUE)
+     freq = FALSE, add = TRUE, border = NA)
 legend("topright",
        c("Unrestricted posterior", "Post-processed posterior",
          "Beta prior posterior (flat)", "Beta prior posterior (shrunken)"),
-       fill = rgb(c(0, 0, 1, 1), c(1, 0, 0, 1), c(0, 1, 0, 0), .2))
+       fill = rgb(c(0, 0, 1, 1), c(1, 0, 0, 1), c(0, 1, 0, 0),
+                  c(.2, .15, .2, .3)), border = NA)
 ```
 
 ![](Chapter07_files/figure-html/unnamed-chunk-32-1.png)
