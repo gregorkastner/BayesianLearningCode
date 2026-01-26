@@ -795,6 +795,23 @@ axis(1,at=1:nf,labels=c("A","B","C","D"))
 ### Example 6.10
 
 ``` r
-beta <- seq(from = -4, to = 4, by = 0.01)
-#logp= lgamma(a_lambda+2)+lgamma(a_lambda)+a_lambda*log(a_lambda)-(a_lambda+2)log(a_lambda+beta1°2+beta2^2)
+
+beta2<- beta1 <- seq(from = -2, to = 2, by =0.01)
+
+f <- function(x1, x2){
+        exp(log(a+1)+log(a)+a*log(a) - (a+2)*log(a+abs(x1)+ abs(x2)))
+}
+av <- c(0.1,1,100)
+par(mfrow=c(1,3))
+par(mar = c(4.5, 4.5, .1, .1), 
+     mgp = c(2.6, .6, 0))
+for(i in 1:length(av)){
+    a <- av[i]
+    z <- outer(beta1, beta2, f)
+    contour(beta1, beta2,z,nlevels=10, 
+            xlab=expression(beta[1]),ylab=expression(beta[2]),
+            drawlabels=FALSE)
+}
 ```
+
+![](Chapter06_files/figure-html/unnamed-chunk-39-1.png)
