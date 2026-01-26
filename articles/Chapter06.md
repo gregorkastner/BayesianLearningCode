@@ -239,7 +239,7 @@ legend("bottomright", c("Predicted mean",
 ![](Chapter06_files/figure-html/unnamed-chunk-13-1.png)
 
 We see that the bounds of the prediction intervals are positive, but –
-due to the exponential transormation – the prediction intervals are no
+due to the exponential transformation – the prediction intervals are no
 longer symmetric around the point predictions.
 
 We next compare the point predctions from both models to the observed
@@ -543,7 +543,7 @@ legend('topright', legend = c("Horseshoe", "Standard normal"), lty = 1:2,
 ![](Chapter06_files/figure-html/unnamed-chunk-26-1.png)
 
 We now set up the Gibbs sampler of the regression model wIth a proper
-Normal prior on the intercept and horseshoe priors on the coviariate
+Normal prior on the intercept and horseshoe priors on the covariate
 effects.
 
 ``` r
@@ -614,7 +614,7 @@ horseshoe prior on the covariate effects.
 post.draws.hs <- reg_hs(y, X, M = M)
 ```
 
-Again, we show the posterior mean estimatesof the regression effects
+Again, we show the posterior mean estimates of the regression effects
 together with their equal-tailed 95% credibility intervals in a table.
 
 ``` r
@@ -742,10 +742,12 @@ qqplot(post.draws.hs$sigma2s, post.draws.hs2$sigma2s,
 abline(a = 0, b = 1)
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-36-1.png) Next we want to
-predict the box office sale for a movie with MPAA rating `G'' or`PG’’,
-of genre comedy, with average values of and {Weeks} as well as the
-sentiments and volumes of Twitter-posts set, but different values of .
+![](Chapter06_files/figure-html/unnamed-chunk-36-1.png)
+
+Next we predict the box office sale for different movies: a film with
+baseline values in all covariates (A), a film with baseline values in
+all covariates except genre (B) or and finally a film of genre with MPAA
+rating PG13 (D).
 
 ``` r
  nf=4
@@ -768,9 +770,9 @@ sentiments and volumes of Twitter-posts set, but different values of .
  pred.mean.hs<- rowMeans(ypred.hs)
 ```
 
-plot predicted expectation,the median of the predictive distribution,
-together with vertical bars indicating the pointwise equal-tailed
-95%-predictive interval
+We plot the predicted expectation,the median of the predictive
+distribution, together with vertical bars indicating the pointwise
+equal-tailed 95%-predictive interval
 
 ``` r
 
@@ -788,7 +790,7 @@ axis(1,at=1:nf,labels=c("A","B","C","D"))
 
 ![](Chapter06_files/figure-html/unnamed-chunk-38-1.png)
 
-## Section 6.5: Shrinkage beyond the Horseshoeprior
+## Section 6.5: Shrinkage beyond the Horseshoe Prior
 
 ### Example 6.10
 
