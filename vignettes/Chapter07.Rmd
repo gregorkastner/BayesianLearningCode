@@ -30,13 +30,15 @@ pandemic, we restrict our analysis to the time before its outbreak.
 
 ```{r}
 data("gdp", package = "BayesianLearningCode")
-dat <- gdp[1:which(names(gdp) == '2019-10-01')]
+dat <- gdp[1:which(names(gdp) == "2019-10-01")]
 ```
 
 Next, we compute the log returns.
 
 ```{r}
 logret <- log(dat[-1]) - log(dat[-length(dat)])
+logret <- ts(logret, start = c(1947, 2), end = c(2019, 4),
+             frequency = 4)
 ```
 
 Now we can plot the data and its empirical autocorrelation function.
@@ -216,7 +218,6 @@ res_conj_2 <- regression(y, Xy, prior = "conjugate",
 res_semi_2 <- regression(y, Xy, prior = "semi-conjugate",
                          b0 = rep(0, 4), B0 = diag(rep(100, 4)),
                          c0 = 2, C0 = 0.001)
-
 ```
 
 ## Figure 7.3: AR(3) models with improper, semi-conjugate, and conjugate priors
@@ -294,15 +295,17 @@ plot(eigenvalues, xlim = c(-1, 1), ylim = c(-1, 1), asp = 1,
 symbols(0, 0, 1, add = TRUE, fg = 2, inches = FALSE)
 ```
 
-We now move towards analyzing EU inflation data.
+We now move towards analyzing the Euro area inflation data.
 
 ```{r}
 data("inflation", package = "BayesianLearningCode")
+inflation <- ts(inflation, start = c(1997, 2), end = c(2025, 6),
+                frequency = 12)
 ```
 
 First, we plot the data and its empirical autocorrelation function.
 
-## Figure 7.5: EU inflation data
+## Figure 7.5: Euro area inflation data
 
 ```{r, echo = -c(1:2)}
 if (pdfplots) {
@@ -310,7 +313,7 @@ if (pdfplots) {
   par(mar = c(2.6, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 2)
 }
 par(mfrow = c(1, 2))
-ts.plot(inflation, main = "EU inflation")
+ts.plot(inflation, main = "Euro area inflation")
 acf(inflation, main = "")
 title("Empirical autocorrelation function")
 ```
@@ -327,7 +330,7 @@ for (p in 1:3) {
 }
 ```
 
-## Figure 7.6: Checking stationarity conditions for the EU inflation data
+## Figure 7.6: Checking stationarity conditions for the Euro area inflation data
 
 ```{r, echo = -c(1:2), fig.width = 9, fig.height = 3}
 if (pdfplots) {
