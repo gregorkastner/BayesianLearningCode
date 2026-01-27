@@ -87,10 +87,12 @@ COVID pandemic, we restrict our analysis to the time before its
 outbreak.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"gdp"</span>, package <span class="op">=</span> <span class="st">"BayesianLearningCode"</span><span class="op">)</span></span>
-<span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="va">gdp</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">gdp</span><span class="op">)</span> <span class="op">==</span> <span class="st">'2019-10-01'</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
+<span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="va">gdp</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">gdp</span><span class="op">)</span> <span class="op">==</span> <span class="st">"2019-10-01"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
 <p>Next, we compute the log returns.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">logret</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">dat</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">dat</span><span class="op">[</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">dat</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">logret</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">dat</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">dat</span><span class="op">[</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">dat</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="va">logret</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/ts.html" class="external-link">ts</a></span><span class="op">(</span><span class="va">logret</span>, start <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1947</span>, <span class="fl">2</span><span class="op">)</span>, end <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2019</span>, <span class="fl">4</span><span class="op">)</span>,</span>
+<span>             frequency <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
 <p>Now we can plot the data and its empirical autocorrelation
 function.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
@@ -325,17 +327,19 @@ models under the improper prior from above to explore stationarity for
 <span>     main <span class="op">=</span> <span class="st">"AR(3)"</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/rgb.html" class="external-link">rgb</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">.05</span><span class="op">)</span>, pch <span class="op">=</span> <span class="fl">16</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/symbols.html" class="external-link">symbols</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, add <span class="op">=</span> <span class="cn">TRUE</span>, fg <span class="op">=</span> <span class="fl">2</span>, inches <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="Chapter07_files/figure-html/unnamed-chunk-11-1.png" class="r-plt" alt="" width="864"></p>
-<p>We now move towards analyzing EU inflation data.</p>
+<p>We now move towards analyzing the Euro area inflation data.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"inflation"</span>, package <span class="op">=</span> <span class="st">"BayesianLearningCode"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"inflation"</span>, package <span class="op">=</span> <span class="st">"BayesianLearningCode"</span><span class="op">)</span></span>
+<span><span class="va">inflation</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/ts.html" class="external-link">ts</a></span><span class="op">(</span><span class="va">inflation</span>, start <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1997</span>, <span class="fl">2</span><span class="op">)</span>, end <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2025</span>, <span class="fl">6</span><span class="op">)</span>,</span>
+<span>                frequency <span class="op">=</span> <span class="fl">12</span><span class="op">)</span></span></code></pre></div>
 <p>First, we plot the data and its empirical autocorrelation
 function.</p>
 </div>
 <div class="section level3">
-<h3 id="figure-7-5-eu-inflation-data">Figure 7.5: EU inflation data<a class="anchor" aria-label="anchor" href="#figure-7-5-eu-inflation-data"></a>
+<h3 id="figure-7-5-euro-area-inflation-data">Figure 7.5: Euro area inflation data<a class="anchor" aria-label="anchor" href="#figure-7-5-euro-area-inflation-data"></a>
 </h3>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/ts.plot.html" class="external-link">ts.plot</a></span><span class="op">(</span><span class="va">inflation</span>, main <span class="op">=</span> <span class="st">"EU inflation"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/ts.plot.html" class="external-link">ts.plot</a></span><span class="op">(</span><span class="va">inflation</span>, main <span class="op">=</span> <span class="st">"Euro area inflation"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/acf.html" class="external-link">acf</a></span><span class="op">(</span><span class="va">inflation</span>, main <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/title.html" class="external-link">title</a></span><span class="op">(</span><span class="st">"Empirical autocorrelation function"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="Chapter07_files/figure-html/unnamed-chunk-13-1.png" class="r-plt" alt="" width="768"></p>
@@ -352,8 +356,8 @@ models under the improper prior to explore stationarity for
 <span><span class="op">}</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="figure-7-6-checking-stationarity-conditions-for-the-eu-inflation-data">Figure 7.6: Checking stationarity conditions for the EU inflation
-data<a class="anchor" aria-label="anchor" href="#figure-7-6-checking-stationarity-conditions-for-the-eu-inflation-data"></a>
+<h3 id="figure-7-6-checking-stationarity-conditions-for-the-euro-area-inflation-data">Figure 7.6: Checking stationarity conditions for the Euro area
+inflation data<a class="anchor" aria-label="anchor" href="#figure-7-6-checking-stationarity-conditions-for-the-euro-area-inflation-data"></a>
 </h3>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ar1draws</span> <span class="op">&lt;-</span> <span class="va">res2</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">betas</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span></span>
@@ -390,7 +394,7 @@ draws outside of the stationarity region.</p>
 <span><span class="va">nonstationary</span><span class="op">[</span>, <span class="fl">3</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/complex.html" class="external-link">Mod</a></span><span class="op">(</span><span class="va">eigenvalues</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">1</span>, <span class="fl">1</span>, <span class="va">any</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colMeans</a></span><span class="op">(</span><span class="va">nonstationary</span><span class="op">)</span></span>
 <span><span class="co">#&gt;      1      2      3 </span></span>
-<span><span class="co">#&gt; 0.0405 0.0107 0.0031</span></span></code></pre></div>
+<span><span class="co">#&gt; 0.0408 0.0107 0.0032</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="section-7-2-3-recovering-missing-time-series-data-an-introduction-to-data-augmentation">Section 7.2.3: Recovering Missing Time Series Data – An Introduction
@@ -837,23 +841,23 @@ inefficiency factor (IF) use the coda package.</p>
 </tr>
 <tr class="even">
 <td align="left">postprocessed</td>
-<td align="right">9202</td>
-<td align="right">9595</td>
-<td align="right">9595</td>
+<td align="right">9184</td>
+<td align="right">9592</td>
+<td align="right">9592</td>
 <td align="right">NA</td>
 </tr>
 <tr class="odd">
 <td align="left">betapriorflat</td>
-<td align="right">2179</td>
-<td align="right">1955</td>
-<td align="right">9490</td>
+<td align="right">2189</td>
+<td align="right">1964</td>
+<td align="right">9496</td>
 <td align="right">9255</td>
 </tr>
 <tr class="even">
 <td align="left">betapriorinformative</td>
-<td align="right">783</td>
-<td align="right">398</td>
-<td align="right">5194</td>
+<td align="right">784</td>
+<td align="right">397</td>
+<td align="right">5198</td>
 <td align="right">10000</td>
 </tr>
 </tbody>
@@ -885,16 +889,16 @@ inefficiency factor (IF) use the coda package.</p>
 </tr>
 <tr class="odd">
 <td align="left">betapriorflat</td>
-<td align="right">4.59</td>
-<td align="right">5.12</td>
+<td align="right">4.57</td>
+<td align="right">5.09</td>
 <td align="right">1.05</td>
 <td align="right">1.08</td>
 </tr>
 <tr class="even">
 <td align="left">betapriorinformative</td>
-<td align="right">12.77</td>
-<td align="right">25.15</td>
-<td align="right">1.93</td>
+<td align="right">12.76</td>
+<td align="right">25.21</td>
+<td align="right">1.92</td>
 <td align="right">1.00</td>
 </tr>
 </tbody>
@@ -1060,15 +1064,15 @@ optimized MH step.</p>
 <tbody>
 <tr class="odd">
 <td align="left">Sampler 1</td>
-<td align="right">783</td>
-<td align="right">398</td>
-<td align="right">5194</td>
+<td align="right">784</td>
+<td align="right">397</td>
+<td align="right">5198</td>
 <td align="right">10000</td>
 </tr>
 <tr class="even">
 <td align="left">Sampler 2</td>
-<td align="right">1042</td>
-<td align="right">549</td>
+<td align="right">1045</td>
+<td align="right">548</td>
 <td align="right">6342</td>
 <td align="right">10000</td>
 </tr>
@@ -1087,15 +1091,15 @@ optimized MH step.</p>
 <tbody>
 <tr class="odd">
 <td align="left">Sampler 1</td>
-<td align="right">12.77</td>
-<td align="right">25.15</td>
-<td align="right">1.93</td>
+<td align="right">12.76</td>
+<td align="right">25.21</td>
+<td align="right">1.92</td>
 <td align="right">1</td>
 </tr>
 <tr class="even">
 <td align="left">Sampler 2</td>
-<td align="right">9.60</td>
-<td align="right">18.23</td>
+<td align="right">9.57</td>
+<td align="right">18.25</td>
 <td align="right">1.58</td>
 <td align="right">1</td>
 </tr>
@@ -1465,7 +1469,7 @@ samplers.</p>
 <tbody>
 <tr class="odd">
 <td align="left">Gaussian RW</td>
-<td align="right">41.3</td>
+<td align="right">41.0</td>
 <td align="right">5.4</td>
 <td align="right">46.7</td>
 </tr>

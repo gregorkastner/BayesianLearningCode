@@ -12,13 +12,15 @@ outbreak.
 
 ``` r
 data("gdp", package = "BayesianLearningCode")
-dat <- gdp[1:which(names(gdp) == '2019-10-01')]
+dat <- gdp[1:which(names(gdp) == "2019-10-01")]
 ```
 
 Next, we compute the log returns.
 
 ``` r
 logret <- log(dat[-1]) - log(dat[-length(dat)])
+logret <- ts(logret, start = c(1947, 2), end = c(2019, 4),
+             frequency = 4)
 ```
 
 Now we can plot the data and its empirical autocorrelation function.
@@ -268,18 +270,20 @@ symbols(0, 0, 1, add = TRUE, fg = 2, inches = FALSE)
 
 ![](Chapter07_files/figure-html/unnamed-chunk-11-1.png)
 
-We now move towards analyzing EU inflation data.
+We now move towards analyzing the Euro area inflation data.
 
 ``` r
 data("inflation", package = "BayesianLearningCode")
+inflation <- ts(inflation, start = c(1997, 2), end = c(2025, 6),
+                frequency = 12)
 ```
 
 First, we plot the data and its empirical autocorrelation function.
 
-### Figure 7.5: EU inflation data
+### Figure 7.5: Euro area inflation data
 
 ``` r
-ts.plot(inflation, main = "EU inflation")
+ts.plot(inflation, main = "Euro area inflation")
 acf(inflation, main = "")
 title("Empirical autocorrelation function")
 ```
@@ -298,7 +302,7 @@ for (p in 1:3) {
 }
 ```
 
-### Figure 7.6: Checking stationarity conditions for the EU inflation data
+### Figure 7.6: Checking stationarity conditions for the Euro area inflation data
 
 ``` r
 ar1draws <- res2[[1]]$betas[, 2]
@@ -339,7 +343,7 @@ nonstationary[, 2] <- ar2draws[, 1] + ar2draws[, 2] > 1 |
 nonstationary[, 3] <- apply(Mod(eigenvalues) > 1, 1, any)
 colMeans(nonstationary)
 #>      1      2      3 
-#> 0.0405 0.0107 0.0031
+#> 0.0408 0.0107 0.0032
 ```
 
 ### Section 7.2.3: Recovering Missing Time Series Data – An Introduction to Data Augmentation
@@ -815,9 +819,9 @@ knitr::kable(round(ess))
 |                      | zeta |   phi | sigma2 |    y0 |
 |:---------------------|-----:|------:|-------:|------:|
 | unrestricted         | 9562 | 10000 |  10000 |    NA |
-| postprocessed        | 9202 |  9595 |   9595 |    NA |
-| betapriorflat        | 2179 |  1955 |   9490 |  9255 |
-| betapriorinformative |  783 |   398 |   5194 | 10000 |
+| postprocessed        | 9184 |  9592 |   9592 |    NA |
+| betapriorflat        | 2189 |  1964 |   9496 |  9255 |
+| betapriorinformative |  784 |   397 |   5198 | 10000 |
 
 ``` r
 knitr::kable(round(ndraws / ess, 2))
@@ -827,8 +831,8 @@ knitr::kable(round(ndraws / ess, 2))
 |:---------------------|------:|------:|-------:|-----:|
 | unrestricted         |  1.05 |  1.00 |   1.00 |   NA |
 | postprocessed        |  1.09 |  1.04 |   1.04 |   NA |
-| betapriorflat        |  4.59 |  5.12 |   1.05 | 1.08 |
-| betapriorinformative | 12.77 | 25.15 |   1.93 | 1.00 |
+| betapriorflat        |  4.57 |  5.09 |   1.05 | 1.08 |
+| betapriorinformative | 12.76 | 25.21 |   1.92 | 1.00 |
 
 We now repeat the above exercise, but use the conditional posterior
 resulting from an auxiliary moment-matched prior in Step (d).
@@ -995,8 +999,8 @@ knitr::kable(round(ess))
 
 |           | zeta | phi | sigma2 |    y0 |
 |:----------|-----:|----:|-------:|------:|
-| Sampler 1 |  783 | 398 |   5194 | 10000 |
-| Sampler 2 | 1042 | 549 |   6342 | 10000 |
+| Sampler 1 |  784 | 397 |   5198 | 10000 |
+| Sampler 2 | 1045 | 548 |   6342 | 10000 |
 
 ``` r
 knitr::kable(round(ndraws / ess, 2))
@@ -1004,8 +1008,8 @@ knitr::kable(round(ndraws / ess, 2))
 
 |           |  zeta |   phi | sigma2 |  y0 |
 |:----------|------:|------:|-------:|----:|
-| Sampler 1 | 12.77 | 25.15 |   1.93 |   1 |
-| Sampler 2 |  9.60 | 18.23 |   1.58 |   1 |
+| Sampler 1 | 12.76 | 25.21 |   1.92 |   1 |
+| Sampler 2 |  9.57 | 18.25 |   1.58 |   1 |
 
 ## Section 7.3: Some Extensions
 
@@ -1379,7 +1383,7 @@ knitr::kable(round(IF, 1))
 
 |                |  tiny | medium | huge |
 |:---------------|------:|-------:|-----:|
-| Gaussian RW    |  41.3 |    5.4 | 46.7 |
+| Gaussian RW    |  41.0 |    5.4 | 46.7 |
 | truncated RW   |  36.5 |    5.2 | 31.5 |
 | transformed RW | 155.6 |    4.7 | 20.8 |
 
