@@ -824,7 +824,7 @@ beta2<- beta1 <- seq(from = -2, to = 2, by =0.01)
 f <- function(x1, x2){
         exp(log(a+1)+log(a)+a*log(a) - (a+2)*log(a+abs(x1)+ abs(x2)))
 }
-av <- c(0.1,1,100)
+av <- c(0.1,1,10)
 par(mfrow=c(1,3))
 par(mar = c(4.5, 4.5, .1, .1), 
      mgp = c(2.6, .6, 0))
