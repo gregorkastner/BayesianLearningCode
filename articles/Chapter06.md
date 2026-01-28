@@ -143,7 +143,7 @@ knitr::kable(round(cbind(qinvgamma(0.025,a=cN,b=reg.improp$CN), sigma2.hat,
 |--------------:|---------------:|---------------:|
 |        178.38 |         239.07 |         319.96 |
 
-## Exercise 6.3.
+#### Exercise 6.3.
 
 We now are interested in predicting of the box office sales on the
 opening weekend. We compute the predicted box office sales for a film
@@ -519,6 +519,29 @@ knitr::kable(t(round(res_sigma2.sc, 3)))
 |-------:|-------:|-------:|
 | 47.415 | 63.815 | 86.276 |
 
+However the different signs of the effects of and deserve some further
+comment. The two covariates are highly correlated. Due to this high
+correlation the usual interpretation of the effect by changing the value
+of one covariate at the time does not make sense. Hence, we predict the
+change in box office sales for a film with twitter volume scores are 1
+unit higher both in weeks 4-6 and weeks 1-3.
+
+``` r
+cor(X[,"Vol-4-6"], X[,"Vol-1-3"])
+#> [1] 0.84403
+
+par(mfrow=c(1,1))
+plot(X[,"Vol-4-6"], X[,"Vol-1-3"])
+```
+
+![](Chapter06_files/figure-html/unnamed-chunk-26-1.png)
+
+``` r
+
+print(res_beta.sc["Vol-4-6","Mean"]+res_beta.sc["Vol-1-3","Mean"])
+#> [1] 5.639416
+```
+
 ## 6.4 Regression Analysis Based on the Horseshoe Prior
 
 A comparison of the normal and the horseshoe prior shows that the latter
@@ -540,7 +563,7 @@ legend('topright', legend = c("Horseshoe", "Standard normal"), lty = 1:2,
        col = c("blue", "black"))
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-26-1.png)
+![](Chapter06_files/figure-html/unnamed-chunk-27-1.png)
 
 We now set up the Gibbs sampler of the regression model wIth a proper
 Normal prior on the intercept and horseshoe priors on the covariate
@@ -666,7 +689,7 @@ posterior distributions under the horseshoe prior. Note that the
 posterior distributions are symmetric under the semi-conjugate prior,
 whereas this is not the case under the horseshoe prior.
 
-![](Chapter06_files/figure-html/unnamed-chunk-31-1.png)![](Chapter06_files/figure-html/unnamed-chunk-31-2.png)
+![](Chapter06_files/figure-html/unnamed-chunk-32-1.png)![](Chapter06_files/figure-html/unnamed-chunk-32-2.png)
 
 For illustration purposes, we overlay four selected marginal posteriors
 in order to illustrate the shrinkage effect.
@@ -686,7 +709,7 @@ for (i in selection) {
 }
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-32-1.png)
+![](Chapter06_files/figure-html/unnamed-chunk-33-1.png)
 
 We next investigate the trace plots of the draws from the posterior. As
 above, the plots on the left are obtained under the semi-conjugate
@@ -700,7 +723,7 @@ for (i in seq_len(d)) {
 }
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-33-1.png)![](Chapter06_files/figure-html/unnamed-chunk-33-2.png)
+![](Chapter06_files/figure-html/unnamed-chunk-34-1.png)![](Chapter06_files/figure-html/unnamed-chunk-34-2.png)
 
 To sum up, we visualize the posterior of the effects and corresponding
 (square root of the) shrinkage parameters. For visual inspection, we
@@ -720,7 +743,7 @@ tau.hs.trunc.mirrored <- rbind(sqrt(tau2.hs.trunc), -sqrt(tau2.hs.trunc))
 On the left, we see the posteriors of the regression effects posteriors,
 on the right, we visualize the gap plot.
 
-![](Chapter06_files/figure-html/unnamed-chunk-35-1.png) We verify
+![](Chapter06_files/figure-html/unnamed-chunk-36-1.png) We verify
 convergence of the sampler by doing a second run of the six block
 sampler in Algorithm 6.2. In the Q-Q plot of the draws of the intercept
 and the error variance the draws are very close to the identity line and
@@ -742,7 +765,7 @@ qqplot(post.draws.hs$sigma2s, post.draws.hs2$sigma2s,
 abline(a = 0, b = 1)
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-36-1.png)
+![](Chapter06_files/figure-html/unnamed-chunk-37-1.png)
 
 Next we predict the box office sale for different movies: a film with
 baseline values in all covariates (A), a film with baseline values in
@@ -788,7 +811,7 @@ points(x = (1:nf)+0.2, y = pred.mean.hs, pch=16,col="red")
 axis(1,at=1:nf,labels=c("A","B","C","D"))
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-38-1.png)
+![](Chapter06_files/figure-html/unnamed-chunk-39-1.png)
 
 ## Section 6.5: Shrinkage beyond the Horseshoe Prior
 
@@ -814,4 +837,4 @@ for(i in 1:length(av)){
 }
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-39-1.png)
+![](Chapter06_files/figure-html/unnamed-chunk-40-1.png)
