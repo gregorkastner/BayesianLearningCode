@@ -657,7 +657,7 @@ for (m in seq_len(ndraws + nburn)) {
     C0 + .5 * (1 - phi^2) * (y0 - zeta / (1 - phi))^2 + .5 * crossprod(tmp))
   
   # Step (c): Draw the intercept
-  BT <- 1 / (1 / B0 + (length(y) + 1) / sigma2)
+  BT <- 1 / (1 / B0 + (1 + phi) / (sigma2 * (1 - phi)) + length(y) / sigma2)
   bT <- BT * (b0 / B0 + ((1 + phi) * y0 +
     y[1] - phi * y0 + sum(y[-1] - phi * y[-length(y)])) / sigma2)
   zeta <- rnorm(1, bT, sqrt(BT))
@@ -716,7 +716,7 @@ for (m in seq_len(ndraws + nburn)) {
     C0 + .5 * (1 - phi^2) * (y0 - zeta / (1 - phi))^2 + .5 * crossprod(tmp))
   
   # Step (c): Draw the intercept
-  BT <- 1 / (1 / B0 + (length(y) + 1) / sigma2)
+  BT <- 1 / (1 / B0 + (1 + phi) / (sigma2 * (1 - phi)) + length(y) / sigma2)
   bT <- BT * (b0 / B0 + ((1 + phi) * y0 +
     y[1] - phi * y0 + sum(y[-1] - phi * y[-length(y)])) / sigma2)
   zeta <- rnorm(1, bT, sqrt(BT))
@@ -820,19 +820,19 @@ knitr::kable(round(ess))
 |:---------------------|-----:|------:|-------:|------:|
 | unrestricted         | 9562 | 10000 |  10000 |    NA |
 | postprocessed        | 9184 |  9592 |   9592 |    NA |
-| betapriorflat        | 2189 |  1964 |   9496 |  9255 |
-| betapriorinformative |  784 |   397 |   5198 | 10000 |
+| betapriorflat        | 2301 |  2189 |  10000 | 10000 |
+| betapriorinformative |  634 |   338 |   6211 | 10000 |
 
 ``` r
 knitr::kable(round(ndraws / ess, 2))
 ```
 
-|                      |  zeta |   phi | sigma2 |   y0 |
-|:---------------------|------:|------:|-------:|-----:|
-| unrestricted         |  1.05 |  1.00 |   1.00 |   NA |
-| postprocessed        |  1.09 |  1.04 |   1.04 |   NA |
-| betapriorflat        |  4.57 |  5.09 |   1.05 | 1.08 |
-| betapriorinformative | 12.76 | 25.21 |   1.92 | 1.00 |
+|                      |  zeta |   phi | sigma2 |  y0 |
+|:---------------------|------:|------:|-------:|----:|
+| unrestricted         |  1.05 |  1.00 |   1.00 |  NA |
+| postprocessed        |  1.09 |  1.04 |   1.04 |  NA |
+| betapriorflat        |  4.35 |  4.57 |   1.00 |   1 |
+| betapriorinformative | 15.77 | 29.55 |   1.61 |   1 |
 
 We now repeat the above exercise, but use the conditional posterior
 resulting from an auxiliary moment-matched prior in Step (d).
@@ -899,7 +899,7 @@ for (m in seq_len(ndraws + nburn)) {
     C0 + .5 * (1 - phi^2) * (y0 - zeta / (1 - phi))^2 + .5 * crossprod(tmp))
   
   # Step (c): Draw the intercept
-  BT <- 1 / (1 / B0 + (length(y) + 1) / sigma2)
+  BT <- 1 / (1 / B0 + (1 + phi) / (sigma2 * (1 - phi)) + length(y) / sigma2)
   bT <- BT * (b0 / B0 + ((1 + phi) * y0 +
     y[1] - phi * y0 + sum(y[-1] - phi * y[-length(y)])) / sigma2)
   zeta <- rnorm(1, bT, sqrt(BT))
@@ -999,8 +999,8 @@ knitr::kable(round(ess))
 
 |           | zeta | phi | sigma2 |    y0 |
 |:----------|-----:|----:|-------:|------:|
-| Sampler 1 |  784 | 397 |   5198 | 10000 |
-| Sampler 2 | 1045 | 548 |   6342 | 10000 |
+| Sampler 1 |  634 | 338 |   6211 | 10000 |
+| Sampler 2 |  966 | 504 |   7172 | 10000 |
 
 ``` r
 knitr::kable(round(ndraws / ess, 2))
@@ -1008,8 +1008,8 @@ knitr::kable(round(ndraws / ess, 2))
 
 |           |  zeta |   phi | sigma2 |  y0 |
 |:----------|------:|------:|-------:|----:|
-| Sampler 1 | 12.76 | 25.21 |   1.92 |   1 |
-| Sampler 2 |  9.57 | 18.25 |   1.58 |   1 |
+| Sampler 1 | 15.77 | 29.55 |   1.61 |   1 |
+| Sampler 2 | 10.35 | 19.85 |   1.39 |   1 |
 
 ## Section 7.3: Some Extensions
 
@@ -1375,7 +1375,7 @@ knitr::kable(round(accepts, 2))
 |:---------------|-----:|-------:|-----:|
 | Gaussian RW    | 0.87 |   0.31 | 0.03 |
 | truncated RW   | 0.87 |   0.35 | 0.06 |
-| transformed RW | 0.93 |   0.52 | 0.07 |
+| transformed RW | 0.94 |   0.52 | 0.07 |
 
 ``` r
 knitr::kable(round(IF, 1))
@@ -1383,9 +1383,9 @@ knitr::kable(round(IF, 1))
 
 |                |  tiny | medium | huge |
 |:---------------|------:|-------:|-----:|
-| Gaussian RW    |  41.0 |    5.4 | 46.7 |
-| truncated RW   |  36.5 |    5.2 | 31.5 |
-| transformed RW | 155.6 |    4.7 | 20.8 |
+| Gaussian RW    |  39.3 |    5.8 | 46.0 |
+| truncated RW   |  36.3 |    5.2 | 31.8 |
+| transformed RW | 143.1 |    4.7 | 20.5 |
 
 ## Section 7.4: Markov modeling for a panel of categorical time series
 

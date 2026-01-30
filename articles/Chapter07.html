@@ -675,7 +675,7 @@ as well as the design matrix.</p>
 <span>    <span class="va">C0</span> <span class="op">+</span> <span class="fl">.5</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">phi</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">*</span> <span class="op">(</span><span class="va">y0</span> <span class="op">-</span> <span class="va">zeta</span> <span class="op">/</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">phi</span><span class="op">)</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span> <span class="op">+</span> <span class="fl">.5</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/crossprod.html" class="external-link">crossprod</a></span><span class="op">(</span><span class="va">tmp</span><span class="op">)</span><span class="op">)</span></span>
 <span>  </span>
 <span>  <span class="co"># Step (c): Draw the intercept</span></span>
-<span>  <span class="va">BT</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="op">/</span> <span class="op">(</span><span class="fl">1</span> <span class="op">/</span> <span class="va">B0</span> <span class="op">+</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span> <span class="op">/</span> <span class="va">sigma2</span><span class="op">)</span></span>
+<span>  <span class="va">BT</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="op">/</span> <span class="op">(</span><span class="fl">1</span> <span class="op">/</span> <span class="va">B0</span> <span class="op">+</span> <span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="va">phi</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="va">sigma2</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">phi</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="op">/</span> <span class="va">sigma2</span><span class="op">)</span></span>
 <span>  <span class="va">bT</span> <span class="op">&lt;-</span> <span class="va">BT</span> <span class="op">*</span> <span class="op">(</span><span class="va">b0</span> <span class="op">/</span> <span class="va">B0</span> <span class="op">+</span> <span class="op">(</span><span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="va">phi</span><span class="op">)</span> <span class="op">*</span> <span class="va">y0</span> <span class="op">+</span></span>
 <span>    <span class="va">y</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">-</span> <span class="va">phi</span> <span class="op">*</span> <span class="va">y0</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">y</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span> <span class="op">-</span> <span class="va">phi</span> <span class="op">*</span> <span class="va">y</span><span class="op">[</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">]</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span> <span class="va">sigma2</span><span class="op">)</span></span>
 <span>  <span class="va">zeta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">bT</span>, <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">BT</span><span class="op">)</span><span class="op">)</span></span>
@@ -731,7 +731,7 @@ as well as the design matrix.</p>
 <span>    <span class="va">C0</span> <span class="op">+</span> <span class="fl">.5</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">phi</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">*</span> <span class="op">(</span><span class="va">y0</span> <span class="op">-</span> <span class="va">zeta</span> <span class="op">/</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">phi</span><span class="op">)</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span> <span class="op">+</span> <span class="fl">.5</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/crossprod.html" class="external-link">crossprod</a></span><span class="op">(</span><span class="va">tmp</span><span class="op">)</span><span class="op">)</span></span>
 <span>  </span>
 <span>  <span class="co"># Step (c): Draw the intercept</span></span>
-<span>  <span class="va">BT</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="op">/</span> <span class="op">(</span><span class="fl">1</span> <span class="op">/</span> <span class="va">B0</span> <span class="op">+</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span> <span class="op">/</span> <span class="va">sigma2</span><span class="op">)</span></span>
+<span>  <span class="va">BT</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="op">/</span> <span class="op">(</span><span class="fl">1</span> <span class="op">/</span> <span class="va">B0</span> <span class="op">+</span> <span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="va">phi</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="va">sigma2</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">phi</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="op">/</span> <span class="va">sigma2</span><span class="op">)</span></span>
 <span>  <span class="va">bT</span> <span class="op">&lt;-</span> <span class="va">BT</span> <span class="op">*</span> <span class="op">(</span><span class="va">b0</span> <span class="op">/</span> <span class="va">B0</span> <span class="op">+</span> <span class="op">(</span><span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="va">phi</span><span class="op">)</span> <span class="op">*</span> <span class="va">y0</span> <span class="op">+</span></span>
 <span>    <span class="va">y</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">-</span> <span class="va">phi</span> <span class="op">*</span> <span class="va">y0</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">y</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span> <span class="op">-</span> <span class="va">phi</span> <span class="op">*</span> <span class="va">y</span><span class="op">[</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">]</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span> <span class="va">sigma2</span><span class="op">)</span></span>
 <span>  <span class="va">zeta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">bT</span>, <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">BT</span><span class="op">)</span><span class="op">)</span></span>
@@ -848,16 +848,16 @@ inefficiency factor (IF) use the coda package.</p>
 </tr>
 <tr class="odd">
 <td align="left">betapriorflat</td>
+<td align="right">2301</td>
 <td align="right">2189</td>
-<td align="right">1964</td>
-<td align="right">9496</td>
-<td align="right">9255</td>
+<td align="right">10000</td>
+<td align="right">10000</td>
 </tr>
 <tr class="even">
 <td align="left">betapriorinformative</td>
-<td align="right">784</td>
-<td align="right">397</td>
-<td align="right">5198</td>
+<td align="right">634</td>
+<td align="right">338</td>
+<td align="right">6211</td>
 <td align="right">10000</td>
 </tr>
 </tbody>
@@ -889,17 +889,17 @@ inefficiency factor (IF) use the coda package.</p>
 </tr>
 <tr class="odd">
 <td align="left">betapriorflat</td>
+<td align="right">4.35</td>
 <td align="right">4.57</td>
-<td align="right">5.09</td>
-<td align="right">1.05</td>
-<td align="right">1.08</td>
+<td align="right">1.00</td>
+<td align="right">1</td>
 </tr>
 <tr class="even">
 <td align="left">betapriorinformative</td>
-<td align="right">12.76</td>
-<td align="right">25.21</td>
-<td align="right">1.92</td>
-<td align="right">1.00</td>
+<td align="right">15.77</td>
+<td align="right">29.55</td>
+<td align="right">1.61</td>
+<td align="right">1</td>
 </tr>
 </tbody>
 </table>
@@ -967,7 +967,7 @@ every iteration (auxprior = numerical)</p></li>
 <span>    <span class="va">C0</span> <span class="op">+</span> <span class="fl">.5</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">phi</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">*</span> <span class="op">(</span><span class="va">y0</span> <span class="op">-</span> <span class="va">zeta</span> <span class="op">/</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">phi</span><span class="op">)</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span> <span class="op">+</span> <span class="fl">.5</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/crossprod.html" class="external-link">crossprod</a></span><span class="op">(</span><span class="va">tmp</span><span class="op">)</span><span class="op">)</span></span>
 <span>  </span>
 <span>  <span class="co"># Step (c): Draw the intercept</span></span>
-<span>  <span class="va">BT</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="op">/</span> <span class="op">(</span><span class="fl">1</span> <span class="op">/</span> <span class="va">B0</span> <span class="op">+</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span> <span class="op">/</span> <span class="va">sigma2</span><span class="op">)</span></span>
+<span>  <span class="va">BT</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="op">/</span> <span class="op">(</span><span class="fl">1</span> <span class="op">/</span> <span class="va">B0</span> <span class="op">+</span> <span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="va">phi</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="va">sigma2</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">phi</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="op">/</span> <span class="va">sigma2</span><span class="op">)</span></span>
 <span>  <span class="va">bT</span> <span class="op">&lt;-</span> <span class="va">BT</span> <span class="op">*</span> <span class="op">(</span><span class="va">b0</span> <span class="op">/</span> <span class="va">B0</span> <span class="op">+</span> <span class="op">(</span><span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="va">phi</span><span class="op">)</span> <span class="op">*</span> <span class="va">y0</span> <span class="op">+</span></span>
 <span>    <span class="va">y</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">-</span> <span class="va">phi</span> <span class="op">*</span> <span class="va">y0</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">y</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span> <span class="op">-</span> <span class="va">phi</span> <span class="op">*</span> <span class="va">y</span><span class="op">[</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">]</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span> <span class="va">sigma2</span><span class="op">)</span></span>
 <span>  <span class="va">zeta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">bT</span>, <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">BT</span><span class="op">)</span><span class="op">)</span></span>
@@ -1064,16 +1064,16 @@ optimized MH step.</p>
 <tbody>
 <tr class="odd">
 <td align="left">Sampler 1</td>
-<td align="right">784</td>
-<td align="right">397</td>
-<td align="right">5198</td>
+<td align="right">634</td>
+<td align="right">338</td>
+<td align="right">6211</td>
 <td align="right">10000</td>
 </tr>
 <tr class="even">
 <td align="left">Sampler 2</td>
-<td align="right">1045</td>
-<td align="right">548</td>
-<td align="right">6342</td>
+<td align="right">966</td>
+<td align="right">504</td>
+<td align="right">7172</td>
 <td align="right">10000</td>
 </tr>
 </tbody>
@@ -1091,16 +1091,16 @@ optimized MH step.</p>
 <tbody>
 <tr class="odd">
 <td align="left">Sampler 1</td>
-<td align="right">12.76</td>
-<td align="right">25.21</td>
-<td align="right">1.92</td>
+<td align="right">15.77</td>
+<td align="right">29.55</td>
+<td align="right">1.61</td>
 <td align="right">1</td>
 </tr>
 <tr class="even">
 <td align="left">Sampler 2</td>
-<td align="right">9.57</td>
-<td align="right">18.25</td>
-<td align="right">1.58</td>
+<td align="right">10.35</td>
+<td align="right">19.85</td>
+<td align="right">1.39</td>
 <td align="right">1</td>
 </tr>
 </tbody>
@@ -1451,7 +1451,7 @@ samplers.</p>
 </tr>
 <tr class="odd">
 <td align="left">transformed RW</td>
-<td align="right">0.93</td>
+<td align="right">0.94</td>
 <td align="right">0.52</td>
 <td align="right">0.07</td>
 </tr>
@@ -1469,21 +1469,21 @@ samplers.</p>
 <tbody>
 <tr class="odd">
 <td align="left">Gaussian RW</td>
-<td align="right">41.0</td>
-<td align="right">5.4</td>
-<td align="right">46.7</td>
+<td align="right">39.3</td>
+<td align="right">5.8</td>
+<td align="right">46.0</td>
 </tr>
 <tr class="even">
 <td align="left">truncated RW</td>
-<td align="right">36.5</td>
+<td align="right">36.3</td>
 <td align="right">5.2</td>
-<td align="right">31.5</td>
+<td align="right">31.8</td>
 </tr>
 <tr class="odd">
 <td align="left">transformed RW</td>
-<td align="right">155.6</td>
+<td align="right">143.1</td>
 <td align="right">4.7</td>
-<td align="right">20.8</td>
+<td align="right">20.5</td>
 </tr>
 </tbody>
 </table>
