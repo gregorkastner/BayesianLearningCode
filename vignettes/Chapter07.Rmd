@@ -693,7 +693,7 @@ for (m in seq_len(ndraws + nburn)) {
     C0 + .5 * (1 - phi^2) * (y0 - zeta / (1 - phi))^2 + .5 * crossprod(tmp))
   
   # Step (c): Draw the intercept
-  BT <- 1 / (1 / B0 + (length(y) + 1) / sigma2)
+  BT <- 1 / (1 / B0 + (1 + phi) / (sigma2 * (1 - phi)) + length(y) / sigma2)
   bT <- BT * (b0 / B0 + ((1 + phi) * y0 +
     y[1] - phi * y0 + sum(y[-1] - phi * y[-length(y)])) / sigma2)
   zeta <- rnorm(1, bT, sqrt(BT))
@@ -752,7 +752,7 @@ for (m in seq_len(ndraws + nburn)) {
     C0 + .5 * (1 - phi^2) * (y0 - zeta / (1 - phi))^2 + .5 * crossprod(tmp))
   
   # Step (c): Draw the intercept
-  BT <- 1 / (1 / B0 + (length(y) + 1) / sigma2)
+  BT <- 1 / (1 / B0 + (1 + phi) / (sigma2 * (1 - phi)) + length(y) / sigma2)
   bT <- BT * (b0 / B0 + ((1 + phi) * y0 +
     y[1] - phi * y0 + sum(y[-1] - phi * y[-length(y)])) / sigma2)
   zeta <- rnorm(1, bT, sqrt(BT))
@@ -917,7 +917,7 @@ for (m in seq_len(ndraws + nburn)) {
     C0 + .5 * (1 - phi^2) * (y0 - zeta / (1 - phi))^2 + .5 * crossprod(tmp))
   
   # Step (c): Draw the intercept
-  BT <- 1 / (1 / B0 + (length(y) + 1) / sigma2)
+  BT <- 1 / (1 / B0 + (1 + phi) / (sigma2 * (1 - phi)) + length(y) / sigma2)
   bT <- BT * (b0 / B0 + ((1 + phi) * y0 +
     y[1] - phi * y0 + sum(y[-1] - phi * y[-length(y)])) / sigma2)
   zeta <- rnorm(1, bT, sqrt(BT))
