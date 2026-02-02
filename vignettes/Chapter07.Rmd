@@ -1088,7 +1088,7 @@ $p = 1, \dots, 4$.
 
 ```{r, echo = -c(1:2), fig.width = 8, fig.height = 3}
 if (pdfplots) {
-  pdf("7-3_3.pdf", width = 8, height = 3)
+  pdf("7-3_3.pdf", width = 7, height = 2.5)
 }
 par(mfrow = c(1, 4), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 2)
 toplot <- matrix(NA_real_, ndraws, 4)
@@ -1115,7 +1115,7 @@ for (p in 1:4) {
 
 ```{r, echo = -c(1:2), fig.width = 8, fig.height = 3}
 if (pdfplots) {
-  pdf("7-3_4.pdf", width = 8, height = 3)
+  pdf("7-3_4.pdf", width = 7, height = 2.5)
 }
 par(mfrow = c(1, 4), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 2)
 for (p in 1:4)
