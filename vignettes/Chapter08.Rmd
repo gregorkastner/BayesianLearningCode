@@ -42,13 +42,11 @@ age18 (quantitative, centered at 18 years) and unemployed in 1997
 worker who was employed in 1997.
 
 ```{r}
-y.unemp <- labor$income_1998 == "zero"
+y.unemp <- labor$unemp98
 N.unemp <- length(y.unemp)  # number of observations 
 X.unemp <- with(labor, cbind(intercept = rep(1, N.unemp),
-                             female = female,
-                             age18 = 1998 - birthyear - 18,
-                             wcollar = wcollar_1997,
-                             unemp97 = income_1997 == "zero")) # regressor matrix
+                              age18 = age - 18,
+                             female, wcollar, unemp97 ))
 ```
 
 The regression coefficients are estimated using data augmentation and
@@ -188,15 +186,15 @@ quasi-complete separation only either successes or failures can be
 predicted perfectly.
 
 To illustrate posterior sampling, in the case of complete separation,
-we simulate $N = 500$ observations with 10 successes and 490 failures.
+we generate $N = 500$ observations with 10 successes and 490 failures.
 We add a binary predictor $x$ where for $x = 1$ we observe only
 successes and for $x = 0$ only failures.
 
 ```{r}
 N <- 500
-ns <- 10
-x <- rep(c(1, 0), c(ns, N - ns))
-y <- rep(c(1, 0), c(ns, N - ns))
+ns <- 250
+x <- rep(c(0,1), c(ns, N - ns))
+y <- rep(c(0,1), c(ns, N - ns))
 
 table(y, x)
 ```
