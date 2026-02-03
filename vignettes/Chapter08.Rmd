@@ -46,7 +46,7 @@ y.unemp <- labor$unemp98
 N.unemp <- length(y.unemp)  # number of observations 
 X.unemp <- with(labor, cbind(intercept = rep(1, N.unemp),
                               age18 = age - 18,
-                             female, wcollar, unemp97 ))
+                              female, wcollar, unemp97 ))
 ```
 
 The regression coefficients are estimated using data augmentation and
