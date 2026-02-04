@@ -185,10 +185,10 @@ failures can be perfectly predicted by a covariate, whereas with
 quasi-complete separation only either successes or failures can be
 predicted perfectly.
 
-To illustrate posterior sampling, in the case of complete separation,
-we generate $N = 500$ observations with 10 successes and 490 failures.
-We add a binary predictor $x$ where for $x = 1$ we observe only
-successes and for $x = 0$ only failures.
+# Example  8.3
+
+To illustrate the effect of  complete separation on the estimates, we generate $N = 500$ observations with half of them successes and the other half are failures.
+We add a binary predictor $x$ where for $x = 1$ we observe only successes and for $x = 0$ only failures.
 
 ```{r}
 N <- 500
@@ -196,8 +196,9 @@ ns <- 250
 x <- rep(c(0,1), c(ns, N - ns))
 y <- rep(c(0,1), c(ns, N - ns))
 
-table(y, x)
+table(x,y)
 ```
+
 We estimate the  model parameters and plot the ACF of the draws. Again the
 autocorrelations remain high even for lag 35.
 
@@ -214,27 +215,21 @@ acf(betas[, 1])
 plot(betas[, 2], type = "l", main = "", xlab = "", ylab = "")
 acf(betas[, 2])
 ```
+# Example 8.4
 
-Finally we simulate another data set of $N = 500$ observations with 10
-successes and 490 failures. In this data for $x = 1$ only successes but
-for $x = 0$ successes as well as failures are observed and hence there
-is quasi-separation.
-
+To illustrate quasi-seperation we use the responses as in Example 8.3., but now $x=0$ for all successes  and additionally for 100 failures.
 ```{r}
-N <- 500
-x <-  rep(c(1, 0), c(ns, N-ns))
-y <- rep(c(1, 0), each = N/2)
-
-table(y, x)
+x <- rep(c(0,1), c(ns-100, N - ns+100))
+table(x, y)
 ```
-A plot of the acf of the draws shows low autocorrelation for the
-intercept but autocorrelations for the covariate effect are again
-high.
+Again we have very high autocorrelations for both the intercept as well as the effect of x.
+
 
 ```{r, echo = -c(1:2)}
 if (pdfplots) {
   pdf("8-1_5.pdf", width = 8, height = 5)
 }
+
 par(mfrow = c(2, 2), mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
 X <- cbind(rep(1, N), x)
 betas <- probit(y, X, b0 = 0, B0 = 10000)
@@ -244,6 +239,26 @@ acf(betas[, 1])
 plot(betas[, 2], type = "l", main = "", xlab = "", ylab = "")
 acf(betas[, 2])
 ```
+
+If we change the setting so that  x  takes values of $0$ not only for failures but also for some successes, the 
+autocorrelations are low for the intercept but still high for the covariate effect.
+```{r, echo = -c(1:2)}
+if (pdfplots) {
+  pdf("8-1_5a.pdf", width = 8, height = 5)
+}
+x <- rep(c(0,1), c(ns+100, N - ns-100))
+table(x, y)
+
+par(mfrow = c(2, 2), mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
+X <- cbind(rep(1, N), x)
+betas <- probit(y, X, b0 = 0, B0 = 10000)
+
+plot(betas[, 1], type = "l", main = "", xlab = "", ylab = "")
+acf(betas[, 1])
+plot(betas[, 2], type = "l", main = "", xlab = "", ylab = "")
+acf(betas[, 2])
+```
+
 
 High autocorrelations typically indicate problems with the sampler. If
 there is complete or quasi-complete separation in the data, the
@@ -273,7 +288,7 @@ acf(betas[, 2])
 ```
 
 ## Section 8.1.2: Logit model
-## Example 8.4: Labor market data
+## Example 8.5: Labor market data
 
 We now estimate a logistic regression model for the labor market data
 using the two-block Polya-Gamma sampler.
@@ -357,7 +372,7 @@ knitr::kable(round(res_beta * pi / sqrt(3), 3))
 
 # Section 8.2: Count response variables
 ## Section 8.2.1: Poisson regression models
-## Example 8.5: Road safety data
+## Example 8.6: Road safety data
 
 We fit two different Poisson regression models:
 
@@ -532,7 +547,7 @@ print(res2$accept)
 ```
 
 ## Section 8.2.2: Negative binomial regression
-## Example 8.6: Road safety data
+## Example 8.7: Road safety data
 
 Now we analyse the road safety data allowing for unobserved heterogeneity.
 We first set up both the two versions of the  three-block MH-within-Gibbs sampler 
