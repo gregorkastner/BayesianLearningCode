@@ -1093,7 +1093,7 @@ if (pdfplots) {
 par(mfrow = c(1, 4), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 2)
 toplot <- matrix(NA_real_, ndraws, 4)
 for (p in 1:4)
-  toplot[, p] <- 1 - rowSums(ardat[[p]]$betas[, 2:(p + 1), drop = FALSE])
+  toplot[, p] <- rowSums(ardat[[p]]$betas[, 2:(p + 1), drop = FALSE]) - 1
 for (p in 1:4) {
   hist(toplot[, p], freq = FALSE,
        breaks = seq(min(toplot), max(toplot), length.out = 20),
@@ -1119,7 +1119,7 @@ if (pdfplots) {
 }
 par(mfrow = c(1, 4), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 2)
 for (p in 1:4)
-  toplot[, p] <- 1 - rowSums(ardat[[p]]$betas[, 2:(p + 1), drop = FALSE])
+  toplot[, p] <- rowSums(ardat[[p]]$betas[, 2:(p + 1), drop = FALSE]) - 1
 for (p in 1:4) {
   hist(toplot[, p], freq = FALSE,
        breaks = seq(min(toplot), max(toplot), length.out = 20),
