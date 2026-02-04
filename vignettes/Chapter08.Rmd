@@ -42,11 +42,13 @@ age18 (quantitative, centered at 18 years) and unemployed in 1997
 worker who was employed in 1997.
 
 ```{r}
-y.unemp <- labor$unemp98
+y.unemp <- labor$income_1998 == "zero"
 N.unemp <- length(y.unemp)  # number of observations 
 X.unemp <- with(labor, cbind(intercept = rep(1, N.unemp),
-                              age18 = age - 18,
-                              female, wcollar, unemp97 ))
+                             female = female,
+                             age18 = 1998 - birthyear - 18,
+                             wcollar = wcollar_1997,
+                             unemp97 = income_1997 == "zero")) # regressor matrix
 ```
 
 The regression coefficients are estimated using data augmentation and
@@ -679,7 +681,7 @@ res.negbin.partial <- cbind(apply(res2$beta.post, 2, res.mcmc),
 colnames(res.negbin.partial)[4] <- "alpha"
 knitr::kable(round(res.negbin.partial, 3))
 ```
-As expected estimation results using  both samplers are rather similar.
+As expected estimation results using both samplers are rather similar.
 
 ```{r}
 #require(xtable)
@@ -753,10 +755,11 @@ preds_subset <- predict(ols_subset, newdata = data.frame(log.Te = xnew),
 ```
 
 We compare the expected values (full lines) and
-the pointwise 95%-HPD regions in the following fiugre for the model
+the pointwise 95%-HPD regions in the following figure for the model
 fit using all data (left) and only the subset without the giant stars
 (right).
 
+## Figure 8.9: Star cluster data
 ```{r, echo = -c(1:2)}
 if (pdfplots) {
   pdf("8-3_1.pdf", width = 8, height = 5)
@@ -774,7 +777,7 @@ lines(xnew, preds_subset[, "lwr"], lty = 2)
 lines(xnew, preds_subset[, "upr"], lty = 2)
 ```
 
-## Example 8.13: Star cluster data - heteroscedastic regression with fixed $\phi$
+## Example 8.11: Star cluster data - heteroskedastic regression analysis with known outliers
 
 We define the binary indicator indicating outlying observations, i.e.,
 in this case observations corresponding to giant stars.
@@ -794,7 +797,7 @@ N <- length(y)
 d <- ncol(X)
 ```
 
-For the heteroscedastic regression, we define weights depending on the
+For the heteroskedastic regression, we define weights depending on the
 binary indicator which are either 1 or equal to $\phi \ll 1$.
 
 ```{r}
@@ -858,17 +861,6 @@ the predictive distributions for new observations with `xnew` values:
 pred_hetero <- sapply(1:M, function(m) {
     rnorm(length(xnew), cbind(1, xnew) %*% betas[m, ], sqrt(sigma2s[m]))
 })
-```
-
-We visualize again the mean and the 95%-HPD region together with the
-data points and show that the fit now is robust to the outlying
-observations.
-
-```{r, echo = -c(1:2)}
-if (pdfplots) {
-  pdf("8-3_2.pdf", width = 8, height = 5)
-}
-par(mfrow = c(1, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
 plot(starsCYG, pch = 19, xlim = c(3, 5), ylim = c(3, 7),
      xlab = "log temperature", ylab = "log light intensity")
 lines(xnew, rowMeans(pred_hetero))
@@ -876,7 +868,7 @@ lines(xnew, apply(pred_hetero, 1, quantile, 0.025), lty = 2)
 lines(xnew, apply(pred_hetero, 1, quantile, 0.975), lty = 2)
 ```
 
-## Example 8.14: Star cluster data - two-component Gaussian mixture with fixed $\phi$ and $\eta$
+## Example 8.14: Star cluster data - regression analysis with Gaussian two-component mixture errors
 
 We now assume that the indices of the giant stars are not known. We
 only assume that a two-component mixture is used as weight
@@ -946,7 +938,13 @@ We visualize again the mean and the 95%-HPD region together with the
 data points and show that the fit now is robust to the outlying
 observations.
 
-## Example 8.14: Star cluster data - two-component Gaussian mixture with fixed $\phi$
+```{r}
+plot(starsCYG, pch = 19, xlim = c(3, 5), ylim = c(3, 7),
+     xlab = "log temperature", ylab = "log light intensity")
+lines(xnew, rowMeans(pred_mix_1))
+lines(xnew, apply(pred_mix_1, 1, quantile, 0.025), lty = 2)
+lines(xnew, apply(pred_mix_1, 1, quantile, 0.975), lty = 2)
+```
 
 We now assume that the indices of the giant stars are not known. We
 only assume that a two-component mixture is used as weight
@@ -1018,21 +1016,41 @@ for (m in seq_len(burnin + M)) {
 preds_mix_2 <- sapply(1:M, function(m) {
     rnorm(length(xnew), cbind(1, xnew) %*% betas[m, ], sqrt(sigma2s[m]))
 })
+plot(starsCYG, pch = 19, xlim = c(3, 5), ylim = c(3, 7),
+     xlab = "log temperature", ylab = "log light intensity")
+lines(xnew, rowMeans(pred_mix_2))
+lines(xnew, apply(pred_mix_2, 1, quantile, 0.025), lty = 2)
+lines(xnew, apply(pred_mix_2, 1, quantile, 0.975), lty = 2)
 ```
+
+Finally, we visualize again the mean and the 95%-HPD region together
+with the data points for the three modeling approaches: (1) a
+heteroskedastic regression analysis with known outliers, (2) a
+Gaussian two-component mixture with known component sizes and (3) a
+Gaussian two-component mixture where the component size is unkown.
+
 
 ```{r, echo = -c(1:2)}
 if (pdfplots) {
-  pdf("8-3_3.pdf", width = 8, height = 5)
+  pdf("8-3_2.pdf", width = 8, height = 5)
 }
-par(mfrow = c(1, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
+par(mfrow = c(1, 3), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
 plot(starsCYG, pch = 19, xlim = c(3, 5), ylim = c(3, 7),
      xlab = "log temperature", ylab = "log light intensity")
-lines(xnew, rowMeans(preds_mix_1))
-lines(xnew, apply(preds_mix_1, 1, quantile, 0.025), lty = 2)
-lines(xnew, apply(preds_mix_1, 1, quantile, 0.975), lty = 2)
+lines(xnew, rowMeans(pred_hetero))
+lines(xnew, apply(pred_hetero, 1, quantile, 0.025), lty = 2)
+lines(xnew, apply(pred_hetero, 1, quantile, 0.975), lty = 2)
 plot(starsCYG, pch = 19, xlim = c(3, 5), ylim = c(3, 7),
      xlab = "log temperature", ylab = "log light intensity")
-lines(xnew, rowMeans(preds_mix_2))
-lines(xnew, apply(preds_mix_2, 1, quantile, 0.025), lty = 2)
-lines(xnew, apply(preds_mix_2, 1, quantile, 0.975), lty = 2)
+lines(xnew, rowMeans(pred_mix_1))
+lines(xnew, apply(pred_mix_1, 1, quantile, 0.025), lty = 2)
+lines(xnew, apply(pred_mix_1, 1, quantile, 0.975), lty = 2)
+plot(starsCYG, pch = 19, xlim = c(3, 5), ylim = c(3, 7),
+     xlab = "log temperature", ylab = "log light intensity")
+lines(xnew, rowMeans(pred_mix_2))
+lines(xnew, apply(pred_mix_2, 1, quantile, 0.025), lty = 2)
+lines(xnew, apply(pred_mix_2, 1, quantile, 0.975), lty = 2)
 ```
+
+The plot indicates that all three modeling approaches result in a fit
+that is robust to the outlying observations.
