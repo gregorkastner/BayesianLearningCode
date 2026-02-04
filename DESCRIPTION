@@ -35,7 +35,9 @@ Imports:
     mvtnorm,
     pgdraw,
     coda,
-    numDeriv
+    numDeriv,
+    RColorBrewer,
+    gsl
 Suggests: 
     knitr,
     rmarkdown
