@@ -3,7 +3,7 @@ title: "Chapter 8: Beyond Standard Regression Analysis"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteEncoding{UTF-8}
-  %\VignetteIndexEntry{Chapter 8: Bayesian Learning Beyond Standard Regression Analysis}
+  %\VignetteIndexEntry{Chapter 8: Beyond Standard Regression Analysis}
   %\VignetteEngine{knitr::rmarkdown}
 editor_options: 
   chunk_output_type: console
@@ -941,9 +941,9 @@ observations.
 ```{r}
 plot(starsCYG, pch = 19, xlim = c(3, 5), ylim = c(3, 7),
      xlab = "log temperature", ylab = "log light intensity")
-lines(xnew, rowMeans(pred_mix_1))
-lines(xnew, apply(pred_mix_1, 1, quantile, 0.025), lty = 2)
-lines(xnew, apply(pred_mix_1, 1, quantile, 0.975), lty = 2)
+lines(xnew, rowMeans(preds_mix_1))
+lines(xnew, apply(preds_mix_1, 1, quantile, 0.025), lty = 2)
+lines(xnew, apply(preds_mix_1, 1, quantile, 0.975), lty = 2)
 ```
 
 We now assume that the indices of the giant stars are not known. We
@@ -1018,9 +1018,9 @@ preds_mix_2 <- sapply(1:M, function(m) {
 })
 plot(starsCYG, pch = 19, xlim = c(3, 5), ylim = c(3, 7),
      xlab = "log temperature", ylab = "log light intensity")
-lines(xnew, rowMeans(pred_mix_2))
-lines(xnew, apply(pred_mix_2, 1, quantile, 0.025), lty = 2)
-lines(xnew, apply(pred_mix_2, 1, quantile, 0.975), lty = 2)
+lines(xnew, rowMeans(preds_mix_2))
+lines(xnew, apply(preds_mix_2, 1, quantile, 0.025), lty = 2)
+lines(xnew, apply(preds_mix_2, 1, quantile, 0.975), lty = 2)
 ```
 
 Finally, we visualize again the mean and the 95%-HPD region together
@@ -1042,14 +1042,14 @@ lines(xnew, apply(pred_hetero, 1, quantile, 0.025), lty = 2)
 lines(xnew, apply(pred_hetero, 1, quantile, 0.975), lty = 2)
 plot(starsCYG, pch = 19, xlim = c(3, 5), ylim = c(3, 7),
      xlab = "log temperature", ylab = "log light intensity")
-lines(xnew, rowMeans(pred_mix_1))
-lines(xnew, apply(pred_mix_1, 1, quantile, 0.025), lty = 2)
-lines(xnew, apply(pred_mix_1, 1, quantile, 0.975), lty = 2)
+lines(xnew, rowMeans(preds_mix_1))
+lines(xnew, apply(preds_mix_1, 1, quantile, 0.025), lty = 2)
+lines(xnew, apply(preds_mix_1, 1, quantile, 0.975), lty = 2)
 plot(starsCYG, pch = 19, xlim = c(3, 5), ylim = c(3, 7),
      xlab = "log temperature", ylab = "log light intensity")
-lines(xnew, rowMeans(pred_mix_2))
-lines(xnew, apply(pred_mix_2, 1, quantile, 0.025), lty = 2)
-lines(xnew, apply(pred_mix_2, 1, quantile, 0.975), lty = 2)
+lines(xnew, rowMeans(preds_mix_2))
+lines(xnew, apply(preds_mix_2, 1, quantile, 0.025), lty = 2)
+lines(xnew, apply(preds_mix_2, 1, quantile, 0.975), lty = 2)
 ```
 
 The plot indicates that all three modeling approaches result in a fit
