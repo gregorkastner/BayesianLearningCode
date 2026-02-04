@@ -170,22 +170,24 @@ failures. Complete separation means that both successes and failures can
 be perfectly predicted by a covariate, whereas with quasi-complete
 separation only either successes or failures can be predicted perfectly.
 
-To illustrate posterior sampling, in the case of complete separation, we
-simulate $N = 500$ observations with 10 successes and 490 failures. We
-add a binary predictor $x$ where for $x = 1$ we observe only successes
-and for $x = 0$ only failures.
+## Example 8.3
+
+To illustrate the effect of complete separation on the estimates, we
+generate $N = 500$ observations with half of them successes and the
+other half are failures. We add a binary predictor $x$ where for $x = 1$
+we observe only successes and for $x = 0$ only failures.
 
 ``` r
 N <- 500
-ns <- 10
-x <- rep(c(1, 0), c(ns, N - ns))
-y <- rep(c(1, 0), c(ns, N - ns))
+ns <- 250
+x <- rep(c(0,1), c(ns, N - ns))
+y <- rep(c(0,1), c(ns, N - ns))
 
-table(y, x)
-#>    x
-#> y     0   1
-#>   0 490   0
-#>   1   0  10
+table(x,y)
+#>    y
+#> x     0   1
+#>   0 250   0
+#>   1   0 250
 ```
 
 We estimate the model parameters and plot the ACF of the draws. Again
@@ -201,29 +203,25 @@ plot(betas[, 2], type = "l", main = "", xlab = "", ylab = "")
 acf(betas[, 2])
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-14-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-14-1.png) \# Example 8.4
 
-Finally we simulate another data set of $N = 500$ observations with 10
-successes and 490 failures. In this data for $x = 1$ only successes but
-for $x = 0$ successes as well as failures are observed and hence there
-is quasi-separation.
+To illustrate quasi-seperation we use the responses as in Example 8.3.,
+but now $x = 0$ for all successes and additionally for 100 failures.
 
 ``` r
-N <- 500
-x <-  rep(c(1, 0), c(ns, N-ns))
-y <- rep(c(1, 0), each = N/2)
-
-table(y, x)
-#>    x
-#> y     0   1
-#>   0 250   0
-#>   1 240  10
+x <- rep(c(0,1), c(ns-100, N - ns+100))
+table(x, y)
+#>    y
+#> x     0   1
+#>   0 150   0
+#>   1 100 250
 ```
 
-A plot of the acf of the draws shows low autocorrelation for the
-intercept but autocorrelations for the covariate effect are again high.
+Again we have very high autocorrelations for both the intercept as well
+as the effect of x.
 
 ``` r
+par(mfrow = c(2, 2), mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
 X <- cbind(rep(1, N), x)
 betas <- probit(y, X, b0 = 0, B0 = 10000)
 
@@ -234,6 +232,29 @@ acf(betas[, 2])
 ```
 
 ![](Chapter08_files/figure-html/unnamed-chunk-16-1.png)
+
+If we change the setting so that x takes values of $0$ not only for
+failures but also for some successes, the autocorrelations are low for
+the intercept but still high for the covariate effect.
+
+``` r
+table(x, y)
+#>    y
+#> x     0   1
+#>   0 250 100
+#>   1   0 150
+
+par(mfrow = c(2, 2), mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
+X <- cbind(rep(1, N), x)
+betas <- probit(y, X, b0 = 0, B0 = 10000)
+
+plot(betas[, 1], type = "l", main = "", xlab = "", ylab = "")
+acf(betas[, 1])
+plot(betas[, 2], type = "l", main = "", xlab = "", ylab = "")
+acf(betas[, 2])
+```
+
+![](Chapter08_files/figure-html/unnamed-chunk-17-1.png)
 
 High autocorrelations typically indicate problems with the sampler. If
 there is complete or quasi-complete separation in the data, the
@@ -258,11 +279,11 @@ plot(betas[, 2], type = "l", main = "", xlab = "", ylab = "")
 acf(betas[, 2])
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-17-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-18-1.png)
 
 ### Section 8.1.2: Logit model
 
-### Example 8.4: Labor market data
+### Example 8.5: Labor market data
 
 We now estimate a logistic regression model for the labor market data
 using the two-block Polya-Gamma sampler.
@@ -323,7 +344,7 @@ effects and estimate the model.
 ``` r
 betas_logit <- logit(y.unemp, X.unemp, b0 = 0, B0 = 10000)
 print(str(betas_logit))
-#>  num [1:5000, 1:5] -3.32 -3.43 -3.57 -3.53 -3.68 ...
+#>  num [1:5000, 1:5] -3.64 -3.66 -3.88 -3.83 -3.88 ...
 #>  - attr(*, "dimnames")=List of 2
 #>   ..$ : NULL
 #>   ..$ : chr [1:5] "intercept" "female" "age18" "wcollar" ...
@@ -335,14 +356,14 @@ knitr::kable(round(res_beta_logit, 3))
 
 |       | intercept | female | age18 | wcollar | unemp97 |
 |:------|----------:|-------:|------:|--------:|--------:|
-| 2.5%  |    -4.072 |  0.133 | 0.044 |  -0.611 |   4.091 |
-| Mean  |    -3.659 |  0.399 | 0.056 |  -0.344 |   4.370 |
-| 97.5% |    -3.281 |  0.658 | 0.067 |  -0.067 |   4.669 |
+| 2.5%  |    -4.144 |  0.160 | 0.045 |  -0.589 |   4.128 |
+| Mean  |    -3.729 |  0.415 | 0.058 |  -0.327 |   4.406 |
+| 97.5% |    -3.331 |  0.683 | 0.070 |  -0.058 |   4.698 |
 
 ``` r
 
 (p_unemploy_base <- plogis(res_beta_logit[1, 2]))
-#> [1] 0.5332866
+#> [1] 0.53996
 ```
 
 Note that the logistic distribution has a variance of $\pi^{2}/3$ and
@@ -369,7 +390,7 @@ knitr::kable(round(res_beta * pi / sqrt(3), 3))
 
 ### Section 8.2.1: Poisson regression models
 
-### Example 8.5: Road safety data
+### Example 8.6: Road safety data
 
 We fit two different Poisson regression models:
 
@@ -520,13 +541,13 @@ knitr::kable(round(res.poisson1, 3))
 
 |              |   2.5% |   Mean |  97.5% | exp(Mean) |
 |:-------------|-------:|-------:|-------:|----------:|
-| intercept    |  0.741 |  0.864 |  0.996 |     2.373 |
-| intervention | -0.526 | -0.343 | -0.142 |     0.710 |
-| holiday      | -1.172 | -0.815 | -0.431 |     0.443 |
+| intercept    |  0.722 |  0.866 |  1.002 |     2.378 |
+| intervention | -0.569 | -0.353 | -0.140 |     0.702 |
+| holiday      | -1.085 | -0.771 | -0.431 |     0.463 |
 
 ``` r
 print(res1$accept)
-#> [1] 0.3468
+#> [1] 0.3568
 ```
 
 We then fit an alternative model with intercept, intervention effect,
@@ -561,25 +582,25 @@ knitr::kable(round(res.poisson2, 3))
 
 |              |    2.5% |   Mean |  97.5% | exp(Mean) |
 |:-------------|--------:|-------:|-------:|----------:|
-| intercept    |  -1.261 |  0.787 |  2.993 |     2.196 |
-| intervention |  -0.727 | -0.337 |  0.007 |     0.714 |
-| holiday      | -12.898 | -0.424 | 11.692 |     0.654 |
-| lin.trend    |  -0.003 |  0.000 |  0.004 |     1.000 |
-| Jan          |  -1.940 |  0.208 |  2.179 |     1.232 |
-| Feb          |  -2.504 | -0.432 |  1.659 |     0.649 |
-| Mar          |  -2.153 |  0.022 |  2.213 |     1.022 |
-| Apr          |  -1.932 |  0.291 |  2.325 |     1.337 |
-| May          |  -2.666 | -0.315 |  1.955 |     0.730 |
-| Jun          |  -1.895 |  0.326 |  2.428 |     1.385 |
-| Jul          | -10.521 | -0.203 | 10.299 |     0.816 |
-| Aug          | -10.608 | -0.330 | 10.104 |     0.719 |
-| Sep          |  -2.248 | -0.052 |  2.026 |     0.950 |
-| Oct          |  -1.988 |  0.362 |  2.439 |     1.436 |
-| Nov          |  -2.357 | -0.007 |  2.100 |     0.993 |
+| intercept    |  -1.635 |  0.607 |  2.806 |     1.834 |
+| intervention |  -0.834 | -0.354 |  0.094 |     0.702 |
+| holiday      | -12.589 |  0.598 | 13.533 |     1.818 |
+| lin.trend    |  -0.003 |  0.000 |  0.003 |     1.000 |
+| Jan          |  -1.802 |  0.396 |  2.517 |     1.485 |
+| Feb          |  -2.251 | -0.251 |  1.860 |     0.778 |
+| Mar          |  -1.888 |  0.222 |  2.542 |     1.248 |
+| Apr          |  -1.716 |  0.434 |  2.504 |     1.544 |
+| May          |  -2.271 | -0.163 |  1.974 |     0.850 |
+| Jun          |  -1.588 |  0.519 |  2.593 |     1.681 |
+| Jul          | -11.792 | -1.078 |  9.733 |     0.340 |
+| Aug          | -11.918 | -1.142 |  9.816 |     0.319 |
+| Sep          |  -2.188 |  0.093 |  2.351 |     1.097 |
+| Oct          |  -1.574 |  0.529 |  2.740 |     1.698 |
+| Nov          |  -2.267 |  0.158 |  2.475 |     1.171 |
 
 ``` r
 print(res2$accept)
-#> [1] 0.1934
+#> [1] 0.1812
 ```
 
 ``` r
@@ -589,7 +610,7 @@ print(res2$accept)
 
 ### Section 8.2.2: Negative binomial regression
 
-### Example 8.6: Road safety data
+### Example 8.7: Road safety data
 
 Now we analyse the road safety data allowing for unobserved
 heterogeneity. We first set up both the two versions of the three-block
@@ -717,9 +738,9 @@ knitr::kable(round(res.negbin.full, 3))
 
 |       | intercept | intervention | holiday |  alpha |
 |:------|----------:|-------------:|--------:|-------:|
-| 2.5%  |     0.721 |       -0.567 |  -1.204 |  6.512 |
-| Mean  |     0.865 |       -0.348 |  -0.792 | 12.370 |
-| 97.5% |     1.005 |       -0.143 |  -0.424 | 20.922 |
+| 2.5%  |     0.729 |       -0.585 |  -1.190 |  6.568 |
+| Mean  |     0.868 |       -0.354 |  -0.787 | 12.250 |
+| 97.5% |     1.005 |       -0.142 |  -0.421 | 20.988 |
 
 ``` r
 
@@ -735,9 +756,9 @@ knitr::kable(round(res.negbin.partial, 3))
 
 |       | intercept | intervention | holiday |  alpha |
 |:------|----------:|-------------:|--------:|-------:|
-| 2.5%  |     0.723 |       -0.557 |  -1.164 |  6.602 |
-| Mean  |     0.866 |       -0.350 |  -0.785 | 12.439 |
-| 97.5% |     1.004 |       -0.135 |  -0.431 | 20.799 |
+| 2.5%  |     0.725 |       -0.564 |  -1.153 |  6.688 |
+| Mean  |     0.866 |       -0.349 |  -0.778 | 12.340 |
+| 97.5% |     1.007 |       -0.142 |  -0.418 | 21.049 |
 
 As expected estimation results using both samplers are rather similar.
 
@@ -750,9 +771,9 @@ As expected estimation results using both samplers are rather similar.
 
 ``` r
 print(c(mean(res1$acc.beta), mean(res1$acc.alpha)))
-#> [1] 0.35236 0.70344
+#> [1] 0.35904 0.70648
 print(c(mean(res2$acc.beta), mean(res2$acc.alpha)))
-#> [1] 0.35816 0.89920
+#> [1] 0.36708 0.89830
 ```
 
 ``` r
@@ -770,7 +791,7 @@ qqplot(res1$alpha.post, res2$alpha.post, xlab = "Full Gibbs",
 abline(a = 0, b = 1)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-35-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-36-1.png)
 
 ## Section 8.3: Beyond i.i.d. Gaussian error distributions
 
@@ -788,7 +809,7 @@ plot(starsCYG, pch = 19, xlim = c(3, 5), ylim = c(3, 7),
      xlab = "log temperature", ylab = "log light intensity")
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-36-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-37-1.png)
 
 The four giant stars which can also be identified in the scatter plot
 have the following indices in the data set:
@@ -822,8 +843,10 @@ preds_subset <- predict(ols_subset, newdata = data.frame(log.Te = xnew),
 ```
 
 We compare the expected values (full lines) and the pointwise 95%-HPD
-regions in the following fiugre for the model fit using all data (left)
+regions in the following figure for the model fit using all data (left)
 and only the subset without the giant stars (right).
+
+### Figure 8.9: Star cluster data
 
 ``` r
 plot(starsCYG, pch = 19, xlim = c(3, 5), ylim = c(3, 7),
@@ -838,9 +861,9 @@ lines(xnew, preds_subset[, "lwr"], lty = 2)
 lines(xnew, preds_subset[, "upr"], lty = 2)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-39-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-40-1.png)
 
-### Example 8.13: Star cluster data - heteroscedastic regression with fixed $\phi$
+### Example 8.11: Star cluster data - heteroskedastic regression analysis with known outliers
 
 We define the binary indicator indicating outlying observations, i.e.,
 in this case observations corresponding to giant stars.
@@ -860,7 +883,7 @@ N <- length(y)
 d <- ncol(X)
 ```
 
-For the heteroscedastic regression, we define weights depending on the
+For the heteroskedastic regression, we define weights depending on the
 binary indicator which are either 1 or equal to $\phi \ll 1$.
 
 ``` r
@@ -924,13 +947,6 @@ the predictive distributions for new observations with `xnew` values:
 pred_hetero <- sapply(1:M, function(m) {
     rnorm(length(xnew), cbind(1, xnew) %*% betas[m, ], sqrt(sigma2s[m]))
 })
-```
-
-We visualize again the mean and the 95%-HPD region together with the
-data points and show that the fit now is robust to the outlying
-observations.
-
-``` r
 plot(starsCYG, pch = 19, xlim = c(3, 5), ylim = c(3, 7),
      xlab = "log temperature", ylab = "log light intensity")
 lines(xnew, rowMeans(pred_hetero))
@@ -940,7 +956,7 @@ lines(xnew, apply(pred_hetero, 1, quantile, 0.975), lty = 2)
 
 ![](Chapter08_files/figure-html/unnamed-chunk-45-1.png)
 
-### Example 8.14: Star cluster data - two-component Gaussian mixture with fixed $\phi$ and $\eta$
+### Example 8.14: Star cluster data - regression analysis with Gaussian two-component mixture errors
 
 We now assume that the indices of the giant stars are not known. We only
 assume that a two-component mixture is used as weight distribution where
@@ -1010,7 +1026,15 @@ We visualize again the mean and the 95%-HPD region together with the
 data points and show that the fit now is robust to the outlying
 observations.
 
-### Example 8.14: Star cluster data - two-component Gaussian mixture with fixed $\phi$
+``` r
+plot(starsCYG, pch = 19, xlim = c(3, 5), ylim = c(3, 7),
+     xlab = "log temperature", ylab = "log light intensity")
+lines(xnew, rowMeans(preds_mix_1))
+lines(xnew, apply(preds_mix_1, 1, quantile, 0.025), lty = 2)
+lines(xnew, apply(preds_mix_1, 1, quantile, 0.975), lty = 2)
+```
+
+![](Chapter08_files/figure-html/unnamed-chunk-50-1.png)
 
 We now assume that the indices of the giant stars are not known. We only
 assume that a two-component mixture is used as weight distribution where
@@ -1082,9 +1106,27 @@ for (m in seq_len(burnin + M)) {
 preds_mix_2 <- sapply(1:M, function(m) {
     rnorm(length(xnew), cbind(1, xnew) %*% betas[m, ], sqrt(sigma2s[m]))
 })
+plot(starsCYG, pch = 19, xlim = c(3, 5), ylim = c(3, 7),
+     xlab = "log temperature", ylab = "log light intensity")
+lines(xnew, rowMeans(preds_mix_2))
+lines(xnew, apply(preds_mix_2, 1, quantile, 0.025), lty = 2)
+lines(xnew, apply(preds_mix_2, 1, quantile, 0.975), lty = 2)
 ```
 
+![](Chapter08_files/figure-html/unnamed-chunk-53-1.png)
+
+Finally, we visualize again the mean and the 95%-HPD region together
+with the data points for the three modeling approaches: (1) a
+heteroskedastic regression analysis with known outliers, (2) a Gaussian
+two-component mixture with known component sizes and (3) a Gaussian
+two-component mixture where the component size is unkown.
+
 ``` r
+plot(starsCYG, pch = 19, xlim = c(3, 5), ylim = c(3, 7),
+     xlab = "log temperature", ylab = "log light intensity")
+lines(xnew, rowMeans(pred_hetero))
+lines(xnew, apply(pred_hetero, 1, quantile, 0.025), lty = 2)
+lines(xnew, apply(pred_hetero, 1, quantile, 0.975), lty = 2)
 plot(starsCYG, pch = 19, xlim = c(3, 5), ylim = c(3, 7),
      xlab = "log temperature", ylab = "log light intensity")
 lines(xnew, rowMeans(preds_mix_1))
@@ -1097,4 +1139,7 @@ lines(xnew, apply(preds_mix_2, 1, quantile, 0.025), lty = 2)
 lines(xnew, apply(preds_mix_2, 1, quantile, 0.975), lty = 2)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-53-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-54-1.png)
+
+The plot indicates that all three modeling approaches result in a fit
+that is robust to the outlying observations.

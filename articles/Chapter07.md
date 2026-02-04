@@ -1080,7 +1080,7 @@ $1 - \phi_{1} - \ldots - \phi_{p}$ for $p = 1,\ldots,4$.
 ``` r
 toplot <- matrix(NA_real_, ndraws, 4)
 for (p in 1:4)
-  toplot[, p] <- 1 - rowSums(ardat[[p]]$betas[, 2:(p + 1), drop = FALSE])
+  toplot[, p] <- rowSums(ardat[[p]]$betas[, 2:(p + 1), drop = FALSE]) - 1
 for (p in 1:4) {
   hist(toplot[, p], freq = FALSE,
        breaks = seq(min(toplot), max(toplot), length.out = 20),
@@ -1104,7 +1104,7 @@ for (p in 1:4) {
 
 ``` r
 for (p in 1:4)
-  toplot[, p] <- 1 - rowSums(ardat[[p]]$betas[, 2:(p + 1), drop = FALSE])
+  toplot[, p] <- rowSums(ardat[[p]]$betas[, 2:(p + 1), drop = FALSE]) - 1
 for (p in 1:4) {
   hist(toplot[, p], freq = FALSE,
        breaks = seq(min(toplot), max(toplot), length.out = 20),
