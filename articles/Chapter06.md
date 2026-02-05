@@ -809,7 +809,7 @@ axis(1, at = 1:nf, labels = c("A", "B", "C", "D"))
 
 ## Section 6.5: Shrinkage beyond the Horseshoe Prior
 
-### Figure 6.10
+#### Figure 6.10
 
 We next investigate different shrinkage priors and plot the marginal
 prior on a regression coefficient for various choices of the
@@ -817,21 +817,14 @@ hyperparameters.
 
 ``` r
 # Thanks to Peter Knaus for providing the code
-# Marginal densities for Triple Gamma, Horseshoe, Double Gamma, and LASSO ######
-require(RColorBrewer)
-#> Loading required package: RColorBrewer
-require(gsl)
-#> Loading required package: gsl
-
-#par(mar = c(4, 3.5, .1, .1), mgp = c(1.6, .6, 0))
+# Marginal densities for Triple Gamma, Horseshoe, Double Gamma, and LASSO
 
 # Some functions that return the log-marginal densities
 ## Log-marginal and marginal for Triple Gamma
 logmarginal_TG <- function(x, a, c, kappa2){
   -0.5*log(4*pi/kappa2) - lbeta(a, c) + 0.5*(log(a) - log(c)) + lgamma(c + 0.5) +
-    log(hyperg_U(c + 0.5, -a + 1.5 ,kappa2*a*x^2/(4*c), give = FALSE, strict = TRUE))
+    log(gsl::hyperg_U(c + 0.5, -a + 1.5, kappa2*a*x^2/(4*c), give = FALSE, strict = TRUE))
 }
-
 ## Log-marginal and marginal for Double Gamma
 logmarginal_DG <- function(x, a, kappa2){
   0.5*(a + 0.5)*log(a*kappa2)  - 0.5*log(pi) - (a-0.5)*log(2) - lgamma(a) + (a - 0.5)*log(abs(x)) +
@@ -839,30 +832,26 @@ logmarginal_DG <- function(x, a, kappa2){
 }
 
 # Select color palette
-color <- brewer.pal(5, "Dark2")
+color <- RColorBrewer::brewer.pal(5, "Dark2")
 
 # Create layout matrix for plots
-m <- matrix(c(1, 2, 3, 3), nrow = 2, ncol = 2,byrow = TRUE)
+m <- matrix(c(1, 2, 3, 3), nrow = 2, ncol = 2, byrow = TRUE)
 layout(mat = m, heights = c(0.9, 0.1))
 
 # Plots around the origin
 # Draw horseshoe marginal
 curve((logmarginal_TG(x, 0.5, 0.5, 2)),
-      from=c(-1, to = 1), n = 10000, col = color[1], lwd = 2, ylab = "",
-      xlab = "", cex = 3, ylim = c(-4,4), main = "")
-
+      from = c(-1, to = 1), n = 10000, col = color[1], lwd = 2, ylab = "",
+      xlab = "", cex = 3, ylim = c(-4, 4), main = "")
 # Draw double gamma marginal
 curve((logmarginal_DG(x, 0.1, 2)),
       n = 10000, col = color[2], lwd = 2, add = TRUE)
-
 # Draw LASSO marginal
 curve((logmarginal_DG(x, 1, 2)),
       n = 10000, col = color[3], lwd = 2, add = TRUE)
-
 # Draw triple gamma marginal
 curve((logmarginal_TG(x, 0.1, 0.1, 2)),
       n = 10000, col = color[4], lwd = 2, add = TRUE)
-
 # Add labels to x and y axes
 title(ylab = (expression(log~p(beta))), line = 2, cex.lab = 1.2)
 title(xlab = expression(beta), line = 3, cex.lab = 1.2)
@@ -872,90 +861,80 @@ title(xlab = expression(beta), line = 3, cex.lab = 1.2)
 curve((logmarginal_TG(x, 0.5, 0.5, 2)),
       from = 6, to = 11, n = 10000, col = color[1], lwd = 2, ylab = "",
       xlab = "", cex = 3, ylim = c(-18,-5), main = "")
-
 # Draw double gamma marginal
 curve((logmarginal_DG(x, 0.1, 2)),
       n = 10000, col = color[2], lwd = 2, add = TRUE)
-
 # Draw LASSO marginal
 curve((logmarginal_DG(x, 1, 2)),
       n = 10000, col = color[3], lwd = 2, add = TRUE)
-
 # Draw triple gamma marginal
 curve((logmarginal_TG(x, 0.1, 0.1, 2)),
       n = 10000, col = color[4], lwd = 2, add = TRUE)
-
 # Add labels to x and y axes
-title(ylab=(expression(log~p(beta))), line=2, cex.lab=1.2)
-title(xlab=expression(beta), line=3, cex.lab=1.2)
+title(ylab = (expression(log~p(beta))), line = 2, cex.lab = 1.2)
+title(xlab = expression(beta), line = 3, cex.lab = 1.2)
 
 # Create legend at bottom of plot
-par(mar = c(0,0,0,0))
-
+par(mar = c(0, 0, 0, 0))
 plot(1, type = "n", axes = FALSE)
 legend(x = "top",  inset = 0,
        legend = c("Normal Gamma Gamma", "Horseshoe", "Normal Gamma", "Lasso"),
        col = color[c(4, 1, 2, 3)],
-       lwd = 2, cex = 1, horiz = TRUE, xjust=0.5)
+       lwd = 2, cex = 1, horiz = TRUE, xjust = 0.5)
 ```
 
 ![](Chapter06_files/figure-html/unnamed-chunk-40-1.png)
 
 The shrinkage profiles of these priors are visualized in the following
-Figure.
+plot.
 
 ``` r
 # Thanks again to Peter Knaus for providing the code
-
-par(mfrow=c(1,1))
+par(mfrow = c(1, 1))
 
 # Some functions that return shrinkage profiles
 # Shrinkage profile for triple gamma
-dTPB<-function(x,a,c, phi){
-  res <- lgamma(a + c) -lgamma(a) -lgamma(c) + c*log(phi) + (c-1)*log(x) + (a-1)*log(1-x) - (a+c)*log(1 + (phi -1)*x)
+dTPB <- function(x, a, c, phi) {
+  res <- lgamma(a + c) - lgamma(a) - lgamma(c) + c*log(phi) +
+      (c-1)*log(x) + (a-1)*log(1-x) - (a+c)*log(1 + (phi -1)*x)
   exp(res)
 }
-
 # Shrinkage profile for double gamma
-dTPB_DG<-function(x,a, k2){
-  res <- -lgamma(a) + a*log(a*k2/2)  + (a-1)*log(1-x) - (a+1)*log(x) - ((1-x)/x*a*k2/2)
+dTPB_DG <- function(x, a, k2) {
+  res <- -lgamma(a) + a*log(a*k2/2) +
+      (a-1)*log(1-x) - (a+1)*log(x) - ((1-x)/x*a*k2/2)
   exp(res)
 }
 
 # Set up plotting area
-par(mar = c(4, 4, 0, 12.5) )
-
+par(mar = c(4, 4, 0, 12.5))
 # Choose color palette
 color <- RColorBrewer::brewer.pal(5, "Dark2")
-
 # Draw shrinkage profile of horsehoe
 curve((dTPB(x, 0.5, 0.5, 1)),
       from = 0, to = 1, n = 1000, col = color[1], lwd = 2, ylab = "",
-      xlab = "", cex = 3, ylim = c(0,4), main = "")
-
+      xlab = "", cex = 3, ylim = c(0, 4), main = "")
 # Draw shrinkage profile of double gamma
 curve((dTPB_DG(x, 0.1, 2)),
       n = 1000, col = color[2], lwd = 2, add = TRUE)
-
 # Draw shrinkage profile of lasso
-curve((dTPB_DG(x, 1, 2)),  n = 1000, col = color[3], lwd = 2, add = TRUE)
-
+curve((dTPB_DG(x, 1, 2)), n = 1000, col = color[3], lwd = 2, add = TRUE)
 # Draw shrinkage profile of triple gamma
 curve((dTPB(x, 0.1, 0.1, 1)),
       n = 1000, col = color[4], lwd = 2, add = TRUE)
-
 # Add labels to x and y axes
-title(ylab=expression(p(kappa[j])), line=2, cex.lab=1.2)
-title(xlab=expression(kappa[j]), line=2, cex.lab=1.2)
-
+title(ylab = expression(p(kappa[j])), line = 2, cex.lab = 1.2)
+title(xlab = expression(kappa[j]), line = 2, cex.lab = 1.2)
 par(xpd = TRUE)
-legend(x = 1.05, y=3,
+legend(x = 1.05, y = 3,
        legend = c("Normal Gamma Gamma", "Horseshoe", "Normal Gamma", "Lasso"),
-       col = color[c(4,1,2,3)],bty="n",
+       col = color[c(4, 1, 2, 3)], bty = "n",
        lwd = 2, cex = 1, horiz = FALSE)
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-41-1.png) \## Example 6.10
+![](Chapter06_files/figure-html/unnamed-chunk-41-1.png)
+
+#### Example 6.10
 
 ``` r
 
