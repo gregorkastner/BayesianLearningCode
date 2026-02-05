@@ -98,6 +98,9 @@ univariate and bivariate marginal posterior distributions of the
 covariate effects.
 
 ``` r
+lim <- round(3*post.sd, 2)
+layout(matrix(c(0, 1, 3, 2, 0, 4), nrow = 2), widths = c(2, 3, 1),
+       heights = c(1, 3), respect = TRUE)
 par(mar = c(3, 2, 1, 1))
 curve(dt((x - beta.hat[1]) / post.sd[1], df = 2 * cN),
       from = beta.hat[1] - lim[1], to = beta.hat[1] + lim[1],
@@ -165,6 +168,7 @@ The following plot shows the point predictions together with the 50% and
 80% prediction intervals.
 
 ``` r
+budget <- X_new[, "Budget"] + mean(movies[, "Budget"])
 plot(budget, ypred, type = "l", lwd = 2, ylim = c(-20, 60),
      xlab = "Budget", ylab = "Predicted box office sales")
 
@@ -183,6 +187,7 @@ legend("bottomright",
 ![](Chapter06_files/figure-html/unnamed-chunk-10-1.png)
 
 ``` r
+y.pred <- X %*% beta.hat
 plot(y, y.pred, xlim = c(-20, 160), ylim = c(-20, 160), 
      xlab = "observed sales", ylab = "predicted sales")
 abline(a = 0, b = 1)
@@ -216,6 +221,8 @@ average number of *Screens* for a range of values for *Budget* derived
 from this model.
 
 ``` r
+plot(budget, exp(lny.pred), type = "l", ylim = c(-20, 60), col = "blue",
+     xlab = "Budget", ylab = "Predicted box office sales", lwd = 2)
 
 for (j in seq_along(pred.levels)) {
    pred.quantile <- qt(1 - (1-pred.levels[j])/2, df = 2 * reg.lny$cN)
@@ -240,6 +247,8 @@ Next, we compare the point predictions from both models to the observed
 box office sales.
 
 ``` r
+plot(y, y.pred,xlim = c(-20, 160), ylim = c(-20, 160),
+     xlab = "Observed sales", ylab = "Predicted sales")
 points(y, exp(X %*% reg.lny$beta.hat), col = "blue", pch = 16)
 abline(a = 0, b = 1)
 abline(h = 0, lty = 2)
@@ -333,6 +342,7 @@ We plot the marginal posteriors together with those under the improper
 prior.
 
 ``` r
+par(mfrow = c(1, 3))
 for (i in seq_len(nrow(beta.hat))) {
    curve(dt((x - beta.hat[i]) / post.sd[i], df = 2 * cN),
          from = beta.hat[i] - 4 * post.sd[i], 
@@ -679,12 +689,22 @@ posterior distributions under the horseshoe prior. Note that the
 posterior distributions are symmetric under the semi-conjugate prior,
 whereas this is not the case under the horseshoe prior.
 
+``` r
+for (i in seq_len(d)) {
+  br <- seq(min(beta.sc[, i], beta.hs[, i]), max(beta.sc[, i], beta.hs[, i]),
+            length.out = 100)
+  hist(beta.sc[, i], main = colnames(X)[i], breaks = br, xlab = "", ylab = "")
+  hist(beta.hs[, i], main = colnames(X)[i], breaks = br, xlab = "", ylab = "")
+}
+```
+
 ![](Chapter06_files/figure-html/unnamed-chunk-32-1.png)![](Chapter06_files/figure-html/unnamed-chunk-32-2.png)
 
 For illustration purposes, we overlay four selected marginal posteriors
 in order to illustrate the shrinkage effect.
 
 ``` r
+par(mfrow = c(2, 2))
 selection <- c("Screens", "Weeks", "S-1-3", "Thriller")
 for (i in selection) {
    breaks <- seq(min(beta.sc[, i], beta.hs[, i]), max(beta.sc[, i], beta.hs[, i]),
@@ -733,6 +753,23 @@ tau.hs.trunc.mirrored <- rbind(sqrt(tau2.hs.trunc),
 
 On the left, we see the posteriors of the regression effects posteriors,
 on the right, we visualize the gap plot.
+
+``` r
+par(mfrow = c(12, 2))
+for (i in seq_len(ncol(beta.hs))) {
+  breaks <- seq(min(beta.hs[, i]), max(beta.hs[, i]), length.out = 100)
+  hist(beta.hs[, i], breaks = breaks, xlab = "", ylab = "", 
+       main = c("Intercept", covs)[i])
+  if (i == 1) {
+    plot.new()
+  } else {
+    breaks <- seq(min(tau.hs.trunc.mirrored[, i - 1]),
+                      max(tau.hs.trunc.mirrored[, i - 1]), length.out = 100)
+    hist(tau.hs.trunc.mirrored[, i - 1], breaks = breaks, xlab = "", ylab = "",
+         main = covs[i - 1])
+  }
+}
+```
 
 ![](Chapter06_files/figure-html/unnamed-chunk-36-1.png)
 
@@ -793,6 +830,10 @@ distribution, together with vertical bars indicating the point-wise
 equal-tailed 95% predictive interval.
 
 ``` r
+matplot(x = t(matrix(1:nf, ncol = 3, nrow = nf)),
+        y = pred.int.sc, col = "blue", type = "l", pch = 16, lty = 1,
+        ylim = c(8, 32), xlim = c(0.5, nf+0.5),
+        xlab = "Scenarios", ylab = "Predicted box office sales", xaxt = "n")
 points(x = 1:nf, y = pred.int.sc[2, ], pch = 19, col = "blue", cex = 1.2)
 points(x = 1:nf, y = pred.mean.sc, pch = 16, col = "red")
 
@@ -890,8 +931,6 @@ plot.
 
 ``` r
 # Thanks again to Peter Knaus for providing the code
-par(mfrow = c(1, 1))
-
 # Some functions that return shrinkage profiles
 # Shrinkage profile for triple gamma
 dTPB <- function(x, a, c, phi) {
@@ -937,7 +976,6 @@ legend(x = 1.05, y = 3,
 #### Example 6.10
 
 ``` r
-
 beta2 <- beta1 <- seq(from = -2, to = 2, by = 0.01)
 f <- function(x1, x2) {
    exp(log(a+1) + log(a) + a*log(a) - (a+2)*log(a+abs(x1)+abs(x2)))
