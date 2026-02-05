@@ -112,7 +112,7 @@ marginal posterior distribution of the intercept as well as the
 univariate and bivariate marginal posterior distributions of the
 covariate effects.
 
-```{r, echo = -c(1:3)}
+```{r, echo = -1}
 if (pdfplots) {
   pdf("6-4_1.pdf", width = 9, height = 6)
   par(mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.6, .6, 0))
@@ -181,13 +181,13 @@ ypred.var <- sigma2.hat * (rowSums((X_new %*% reg.improp$BN) * X_new) + 1)
 The following plot shows the point predictions together with the
 50\% and 80\% prediction intervals.
  
-```{r, echo = -c(1:3)}
+```{r, echo = -c(1:2)}
 if (pdfplots) {
   pdf("6-4_1a.pdf", width = 9, height = 6)
   par(mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.6, .6, 0))
 }
 par(mfrow = c(1, 1), mar = c(3, 3, 1, 1))
-budget <- X_new[, 2] + mean(movies[, "Budget"])
+budget <- X_new[, "Budget"] + mean(movies[, "Budget"])
 plot(budget, ypred, type = "l", lwd = 2, ylim = c(-20, 60),
      xlab = "Budget", ylab = "Predicted box office sales")
 
@@ -203,7 +203,7 @@ legend("bottomright",
        lty = 1:3, lwd = c(2, 1, 1))
 ```
 
-```{r, echo = -c(1:3)}
+```{r, echo = -c(1:2)}
 if (pdfplots) {
   pdf("6-4_1b.pdf", width = 6, height = 6)
   par(mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.6, .6, 0))
@@ -241,7 +241,7 @@ prediction intervals for the box office sales for a film shown on an
 average number of _Screens_ for a range of values for
 _Budget_ derived from this model.
 
-```{r, echo = -c(1:3)}
+```{r, echo = -c(1:2)}
 if (pdfplots) {
   pdf("6-4_1c.pdf", width = 9, height = 6)
   par(mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.6, .6, 0))
@@ -270,7 +270,7 @@ symmetric around the point predictions.
 Next, we compare the point predictions from both models to the
 observed box office sales.
 
-```{r, echo = -c(1:3)}
+```{r, echo = -c(1:2)}
 if (pdfplots) {
   pdf("6-4_1d.pdf", width = 6, height = 6)
   par(mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.6, .6, 0))
@@ -362,7 +362,7 @@ post.sd.conj3 <- sqrt(diag((res_conj3$CN / res_conj3$cN) * res_conj3$BN))
 We plot the marginal posteriors together with those under the
 improper prior.
 
-```{r, echo = -c(1:2)}
+```{r, echo = -1}
 if (pdfplots) {
   pdf("6-4_2.pdf", width = 8, height = 3)
   par(mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.6, .6, 0))
@@ -666,7 +666,7 @@ under the horseshoe prior. Note that the
 posterior distributions are symmetric under the semi-conjugate
 prior, whereas this is not the case under the horseshoe prior. 
 
-```{r, echo = -c(1:2)}
+```{r, echo = -1}
 par(mfrow = c(ncol(beta.hs) / 2, 2), mgp = c(1.6, .6, 0),
     mar = c(1.5, 1.5, 1, .1))
 for (i in seq_len(d)) {
@@ -684,7 +684,8 @@ order to illustrate the shrinkage effect.
 if (pdfplots) {
   pdf("6-4_4.pdf", width = 8, height = 5)
 }
-par(mfrow = c(2, 2), mar = c(1.5, 1.5, 1.5, .1), mgp = c(1, .5, 0))
+par(mar = c(1.5, 1.5, 1.5, .1), mgp = c(1, .5, 0))
+par(mfrow = c(2, 2))
 selection <- c("Screens", "Weeks", "S-1-3", "Thriller")
 for (i in selection) {
    breaks <- seq(min(beta.sc[, i], beta.hs[, i]), max(beta.sc[, i], beta.hs[, i]),
@@ -729,7 +730,7 @@ tau.hs.trunc.mirrored <- rbind(sqrt(tau2.hs.trunc),
 On the left, we see the posteriors of the regression effects
 posteriors, on the right, we visualize the gap plot.
 
-```{r, echo = -c(1:3)}
+```{r, echo = -1}
 if (pdfplots) {
   pdf("6-4_5.pdf", width = 8, height = 12)
   par(mar = c(1.5, 1.5, 1.5, .1), mgp = c(1, .5, 0))
@@ -809,7 +810,7 @@ We plot the predicted expectation, the median of the predictive
 distribution, together with vertical bars indicating the point-wise
 equal-tailed 95% predictive interval.
 
-```{r,echo = -c(1:3)}
+```{r, echo = -c(1:2)}
 if (pdfplots) {
   pdf("6-4_7.pdf", width = 8, height = 4)
   par(mar = c(2., 2., 1.5, .1), mgp = c(1, .2, 0))
@@ -913,13 +914,12 @@ legend(x = "top",  inset = 0,
 The shrinkage profiles of these priors are visualized in the following
 plot.
 
-```{r, echo = -1, fig.width=9, fig.height=3}
+```{r, echo = -c(1:2), fig.width=9, fig.height=3}
 if (pdfplots) {
    pdf("6-4_10.pdf", width = 9, height = 3)
 }
-# Thanks again to Peter Knaus for providing the code
 par(mfrow = c(1, 1))
-
+# Thanks again to Peter Knaus for providing the code
 # Some functions that return shrinkage profiles
 # Shrinkage profile for triple gamma
 dTPB <- function(x, a, c, phi) {
@@ -967,7 +967,6 @@ legend(x = 1.05, y = 3,
 if (pdfplots) {
    pdf("6-4_11.pdf", width = 9, height = 3)
 }
-
 beta2 <- beta1 <- seq(from = -2, to = 2, by = 0.01)
 f <- function(x1, x2) {
    exp(log(a+1) + log(a) + a*log(a) - (a+2)*log(a+abs(x1)+abs(x2)))
