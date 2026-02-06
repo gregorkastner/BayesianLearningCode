@@ -403,7 +403,7 @@ regression model under a semi-conjugate prior.
 
 ``` r
 reg_semiconj <- function(y, X, b0 = 0, B0 = 10000, c0 = 2.5, C0 = 1.5,
-                         burnin = 1000L, M = M) {
+                         burnin = 1000L, M = M, start.sigma2) {
    d <- dim(X)[2] 
    B0inv <- diag(rep(1 / B0, d), nrow = d)
    b0 <-  rep(b0, length.out = d)
@@ -420,7 +420,7 @@ reg_semiconj <- function(y, X, b0 = 0, B0 = 10000, c0 = 2.5, C0 = 1.5,
    sigma2s <- rep(NA_real_,  M)
 
    # starting value for sigma2
-   sigma2 <- var(y) / 2
+   sigma2 <-start.sigma2# var(y) / 2
 
    for (m in 1:(burnin + M)) {
        # sample beta from the full conditional
@@ -443,6 +443,30 @@ reg_semiconj <- function(y, X, b0 = 0, B0 = 10000, c0 = 2.5, C0 = 1.5,
 ```
 
 #### Example 6.5: Movie data
+
+We run the sampler
+
+``` r
+set.seed(1)
+M <- 1000L # number of draws after burn-in
+post.draws <- reg_semiconj(y, X, b0 = 0, B0 = 10000, c0 = 2.5, C0 = 1.5,
+                           burnin = 0L, M = M,start.sigma2=10^6)
+```
+
+We plot the draws
+
+``` r
+for (i in (1:d)){
+  plot(post.draws$betas[,i], type="l", xlab="m", ylab="", 
+       main = colnames(post.draws$betas)[i])
+}
+plot(post.draws$sigma2s,type="l",xlab="m", ylab="",
+      main = expression(sigma^2))
+```
+
+![](Chapter06_files/figure-html/unnamed-chunk-22-1.png)
+
+#### Example 6.6: Movie data
 
 We now include all available covariates in the regression analysis. As
 there is only one film with MPAA rating “G”, we merge the two ratings
@@ -472,7 +496,7 @@ Next, we define the prior parameters and run the sampler.
 set.seed(1)
 M <- 20000L # number of draws after burn-in
 post.draws <- reg_semiconj(y, X, b0 = 0, B0 = 10000, c0 = 2.5, C0 = 1.5,
-                           burnin = 1000L, M = M)
+                           burnin = 1000L, M = M,start.sigma2=var(y)/2)
 ```
 
 To summarize the results nicely, we compute equal-tailed 95% credible
@@ -534,7 +558,7 @@ par(mfrow = c(1, 1))
 plot(X[, "Vol-4-6"], X[, "Vol-1-3"])
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-26-1.png)
+![](Chapter06_files/figure-html/unnamed-chunk-28-1.png)
 
 ``` r
 round(sum(res_beta.sc[c("Vol-4-6", "Vol-1-3"), "posterior mean"]),
@@ -563,7 +587,7 @@ legend("topright", legend = c("Horseshoe", "Standard normal"),
        lty = 1:2, col = c("blue", "black"))
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-27-1.png)
+![](Chapter06_files/figure-html/unnamed-chunk-29-1.png)
 
 We set up the Gibbs sampler of the regression model with a proper normal
 prior on the intercept and horseshoe priors on the covariate effects.
@@ -698,7 +722,7 @@ for (i in seq_len(d)) {
 }
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-32-1.png)![](Chapter06_files/figure-html/unnamed-chunk-32-2.png)
+![](Chapter06_files/figure-html/unnamed-chunk-34-1.png)![](Chapter06_files/figure-html/unnamed-chunk-34-2.png)
 
 For illustration purposes, we overlay four selected marginal posteriors
 in order to illustrate the shrinkage effect.
@@ -719,7 +743,7 @@ for (i in selection) {
 }
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-33-1.png)
+![](Chapter06_files/figure-html/unnamed-chunk-35-1.png)
 
 Next, we investigate the trace plots of the draws from the posterior. As
 above, the plots on the left are obtained under the semi-conjugate
@@ -733,7 +757,7 @@ for (i in seq_len(d)) {
 }
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-34-1.png)![](Chapter06_files/figure-html/unnamed-chunk-34-2.png)
+![](Chapter06_files/figure-html/unnamed-chunk-36-1.png)![](Chapter06_files/figure-html/unnamed-chunk-36-2.png)
 
 To sum up, we visualize the posterior of the effects and corresponding
 (square root of the) shrinkage parameters. For visual inspection, we
@@ -771,7 +795,7 @@ for (i in seq_len(ncol(beta.hs))) {
 }
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-36-1.png)
+![](Chapter06_files/figure-html/unnamed-chunk-38-1.png)
 
 #### Example 6.7: Movie data
 
@@ -796,7 +820,7 @@ qqplot(post.draws.hs$sigma2s, post.draws.hs2$sigma2s,
 abline(a = 0, b = 1)
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-37-1.png)
+![](Chapter06_files/figure-html/unnamed-chunk-39-1.png)
 
 #### Example 6.8: Movie data
 
@@ -850,7 +874,7 @@ points(x = (1:nf)+0.2, y = pred.mean.hs, pch = 16, col = "red")
 axis(1, at = 1:nf, labels = c("A", "B", "C", "D"))
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-39-1.png)
+![](Chapter06_files/figure-html/unnamed-chunk-41-1.png)
 
 ## Section 6.5: Shrinkage beyond the Horseshoe Prior
 
@@ -928,7 +952,7 @@ legend(x = "top",  inset = 0,
        lwd = 2, cex = 1, horiz = TRUE, xjust = 0.5)
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-40-1.png)
+![](Chapter06_files/figure-html/unnamed-chunk-42-1.png)
 
 The shrinkage profiles of these priors are visualized in the following
 plot.
@@ -975,7 +999,7 @@ legend(x = 1.05, y = 3,
        lwd = 2, cex = 1, horiz = FALSE)
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-41-1.png)
+![](Chapter06_files/figure-html/unnamed-chunk-43-1.png)
 
 #### Example 6.10
 
@@ -994,4 +1018,4 @@ for (a in c(0.1, 1, 10)) {
 }
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-42-1.png)
+![](Chapter06_files/figure-html/unnamed-chunk-44-1.png)
