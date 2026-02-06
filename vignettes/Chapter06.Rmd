@@ -337,8 +337,8 @@ posterior mean of the regression effects together with the 2.5\% and 97.5\%
 quantiles of the posterior distribution in the following table.
 
 ```{r}
-res_conj1 <- regression_conjugate(y, X, b0 = 0, B0 = 10, c0=2.5, C0=1.5)
-post.sd.conj1 = sqrt(diag((res_conj1$CN / res_conj1$cN) * res_conj1$BN))
+res_conj1 <- regression_conjugate(y, X, b0 = 0, B0 = 10, c0 = 2.5, C0 = 1.5)
+post.sd.conj1 <- sqrt(diag((res_conj1$CN / res_conj1$cN) * res_conj1$BN))
 
 knitr::kable(round(cbind(
    qt(0.025, df = 2 * res_conj1$cN) * post.sd.conj1 + res_conj1$bN,
@@ -439,8 +439,11 @@ reg_semiconj <- function(y, X, b0 = 0, B0 = 10000, c0 = 2.5, C0 = 1.5,
    sigma2s <- rep(NA_real_,  M)
 
    # starting value for sigma2
-   sigma2 <-start.sigma2# var(y) / 2
-
+   if (missing(start.sigma2)) {
+       start.sigma2 <- var(y) / 2
+   }
+   sigma2 <- start.sigma2
+   
    for (m in 1:(burnin + M)) {
        # sample beta from the full conditional
        BN <- solve(B0inv + XX / sigma2) 
@@ -461,27 +464,31 @@ reg_semiconj <- function(y, X, b0 = 0, B0 = 10000, c0 = 2.5, C0 = 1.5,
 }                              
 ```
 ### Example 6.5: Movie data
-We run the sampler 
+
+We run the sampler for 1000 draws starting with a large value for the
+innovation variance.
+
 ```{r}
 set.seed(1)
 M <- 1000L # number of draws after burn-in
 post.draws <- reg_semiconj(y, X, b0 = 0, B0 = 10000, c0 = 2.5, C0 = 1.5,
-                           burnin = 0L, M = M,start.sigma2=10^6)
+                           burnin = 0L, M = M, start.sigma2 = 10^6)
 ```
 
-We plot the draws
+We insepct the draws using trace plots.
+
 ```{r, echo = -c(1:2)}
 if (pdfplots) {
   pdf("6-4_2a.pdf", width = 6, height = 6)
   par(mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.6, .6, 0))
 }
-par(mfrow=c(2,2))
-for (i in (1:d)){
-  plot(post.draws$betas[,i], type="l", xlab="m", ylab="", 
-       main = colnames(post.draws$betas)[i])
+par(mfrow = c(2, 2))
+for (i in seq_len(ncol(post.draws$betas))) {
+   plot(post.draws$betas[, i], type = "l", xlab = "m", ylab = "",
+        main = colnames(post.draws$betas)[i])
 }
-plot(post.draws$sigma2s,type="l",xlab="m", ylab="",
-      main = expression(sigma^2))
+plot(post.draws$sigma2s, type = "l", xlab = "m", ylab = "",
+     main = expression(sigma^2))
 ```
 
 ### Example 6.6: Movie data
@@ -514,7 +521,7 @@ Next, we define the prior parameters and run the sampler.
 set.seed(1)
 M <- 20000L # number of draws after burn-in
 post.draws <- reg_semiconj(y, X, b0 = 0, B0 = 10000, c0 = 2.5, C0 = 1.5,
-                           burnin = 1000L, M = M,start.sigma2=var(y)/2)
+                           burnin = 1000L, M = M)
 ```
 
 To summarize the results nicely, we compute equal-tailed 95% credible
@@ -876,12 +883,12 @@ if (pdfplots) {
 
 # Some functions that return the log-marginal densities
 ## Log-marginal and marginal for Triple Gamma
-logmarginal_TG <- function(x, a, c, kappa2){
+logmarginal_TG <- function(x, a, c, kappa2) {
   -0.5*log(4*pi/kappa2) - lbeta(a, c) + 0.5*(log(a) - log(c)) + lgamma(c + 0.5) +
     log(gsl::hyperg_U(c + 0.5, -a + 1.5, kappa2*a*x^2/(4*c), give = FALSE, strict = TRUE))
 }
 ## Log-marginal and marginal for Double Gamma
-logmarginal_DG <- function(x, a, kappa2){
+logmarginal_DG <- function(x, a, kappa2) {
   0.5*(a + 0.5)*log(a*kappa2)  - 0.5*log(pi) - (a-0.5)*log(2) - lgamma(a) + (a - 0.5)*log(abs(x)) +
     log(besselK(sqrt(a*kappa2)*abs(x), a-0.5))
 }
