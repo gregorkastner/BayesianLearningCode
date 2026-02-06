@@ -614,6 +614,7 @@ reg_hs <- function(y, X,  b0 = 0, B0 = 10000, c0 = 2.5, C0 = 1.5,
    # define quantities for the Gibbs sampler
    XX <- crossprod(X)
    Xy <- crossprod(X, y)
+   cN=c0+N/2
 
    # set starting values 
    sigma2 <- var(y) / 2
