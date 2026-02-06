@@ -475,7 +475,7 @@ post.draws <- reg_semiconj(y, X, b0 = 0, B0 = 10000, c0 = 2.5, C0 = 1.5,
                            burnin = 0L, M = M, start.sigma2 = 10^6)
 ```
 
-We insepct the draws using trace plots.
+We inspect the draws using trace plots.
 
 ```{r, echo = -c(1:2)}
 if (pdfplots) {
