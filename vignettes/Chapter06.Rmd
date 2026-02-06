@@ -422,7 +422,7 @@ regression model under a semi-conjugate prior.
 
 ```{r}
 reg_semiconj <- function(y, X, b0 = 0, B0 = 10000, c0 = 2.5, C0 = 1.5,
-                         burnin = 1000L, M = M) {
+                         burnin = 1000L, M = M, start.sigma2) {
    d <- dim(X)[2] 
    B0inv <- diag(rep(1 / B0, d), nrow = d)
    b0 <-  rep(b0, length.out = d)
@@ -439,7 +439,7 @@ reg_semiconj <- function(y, X, b0 = 0, B0 = 10000, c0 = 2.5, C0 = 1.5,
    sigma2s <- rep(NA_real_,  M)
 
    # starting value for sigma2
-   sigma2 <- var(y) / 2
+   sigma2 <-start.sigma2# var(y) / 2
 
    for (m in 1:(burnin + M)) {
        # sample beta from the full conditional
@@ -460,8 +460,31 @@ reg_semiconj <- function(y, X, b0 = 0, B0 = 10000, c0 = 2.5, C0 = 1.5,
    return(post.draws = list(betas = betas, sigma2s = sigma2s))
 }                              
 ```
-
 ### Example 6.5: Movie data
+We run the sampler 
+```{r}
+set.seed(1)
+M <- 1000L # number of draws after burn-in
+post.draws <- reg_semiconj(y, X, b0 = 0, B0 = 10000, c0 = 2.5, C0 = 1.5,
+                           burnin = 0L, M = M,start.sigma2=10^6)
+```
+
+We plot the draws
+```{r, echo = -c(1:2)}
+if (pdfplots) {
+  pdf("6-4_2a.pdf", width = 6, height = 6)
+  par(mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.6, .6, 0))
+}
+par(mfrow=c(2,2))
+for (i in (1:d)){
+  plot(post.draws$betas[,i], type="l", xlab="m", ylab="", 
+       main = colnames(post.draws$betas)[i])
+}
+plot(post.draws$sigma2s,type="l",xlab="m", ylab="",
+      main = expression(sigma^2))
+```
+
+### Example 6.6: Movie data
 
 We now include all available covariates in the regression analysis. As
 there is only one film with MPAA rating "G", we merge the two ratings
@@ -491,7 +514,7 @@ Next, we define the prior parameters and run the sampler.
 set.seed(1)
 M <- 20000L # number of draws after burn-in
 post.draws <- reg_semiconj(y, X, b0 = 0, B0 = 10000, c0 = 2.5, C0 = 1.5,
-                           burnin = 1000L, M = M)
+                           burnin = 1000L, M = M,start.sigma2=var(y)/2)
 ```
 
 To summarize the results nicely, we compute equal-tailed 95% credible
