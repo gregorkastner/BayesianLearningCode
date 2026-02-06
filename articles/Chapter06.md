@@ -616,6 +616,7 @@ reg_hs <- function(y, X,  b0 = 0, B0 = 10000, c0 = 2.5, C0 = 1.5,
    # define quantities for the Gibbs sampler
    XX <- crossprod(X)
    Xy <- crossprod(X, y)
+   cN=c0+N/2
 
    # set starting values 
    sigma2 <- var(y) / 2
@@ -679,18 +680,18 @@ knitr::kable(round(res_beta.hs, 3))
 
 |           | 2.5% quantile | posterior mean | 97.5% quantile |
 |:----------|--------------:|---------------:|---------------:|
-| Intercept |        17.405 |         19.110 |         20.804 |
-| Comedy    |        -1.675 |          0.255 |          2.863 |
-| Thriller  |        -2.309 |          0.039 |          2.546 |
-| PG13      |        -6.504 |         -1.803 |          0.829 |
-| R         |        -1.421 |          0.953 |          5.009 |
-| Budget    |         0.027 |          0.125 |          0.217 |
-| Weeks     |        -0.012 |          0.334 |          0.701 |
-| Screens   |         0.576 |          0.959 |          1.344 |
-| S-4-6     |        -1.551 |          0.237 |          1.731 |
-| S-1-3     |        -0.557 |          0.735 |          2.686 |
-| Vol-4-6   |       -19.179 |        -16.094 |        -12.976 |
-| Vol-1-3   |        18.503 |         21.702 |         24.871 |
+| Intercept |        17.485 |         19.110 |         20.726 |
+| Comedy    |        -1.602 |          0.268 |          2.795 |
+| Thriller  |        -2.230 |          0.044 |          2.485 |
+| PG13      |        -6.446 |         -1.904 |          0.738 |
+| R         |        -1.374 |          0.992 |          4.976 |
+| Budget    |         0.033 |          0.125 |          0.213 |
+| Weeks     |        -0.003 |          0.336 |          0.688 |
+| Screens   |         0.596 |          0.960 |          1.326 |
+| S-4-6     |        -1.564 |          0.223 |          1.693 |
+| S-1-3     |        -0.517 |          0.764 |          2.704 |
+| Vol-4-6   |       -19.091 |        -16.150 |        -13.178 |
+| Vol-1-3   |        18.716 |         21.758 |         24.781 |
 
 We also report the estimation results for the error variance.
 
@@ -704,7 +705,7 @@ knitr::kable(t(round(res_sigma2.hs, 3)))
 
 | 2.5% quantile | posterior mean | 97.5% quantile |
 |--------------:|---------------:|---------------:|
-|        51.392 |         70.115 |          95.35 |
+|        47.349 |         63.632 |         85.447 |
 
 Obviously, taking into account more covariates the posterior mean of the
 error variance is considerably lower than in the model with only
