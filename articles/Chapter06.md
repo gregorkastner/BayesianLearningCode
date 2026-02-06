@@ -19,9 +19,9 @@ data("movies", package = "BayesianLearningCode")
 
 #### Example 6.2: Movie data
 
-We use as response `y` the variable `OpenBoxOffice`, which contains the
+We use as response `y` the variable *OpenBoxOffice*, which contains the
 box office sales at the opening weekend in Mio.\$, and as covariates the
-budget (\`Budget\`, in Mio.\$) and the number of screens (`Screens`, in
+budget (*Budget*, in Mio.\$) and the number of screens (*Screens*, in
 1000) the film was forecast to be in theaters six weeks prior to
 opening.
 
@@ -816,11 +816,15 @@ X_new[3, "PG13"] <- 1
 X_new[4, "R"] <- 1
 X_new[, "Budget"] <- 10
 
-ypred.sc <- X_new %*% t(beta.sc) + rnorm(sqrt(sigma2.sc))
+ypred.sc <- X_new %*% t(beta.sc) + 
+     rep(rnorm(length(sigma2.sc), sd = sqrt(sigma2.sc)), each = nrow(X_new))
 pred.int.sc <- apply(ypred.sc,1, quantile, probs = c(0.025, 0.5, 0.975))
 pred.mean.sc <- rowMeans(ypred.sc)
 
-ypred.hs <- X_new %*% t(beta.hs) + rnorm(sqrt(sigma2.hs))
+ypred.hs <- X_new %*% t(beta.hs) + 
+  rep(rnorm(length(sigma2.hs), sd = sqrt(sigma2.hs)), each = nrow(X_new))
+
+
 pred.int.hs <- apply(ypred.hs,1, quantile, probs = c(0.025, 0.5, 0.975))
 pred.mean.hs <- rowMeans(ypred.hs)
 ```
@@ -832,7 +836,7 @@ equal-tailed 95% predictive interval.
 ``` r
 matplot(x = t(matrix(1:nf, ncol = 3, nrow = nf)),
         y = pred.int.sc, col = "blue", type = "l", pch = 16, lty = 1,
-        ylim = c(8, 32), xlim = c(0.5, nf+0.5),
+        ylim = c(0, 40), xlim = c(0.5, nf+0.5),
         xlab = "Scenarios", ylab = "Predicted box office sales", xaxt = "n")
 points(x = 1:nf, y = pred.int.sc[2, ], pch = 19, col = "blue", cex = 1.2)
 points(x = 1:nf, y = pred.mean.sc, pch = 16, col = "red")
