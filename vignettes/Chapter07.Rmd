@@ -45,7 +45,7 @@ Now we can plot the data and its empirical autocorrelation function.
 
 ```{r, echo = -c(1:2)}
 if (pdfplots) {
-  pdf("7-2_1.pdf", width = 12, height = 5)
+  pdf("7-1_1.pdf", width = 12, height = 5)
   par(mar = c(2.6, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 2)
 }
 par(mfrow = c(1, 2))
