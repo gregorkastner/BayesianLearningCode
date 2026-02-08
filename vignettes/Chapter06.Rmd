@@ -551,6 +551,10 @@ names(res_sigma2.sc) <- colnames(res_beta.sc)
 
 knitr::kable(t(round(res_sigma2.sc, 3)))
 ```
+Obviously, taking into account more covariates the posterior mean of
+the error variance is considerably lower than in the model with only
+_Budget_ and _Screens_ used as covariates.
+
 
 The different signs of the effects of _Vol-4-6_ and _Vol-1-3_ deserve
 some further comment. The two covariates are highly correlated.  Due
@@ -658,13 +662,14 @@ reg_hs <- function(y, X,  b0 = 0, B0 = 10000, c0 = 2.5, C0 = 1.5,
 }    
 ```
 
-### Example 6.7: Movie data- ANalysis under Horseshoe prior 
+### Example 6.7: Movie data- Analysis under Horseshoe prior 
 
 We estimate the parameters in the regression model with the same prior
 on intercept and error variance as in the semi-conjugate prior, but a
 horseshoe prior on the covariate effects.
 
 ```{r}
+set.seed(421)
 post.draws.hs <- reg_hs(y, X, M = M)
 ```
 
@@ -678,9 +683,11 @@ colnames(res_beta.hs) <- c("2.5% quantile", "posterior mean", "97.5% quantile")
 rownames(res_beta.hs) <- colnames(X)
 knitr::kable(round(res_beta.hs, 3))
 ```
+Estimation results are very similar to those under the semi-conjugate prior  for the effects  of Budget,
+Weeks, Screens, Vol-4-6 and Vol-1-3. For all other covariates the posterior means of their effects are closer to zero and the 95% posterior intervals are tighter under the horseshoe than under the semi-conjugate prior, indicating shrinkage to zero.  
 
-We also report the estimation results for the error variance.
 
+However,  the estimation results on the error variance are very similar to those under the semi-conjugate prior.
 ```{r}
 sigma2.hs <- post.draws.hs$sigma2s
 res_sigma2.hs <- res.mcmc(sigma2.hs)
@@ -689,16 +696,12 @@ names(res_sigma2.hs) <- colnames(res_beta.hs)
 knitr::kable(t(round(res_sigma2.hs, 3)))
 ```
 
-Obviously, taking into account more covariates the posterior mean of
-the error variance is considerably lower than in the model with only
-_Budget_ and _Screens_ used as covariates.
-
 We next have a look at the posterior distributions. The plots on the left hand
 side show the posterior distribution for the regression effects under the
 semi-conjugate prior, those on the right hand side the posterior distributions
-under the horseshoe prior. Note that the
+under the horseshoe prior. Whereas the 
 posterior distributions are symmetric under the semi-conjugate
-prior, whereas this is not the case under the horseshoe prior. 
+prior, this is not the case under the horseshoe prior. 
 
 ```{r, echo = -1}
 par(mfrow = c(ncol(beta.hs) / 2, 2), mgp = c(1.6, .6, 0),
