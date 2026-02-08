@@ -445,10 +445,10 @@ reg_semiconj <- function(y, X, b0 = 0, B0 = 10000, c0 = 2.5, C0 = 1.5,
 }                              
 ```
 
-#### Example 6.5: Movie data
+#### Example 6.5: Movie data - Show traceplots of the sampler
 
-We run the sampler for 1000 draws starting with a large value for the
-innovation variance.
+We run the sampler for 1000 draws starting with a very large value for
+the innovation variance.
 
 ``` r
 set.seed(1)
@@ -457,7 +457,7 @@ post.draws <- reg_semiconj(y, X, b0 = 0, B0 = 10000, c0 = 2.5, C0 = 1.5,
                            burnin = 0L, M = M, start.sigma2 = 10^6)
 ```
 
-We inspect the draws using trace plots.
+From the trace plots we see that the sampler converges very quickly.
 
 ``` r
 for (i in seq_len(ncol(post.draws$betas))) {
@@ -465,10 +465,12 @@ for (i in seq_len(ncol(post.draws$betas))) {
         main = colnames(post.draws$betas)[i])
 }
 plot(post.draws$sigma2s, type = "l", xlab = "m", ylab = "",
-     main = expression(sigma^2))
+     main = expression(paste("Error variance ", sigma^2)))
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-22-1.png)
+![](Chapter06_files/figure-html/unnamed-chunk-22-1.png) Even though the
+starting value of the error variance was far from the posterior
+distribution the burn-in phase of the sampler is very short.
 
 #### Example 6.6: Movie data
 

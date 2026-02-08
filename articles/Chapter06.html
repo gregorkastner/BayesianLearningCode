@@ -547,24 +547,28 @@ regression model under a semi-conjugate prior.</p>
 <span>   <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span>post.draws <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>betas <span class="op">=</span> <span class="va">betas</span>, sigma2s <span class="op">=</span> <span class="va">sigma2s</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span>                              </span></code></pre></div>
 <div class="section level4">
-<h4 id="example-6-5-movie-data">Example 6.5: Movie data<a class="anchor" aria-label="anchor" href="#example-6-5-movie-data"></a>
+<h4 id="example-6-5-movie-data---show-traceplots-of-the-sampler">Example 6.5: Movie data - Show traceplots of the sampler<a class="anchor" aria-label="anchor" href="#example-6-5-movie-data---show-traceplots-of-the-sampler"></a>
 </h4>
-<p>We run the sampler for 1000 draws starting with a large value for the
-innovation variance.</p>
+<p>We run the sampler for 1000 draws starting with a very large value
+for the innovation variance.</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">M</span> <span class="op">&lt;-</span> <span class="fl">1000L</span> <span class="co"># number of draws after burn-in</span></span>
 <span><span class="va">post.draws</span> <span class="op">&lt;-</span> <span class="fu">reg_semiconj</span><span class="op">(</span><span class="va">y</span>, <span class="va">X</span>, b0 <span class="op">=</span> <span class="fl">0</span>, B0 <span class="op">=</span> <span class="fl">10000</span>, c0 <span class="op">=</span> <span class="fl">2.5</span>, C0 <span class="op">=</span> <span class="fl">1.5</span>,</span>
 <span>                           burnin <span class="op">=</span> <span class="fl">0L</span>, M <span class="op">=</span> <span class="va">M</span>, start.sigma2 <span class="op">=</span> <span class="fl">10</span><span class="op">^</span><span class="fl">6</span><span class="op">)</span></span></code></pre></div>
-<p>We inspect the draws using trace plots.</p>
+<p>From the trace plots we see that the sampler converges very
+quickly.</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">post.draws</span><span class="op">$</span><span class="va">betas</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>   <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">post.draws</span><span class="op">$</span><span class="va">betas</span><span class="op">[</span>, <span class="va">i</span><span class="op">]</span>, type <span class="op">=</span> <span class="st">"l"</span>, xlab <span class="op">=</span> <span class="st">"m"</span>, ylab <span class="op">=</span> <span class="st">""</span>,</span>
 <span>        main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">post.draws</span><span class="op">$</span><span class="va">betas</span><span class="op">)</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">post.draws</span><span class="op">$</span><span class="va">sigma2s</span>, type <span class="op">=</span> <span class="st">"l"</span>, xlab <span class="op">=</span> <span class="st">"m"</span>, ylab <span class="op">=</span> <span class="st">""</span>,</span>
-<span>     main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">sigma</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Chapter06_files/figure-html/unnamed-chunk-22-1.png" class="r-plt" alt="" width="768"></p>
+<span>     main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Error variance "</span>, <span class="va">sigma</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><img src="Chapter06_files/figure-html/unnamed-chunk-22-1.png" class="r-plt" alt="" width="768">
+Even though the starting value of the error variance was far from the
+posterior distribution the burn-in phase of the sampler is very
+short.</p>
 </div>
 <div class="section level4">
 <h4 id="example-6-6-movie-data">Example 6.6: Movie data<a class="anchor" aria-label="anchor" href="#example-6-6-movie-data"></a>
