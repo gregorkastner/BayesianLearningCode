@@ -17,7 +17,7 @@ data("movies", package = "BayesianLearningCode")
 
 ### Section 6.2.1 Bayesian Learning Under Improper Priors
 
-#### Example 6.2: Movie data
+#### Example 6.2: Movie data: Analysis under improper prior
 
 We use as response `y` the variable *OpenBoxOffice*, which contains the
 box office sales at the opening weekend in Mio.\$, and as covariates the
@@ -150,7 +150,7 @@ knitr::kable(round(cbind(qinvgamma(0.025, a = cN, b = reg.improp$CN),
 |--------------:|---------------:|---------------:|
 |        178.38 |         239.07 |         319.96 |
 
-#### Example 6.3: Movie data
+#### Example 6.3: Movie data: Prediction
 
 We are now interested in predicting the box office sales on the opening
 weekend. We compute the predicted box office sales for a film with an
@@ -296,7 +296,7 @@ regression_conjugate <- function(y, X, b0 = 0, B0 = 10, c0 = 0.01, C0 = 0.01) {
 }
 ```
 
-#### Example 6.4: Movie data
+#### Example 6.4: Movie data - Analysis under conjugate prior
 
 We specify a normal prior with mean zero and
 $\mathbf{B}_{0} = \lambda^{2}\mathbf{I}$ with $\lambda^{2} = 10$ on the
@@ -445,7 +445,7 @@ reg_semiconj <- function(y, X, b0 = 0, B0 = 10000, c0 = 2.5, C0 = 1.5,
 }                              
 ```
 
-#### Example 6.5: Movie data - Show traceplots of the sampler
+#### Example 6.5: Movie data - Traceplots of the Gibbs sampler
 
 We run the sampler for 1000 draws starting with a very large value for
 the innovation variance.
@@ -472,7 +472,7 @@ plot(post.draws$sigma2s, type = "l", xlab = "m", ylab = "",
 starting value of the error variance was far from the posterior
 distribution the burn-in phase of the sampler is very short.
 
-#### Example 6.6: Movie data
+#### Example 6.6: Movie data: Analysis under the semi-conjugate prior
 
 We now include all available covariates in the regression analysis. As
 there is only one film with MPAA rating “G”, we merge the two ratings
@@ -499,7 +499,7 @@ p <- d - 1 # number of regression effects without intercept
 Next, we define the prior parameters and run the sampler.
 
 ``` r
-set.seed(1)
+set.seed(421)
 M <- 20000L # number of draws after burn-in
 post.draws <- reg_semiconj(y, X, b0 = 0, B0 = 10000, c0 = 2.5, C0 = 1.5,
                            burnin = 1000L, M = M)
@@ -522,18 +522,18 @@ knitr::kable(round(res_beta.sc, 3))
 
 |           | 2.5% quantile | posterior mean | 97.5% quantile |
 |:----------|--------------:|---------------:|---------------:|
-| Intercept |        17.501 |         19.104 |         20.714 |
-| Comedy    |        -2.730 |          1.453 |          5.544 |
-| Thriller  |        -3.972 |          0.535 |          4.967 |
-| PG13      |        -8.441 |         -2.741 |          3.000 |
-| R         |        -3.634 |          2.197 |          8.038 |
-| Budget    |         0.040 |          0.128 |          0.215 |
-| Weeks     |         0.022 |          0.380 |          0.742 |
-| Screens   |         0.596 |          0.964 |          1.332 |
-| S-4-6     |        -4.835 |         -1.274 |          2.350 |
-| S-1-3     |        -1.202 |          2.449 |          6.117 |
-| Vol-4-6   |       -19.648 |        -16.726 |        -13.766 |
-| Vol-1-3   |        19.283 |         22.365 |         25.458 |
+| Intercept |        17.492 |         19.109 |         20.716 |
+| Comedy    |        -2.597 |          1.492 |          5.553 |
+| Thriller  |        -3.886 |          0.579 |          4.966 |
+| PG13      |        -8.535 |         -2.732 |          2.993 |
+| R         |        -3.643 |          2.217 |          8.039 |
+| Budget    |         0.041 |          0.128 |          0.214 |
+| Weeks     |         0.017 |          0.376 |          0.732 |
+| Screens   |         0.600 |          0.968 |          1.338 |
+| S-4-6     |        -4.851 |         -1.281 |          2.358 |
+| S-1-3     |        -1.245 |          2.464 |          6.129 |
+| Vol-4-6   |       -19.684 |        -16.726 |        -13.784 |
+| Vol-1-3   |        19.256 |         22.355 |         25.472 |
 
 We do the same for the error variances.
 
@@ -547,7 +547,11 @@ knitr::kable(t(round(res_sigma2.sc, 3)))
 
 | 2.5% quantile | posterior mean | 97.5% quantile |
 |--------------:|---------------:|---------------:|
-|        47.415 |         63.815 |         86.276 |
+|        47.333 |         63.925 |         86.247 |
+
+Obviously, taking into account more covariates the posterior mean of the
+error variance is considerably lower than in the model with only
+*Budget* and *Screens* used as covariates.
 
 The different signs of the effects of *Vol-4-6* and *Vol-1-3* deserve
 some further comment. The two covariates are highly correlated. Due to
@@ -569,7 +573,7 @@ plot(X[, "Vol-4-6"], X[, "Vol-1-3"])
 ``` r
 round(sum(res_beta.sc[c("Vol-4-6", "Vol-1-3"), "posterior mean"]),
       digits = 3)
-#> [1] 5.639
+#> [1] 5.629
 ```
 
 ## 6.4 Regression Analysis Based on the Horseshoe Prior
@@ -659,13 +663,14 @@ reg_hs <- function(y, X,  b0 = 0, B0 = 10000, c0 = 2.5, C0 = 1.5,
 }    
 ```
 
-#### Example 6.6: Movie data
+#### Example 6.7: Movie data- Analysis under Horseshoe prior
 
 We estimate the parameters in the regression model with the same prior
 on intercept and error variance as in the semi-conjugate prior, but a
 horseshoe prior on the covariate effects.
 
 ``` r
+set.seed(421)
 post.draws.hs <- reg_hs(y, X, M = M)
 ```
 
@@ -682,20 +687,27 @@ knitr::kable(round(res_beta.hs, 3))
 
 |           | 2.5% quantile | posterior mean | 97.5% quantile |
 |:----------|--------------:|---------------:|---------------:|
-| Intercept |        17.485 |         19.110 |         20.726 |
-| Comedy    |        -1.602 |          0.268 |          2.795 |
-| Thriller  |        -2.230 |          0.044 |          2.485 |
-| PG13      |        -6.446 |         -1.904 |          0.738 |
-| R         |        -1.374 |          0.992 |          4.976 |
-| Budget    |         0.033 |          0.125 |          0.213 |
-| Weeks     |        -0.003 |          0.336 |          0.688 |
-| Screens   |         0.596 |          0.960 |          1.326 |
-| S-4-6     |        -1.564 |          0.223 |          1.693 |
-| S-1-3     |        -0.517 |          0.764 |          2.704 |
-| Vol-4-6   |       -19.091 |        -16.150 |        -13.178 |
-| Vol-1-3   |        18.716 |         21.758 |         24.781 |
+| Intercept |        17.515 |         19.107 |         20.702 |
+| Comedy    |        -1.569 |          0.278 |          2.811 |
+| Thriller  |        -2.247 |          0.039 |          2.406 |
+| PG13      |        -6.208 |         -1.857 |          0.792 |
+| R         |        -1.355 |          0.998 |          5.004 |
+| Budget    |         0.035 |          0.126 |          0.213 |
+| Weeks     |        -0.002 |          0.334 |          0.679 |
+| Screens   |         0.587 |          0.956 |          1.322 |
+| S-4-6     |        -1.546 |          0.225 |          1.686 |
+| S-1-3     |        -0.535 |          0.763 |          2.725 |
+| Vol-4-6   |       -19.106 |        -16.148 |        -13.169 |
+| Vol-1-3   |        18.659 |         21.749 |         24.836 |
 
-We also report the estimation results for the error variance.
+Estimation results are very similar to those under the semi-conjugate
+prior for the effects of Budget, Weeks, Screens, Vol-4-6 and Vol-1-3.
+For all other covariates the posterior means of their effects are closer
+to zero and the 95% posterior intervals are tighter under the horseshoe
+than under the semi-conjugate prior, indicating shrinkage to zero.
+
+However, the estimation results on the error variance are very similar
+to those under the semi-conjugate prior.
 
 ``` r
 sigma2.hs <- post.draws.hs$sigma2s
@@ -707,18 +719,14 @@ knitr::kable(t(round(res_sigma2.hs, 3)))
 
 | 2.5% quantile | posterior mean | 97.5% quantile |
 |--------------:|---------------:|---------------:|
-|        47.349 |         63.632 |         85.447 |
-
-Obviously, taking into account more covariates the posterior mean of the
-error variance is considerably lower than in the model with only
-*Budget* and *Screens* used as covariates.
+|        47.429 |         63.694 |         85.307 |
 
 We next have a look at the posterior distributions. The plots on the
 left hand side show the posterior distribution for the regression
 effects under the semi-conjugate prior, those on the right hand side the
-posterior distributions under the horseshoe prior. Note that the
-posterior distributions are symmetric under the semi-conjugate prior,
-whereas this is not the case under the horseshoe prior.
+posterior distributions under the horseshoe prior. Whereas the posterior
+distributions are symmetric under the semi-conjugate prior, this is not
+the case under the horseshoe prior.
 
 ``` r
 for (i in seq_len(d)) {
@@ -804,7 +812,7 @@ for (i in seq_len(ncol(beta.hs))) {
 
 ![](Chapter06_files/figure-html/unnamed-chunk-38-1.png)
 
-#### Example 6.7: Movie data
+#### Example 6.8: Movie data- Check convergence by a second MCMC run
 
 We verify convergence of the sampler by doing a second run of the six
 block sampler in Algorithm 6.2. In the QQ plots of the draws of the
@@ -829,7 +837,7 @@ abline(a = 0, b = 1)
 
 ![](Chapter06_files/figure-html/unnamed-chunk-39-1.png)
 
-#### Example 6.8: Movie data
+#### Example 6.9: Movie data - Predictions
 
 We predict the box office sales for different movies: a film with
 baseline values in all covariates (A), a film with baseline values in
@@ -885,7 +893,7 @@ axis(1, at = 1:nf, labels = c("A", "B", "C", "D"))
 
 ## Section 6.5: Shrinkage beyond the Horseshoe Prior
 
-#### Figure 6.10
+#### Figure 6.11
 
 We next investigate different shrinkage priors and plot the marginal
 prior on a regression coefficient for various choices of the
@@ -1008,7 +1016,7 @@ legend(x = 1.05, y = 3,
 
 ![](Chapter06_files/figure-html/unnamed-chunk-43-1.png)
 
-#### Example 6.10
+#### Example 6.11: A hierarchical Bayesian lasso prior
 
 ``` r
 beta2 <- beta1 <- seq(from = -2, to = 2, by = 0.01)

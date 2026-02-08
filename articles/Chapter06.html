@@ -93,7 +93,7 @@ Model<a class="anchor" aria-label="anchor" href="#section-6-2-bayesian-learning-
 <h3 id="section-6-2-1-bayesian-learning-under-improper-priors">Section 6.2.1 Bayesian Learning Under Improper Priors<a class="anchor" aria-label="anchor" href="#section-6-2-1-bayesian-learning-under-improper-priors"></a>
 </h3>
 <div class="section level4">
-<h4 id="example-6-2-movie-data">Example 6.2: Movie data<a class="anchor" aria-label="anchor" href="#example-6-2-movie-data"></a>
+<h4 id="example-6-2-movie-data-analysis-under-improper-prior">Example 6.2: Movie data: Analysis under improper prior<a class="anchor" aria-label="anchor" href="#example-6-2-movie-data-analysis-under-improper-prior"></a>
 </h4>
 <p>We use as response <code>y</code> the variable
 <em>OpenBoxOffice</em>, which contains the box office sales at the
@@ -241,7 +241,7 @@ error variance and its equal-tailed 95% credible interval.</p>
 </table>
 </div>
 <div class="section level4">
-<h4 id="example-6-3-movie-data">Example 6.3: Movie data<a class="anchor" aria-label="anchor" href="#example-6-3-movie-data"></a>
+<h4 id="example-6-3-movie-data-prediction">Example 6.3: Movie data: Prediction<a class="anchor" aria-label="anchor" href="#example-6-3-movie-data-prediction"></a>
 </h4>
 <p>We are now interested in predicting the box office sales on the
 opening weekend. We compute the predicted box office sales for a film
@@ -367,7 +367,7 @@ posterior distribution.</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>bN <span class="op">=</span> <span class="va">bN</span>, BN <span class="op">=</span> <span class="va">BN</span>, cN <span class="op">=</span> <span class="va">cN</span>, CN <span class="op">=</span> <span class="va">CN</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <div class="section level4">
-<h4 id="example-6-4-movie-data">Example 6.4: Movie data<a class="anchor" aria-label="anchor" href="#example-6-4-movie-data"></a>
+<h4 id="example-6-4-movie-data---analysis-under-conjugate-prior">Example 6.4: Movie data - Analysis under conjugate prior<a class="anchor" aria-label="anchor" href="#example-6-4-movie-data---analysis-under-conjugate-prior"></a>
 </h4>
 <p>We specify a normal prior with mean zero and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>𝐁</mi><mn>0</mn></msub><mo>=</mo><msup><mi>λ</mi><mn>2</mn></msup><mi>𝐈</mi></mrow><annotation encoding="application/x-tex">\mathbf{B}_0=\lambda^2
@@ -547,7 +547,7 @@ regression model under a semi-conjugate prior.</p>
 <span>   <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span>post.draws <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>betas <span class="op">=</span> <span class="va">betas</span>, sigma2s <span class="op">=</span> <span class="va">sigma2s</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span>                              </span></code></pre></div>
 <div class="section level4">
-<h4 id="example-6-5-movie-data---show-traceplots-of-the-sampler">Example 6.5: Movie data - Show traceplots of the sampler<a class="anchor" aria-label="anchor" href="#example-6-5-movie-data---show-traceplots-of-the-sampler"></a>
+<h4 id="example-6-5-movie-data---traceplots-of-the-gibbs-sampler">Example 6.5: Movie data - Traceplots of the Gibbs sampler<a class="anchor" aria-label="anchor" href="#example-6-5-movie-data---traceplots-of-the-gibbs-sampler"></a>
 </h4>
 <p>We run the sampler for 1000 draws starting with a very large value
 for the innovation variance.</p>
@@ -571,7 +571,8 @@ posterior distribution the burn-in phase of the sampler is very
 short.</p>
 </div>
 <div class="section level4">
-<h4 id="example-6-6-movie-data">Example 6.6: Movie data<a class="anchor" aria-label="anchor" href="#example-6-6-movie-data"></a>
+<h4 id="example-6-6-movie-data-analysis-under-the-semi-conjugate-prior">Example 6.6: Movie data: Analysis under the semi-conjugate
+prior<a class="anchor" aria-label="anchor" href="#example-6-6-movie-data-analysis-under-the-semi-conjugate-prior"></a>
 </h4>
 <p>We now include all available covariates in the regression analysis.
 As there is only one film with MPAA rating “G”, we merge the two ratings
@@ -591,7 +592,7 @@ As there is only one film with MPAA rating “G”, we merge the two ratings
 <span><span class="va">p</span> <span class="op">&lt;-</span> <span class="va">d</span> <span class="op">-</span> <span class="fl">1</span> <span class="co"># number of regression effects without intercept</span></span></code></pre></div>
 <p>Next, we define the prior parameters and run the sampler.</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">421</span><span class="op">)</span></span>
 <span><span class="va">M</span> <span class="op">&lt;-</span> <span class="fl">20000L</span> <span class="co"># number of draws after burn-in</span></span>
 <span><span class="va">post.draws</span> <span class="op">&lt;-</span> <span class="fu">reg_semiconj</span><span class="op">(</span><span class="va">y</span>, <span class="va">X</span>, b0 <span class="op">=</span> <span class="fl">0</span>, B0 <span class="op">=</span> <span class="fl">10000</span>, c0 <span class="op">=</span> <span class="fl">2.5</span>, C0 <span class="op">=</span> <span class="fl">1.5</span>,</span>
 <span>                           burnin <span class="op">=</span> <span class="fl">1000L</span>, M <span class="op">=</span> <span class="va">M</span><span class="op">)</span></span></code></pre></div>
@@ -617,75 +618,75 @@ intervals for the regression effects.</p>
 <tbody>
 <tr class="odd">
 <td align="left">Intercept</td>
-<td align="right">17.501</td>
-<td align="right">19.104</td>
-<td align="right">20.714</td>
+<td align="right">17.492</td>
+<td align="right">19.109</td>
+<td align="right">20.716</td>
 </tr>
 <tr class="even">
 <td align="left">Comedy</td>
-<td align="right">-2.730</td>
-<td align="right">1.453</td>
-<td align="right">5.544</td>
+<td align="right">-2.597</td>
+<td align="right">1.492</td>
+<td align="right">5.553</td>
 </tr>
 <tr class="odd">
 <td align="left">Thriller</td>
-<td align="right">-3.972</td>
-<td align="right">0.535</td>
-<td align="right">4.967</td>
+<td align="right">-3.886</td>
+<td align="right">0.579</td>
+<td align="right">4.966</td>
 </tr>
 <tr class="even">
 <td align="left">PG13</td>
-<td align="right">-8.441</td>
-<td align="right">-2.741</td>
-<td align="right">3.000</td>
+<td align="right">-8.535</td>
+<td align="right">-2.732</td>
+<td align="right">2.993</td>
 </tr>
 <tr class="odd">
 <td align="left">R</td>
-<td align="right">-3.634</td>
-<td align="right">2.197</td>
-<td align="right">8.038</td>
+<td align="right">-3.643</td>
+<td align="right">2.217</td>
+<td align="right">8.039</td>
 </tr>
 <tr class="even">
 <td align="left">Budget</td>
-<td align="right">0.040</td>
+<td align="right">0.041</td>
 <td align="right">0.128</td>
-<td align="right">0.215</td>
+<td align="right">0.214</td>
 </tr>
 <tr class="odd">
 <td align="left">Weeks</td>
-<td align="right">0.022</td>
-<td align="right">0.380</td>
-<td align="right">0.742</td>
+<td align="right">0.017</td>
+<td align="right">0.376</td>
+<td align="right">0.732</td>
 </tr>
 <tr class="even">
 <td align="left">Screens</td>
-<td align="right">0.596</td>
-<td align="right">0.964</td>
-<td align="right">1.332</td>
+<td align="right">0.600</td>
+<td align="right">0.968</td>
+<td align="right">1.338</td>
 </tr>
 <tr class="odd">
 <td align="left">S-4-6</td>
-<td align="right">-4.835</td>
-<td align="right">-1.274</td>
-<td align="right">2.350</td>
+<td align="right">-4.851</td>
+<td align="right">-1.281</td>
+<td align="right">2.358</td>
 </tr>
 <tr class="even">
 <td align="left">S-1-3</td>
-<td align="right">-1.202</td>
-<td align="right">2.449</td>
-<td align="right">6.117</td>
+<td align="right">-1.245</td>
+<td align="right">2.464</td>
+<td align="right">6.129</td>
 </tr>
 <tr class="odd">
 <td align="left">Vol-4-6</td>
-<td align="right">-19.648</td>
+<td align="right">-19.684</td>
 <td align="right">-16.726</td>
-<td align="right">-13.766</td>
+<td align="right">-13.784</td>
 </tr>
 <tr class="even">
 <td align="left">Vol-1-3</td>
-<td align="right">19.283</td>
-<td align="right">22.365</td>
-<td align="right">25.458</td>
+<td align="right">19.256</td>
+<td align="right">22.355</td>
+<td align="right">25.472</td>
 </tr>
 </tbody>
 </table>
@@ -703,11 +704,14 @@ intervals for the regression effects.</p>
 <th align="right">97.5% quantile</th>
 </tr></thead>
 <tbody><tr class="odd">
-<td align="right">47.415</td>
-<td align="right">63.815</td>
-<td align="right">86.276</td>
+<td align="right">47.333</td>
+<td align="right">63.925</td>
+<td align="right">86.247</td>
 </tr></tbody>
 </table>
+<p>Obviously, taking into account more covariates the posterior mean of
+the error variance is considerably lower than in the model with only
+<em>Budget</em> and <em>Screens</em> used as covariates.</p>
 <p>The different signs of the effects of <em>Vol-4-6</em> and
 <em>Vol-1-3</em> deserve some further comment. The two covariates are
 highly correlated. Due to this high correlation the usual interpretation
@@ -725,7 +729,7 @@ weeks 1-3.</p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">res_beta.sc</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Vol-4-6"</span>, <span class="st">"Vol-1-3"</span><span class="op">)</span>, <span class="st">"posterior mean"</span><span class="op">]</span><span class="op">)</span>,</span>
 <span>      digits <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 5.639</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 5.629</span></span></code></pre></div>
 </div>
 </div>
 </div>
@@ -812,13 +816,14 @@ effects.</p>
 <span>   <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>betas <span class="op">=</span> <span class="va">betas</span>, sigma2s <span class="op">=</span> <span class="va">sigma2s</span>, tau2s <span class="op">=</span> <span class="va">tau2s</span>, lambda2s <span class="op">=</span> <span class="va">lambda2s</span><span class="op">)</span></span>
 <span><span class="op">}</span>    </span></code></pre></div>
 <div class="section level4">
-<h4 id="example-6-6-movie-data-1">Example 6.6: Movie data<a class="anchor" aria-label="anchor" href="#example-6-6-movie-data-1"></a>
+<h4 id="example-6-7-movie-data--analysis-under-horseshoe-prior">Example 6.7: Movie data- Analysis under Horseshoe prior<a class="anchor" aria-label="anchor" href="#example-6-7-movie-data--analysis-under-horseshoe-prior"></a>
 </h4>
 <p>We estimate the parameters in the regression model with the same
 prior on intercept and error variance as in the semi-conjugate prior,
 but a horseshoe prior on the covariate effects.</p>
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">post.draws.hs</span> <span class="op">&lt;-</span> <span class="fu">reg_hs</span><span class="op">(</span><span class="va">y</span>, <span class="va">X</span>, M <span class="op">=</span> <span class="va">M</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">421</span><span class="op">)</span></span>
+<span><span class="va">post.draws.hs</span> <span class="op">&lt;-</span> <span class="fu">reg_hs</span><span class="op">(</span><span class="va">y</span>, <span class="va">X</span>, M <span class="op">=</span> <span class="va">M</span><span class="op">)</span></span></code></pre></div>
 <p>Again, we show the posterior mean estimates of the regression effects
 together with their equal-tailed 95% credible intervals in a table.</p>
 <div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
@@ -837,79 +842,85 @@ together with their equal-tailed 95% credible intervals in a table.</p>
 <tbody>
 <tr class="odd">
 <td align="left">Intercept</td>
-<td align="right">17.485</td>
-<td align="right">19.110</td>
-<td align="right">20.726</td>
+<td align="right">17.515</td>
+<td align="right">19.107</td>
+<td align="right">20.702</td>
 </tr>
 <tr class="even">
 <td align="left">Comedy</td>
-<td align="right">-1.602</td>
-<td align="right">0.268</td>
-<td align="right">2.795</td>
+<td align="right">-1.569</td>
+<td align="right">0.278</td>
+<td align="right">2.811</td>
 </tr>
 <tr class="odd">
 <td align="left">Thriller</td>
-<td align="right">-2.230</td>
-<td align="right">0.044</td>
-<td align="right">2.485</td>
+<td align="right">-2.247</td>
+<td align="right">0.039</td>
+<td align="right">2.406</td>
 </tr>
 <tr class="even">
 <td align="left">PG13</td>
-<td align="right">-6.446</td>
-<td align="right">-1.904</td>
-<td align="right">0.738</td>
+<td align="right">-6.208</td>
+<td align="right">-1.857</td>
+<td align="right">0.792</td>
 </tr>
 <tr class="odd">
 <td align="left">R</td>
-<td align="right">-1.374</td>
-<td align="right">0.992</td>
-<td align="right">4.976</td>
+<td align="right">-1.355</td>
+<td align="right">0.998</td>
+<td align="right">5.004</td>
 </tr>
 <tr class="even">
 <td align="left">Budget</td>
-<td align="right">0.033</td>
-<td align="right">0.125</td>
+<td align="right">0.035</td>
+<td align="right">0.126</td>
 <td align="right">0.213</td>
 </tr>
 <tr class="odd">
 <td align="left">Weeks</td>
-<td align="right">-0.003</td>
-<td align="right">0.336</td>
-<td align="right">0.688</td>
+<td align="right">-0.002</td>
+<td align="right">0.334</td>
+<td align="right">0.679</td>
 </tr>
 <tr class="even">
 <td align="left">Screens</td>
-<td align="right">0.596</td>
-<td align="right">0.960</td>
-<td align="right">1.326</td>
+<td align="right">0.587</td>
+<td align="right">0.956</td>
+<td align="right">1.322</td>
 </tr>
 <tr class="odd">
 <td align="left">S-4-6</td>
-<td align="right">-1.564</td>
-<td align="right">0.223</td>
-<td align="right">1.693</td>
+<td align="right">-1.546</td>
+<td align="right">0.225</td>
+<td align="right">1.686</td>
 </tr>
 <tr class="even">
 <td align="left">S-1-3</td>
-<td align="right">-0.517</td>
-<td align="right">0.764</td>
-<td align="right">2.704</td>
+<td align="right">-0.535</td>
+<td align="right">0.763</td>
+<td align="right">2.725</td>
 </tr>
 <tr class="odd">
 <td align="left">Vol-4-6</td>
-<td align="right">-19.091</td>
-<td align="right">-16.150</td>
-<td align="right">-13.178</td>
+<td align="right">-19.106</td>
+<td align="right">-16.148</td>
+<td align="right">-13.169</td>
 </tr>
 <tr class="even">
 <td align="left">Vol-1-3</td>
-<td align="right">18.716</td>
-<td align="right">21.758</td>
-<td align="right">24.781</td>
+<td align="right">18.659</td>
+<td align="right">21.749</td>
+<td align="right">24.836</td>
 </tr>
 </tbody>
 </table>
-<p>We also report the estimation results for the error variance.</p>
+<p>Estimation results are very similar to those under the semi-conjugate
+prior for the effects of Budget, Weeks, Screens, Vol-4-6 and Vol-1-3.
+For all other covariates the posterior means of their effects are closer
+to zero and the 95% posterior intervals are tighter under the horseshoe
+than under the semi-conjugate prior, indicating shrinkage to zero.</p>
+<p>However, the estimation results on the error variance are very
+similar to those under the semi-conjugate prior.</p>
 <div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sigma2.hs</span> <span class="op">&lt;-</span> <span class="va">post.draws.hs</span><span class="op">$</span><span class="va">sigma2s</span></span>
 <span><span class="va">res_sigma2.hs</span> <span class="op">&lt;-</span> <span class="fu">res.mcmc</span><span class="op">(</span><span class="va">sigma2.hs</span><span class="op">)</span></span>
@@ -923,20 +934,17 @@ together with their equal-tailed 95% credible intervals in a table.</p>
 <th align="right">97.5% quantile</th>
 </tr></thead>
 <tbody><tr class="odd">
-<td align="right">47.349</td>
-<td align="right">63.632</td>
-<td align="right">85.447</td>
+<td align="right">47.429</td>
+<td align="right">63.694</td>
+<td align="right">85.307</td>
 </tr></tbody>
 </table>
-<p>Obviously, taking into account more covariates the posterior mean of
-the error variance is considerably lower than in the model with only
-<em>Budget</em> and <em>Screens</em> used as covariates.</p>
 <p>We next have a look at the posterior distributions. The plots on the
 left hand side show the posterior distribution for the regression
 effects under the semi-conjugate prior, those on the right hand side the
-posterior distributions under the horseshoe prior. Note that the
-posterior distributions are symmetric under the semi-conjugate prior,
-whereas this is not the case under the horseshoe prior.</p>
+posterior distributions under the horseshoe prior. Whereas the posterior
+distributions are symmetric under the semi-conjugate prior, this is not
+the case under the horseshoe prior.</p>
 <div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">d</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">br</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">beta.sc</span><span class="op">[</span>, <span class="va">i</span><span class="op">]</span>, <span class="va">beta.hs</span><span class="op">[</span>, <span class="va">i</span><span class="op">]</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">beta.sc</span><span class="op">[</span>, <span class="va">i</span><span class="op">]</span>, <span class="va">beta.hs</span><span class="op">[</span>, <span class="va">i</span><span class="op">]</span><span class="op">)</span>,</span>
@@ -1005,7 +1013,7 @@ posteriors, on the right, we visualize the gap plot.</p>
 <p><img src="Chapter06_files/figure-html/unnamed-chunk-38-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 <div class="section level4">
-<h4 id="example-6-7-movie-data">Example 6.7: Movie data<a class="anchor" aria-label="anchor" href="#example-6-7-movie-data"></a>
+<h4 id="example-6-8-movie-data--check-convergence-by-a-second-mcmc-run">Example 6.8: Movie data- Check convergence by a second MCMC run<a class="anchor" aria-label="anchor" href="#example-6-8-movie-data--check-convergence-by-a-second-mcmc-run"></a>
 </h4>
 <p>We verify convergence of the sampler by doing a second run of the six
 block sampler in Algorithm 6.2. In the QQ plots of the draws of the
@@ -1029,7 +1037,7 @@ converged.</p>
 <p><img src="Chapter06_files/figure-html/unnamed-chunk-39-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 <div class="section level4">
-<h4 id="example-6-8-movie-data">Example 6.8: Movie data<a class="anchor" aria-label="anchor" href="#example-6-8-movie-data"></a>
+<h4 id="example-6-9-movie-data---predictions">Example 6.9: Movie data - Predictions<a class="anchor" aria-label="anchor" href="#example-6-9-movie-data---predictions"></a>
 </h4>
 <p>We predict the box office sales for different movies: a film with
 baseline values in all covariates (A), a film with baseline values in
@@ -1083,7 +1091,7 @@ equal-tailed 95% predictive interval.</p>
 <h2 id="section-6-5-shrinkage-beyond-the-horseshoe-prior">Section 6.5: Shrinkage beyond the Horseshoe Prior<a class="anchor" aria-label="anchor" href="#section-6-5-shrinkage-beyond-the-horseshoe-prior"></a>
 </h2>
 <div class="section level4">
-<h4 id="figure-6-10">Figure 6.10<a class="anchor" aria-label="anchor" href="#figure-6-10"></a>
+<h4 id="figure-6-11">Figure 6.11<a class="anchor" aria-label="anchor" href="#figure-6-11"></a>
 </h4>
 <p>We next investigate different shrinkage priors and plot the marginal
 prior on a regression coefficient for various choices of the
@@ -1200,7 +1208,7 @@ following plot.</p>
 <p><img src="Chapter06_files/figure-html/unnamed-chunk-43-1.png" class="r-plt" alt="" width="864"></p>
 </div>
 <div class="section level4">
-<h4 id="example-6-10">Example 6.10<a class="anchor" aria-label="anchor" href="#example-6-10"></a>
+<h4 id="example-6-11-a-hierarchical-bayesian-lasso-prior">Example 6.11: A hierarchical Bayesian lasso prior<a class="anchor" aria-label="anchor" href="#example-6-11-a-hierarchical-bayesian-lasso-prior"></a>
 </h4>
 <div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">beta2</span> <span class="op">&lt;-</span> <span class="va">beta1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span>from <span class="op">=</span> <span class="op">-</span><span class="fl">2</span>, to <span class="op">=</span> <span class="fl">2</span>, by <span class="op">=</span> <span class="fl">0.01</span><span class="op">)</span></span>
