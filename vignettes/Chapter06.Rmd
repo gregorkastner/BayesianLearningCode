@@ -442,7 +442,6 @@ reg_semiconj <- function(y, X, b0 = 0, B0 = 10000, c0 = 2.5, C0 = 1.5,
    if (missing(start.sigma2)) {
        start.sigma2 <- var(y) / 2
    }
-   print(start.sigma2)
    sigma2 <- start.sigma2
    
    for (m in 1:(burnin + M)) {
@@ -464,7 +463,7 @@ reg_semiconj <- function(y, X, b0 = 0, B0 = 10000, c0 = 2.5, C0 = 1.5,
    return(post.draws = list(betas = betas, sigma2s = sigma2s))
 }                              
 ```
-### Example 6.5: Movie data
+### Example 6.5: Movie data - Show traceplots of the sampler 
 
 We run the sampler for 1000 draws starting with a very large value for the
 innovation variance. 
