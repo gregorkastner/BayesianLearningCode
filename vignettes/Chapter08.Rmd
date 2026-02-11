@@ -42,19 +42,18 @@ age18 (quantitative, centered at 18 years) and unemployed in 1997
 worker who was employed in 1997.
 
 ```{r}
-y.unemp <- labor$income_1998 == "zero"
+y.unemp <- as.numeric(labor$unemp98)
 N.unemp <- length(y.unemp)  # number of observations 
 X.unemp <- with(labor, cbind(intercept = rep(1, N.unemp),
                              female = female,
-                             age18 = 1998 - birthyear - 18,
-                             wcollar = wcollar_1997,
-                             unemp97 = income_1997 == "zero")) # regressor matrix
+                             age18 =age-18,
+                             wcollar = wcollar,
+                             unemp97 = unemp97))# regressor matrix
 ```
 
 The regression coefficients are estimated using data augmentation and
 Gibbs sampling. We define a function yielding posterior draws using
 the algorithm detailed in Chapter 8.1.1.
-
 
 ```{r}
 probit <- function(y, X, b0 = 0, B0 = 10000,
@@ -68,6 +67,8 @@ probit <- function(y, X, b0 = 0, B0 = 10000,
 
   betas <- matrix(NA_real_, nrow = M, ncol = d)
   colnames(betas) <- colnames(X)
+  
+  z <- rep(NA_real_, N)
 
   # define quantities for the Gibbs sampler
   BN <- solve(B0.inv + crossprod(X))
@@ -75,8 +76,7 @@ probit <- function(y, X, b0 = 0, B0 = 10000,
   ind1 <- (y == 1) # indicators for ones
 
   # starting values
-  beta <- rep(0, d)
-  z <- rep(NA_real_, N)
+  beta <- c(qnorm(sum(y)/length(y)),rep(0, d-1))
 
   for (m in seq_len(burnin + M)) {
     # Draw z conditional on y and beta
@@ -109,12 +109,13 @@ betas <- probit(y.unemp, X.unemp, b0 = 0, B0 = 10000)
 ```
 
 To compute summary statistics from the  posterior we use the following function. 
+
 ```{r}
 res.mcmc <- function(x, lower = 0.025, upper = 0.975) {
   y <- c(quantile(x, lower), mean(x), quantile(x, upper))
   names(y) <- c(paste0(lower * 100, "%"), "Mean", paste0(upper * 100, "%"))
   y
-}    
+ }    
 ```
 
 
@@ -122,7 +123,7 @@ res.mcmc <- function(x, lower = 0.025, upper = 0.975) {
 res_beta <- apply(betas, 2, res.mcmc)
 knitr::kable(round(res_beta, 3))
 
-(p_unemploy_base <- pnorm(res_beta[1, 2]))
+(p_unemploy_base <- pnorm(res_beta[2, 1]))
 ```
 The estimated risk of unemployment for a baseline person is low and it
 is even lower for a white collar worker. It is higher for females,
