@@ -293,14 +293,17 @@ if (pdfplots) {
   pdf("8-1_6.pdf", width = 8, height = 5)
 }
 set.seed(1234)
-betas <- probit(y, X, b0 = 0, B0 = 2.5^2)
+betas.qus3 <- probit(y, X, b0 = 0, B0 = 2^2)
 
 par(mfrow = c(2, 2), mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
 
-plot(betas[, 1], type = "l", main = "", xlab = "", ylab = "")
-acf(betas[, 1])
-plot(betas[, 2], type = "l", main = "", xlab = "", ylab = "")
-acf(betas[, 2])
+plot(betas.qus3[, 1], type = "l", main = "", xlab = "", ylab = "")
+acf(betas.qus3[, 1])
+
+plot(betas.qus3[, 2], type = "l", main = "", xlab = "", ylab = "")
+acf(betas.qus3[, 2])
+
+effectiveSize(betas.qus3)
 ```
 
 ## Section 8.1.2: Logit model
