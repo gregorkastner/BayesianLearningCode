@@ -29,6 +29,8 @@ X.unemp <- with(labor, cbind(intercept = rep(1, N.unemp),
                              unemp97 = income_1997 == "zero")) # regressor matrix
 ```
 
+#### Example 8.2.
+
 The regression coefficients are estimated using data augmentation and
 Gibbs sampling. We define a function yielding posterior draws using the
 algorithm detailed in Chapter 8.1.1.
@@ -147,6 +149,9 @@ effectiveSize(betas)
 
 The sampler is easy to implement, however there might be problems when
 the response variable contains either only few or very many successes.
+
+#### Example 8.3
+
 To illustrate this issue, we use data where in $N = 500$ trials only 1
 success or only 1 failure is observed.
 
@@ -195,7 +200,7 @@ failures can be perfectly predicted by a covariate, whereas
 quasi-complete separation means that either successes or failures can be
 predicted perfectly.
 
-## Example 8.3
+## Example 8.4
 
 To illustrate the effect of complete separation on the estimates, we
 generate $N = 500$ observations with half of them successes and the
@@ -240,7 +245,7 @@ effectiveSize(betas.sep)
 #> 8.375523 8.269881
 ```
 
-## Example 8.4
+## Example 8.5
 
 To illustrate quasi-seperation we use the same responses as in Example
 8.3., but now set $x = 1$ for all successes and additionally for 100
@@ -366,7 +371,7 @@ effectiveSize(betas.sep1)
 
 ### Section 8.1.2: Logit model
 
-### Example 8.5: Labor market data
+#### Example 8.6: Labor market data
 
 We now estimate a logistic regression model for the labor market data
 using the two-block Polya-Gamma sampler.
@@ -475,7 +480,7 @@ knitr::kable(round(res_beta * pi / sqrt(3), 3))
 
 ### Section 8.2.1: Poisson regression models
 
-### Example 8.6: Road safety data
+#### Example 8.7: Road safety data
 
 We fit two different Poisson regression models:
 
@@ -695,7 +700,7 @@ print(res2$accept)
 
 ### Section 8.2.2: Negative binomial regression
 
-### Example 8.7: Road safety data
+### Example 8.8: Road safety data
 
 Now we analyse the road safety data allowing for unobserved
 heterogeneity. We first set up both the two versions of the three-block
@@ -883,7 +888,7 @@ abline(a = 0, b = 1)
 
 ### Section 8.3.1: Regression analysis with heteroskedastic errors
 
-### Example 8.12: Star cluster data
+#### Example 8.12: Star cluster data
 
 The bivariate data set of the star cluster CYG OB1 is available in
 package *robustbase* and we load it from this package and visualize it
@@ -949,7 +954,7 @@ lines(xnew, preds_subset[, "upr"], lty = 2)
 
 ![](Chapter08_files/figure-html/unnamed-chunk-41-1.png)
 
-### Example 8.11: Star cluster data - heteroskedastic regression analysis with known outliers
+### Example 8.13: Star cluster data - heteroskedastic regression analysis with known outliers
 
 We define the binary indicator indicating outlying observations, i.e.,
 in this case observations corresponding to giant stars.

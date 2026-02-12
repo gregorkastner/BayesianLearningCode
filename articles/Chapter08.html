@@ -98,6 +98,10 @@ was employed in 1997.</p>
 <span>                             age18 <span class="op">=</span> <span class="fl">1998</span> <span class="op">-</span> <span class="va">birthyear</span> <span class="op">-</span> <span class="fl">18</span>,</span>
 <span>                             wcollar <span class="op">=</span> <span class="va">wcollar_1997</span>,</span>
 <span>                             unemp97 <span class="op">=</span> <span class="va">income_1997</span> <span class="op">==</span> <span class="st">"zero"</span><span class="op">)</span><span class="op">)</span> <span class="co"># regressor matrix</span></span></code></pre></div>
+</div>
+<div class="section level4">
+<h4 id="example-8-2-">Example 8.2.<a class="anchor" aria-label="anchor" href="#example-8-2-"></a>
+</h4>
 <p>The regression coefficients are estimated using data augmentation and
 Gibbs sampling. We define a function yielding posterior draws using the
 algorithm detailed in Chapter 8.1.1.</p>
@@ -227,7 +231,12 @@ is some autocorrelation, it vanishes after a few lags.</p>
 <p><img src="Chapter08_files/figure-html/unnamed-chunk-10-1.png" class="r-plt" alt="" width="768"></p>
 <p>The sampler is easy to implement, however there might be problems
 when the response variable contains either only few or very many
-successes. To illustrate this issue, we use data where in
+successes.</p>
+</div>
+<div class="section level4">
+<h4 id="example-8-3">Example 8.3<a class="anchor" aria-label="anchor" href="#example-8-3"></a>
+</h4>
+<p>To illustrate this issue, we use data where in
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>=</mo><mn>500</mn></mrow><annotation encoding="application/x-tex">N = 500</annotation></semantics></math>
 trials only 1 success or only 1 failure is observed.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
@@ -270,7 +279,7 @@ predicted perfectly.</p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="example-8-3">Example 8.3<a class="anchor" aria-label="anchor" href="#example-8-3"></a>
+<h2 id="example-8-4">Example 8.4<a class="anchor" aria-label="anchor" href="#example-8-4"></a>
 </h2>
 <p>To illustrate the effect of complete separation on the estimates, we
 generate
@@ -315,7 +324,7 @@ the autocorrelations remain high even for lag 35.</p>
 <span><span class="co">#&gt; 8.375523 8.269881</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="example-8-4">Example 8.4<a class="anchor" aria-label="anchor" href="#example-8-4"></a>
+<h2 id="example-8-5">Example 8.5<a class="anchor" aria-label="anchor" href="#example-8-5"></a>
 </h2>
 <p>To illustrate quasi-seperation we use the same responses as in
 Example 8.3., but now set
@@ -445,10 +454,9 @@ sample sizes are roughly 700.</p>
 <div class="section level3">
 <h3 id="section-8-1-2-logit-model">Section 8.1.2: Logit model<a class="anchor" aria-label="anchor" href="#section-8-1-2-logit-model"></a>
 </h3>
-</div>
-<div class="section level3">
-<h3 id="example-8-5-labor-market-data">Example 8.5: Labor market data<a class="anchor" aria-label="anchor" href="#example-8-5-labor-market-data"></a>
-</h3>
+<div class="section level4">
+<h4 id="example-8-6-labor-market-data">Example 8.6: Labor market data<a class="anchor" aria-label="anchor" href="#example-8-6-labor-market-data"></a>
+</h4>
 <p>We now estimate a logistic regression model for the labor market data
 using the two-block Polya-Gamma sampler.</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
@@ -608,16 +616,16 @@ and see that there is not much difference.</p>
 </table>
 </div>
 </div>
+</div>
 <div class="section level2">
 <h2 id="section-8-2-count-response-variables">Section 8.2: Count response variables<a class="anchor" aria-label="anchor" href="#section-8-2-count-response-variables"></a>
 </h2>
 <div class="section level3">
 <h3 id="section-8-2-1-poisson-regression-models">Section 8.2.1: Poisson regression models<a class="anchor" aria-label="anchor" href="#section-8-2-1-poisson-regression-models"></a>
 </h3>
-</div>
-<div class="section level3">
-<h3 id="example-8-6-road-safety-data">Example 8.6: Road safety data<a class="anchor" aria-label="anchor" href="#example-8-6-road-safety-data"></a>
-</h3>
+<div class="section level4">
+<h4 id="example-8-7-road-safety-data">Example 8.7: Road safety data<a class="anchor" aria-label="anchor" href="#example-8-7-road-safety-data"></a>
+</h4>
 <p>We fit two different Poisson regression models:</p>
 <ol style="list-style-type: decimal">
 <li><p>a small model with intercept, intervention effect and holiday
@@ -928,12 +936,13 @@ distribution</p>
 <code class="sourceCode R"><span><span class="co"># xtable(res.poisson1, caption= "Count Data: estimation results for Model 1", label="res.count1", digits=3)</span></span>
 <span><span class="co"># xtable(res.poisson2, caption= "Count Data: estimation results for Model 2", label="res.count2", digits=3)</span></span></code></pre></div>
 </div>
+</div>
 <div class="section level3">
 <h3 id="section-8-2-2-negative-binomial-regression">Section 8.2.2: Negative binomial regression<a class="anchor" aria-label="anchor" href="#section-8-2-2-negative-binomial-regression"></a>
 </h3>
 </div>
 <div class="section level3">
-<h3 id="example-8-7-road-safety-data">Example 8.7: Road safety data<a class="anchor" aria-label="anchor" href="#example-8-7-road-safety-data"></a>
+<h3 id="example-8-8-road-safety-data">Example 8.8: Road safety data<a class="anchor" aria-label="anchor" href="#example-8-8-road-safety-data"></a>
 </h3>
 <p>Now we analyse the road safety data allowing for unobserved
 heterogeneity. We first set up both the two versions of the three-block
@@ -1168,10 +1177,9 @@ similar.</p>
 <div class="section level3">
 <h3 id="section-8-3-1-regression-analysis-with-heteroskedastic-errors">Section 8.3.1: Regression analysis with heteroskedastic errors<a class="anchor" aria-label="anchor" href="#section-8-3-1-regression-analysis-with-heteroskedastic-errors"></a>
 </h3>
-</div>
-<div class="section level3">
-<h3 id="example-8-12-star-cluster-data">Example 8.12: Star cluster data<a class="anchor" aria-label="anchor" href="#example-8-12-star-cluster-data"></a>
-</h3>
+<div class="section level4">
+<h4 id="example-8-12-star-cluster-data">Example 8.12: Star cluster data<a class="anchor" aria-label="anchor" href="#example-8-12-star-cluster-data"></a>
+</h4>
 <p>The bivariate data set of the star cluster CYG OB1 is available in
 package <em>robustbase</em> and we load it from this package and
 visualize it in a scatter plot:</p>
@@ -1219,6 +1227,7 @@ estimation.</p>
 regions in the following figure for the model fit using all data (left)
 and only the subset without the giant stars (right).</p>
 </div>
+</div>
 <div class="section level3">
 <h3 id="figure-8-9-star-cluster-data">Figure 8.9: Star cluster data<a class="anchor" aria-label="anchor" href="#figure-8-9-star-cluster-data"></a>
 </h3>
@@ -1236,8 +1245,8 @@ and only the subset without the giant stars (right).</p>
 <p><img src="Chapter08_files/figure-html/unnamed-chunk-41-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 <div class="section level3">
-<h3 id="example-8-11-star-cluster-data---heteroskedastic-regression-analysis-with-known-outliers">Example 8.11: Star cluster data - heteroskedastic regression
-analysis with known outliers<a class="anchor" aria-label="anchor" href="#example-8-11-star-cluster-data---heteroskedastic-regression-analysis-with-known-outliers"></a>
+<h3 id="example-8-13-star-cluster-data---heteroskedastic-regression-analysis-with-known-outliers">Example 8.13: Star cluster data - heteroskedastic regression
+analysis with known outliers<a class="anchor" aria-label="anchor" href="#example-8-13-star-cluster-data---heteroskedastic-regression-analysis-with-known-outliers"></a>
 </h3>
 <p>We define the binary indicator indicating outlying observations,
 i.e., in this case observations corresponding to giant stars.</p>
