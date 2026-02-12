@@ -4,7 +4,7 @@
 
 ### Section 8.1.1: Probit model
 
-### Example 8.1: Labor market data
+#### Example 8.1: Labor market data
 
 We illustrate probit regression analysis for the labor market data.
 
