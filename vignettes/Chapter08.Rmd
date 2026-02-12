@@ -179,14 +179,16 @@ if (pdfplots) {
 par(mfrow = c(2, 2), mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
 plot(betas1, type = "l", main = "", xlab = "", ylab = "")
 acf(betas1)
+
 effectiveSize(betas1)
 
 plot(betas2, type = "l", main = "", xlab = "", ylab = "")
 acf(betas2)
+
 effectiveSize(betas2)
 ```
 
-High autocorrelation in MCMC draws for probit models not only occur if successesor failures are very rare, but also when a covariate (or a linear combination of covariates) perfectly  allows to predict successes
+High autocorrelation in MCMC draws for probit models not only occur if successes or failures are very rare, but also when a covariate (or a linear combination of covariates) perfectly  allows to predict successes
 and/or failures.  Complete separation means that both successes and
 failures can be perfectly predicted by a covariate, whereas quasi-complete separation means that  either successes or failures can be predicted perfectly.
 
@@ -198,10 +200,10 @@ We add a binary predictor $x$ where for $x = 1$ we observe only successes and fo
 ```{r}
 N <- 500
 ns <- 250
-x <- rep(c(0,1), c(ns, N - ns))
+x.sep <- rep(c(0,1), c(ns, N - ns))
 y <- rep(c(0,1), c(ns, N - ns))
 
-table(x,y)
+table(x.sep,y)
 ```
 
 We estimate the  model parameters and plot the ACF of the draws. Again the autocorrelations remain high even for lag 35.
@@ -213,26 +215,27 @@ if (pdfplots) {
 par(mfrow = c(2, 2), mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
 
 set.seed(1234)
-X <- cbind(rep(1, N), x)
-betas.sep <- probit(y, X, b0 = 0, B0 = 10000)
+X.sep <- cbind(rep(1, N), x.sep)
+betas.sep <- probit(y, X.sep, b0 = 0, B0 = 10000)
 
 plot(betas.sep[, 1], type = "l", main = "", xlab = "", ylab = "")
 acf(betas.sep[, 1])
+
 plot(betas.sep[, 2], type = "l", main = "", xlab = "", ylab = "")
 acf(betas.sep[, 2])
 
 effectiveSize(betas.sep)
 ```
+
 # Example 8.4
 
-To illustrate quasi-seperation we use the responses as in Example 8.3., but now $x=1$ for all successes  and additionally for 100 failures. Hence  for $x=1$ always a success is observed, whereas for $x=0$ both successes and failures occur.
+To illustrate quasi-seperation we use the same responses as in Example 8.3., but now set $x=1$ for all successes  and additionally for 100 failures. Hence  for $x=0$ always a failure is observed, whereas for $x=1$ both successes and failures occur.
 
 ```{r}
-x <- rep(c(0,1), c(ns-100, N - ns+100))
-table(x, y)
+x.qus1 <- rep(c(0,1), c(ns-100, N - ns+100))
+table(x.qus1, y)
 ```
-Again we have very high autocorrelations for both the intercept as well as the effect of x.
-
+Again  autocorrelations are very high for both the intercept as well as the covariate effect.
 
 ```{r, echo = -c(1:2)}
 if (pdfplots) {
@@ -242,8 +245,8 @@ if (pdfplots) {
 par(mfrow = c(2, 2), mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
 
 set.seed(1234)
-X <- cbind(rep(1, N), x)
-betas.qus1 <- probit(y, X, b0 = 0, B0 = 10000)
+X.qus1 <- cbind(rep(1, N), x.qus1)
+betas.qus1 <- probit(y, X.qus1, b0 = 0, B0 = 10000)
 
 plot(betas.qus1[, 1], type = "l", main = "", xlab = "", ylab = "")
 acf(betas.qus1[, 1])
@@ -254,20 +257,20 @@ acf(betas.qus1[, 2])
 effectiveSize(betas.qus1)
 ```
 
-If we change the setting so that  x  takes values of $1$ not only for failures but also for some successes, the 
-autocorrelations are low for the intercept but still high for the covariate effect.
+If we change the setting so that  x  takes values of $0$ not only for failures but also for some successes, whereas $x=1$ for all successes, we observe low 
+autocorrelations for the intercept but still very high autocorrelations for the covariate effect.
 
 ```{r, echo = -c(1:2)}
 if (pdfplots) {
   pdf("8-1_5a.pdf", width = 8, height = 5)
 }
 
-x <- rep(c(0,1), c(ns+100, N - ns-100))
-table(x, y)
+x.qus2 <- rep(c(0,1), c(ns+100, N - ns-100))
+table(x.qus2, y)
 
 set.seed(1234)
-X <- cbind(rep(1, N), x)
-betas.qus2 <- probit(y, X, b0 = 0, B0 = 10000)
+X.qus2 <- cbind(rep(1, N), x.qus2)
+betas.qus2 <- probit(y, X.qus2, b0 = 0, B0 = 10000)
 
 par(mfrow = c(2, 2), mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
 plot(betas.qus2[, 1], type = "l", main = "", xlab = "", ylab = "")
@@ -294,17 +297,17 @@ if (pdfplots) {
   pdf("8-1_6.pdf", width = 8, height = 5)
 }
 set.seed(1234)
-betas.qus3 <- probit(y, X, b0 = 0, B0 = 4)
+betas.sep1 <- probit(y, X.sep, b0 = 0, B0 = 1)
 
 par(mfrow = c(2, 2), mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
 
-plot(betas.qus3[, 1], type = "l", main = "", xlab = "", ylab = "")
-acf(betas.qus3[, 1])
+plot(betas.sep1[, 1], type = "l", main = "", xlab = "", ylab = "")
+acf(betas.sep1[, 1])
 
-plot(betas.qus3[, 2], type = "l", main = "", xlab = "", ylab = "")
-acf(betas.qus3[, 2])
+plot(betas.sep1[, 2], type = "l", main = "", xlab = "", ylab = "")
+acf(betas.sep1[, 2])
 
-effectiveSize(betas.qus3)
+effectiveSize(betas.sep1)
 ```
 
 ## Section 8.1.2: Logit model
