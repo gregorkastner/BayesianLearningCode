@@ -25,7 +25,9 @@ par(mgp = c(1.6, .6, 0), mar = c(2.6, 2.6, 2.6, .4), lwd = 1)
 ```
 
 # Section 8.1: Binary response variables
+
 ## Section 8.1.1: Probit model
+
 ### Example 8.1: Labor market data
 
 We illustrate probit regression analysis for the labor market data.
@@ -50,6 +52,8 @@ X.unemp <- with(labor, cbind(intercept = rep(1, N.unemp),
                              wcollar = wcollar_1997,
                              unemp97 = income_1997 == "zero")) # regressor matrix
 ```
+
+### Example 8.2.
 
 The regression coefficients are estimated using data augmentation and
 Gibbs sampling. We define a function yielding posterior draws using
@@ -154,6 +158,8 @@ effectiveSize(betas)
 ```
 
 The sampler is easy to implement, however there  might be problems  when the response variable  contains either only few or very many successes.
+
+### Example 8.3
 To illustrate this issue, we use data where in $N = 500$ trials  only 1 success
 or only 1 failure is observed.
 
@@ -192,7 +198,7 @@ High autocorrelation in MCMC draws for probit models not only occur if successes
 and/or failures.  Complete separation means that both successes and
 failures can be perfectly predicted by a covariate, whereas quasi-complete separation means that  either successes or failures can be predicted perfectly.
 
-# Example  8.3
+# Example  8.4
 
 To illustrate the effect of  complete separation on the estimates, we generate $N = 500$ observations with half of them successes and the other half are failures.
 We add a binary predictor $x$ where for $x = 1$ we observe only successes and for $x = 0$ only failures.
@@ -227,7 +233,7 @@ acf(betas.sep[, 2])
 effectiveSize(betas.sep)
 ```
 
-# Example 8.4
+# Example 8.5
 
 To illustrate quasi-seperation we use the same responses as in Example 8.3., but now set $x=1$ for all successes  and additionally for 100 failures. Hence  for $x=0$ always a failure is observed, whereas for $x=1$ both successes and failures occur.
 
@@ -315,7 +321,8 @@ effectiveSize(betas.sep1)
 ```
 
 ## Section 8.1.2: Logit model
-## Example 8.5: Labor market data
+
+### Example 8.6: Labor market data
 
 We now estimate a logistic regression model for the labor market data
 using the two-block Polya-Gamma sampler.
@@ -398,8 +405,10 @@ knitr::kable(round(res_beta * pi / sqrt(3), 3))
 ```
 
 # Section 8.2: Count response variables
+
 ## Section 8.2.1: Poisson regression models
-## Example 8.6: Road safety data
+
+### Example 8.7: Road safety data
 
 We fit two different Poisson regression models:
 
@@ -574,7 +583,8 @@ print(res2$accept)
 ```
 
 ## Section 8.2.2: Negative binomial regression
-## Example 8.7: Road safety data
+
+## Example 8.8: Road safety data
 
 Now we analyse the road safety data allowing for unobserved heterogeneity.
 We first set up both the two versions of the  three-block MH-within-Gibbs sampler 
@@ -713,6 +723,7 @@ As expected estimation results using both samplers are rather similar.
 ```
 
 ## Section 8.2.3: Evaluating MCMC samplers
+
 ```{r}
 print(c(mean(res1$acc.beta), mean(res1$acc.alpha)))
 print(c(mean(res2$acc.beta), mean(res2$acc.alpha)))
@@ -735,8 +746,10 @@ abline(a = 0, b = 1)
 ```
 
 # Section 8.3: Beyond i.i.d. Gaussian error distributions
+
 ## Section 8.3.1: Regression analysis with heteroskedastic errors
-## Example 8.12: Star cluster data
+
+### Example 8.12: Star cluster data
 
 The bivariate data set of the star cluster CYG OB1 is available in
 package *robustbase* and we load it from this package and visualize it
@@ -801,7 +814,7 @@ lines(xnew, preds_subset[, "lwr"], lty = 2)
 lines(xnew, preds_subset[, "upr"], lty = 2)
 ```
 
-## Example 8.11: Star cluster data - heteroskedastic regression analysis with known outliers
+## Example 8.13: Star cluster data - heteroskedastic regression analysis with known outliers
 
 We define the binary indicator indicating outlying observations, i.e.,
 in this case observations corresponding to giant stars.
