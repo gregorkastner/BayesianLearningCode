@@ -509,45 +509,47 @@ To summarize the results nicely, we compute equal-tailed 95% credible
 intervals for the regression effects.
 
 ``` r
-res.mcmc <- function(x, lower = 0.025, upper = 0.975)
-  c(quantile(x, lower), mean(x), quantile(x, upper))
+res.mcmc <- function(x, lower = 0.025, upper = 0.975){
+  res<-c(quantile(x, lower), mean(x), quantile(x, upper))
+  names(res) <- c(paste0(lower * 100, "%"), "Posterior mean", 
+                  paste0(upper *   100, "%"))
+  res
+}
 
 beta.sc <- post.draws$betas
 res_beta.sc <- t(apply(beta.sc, 2, res.mcmc))
-colnames(res_beta.sc) <- c("2.5% quantile", "posterior mean", "97.5% quantile") 
 rownames(res_beta.sc) <- c("Intercept", covs)
 
 knitr::kable(round(res_beta.sc, 3))
 ```
 
-|           | 2.5% quantile | posterior mean | 97.5% quantile |
-|:----------|--------------:|---------------:|---------------:|
-| Intercept |        17.492 |         19.109 |         20.716 |
-| Comedy    |        -2.597 |          1.492 |          5.553 |
-| Thriller  |        -3.886 |          0.579 |          4.966 |
-| PG13      |        -8.535 |         -2.732 |          2.993 |
-| R         |        -3.643 |          2.217 |          8.039 |
-| Budget    |         0.041 |          0.128 |          0.214 |
-| Weeks     |         0.017 |          0.376 |          0.732 |
-| Screens   |         0.600 |          0.968 |          1.338 |
-| S-4-6     |        -4.851 |         -1.281 |          2.358 |
-| S-1-3     |        -1.245 |          2.464 |          6.129 |
-| Vol-4-6   |       -19.684 |        -16.726 |        -13.784 |
-| Vol-1-3   |        19.256 |         22.355 |         25.472 |
+|           |    2.5% | Posterior mean |   97.5% |
+|:----------|--------:|---------------:|--------:|
+| Intercept |  17.492 |         19.109 |  20.716 |
+| Comedy    |  -2.597 |          1.492 |   5.553 |
+| Thriller  |  -3.886 |          0.579 |   4.966 |
+| PG13      |  -8.535 |         -2.732 |   2.993 |
+| R         |  -3.643 |          2.217 |   8.039 |
+| Budget    |   0.041 |          0.128 |   0.214 |
+| Weeks     |   0.017 |          0.376 |   0.732 |
+| Screens   |   0.600 |          0.968 |   1.338 |
+| S-4-6     |  -4.851 |         -1.281 |   2.358 |
+| S-1-3     |  -1.245 |          2.464 |   6.129 |
+| Vol-4-6   | -19.684 |        -16.726 | -13.784 |
+| Vol-1-3   |  19.256 |         22.355 |  25.472 |
 
 We do the same for the error variances.
 
 ``` r
 sigma2.sc <- post.draws$sigma2s
 res_sigma2.sc <- res.mcmc(sigma2.sc)
-names(res_sigma2.sc) <- colnames(res_beta.sc)
 
 knitr::kable(t(round(res_sigma2.sc, 3)))
 ```
 
-| 2.5% quantile | posterior mean | 97.5% quantile |
-|--------------:|---------------:|---------------:|
-|        47.333 |         63.925 |         86.247 |
+|   2.5% | Posterior mean |  97.5% |
+|-------:|---------------:|-------:|
+| 47.333 |         63.925 | 86.247 |
 
 Obviously, taking into account more covariates the posterior mean of the
 error variance is considerably lower than in the model with only
@@ -565,13 +567,13 @@ cor(X[, "Vol-4-6"], X[, "Vol-1-3"])
 #> [1] 0.84403
 
 par(mfrow = c(1, 1))
-plot(X[, "Vol-4-6"], X[, "Vol-1-3"])
+plot(X[, "Vol-4-6"], X[, "Vol-1-3"],xlab="Vol-4-6", ylab="Vol-1-3")
 ```
 
 ![](Chapter06_files/figure-html/unnamed-chunk-28-1.png)
 
 ``` r
-round(sum(res_beta.sc[c("Vol-4-6", "Vol-1-3"), "posterior mean"]),
+round(sum(res_beta.sc[c("Vol-4-6", "Vol-1-3"), "Posterior mean"]), 
       digits = 3)
 #> [1] 5.629
 ```
@@ -680,25 +682,25 @@ together with their equal-tailed 95% credible intervals in a table.
 ``` r
 beta.hs <- post.draws.hs$betas
 res_beta.hs <- t(apply(beta.hs, 2, res.mcmc))
-colnames(res_beta.hs) <- c("2.5% quantile", "posterior mean", "97.5% quantile") 
 rownames(res_beta.hs) <- colnames(X)
+
 knitr::kable(round(res_beta.hs, 3))
 ```
 
-|           | 2.5% quantile | posterior mean | 97.5% quantile |
-|:----------|--------------:|---------------:|---------------:|
-| Intercept |        17.515 |         19.107 |         20.702 |
-| Comedy    |        -1.569 |          0.278 |          2.811 |
-| Thriller  |        -2.247 |          0.039 |          2.406 |
-| PG13      |        -6.208 |         -1.857 |          0.792 |
-| R         |        -1.355 |          0.998 |          5.004 |
-| Budget    |         0.035 |          0.126 |          0.213 |
-| Weeks     |        -0.002 |          0.334 |          0.679 |
-| Screens   |         0.587 |          0.956 |          1.322 |
-| S-4-6     |        -1.546 |          0.225 |          1.686 |
-| S-1-3     |        -0.535 |          0.763 |          2.725 |
-| Vol-4-6   |       -19.106 |        -16.148 |        -13.169 |
-| Vol-1-3   |        18.659 |         21.749 |         24.836 |
+|           |    2.5% | Posterior mean |   97.5% |
+|:----------|--------:|---------------:|--------:|
+| Intercept |  17.515 |         19.107 |  20.702 |
+| Comedy    |  -1.569 |          0.278 |   2.811 |
+| Thriller  |  -2.247 |          0.039 |   2.406 |
+| PG13      |  -6.208 |         -1.857 |   0.792 |
+| R         |  -1.355 |          0.998 |   5.004 |
+| Budget    |   0.035 |          0.126 |   0.213 |
+| Weeks     |  -0.002 |          0.334 |   0.679 |
+| Screens   |   0.587 |          0.956 |   1.322 |
+| S-4-6     |  -1.546 |          0.225 |   1.686 |
+| S-1-3     |  -0.535 |          0.763 |   2.725 |
+| Vol-4-6   | -19.106 |        -16.148 | -13.169 |
+| Vol-1-3   |  18.659 |         21.749 |  24.836 |
 
 Estimation results are very similar to those under the semi-conjugate
 prior for the effects of Budget, Weeks, Screens, Vol-4-6 and Vol-1-3.
@@ -717,9 +719,9 @@ names(res_sigma2.hs) <- colnames(res_beta.hs)
 knitr::kable(t(round(res_sigma2.hs, 3)))
 ```
 
-| 2.5% quantile | posterior mean | 97.5% quantile |
-|--------------:|---------------:|---------------:|
-|        47.429 |         63.694 |         85.307 |
+|   2.5% | Posterior mean |  97.5% |
+|-------:|---------------:|-------:|
+| 47.429 |         63.694 | 85.307 |
 
 We next have a look at the posterior distributions. The plots on the
 left hand side show the posterior distribution for the regression

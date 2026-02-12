@@ -35,7 +35,7 @@ algorithm detailed in Chapter 8.1.1.
 
 ``` r
 probit <- function(y, X, b0 = 0, B0 = 10000,
-                   burnin = 1000L, M = 5000L) {
+                   burnin = 1000L, M = 20000L) {
   N <- length(y)
   d <- ncol(X) # number regression effects 
 
@@ -45,6 +45,8 @@ probit <- function(y, X, b0 = 0, B0 = 10000,
 
   betas <- matrix(NA_real_, nrow = M, ncol = d)
   colnames(betas) <- colnames(X)
+  
+  z <- rep(NA_real_, N)
 
   # define quantities for the Gibbs sampler
   BN <- solve(B0.inv + crossprod(X))
@@ -52,8 +54,7 @@ probit <- function(y, X, b0 = 0, B0 = 10000,
   ind1 <- (y == 1) # indicators for ones
 
   # starting values
-  beta <- rep(0, d)
-  z <- rep(NA_real_, N)
+  beta <- c(qnorm(sum(y)/length(y)),rep(0, d-1))
 
   for (m in seq_len(burnin + M)) {
     # Draw z conditional on y and beta
@@ -89,28 +90,31 @@ To compute summary statistics from the posterior we use the following
 function.
 
 ``` r
-res.mcmc <- function(x, lower = 0.025, upper = 0.975) {
-  y <- c(quantile(x, lower), mean(x), quantile(x, upper))
-  names(y) <- c(paste0(lower * 100, "%"), "Mean", paste0(upper * 100, "%"))
-  y
-}    
+res.mcmc <- function(x, lower = 0.025, upper = 0.975){
+  res<-c(quantile(x, lower), mean(x), quantile(x, upper))
+  names(res) <- c(paste0(lower * 100, "%"), "Posterior mean", 
+                  paste0(upper *   100, "%"))
+  res
+}
 ```
 
 ``` r
-res_beta <- apply(betas, 2, res.mcmc)
+res_beta <-t(apply(betas, 2, res.mcmc))
 knitr::kable(round(res_beta, 3))
 ```
 
-|       | intercept | female | age18 | wcollar | unemp97 |
-|:------|----------:|-------:|------:|--------:|--------:|
-| 2.5%  |    -2.123 |  0.109 | 0.023 |  -0.292 |   2.412 |
-| Mean  |    -1.973 |  0.214 | 0.027 |  -0.183 |   2.523 |
-| 97.5% |    -1.831 |  0.325 | 0.032 |  -0.080 |   2.639 |
+|           |   2.5% | Posterior mean |  97.5% |
+|:----------|-------:|---------------:|-------:|
+| intercept | -2.123 |         -1.975 | -1.831 |
+| female    |  0.106 |          0.215 |  0.325 |
+| age18     |  0.023 |          0.027 |  0.032 |
+| wcollar   | -0.293 |         -0.183 | -0.074 |
+| unemp97   |  2.412 |          2.523 |  2.637 |
 
 ``` r
 
-(p_unemploy_base <- pnorm(res_beta[1, 2]))
-#> [1] 0.5432806
+(p_unemploy_base <- pnorm(res_beta[1,2]))
+#> [1] 0.0241192
 ```
 
 The estimated risk of unemployment for a baseline person is low and it
@@ -133,15 +137,22 @@ some autocorrelation, it vanishes after a few lags.
 for (j in seq_len(ncol(betas))) {
   acf(betas[, j], main = "", xlab = colnames(betas)[j], ylab = "")
 }
+library("coda")
+effectiveSize(betas)
+#> intercept    female     age18   wcollar   unemp97 
+#>  2861.744  3726.047  2758.979  3558.712  3615.351
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-10-1.png) The sampler is
-easy to implement, however there might be problems when the response
-variable contains either only few or very many successes. To illustrate
-this issue, we use data where in $N = 500$ trials only 1 success or only
-1 failure is observed.
+![](Chapter08_files/figure-html/unnamed-chunk-10-1.png)
+
+The sampler is easy to implement, however there might be problems when
+the response variable contains either only few or very many successes.
+To illustrate this issue, we use data where in $N = 500$ trials only 1
+success or only 1 failure is observed.
 
 ``` r
+set.seed(1234)
+
 N <- 500
 X <- matrix(1, nrow = N)
 
@@ -152,23 +163,37 @@ y2 <- c(rep(0, N-1), 1)
 betas2 <- probit(y2, X, b0 = 0, B0 = 10000) 
 ```
 
-In both cases the autocorrelation of the draws decreases very slowly.
+In both cases the autocorrelation of the draws decreases very slowly and
+remains high even higher lags.
 
 ``` r
 plot(betas1, type = "l", main = "", xlab = "", ylab = "")
 acf(betas1)
+
+effectiveSize(betas1)
+#>     var1 
+#> 165.9583
+
 plot(betas2, type = "l", main = "", xlab = "", ylab = "")
 acf(betas2)
 ```
 
 ![](Chapter08_files/figure-html/unnamed-chunk-12-1.png)
 
-High autocorrelated draws in probit models not only occur if successes
-or failures are very rare, but also when a covariate (or a linear
-combination of covariates) perfectly allows to predict successes and/or
-failures. Complete separation means that both successes and failures can
-be perfectly predicted by a covariate, whereas with quasi-complete
-separation only either successes or failures can be predicted perfectly.
+``` r
+
+effectiveSize(betas2)
+#>     var1 
+#> 150.8803
+```
+
+High autocorrelation in MCMC draws for probit models not only occur if
+successes or failures are very rare, but also when a covariate (or a
+linear combination of covariates) perfectly allows to predict successes
+and/or failures. Complete separation means that both successes and
+failures can be perfectly predicted by a covariate, whereas
+quasi-complete separation means that either successes or failures can be
+predicted perfectly.
 
 ## Example 8.3
 
@@ -180,106 +205,151 @@ we observe only successes and for $x = 0$ only failures.
 ``` r
 N <- 500
 ns <- 250
-x <- rep(c(0,1), c(ns, N - ns))
+x.sep <- rep(c(0,1), c(ns, N - ns))
 y <- rep(c(0,1), c(ns, N - ns))
 
-table(x,y)
-#>    y
-#> x     0   1
-#>   0 250   0
-#>   1   0 250
+table(x.sep,y)
+#>      y
+#> x.sep   0   1
+#>     0 250   0
+#>     1   0 250
 ```
 
 We estimate the model parameters and plot the ACF of the draws. Again
 the autocorrelations remain high even for lag 35.
 
 ``` r
-X <- cbind(rep(1, N), x)
-betas <- probit(y, X, b0 = 0, B0 = 10000)
 
-plot(betas[, 1], type = "l", main = "", xlab = "", ylab = "")
-acf(betas[, 1])
-plot(betas[, 2], type = "l", main = "", xlab = "", ylab = "")
-acf(betas[, 2])
+set.seed(1234)
+X.sep <- cbind(rep(1, N), x.sep)
+betas.sep <- probit(y, X.sep, b0 = 0, B0 = 10000)
+
+plot(betas.sep[, 1], type = "l", main = "", xlab = "", ylab = "")
+acf(betas.sep[, 1])
+
+plot(betas.sep[, 2], type = "l", main = "", xlab = "", ylab = "")
+acf(betas.sep[, 2])
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-14-1.png) \# Example 8.4
-
-To illustrate quasi-seperation we use the responses as in Example 8.3.,
-but now $x = 0$ for all successes and additionally for 100 failures.
+![](Chapter08_files/figure-html/unnamed-chunk-14-1.png)
 
 ``` r
-x <- rep(c(0,1), c(ns-100, N - ns+100))
-table(x, y)
-#>    y
-#> x     0   1
-#>   0 150   0
-#>   1 100 250
+
+effectiveSize(betas.sep)
+#>             x.sep 
+#> 8.375523 8.269881
 ```
 
-Again we have very high autocorrelations for both the intercept as well
-as the effect of x.
+## Example 8.4
+
+To illustrate quasi-seperation we use the same responses as in Example
+8.3., but now set $x = 1$ for all successes and additionally for 100
+failures. Hence for $x = 0$ always a failure is observed, whereas for
+$x = 1$ both successes and failures occur.
+
+``` r
+x.qus1 <- rep(c(0,1), c(ns-100, N - ns+100))
+table(x.qus1, y)
+#>       y
+#> x.qus1   0   1
+#>      0 150   0
+#>      1 100 250
+```
+
+Again autocorrelations are very high for both the intercept as well as
+the covariate effect.
 
 ``` r
 par(mfrow = c(2, 2), mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
-X <- cbind(rep(1, N), x)
-betas <- probit(y, X, b0 = 0, B0 = 10000)
 
-plot(betas[, 1], type = "l", main = "", xlab = "", ylab = "")
-acf(betas[, 1])
-plot(betas[, 2], type = "l", main = "", xlab = "", ylab = "")
-acf(betas[, 2])
+set.seed(1234)
+X.qus1 <- cbind(rep(1, N), x.qus1)
+betas.qus1 <- probit(y, X.qus1, b0 = 0, B0 = 10000)
+
+plot(betas.qus1[, 1], type = "l", main = "", xlab = "", ylab = "")
+acf(betas.qus1[, 1])
+
+plot(betas.qus1[, 2], type = "l", main = "", xlab = "", ylab = "")
+acf(betas.qus1[, 2])
 ```
 
 ![](Chapter08_files/figure-html/unnamed-chunk-16-1.png)
 
+``` r
+
+effectiveSize(betas.qus1)
+#>            x.qus1 
+#> 8.529486 8.683472
+```
+
 If we change the setting so that x takes values of $0$ not only for
-failures but also for some successes, the autocorrelations are low for
-the intercept but still high for the covariate effect.
+failures but also for some successes, whereas $x = 1$ for all successes,
+we observe low autocorrelations for the intercept but still very high
+autocorrelations for the covariate effect.
 
 ``` r
-table(x, y)
-#>    y
-#> x     0   1
-#>   0 250 100
-#>   1   0 150
+x.qus2 <- rep(c(0,1), c(ns+100, N - ns-100))
+table(x.qus2, y)
+#>       y
+#> x.qus2   0   1
+#>      0 250 100
+#>      1   0 150
+
+set.seed(1234)
+X.qus2 <- cbind(rep(1, N), x.qus2)
+betas.qus2 <- probit(y, X.qus2, b0 = 0, B0 = 10000)
 
 par(mfrow = c(2, 2), mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
-X <- cbind(rep(1, N), x)
-betas <- probit(y, X, b0 = 0, B0 = 10000)
+plot(betas.qus2[, 1], type = "l", main = "", xlab = "", ylab = "")
+acf(betas.qus2[, 1])
 
-plot(betas[, 1], type = "l", main = "", xlab = "", ylab = "")
-acf(betas[, 1])
-plot(betas[, 2], type = "l", main = "", xlab = "", ylab = "")
-acf(betas[, 2])
+plot(betas.qus2[, 2], type = "l", main = "", xlab = "", ylab = "")
+acf(betas.qus2[, 2])
 ```
 
 ![](Chapter08_files/figure-html/unnamed-chunk-17-1.png)
 
+``` r
+
+effectiveSize(betas.qus2)
+#>                  x.qus2 
+#> 7748.599768    6.283738
+```
+
 High autocorrelations typically indicate problems with the sampler. If
 there is complete or quasi-complete separation in the data, the
-likelihood is monotone and the maximum likelihood estiamte does not
+likelihood is monotone and the maximum likelihood estimate does not
 exist. In a Bayesian approach using a flat, improper prior on the
 regression effects will result in an improper posterior distribution.
 Hence, a proper prior is required to avoid improper posteriors in case
 of separation.
 
-In the examples above we used a proper prior which is rather flat. With
-a more informative prior, the autocorrelations of the draws are lower.
-This can be seen in the next figure, where the simulated data under
+In the examples above we used a very flat but proper prior With a more
+informative prior, the autocorrelations of the draws are lower. This can
+be seen in the next figure, where the simulated data under
 quasi-separation are re-analyzed with a Normal prior that is tighter
 around zero.
 
 ``` r
-betas <- probit(y, X, b0 = 0, B0 = 2.5^2)
+betas.sep1 <- probit(y, X.sep, b0 = 0, B0 = 1)
 
-plot(betas[, 1], type = "l", main = "", xlab = "", ylab = "")
-acf(betas[, 1])
-plot(betas[, 2], type = "l", main = "", xlab = "", ylab = "")
-acf(betas[, 2])
+par(mfrow = c(2, 2), mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
+
+plot(betas.sep1[, 1], type = "l", main = "", xlab = "", ylab = "")
+acf(betas.sep1[, 1])
+
+plot(betas.sep1[, 2], type = "l", main = "", xlab = "", ylab = "")
+acf(betas.sep1[, 2])
 ```
 
 ![](Chapter08_files/figure-html/unnamed-chunk-18-1.png)
+
+``` r
+
+effectiveSize(betas.sep1)
+#>             x.sep 
+#> 707.9111 604.7943
+```
 
 ### Section 8.1.2: Logit model
 
@@ -344,7 +414,7 @@ effects and estimate the model.
 ``` r
 betas_logit <- logit(y.unemp, X.unemp, b0 = 0, B0 = 10000)
 print(str(betas_logit))
-#>  num [1:5000, 1:5] -3.64 -3.66 -3.88 -3.83 -3.88 ...
+#>  num [1:5000, 1:5] -3.58 -3.53 -3.49 -3.71 -3.77 ...
 #>  - attr(*, "dimnames")=List of 2
 #>   ..$ : NULL
 #>   ..$ : chr [1:5] "intercept" "female" "age18" "wcollar" ...
@@ -354,16 +424,16 @@ res_beta_logit <- apply(betas_logit, 2, res.mcmc)
 knitr::kable(round(res_beta_logit, 3))
 ```
 
-|       | intercept | female | age18 | wcollar | unemp97 |
-|:------|----------:|-------:|------:|--------:|--------:|
-| 2.5%  |    -4.144 |  0.160 | 0.045 |  -0.589 |   4.128 |
-| Mean  |    -3.729 |  0.415 | 0.058 |  -0.327 |   4.406 |
-| 97.5% |    -3.331 |  0.683 | 0.070 |  -0.058 |   4.698 |
+|                | intercept | female | age18 | wcollar | unemp97 |
+|:---------------|----------:|-------:|------:|--------:|--------:|
+| 2.5%           |    -4.063 |  0.146 | 0.045 |  -0.608 |   4.089 |
+| Posterior mean |    -3.678 |  0.411 | 0.056 |  -0.338 |   4.380 |
+| 97.5%          |    -3.304 |  0.694 | 0.067 |  -0.048 |   4.666 |
 
 ``` r
 
 (p_unemploy_base <- plogis(res_beta_logit[1, 2]))
-#> [1] 0.53996
+#> [1] 0.5364618
 ```
 
 Note that the logistic distribution has a variance of $\pi^{2}/3$ and
@@ -380,11 +450,13 @@ $\pi/\sqrt{3}$ and see that there is not much difference.
 knitr::kable(round(res_beta * pi / sqrt(3), 3))
 ```
 
-|       | intercept | female | age18 | wcollar | unemp97 |
-|:------|----------:|-------:|------:|--------:|--------:|
-| 2.5%  |    -3.851 |  0.197 | 0.042 |  -0.529 |   4.376 |
-| Mean  |    -3.578 |  0.388 | 0.050 |  -0.331 |   4.575 |
-| 97.5% |    -3.321 |  0.589 | 0.058 |  -0.145 |   4.787 |
+|           |   2.5% | Posterior mean |  97.5% |
+|:----------|-------:|---------------:|-------:|
+| intercept | -3.850 |         -3.583 | -3.321 |
+| female    |  0.191 |          0.389 |  0.589 |
+| age18     |  0.042 |          0.050 |  0.058 |
+| wcollar   | -0.531 |         -0.331 | -0.134 |
+| unemp97   |  4.375 |          4.577 |  4.783 |
 
 ## Section 8.2: Count response variables
 
@@ -539,15 +611,15 @@ res.poisson1 <- t(rbind(apply(res1$beta.post, 2, res.mcmc),
 knitr::kable(round(res.poisson1, 3))
 ```
 
-|              |   2.5% |   Mean |  97.5% | exp(Mean) |
-|:-------------|-------:|-------:|-------:|----------:|
-| intercept    |  0.722 |  0.866 |  1.002 |     2.378 |
-| intervention | -0.569 | -0.353 | -0.140 |     0.702 |
-| holiday      | -1.085 | -0.771 | -0.431 |     0.463 |
+|              |   2.5% | Posterior mean |  97.5% | exp(Mean) |
+|:-------------|-------:|---------------:|-------:|----------:|
+| intercept    |  0.697 |          0.868 |  1.011 |     2.383 |
+| intervention | -0.542 |         -0.353 | -0.140 |     0.702 |
+| holiday      | -1.222 |         -0.824 | -0.439 |     0.439 |
 
 ``` r
 print(res1$accept)
-#> [1] 0.3568
+#> [1] 0.3174
 ```
 
 We then fit an alternative model with intercept, intervention effect,
@@ -580,27 +652,27 @@ res.poisson2 <- t(rbind(apply(res2$beta.post, 2, res.mcmc),
 knitr::kable(round(res.poisson2, 3))
 ```
 
-|              |    2.5% |   Mean |  97.5% | exp(Mean) |
-|:-------------|--------:|-------:|-------:|----------:|
-| intercept    |  -1.635 |  0.607 |  2.806 |     1.834 |
-| intervention |  -0.834 | -0.354 |  0.094 |     0.702 |
-| holiday      | -12.589 |  0.598 | 13.533 |     1.818 |
-| lin.trend    |  -0.003 |  0.000 |  0.003 |     1.000 |
-| Jan          |  -1.802 |  0.396 |  2.517 |     1.485 |
-| Feb          |  -2.251 | -0.251 |  1.860 |     0.778 |
-| Mar          |  -1.888 |  0.222 |  2.542 |     1.248 |
-| Apr          |  -1.716 |  0.434 |  2.504 |     1.544 |
-| May          |  -2.271 | -0.163 |  1.974 |     0.850 |
-| Jun          |  -1.588 |  0.519 |  2.593 |     1.681 |
-| Jul          | -11.792 | -1.078 |  9.733 |     0.340 |
-| Aug          | -11.918 | -1.142 |  9.816 |     0.319 |
-| Sep          |  -2.188 |  0.093 |  2.351 |     1.097 |
-| Oct          |  -1.574 |  0.529 |  2.740 |     1.698 |
-| Nov          |  -2.267 |  0.158 |  2.475 |     1.171 |
+|              |   2.5% | Posterior mean | 97.5% | exp(Mean) |
+|:-------------|-------:|---------------:|------:|----------:|
+| intercept    | -0.770 |          0.933 | 2.260 |     2.541 |
+| intervention | -0.608 |         -0.375 | 0.087 |     0.688 |
+| holiday      | -8.970 |         -1.470 | 9.301 |     0.230 |
+| lin.trend    | -0.004 |          0.000 | 0.003 |     1.000 |
+| Jan          | -1.213 |          0.043 | 1.858 |     1.043 |
+| Feb          | -1.776 |         -0.550 | 1.347 |     0.577 |
+| Mar          | -1.450 |         -0.158 | 1.674 |     0.854 |
+| Apr          | -1.244 |          0.051 | 1.933 |     1.052 |
+| May          | -1.868 |         -0.492 | 1.326 |     0.611 |
+| Jun          | -0.956 |          0.204 | 1.975 |     1.226 |
+| Jul          | -8.130 |          0.491 | 6.648 |     1.635 |
+| Aug          | -8.226 |          0.525 | 7.077 |     1.690 |
+| Sep          | -1.492 |         -0.227 | 1.496 |     0.797 |
+| Oct          | -1.095 |          0.267 | 2.034 |     1.306 |
+| Nov          | -1.500 |         -0.144 | 1.645 |     0.866 |
 
 ``` r
 print(res2$accept)
-#> [1] 0.1812
+#> [1] 0.1132
 ```
 
 ``` r
@@ -730,17 +802,18 @@ pri.alpha <- data.frame(shape = 2, rate = 0.5)
 res1 <- negbin(y, X, e, qmean = parms.proposal$mean, qvar = parms.proposal$var,
                pri.alpha = pri.alpha, full.gibbs = TRUE)
 
-res.negbin.full <- cbind(apply(res1$beta.post, 2, res.mcmc), 
+res.negbin.full <- rbind(t(apply(res1$beta.post, 2, res.mcmc)), 
                          res.mcmc(res1$alpha.post))
-colnames(res.negbin.full)[4] <- "alpha"
+rownames(res.negbin.full)[4] <- "alpha"
 knitr::kable(round(res.negbin.full, 3))
 ```
 
-|       | intercept | intervention | holiday |  alpha |
-|:------|----------:|-------------:|--------:|-------:|
-| 2.5%  |     0.729 |       -0.585 |  -1.190 |  6.568 |
-| Mean  |     0.868 |       -0.354 |  -0.787 | 12.250 |
-| 97.5% |     1.005 |       -0.142 |  -0.421 | 20.988 |
+|              |   2.5% | Posterior mean |  97.5% |
+|:-------------|-------:|---------------:|-------:|
+| intercept    |  0.719 |          0.869 |  1.013 |
+| intervention | -0.572 |         -0.352 | -0.149 |
+| holiday      | -1.194 |         -0.794 | -0.431 |
+| alpha        |  6.565 |         12.455 | 21.430 |
 
 ``` r
 
@@ -748,17 +821,17 @@ knitr::kable(round(res.negbin.full, 3))
 res2 <- negbin(y, X, e, qmean = parms.proposal$mean, qvar = parms.proposal$var,
                pri.alpha = pri.alpha, full.gibbs = FALSE)
 
-res.negbin.partial <- cbind(apply(res2$beta.post, 2, res.mcmc), 
-                         res.mcmc(res2$alpha.post))
-colnames(res.negbin.partial)[4] <- "alpha"
+res.negbin.partial <- rbind(t(apply(res2$beta.post, 2, res.mcmc)),                          res.mcmc(res2$alpha.post))
+rownames(res.negbin.partial)[4] <- "alpha"
 knitr::kable(round(res.negbin.partial, 3))
 ```
 
-|       | intercept | intervention | holiday |  alpha |
-|:------|----------:|-------------:|--------:|-------:|
-| 2.5%  |     0.725 |       -0.564 |  -1.153 |  6.688 |
-| Mean  |     0.866 |       -0.349 |  -0.778 | 12.340 |
-| 97.5% |     1.007 |       -0.142 |  -0.418 | 21.049 |
+|              |   2.5% | Posterior mean |  97.5% |
+|:-------------|-------:|---------------:|-------:|
+| intercept    |  0.723 |          0.865 |  1.000 |
+| intervention | -0.558 |         -0.350 | -0.140 |
+| holiday      | -1.112 |         -0.777 | -0.426 |
+| alpha        |  6.513 |         12.534 | 22.046 |
 
 As expected estimation results using both samplers are rather similar.
 
@@ -771,9 +844,9 @@ As expected estimation results using both samplers are rather similar.
 
 ``` r
 print(c(mean(res1$acc.beta), mean(res1$acc.alpha)))
-#> [1] 0.35904 0.70648
+#> [1] 0.35490 0.70254
 print(c(mean(res2$acc.beta), mean(res2$acc.alpha)))
-#> [1] 0.36708 0.89830
+#> [1] 0.36328 0.89462
 ```
 
 ``` r

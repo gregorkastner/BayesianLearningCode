@@ -599,21 +599,24 @@ As there is only one film with MPAA rating “G”, we merge the two ratings
 <p>To summarize the results nicely, we compute equal-tailed 95% credible
 intervals for the regression effects.</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">res.mcmc</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">lower</span> <span class="op">=</span> <span class="fl">0.025</span>, <span class="va">upper</span> <span class="op">=</span> <span class="fl">0.975</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">lower</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">upper</span><span class="op">)</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">res.mcmc</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">lower</span> <span class="op">=</span> <span class="fl">0.025</span>, <span class="va">upper</span> <span class="op">=</span> <span class="fl">0.975</span><span class="op">)</span><span class="op">{</span></span>
+<span>  <span class="va">res</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">lower</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">upper</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">lower</span> <span class="op">*</span> <span class="fl">100</span>, <span class="st">"%"</span><span class="op">)</span>, <span class="st">"Posterior mean"</span>, </span>
+<span>                  <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">upper</span> <span class="op">*</span>   <span class="fl">100</span>, <span class="st">"%"</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">res</span></span>
+<span><span class="op">}</span></span>
 <span></span>
 <span><span class="va">beta.sc</span> <span class="op">&lt;-</span> <span class="va">post.draws</span><span class="op">$</span><span class="va">betas</span></span>
 <span><span class="va">res_beta.sc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">beta.sc</span>, <span class="fl">2</span>, <span class="va">res.mcmc</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">res_beta.sc</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"2.5% quantile"</span>, <span class="st">"posterior mean"</span>, <span class="st">"97.5% quantile"</span><span class="op">)</span> </span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">res_beta.sc</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Intercept"</span>, <span class="va">covs</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">res_beta.sc</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
 <th align="left"></th>
-<th align="right">2.5% quantile</th>
-<th align="right">posterior mean</th>
-<th align="right">97.5% quantile</th>
+<th align="right">2.5%</th>
+<th align="right">Posterior mean</th>
+<th align="right">97.5%</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
@@ -694,14 +697,13 @@ intervals for the regression effects.</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sigma2.sc</span> <span class="op">&lt;-</span> <span class="va">post.draws</span><span class="op">$</span><span class="va">sigma2s</span></span>
 <span><span class="va">res_sigma2.sc</span> <span class="op">&lt;-</span> <span class="fu">res.mcmc</span><span class="op">(</span><span class="va">sigma2.sc</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">res_sigma2.sc</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">res_beta.sc</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">res_sigma2.sc</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
-<th align="right">2.5% quantile</th>
-<th align="right">posterior mean</th>
-<th align="right">97.5% quantile</th>
+<th align="right">2.5%</th>
+<th align="right">Posterior mean</th>
+<th align="right">97.5%</th>
 </tr></thead>
 <tbody><tr class="odd">
 <td align="right">47.333</td>
@@ -724,10 +726,10 @@ weeks 1-3.</p>
 <span><span class="co">#&gt; [1] 0.84403</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">X</span><span class="op">[</span>, <span class="st">"Vol-4-6"</span><span class="op">]</span>, <span class="va">X</span><span class="op">[</span>, <span class="st">"Vol-1-3"</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">X</span><span class="op">[</span>, <span class="st">"Vol-4-6"</span><span class="op">]</span>, <span class="va">X</span><span class="op">[</span>, <span class="st">"Vol-1-3"</span><span class="op">]</span>,xlab<span class="op">=</span><span class="st">"Vol-4-6"</span>, ylab<span class="op">=</span><span class="st">"Vol-1-3"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="Chapter06_files/figure-html/unnamed-chunk-28-1.png" class="r-plt" alt="" width="768"></p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">res_beta.sc</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Vol-4-6"</span>, <span class="st">"Vol-1-3"</span><span class="op">)</span>, <span class="st">"posterior mean"</span><span class="op">]</span><span class="op">)</span>,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">res_beta.sc</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Vol-4-6"</span>, <span class="st">"Vol-1-3"</span><span class="op">)</span>, <span class="st">"Posterior mean"</span><span class="op">]</span><span class="op">)</span>, </span>
 <span>      digits <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 5.629</span></span></code></pre></div>
 </div>
@@ -829,15 +831,15 @@ together with their equal-tailed 95% credible intervals in a table.</p>
 <div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">beta.hs</span> <span class="op">&lt;-</span> <span class="va">post.draws.hs</span><span class="op">$</span><span class="va">betas</span></span>
 <span><span class="va">res_beta.hs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">beta.hs</span>, <span class="fl">2</span>, <span class="va">res.mcmc</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">res_beta.hs</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"2.5% quantile"</span>, <span class="st">"posterior mean"</span>, <span class="st">"97.5% quantile"</span><span class="op">)</span> </span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">res_beta.hs</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span></span>
+<span></span>
 <span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">res_beta.hs</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
 <th align="left"></th>
-<th align="right">2.5% quantile</th>
-<th align="right">posterior mean</th>
-<th align="right">97.5% quantile</th>
+<th align="right">2.5%</th>
+<th align="right">Posterior mean</th>
+<th align="right">97.5%</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
@@ -929,9 +931,9 @@ similar to those under the semi-conjugate prior.</p>
 <span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">res_sigma2.hs</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
-<th align="right">2.5% quantile</th>
-<th align="right">posterior mean</th>
-<th align="right">97.5% quantile</th>
+<th align="right">2.5%</th>
+<th align="right">Posterior mean</th>
+<th align="right">97.5%</th>
 </tr></thead>
 <tbody><tr class="odd">
 <td align="right">47.429</td>
