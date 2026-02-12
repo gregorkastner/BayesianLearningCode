@@ -295,11 +295,8 @@ betas.sep1 <- probit(y, X.sep, b0 = 0, B0 = 1)
 res_betas.sep1 <-t(apply(betas.sep1, 2, res.mcmc))
 knitr::kable(round(res_betas.sep1, 3))
 ```
-In this  case the autocorrelations are much lower and the effective sample sizes are roughly 700.
 
-This can be seen in the next figure, where the simulated
-data under quasi-separation are re-analyzed with a Normal prior that
-is tighter around zero.
+In this  case the autocorrelations are much lower and the effective sample sizes are roughly 700.
 
 ```{r, echo = -c(1:2)}
 if (pdfplots) {
