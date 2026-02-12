@@ -569,8 +569,8 @@ volume scores are 1 unit higher in weeks 4-6 as well as weeks 1-3.
 cor(X[, "Vol-4-6"], X[, "Vol-1-3"])
 
 par(mfrow = c(1, 1))
-plot(X[, "Vol-4-6"], X[, "Vol-1-3"])
-round(sum(res_beta.sc[c("Vol-4-6", "Vol-1-3"), "Posterior mean"]),
+plot(X[, "Vol-4-6"], X[, "Vol-1-3"],xlab="Vol-4-6", ylab="Vol-1-3")
+round(sum(res_beta.sc[c("Vol-4-6", "Vol-1-3"), "Posterior mean"]), 
       digits = 3)
 ```
 
