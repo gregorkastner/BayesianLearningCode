@@ -324,15 +324,28 @@ regression effects will result in an improper posterior distribution.
 Hence, a proper prior is required to avoid improper posteriors in case
 of separation.
 
-In the examples above we used a very flat but proper prior With a more
-informative prior, the autocorrelations of the draws are lower. This can
-be seen in the next figure, where the simulated data under
-quasi-separation are re-analyzed with a Normal prior that is tighter
-around zero.
+We now analyse the data under the more informative prior,
+\$\Normal(\mathbf{0}, \mathbf{I}}\$. With this prior we assume that both
+$P(y = 1)$ and $P(y = 0)$ have a prior probability of $\approx 0.95$ to
+be in the interval $\lbrack 0.023,0.977\rbrack$.
 
 ``` r
+set.seed(1234)
 betas.sep1 <- probit(y, X.sep, b0 = 0, B0 = 1)
 
+res_betas.sep1 <-t(apply(betas.sep1, 2, res.mcmc))
+knitr::kable(round(res_betas.sep1, 3))
+```
+
+|       |   2.5% | Posterior mean |  97.5% |
+|:------|-------:|---------------:|-------:|
+|       | -2.853 |         -2.352 | -1.921 |
+| x.sep |  4.211 |          4.883 |  5.622 |
+
+In this case the autocorrelations are much lower and the effective
+sample sizes are roughly 700.
+
+``` r
 par(mfrow = c(2, 2), mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
 
 plot(betas.sep1[, 1], type = "l", main = "", xlab = "", ylab = "")
@@ -342,7 +355,7 @@ plot(betas.sep1[, 2], type = "l", main = "", xlab = "", ylab = "")
 acf(betas.sep1[, 2])
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-18-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-19-1.png)
 
 ``` r
 
@@ -864,7 +877,7 @@ qqplot(res1$alpha.post, res2$alpha.post, xlab = "Full Gibbs",
 abline(a = 0, b = 1)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-36-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-37-1.png)
 
 ## Section 8.3: Beyond i.i.d. Gaussian error distributions
 
@@ -882,7 +895,7 @@ plot(starsCYG, pch = 19, xlim = c(3, 5), ylim = c(3, 7),
      xlab = "log temperature", ylab = "log light intensity")
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-37-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-38-1.png)
 
 The four giant stars which can also be identified in the scatter plot
 have the following indices in the data set:
@@ -934,7 +947,7 @@ lines(xnew, preds_subset[, "lwr"], lty = 2)
 lines(xnew, preds_subset[, "upr"], lty = 2)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-40-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-41-1.png)
 
 ### Example 8.11: Star cluster data - heteroskedastic regression analysis with known outliers
 
@@ -1027,7 +1040,7 @@ lines(xnew, apply(pred_hetero, 1, quantile, 0.025), lty = 2)
 lines(xnew, apply(pred_hetero, 1, quantile, 0.975), lty = 2)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-45-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-46-1.png)
 
 ### Example 8.14: Star cluster data - regression analysis with Gaussian two-component mixture errors
 
@@ -1107,7 +1120,7 @@ lines(xnew, apply(preds_mix_1, 1, quantile, 0.025), lty = 2)
 lines(xnew, apply(preds_mix_1, 1, quantile, 0.975), lty = 2)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-50-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-51-1.png)
 
 We now assume that the indices of the giant stars are not known. We only
 assume that a two-component mixture is used as weight distribution where
@@ -1186,7 +1199,7 @@ lines(xnew, apply(preds_mix_2, 1, quantile, 0.025), lty = 2)
 lines(xnew, apply(preds_mix_2, 1, quantile, 0.975), lty = 2)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-53-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-54-1.png)
 
 Finally, we visualize again the mean and the 95%-HPD region together
 with the data points for the three modeling approaches: (1) a
@@ -1212,7 +1225,7 @@ lines(xnew, apply(preds_mix_2, 1, quantile, 0.025), lty = 2)
 lines(xnew, apply(preds_mix_2, 1, quantile, 0.975), lty = 2)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-54-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-55-1.png)
 
 The plot indicates that all three modeling approaches result in a fit
 that is robust to the outlying observations.
