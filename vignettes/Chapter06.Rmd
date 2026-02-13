@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
   fig.height = 6
 )
 knitr::opts_knit$set(global.par = TRUE)
-pdfplots <-FALSE #default: FALSE; set this to TRUE only if you like pdf figures
+pdfplots <- TRUE #default: FALSE; set this to TRUE only if you like pdf figures
 ```
 
 ```{r, include = FALSE}
@@ -25,6 +25,7 @@ par(mgp = c(1.6, .6, 0), mar = c(2.6, 2.6, 2.6, .4), lwd = 1)
 ```
 
 # Section 6.1 The Standard Linear Regression Model
+
 ### Example 6.1: Movie data
 
 We use the movie data provided within the package to illustrate the
@@ -467,8 +468,9 @@ reg_semiconj <- function(y, X, b0 = 0, B0 = 10000, c0 = 2.5, C0 = 1.5,
 ```
 ### Example 6.5: Movie data - Traceplots of the Gibbs sampler
 
-We run the sampler  two times for 1000 draws. To show convergence to the posterior distribution we   start with a very large and with a very small value for the
-innovation variance. 
+We run the sampler  two times for 1000 draws and to show convergence to the
+posterior distribution we start from  extreme values for the
+innovation variance, once from a very large and once from a very small value. 
 
 ```{r}
 set.seed(421)
@@ -813,12 +815,14 @@ par(mfrow = c(1, 2))
 qqplot(post.draws.hs$betas[, 1], post.draws.hs2$betas[, 1], 
        xlim = range(post.draws.hs$betas[, 1], post.draws.hs2$betas[, 1]),
        ylim = range(post.draws.hs$betas[, 1], post.draws.hs2$betas[, 1]),
-       main = "QQ plot for the intercept", xlab = "", ylab = "" )
+       main = "QQ plot for the intercept", xlab = "Empirical quantiles from the first run", 
+       ylab = "Empirical quantiles from the second run" )
 abline(a = 0, b = 1)
 qqplot(post.draws.hs$sigma2s, post.draws.hs2$sigma2s,
        xlim = range(post.draws.hs$sigma2s, post.draws.hs2$sigma2s),
        ylim = range(post.draws.hs$sigma2s, post.draws.hs2$sigma2s),
-       main = "QQ plot for the error variance", xlab = "", ylab = "")
+       main = "QQ plot for the error variance", xlab = "Empirical quantiles from the first run",
+       ylab = "Empirical quantiles from the second run")
 abline(a = 0, b = 1)
 ```
 
