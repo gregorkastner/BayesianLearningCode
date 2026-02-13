@@ -17,11 +17,11 @@ knitr::opts_chunk$set(
   fig.height = 6
 )
 knitr::opts_knit$set(global.par = TRUE)
-pdfplots <- TRUE #default: FALSE; set this to TRUE only if you like pdf figures
+pdfplots <- FALSE #default: FALSE; set this to TRUE only if you like pdf figures
 ```
 
 ```{r, include = FALSE}
-par(mgp = c(1.6, .6, 0), mar = c(2.6, 2.6, 2.6, .4), lwd = 1)
+par(mgp = c(1.8, .5, 0), mar = c(2.6, 2.6, 2.6, .4), lwd = 1)
 ```
 
 # Section 6.1 The Standard Linear Regression Model
@@ -488,7 +488,7 @@ if (pdfplots) {
   pdf("6-4_2a.pdf", width = 6, height = 6)
   par(mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.6, .6, 0))
 }
-par(mfrow = c(2, 2))
+par(mfrow = c(2, 2),mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.6, .6, 0))
 for (i in seq_len(ncol(post.draws1$betas))) {
    plot(post.draws1$betas[, i], type = "l", xlab = "Draws", ylab = "",
         main = colnames(post.draws1$betas)[i])
@@ -670,7 +670,7 @@ reg_hs <- function(y, X,  b0 = 0, B0 = 10000, c0 = 2.5, C0 = 1.5,
 }    
 ```
 
-### Example 6.7: Movie data- Analysis under Horseshoe prior 
+### Example 6.7: Movie data - Analysis under the Horseshoe prior 
 
 We estimate the parameters in the regression model with the same prior
 on intercept and error variance as in the semi-conjugate prior, but a
@@ -804,25 +804,23 @@ intercept and the error variance, the draws are very close to the
 identity line and hence we can conclude that the sampler has
 converged.
 
-```{r, echo = -1}
+```{r, echo = -1,fig.width = 8, fig.height = 4}
 if (pdfplots) {
-  pdf("6-4_6.pdf", width = 8, height = 4)
-  par(mar = c(1.5, 1.5, 1.5, .1), mgp = c(1, .5, 0))
+  pdf("6-4_6.pdf",width = 8, height = 4)
+  par(mar = c(2.0, 2.0, 2.0, .1), mgp = c(1, .2, 0))
 }
 post.draws.hs2 <- reg_hs(y, X, M = M)
 
-par(mfrow = c(1, 2))
+par(mfrow = c(1, 2),mar = c(2.0, 2.0, 2.0, .1), mgp = c(1, .2, 0))
 qqplot(post.draws.hs$betas[, 1], post.draws.hs2$betas[, 1], 
        xlim = range(post.draws.hs$betas[, 1], post.draws.hs2$betas[, 1]),
        ylim = range(post.draws.hs$betas[, 1], post.draws.hs2$betas[, 1]),
-       main = "QQ plot for the intercept", xlab = "Empirical quantiles from the first run", 
-       ylab = "Empirical quantiles from the second run" )
+       main = "QQ plot for the intercept", xlab = "First run", ylab = "Second run" )
 abline(a = 0, b = 1)
 qqplot(post.draws.hs$sigma2s, post.draws.hs2$sigma2s,
        xlim = range(post.draws.hs$sigma2s, post.draws.hs2$sigma2s),
        ylim = range(post.draws.hs$sigma2s, post.draws.hs2$sigma2s),
-       main = "QQ plot for the error variance", xlab = "Empirical quantiles from the first run",
-       ylab = "Empirical quantiles from the second run")
+       main = "QQ plot for the error variance",xlab = "First run", ylab = "Second run" )
 abline(a = 0, b = 1)
 ```
 
