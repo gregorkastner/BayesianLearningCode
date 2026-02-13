@@ -133,6 +133,8 @@ mar.x2 <- dt((xx2 - beta.hat[3]) / post.sd[3], df = 2 * reg.improp$cN,
 plot(mar.x2, xx2,  type = "l", yaxt = "n", xlab = "")
 ```
 
+![](Chapter06_files/figure-html/unnamed-chunk-7-1.png)
+
 For completeness we finally report also the posterior mean of the error
 variance and its equal-tailed 95% credible interval.
 
@@ -182,6 +184,8 @@ legend("bottomright",
        lty = 1:3, lwd = c(2, 1, 1))
 ```
 
+![](Chapter06_files/figure-html/unnamed-chunk-10-1.png)
+
 ``` r
 y.pred <- X %*% beta.hat
 plot(y, y.pred, xlim = c(-20, 160), ylim = c(-20, 160), 
@@ -190,10 +194,10 @@ abline(a = 0, b = 1)
 abline(h = 0, lty = 2)
 ```
 
-The prediction interval is symmetric around the posterior mean, but
-obviously the model is not adequate, as the lower limit of the 80%
-prediction interval is negative for a budget below approximately Mio.\$
-55.
+![](Chapter06_files/figure-html/unnamed-chunk-11-1.png) The prediction
+interval is symmetric around the posterior mean, but obviously the model
+is not adequate, as the lower limit of the 80% prediction interval is
+negative for a budget below approximately Mio.\$ 55.
 
 We can take into account that box office sales are always positive by
 fitting a linear regression model on the log transformed sales.
@@ -233,6 +237,8 @@ legend("bottomright",
        col = "blue", lty = 1:3, lwd = c(2, 1, 1))
 ```
 
+![](Chapter06_files/figure-html/unnamed-chunk-13-1.png)
+
 We see that the bounds of the prediction intervals are positive, but –
 due to the exponential transformation – the prediction intervals are no
 longer symmetric around the point predictions.
@@ -251,9 +257,10 @@ legend("bottomright",
        col = c("black", "blue"), lty = 1)
 ```
 
-We see that the predicted values from the regression model on the
-logarithm of the box office sales are slightly better, but the observed
-box office sales of Mio.\$ 152 are still predicted much too low.
+![](Chapter06_files/figure-html/unnamed-chunk-14-1.png) We see that the
+predicted values from the regression model on the logarithm of the box
+office sales are slightly better, but the observed box office sales of
+Mio.\$ 152 are still predicted much too low.
 
 ### Section 6.2.2 Bayesian Learning under Conjugate Priors
 
@@ -365,9 +372,10 @@ for (i in seq_len(nrow(beta.hat))) {
 }
 ```
 
-There is little difference to the improper prior for the effects of
-*Budget* and *Screens*, however the intercept is shrunk to zero for
-$\lambda^{2} = 1$ and even more for $\lambda^{2} = 0.1$.
+![](Chapter06_files/figure-html/unnamed-chunk-18-1.png) There is little
+difference to the improper prior for the effects of *Budget* and
+*Screens*, however the intercept is shrunk to zero for $\lambda^{2} = 1$
+and even more for $\lambda^{2} = 0.1$.
 
 To illustrate the effect of the prior we compute the the weight matrix
 $\textbf{𝐖}$ for the conjugate prior with mean $\textbf{𝟎}$ and
@@ -466,8 +474,9 @@ plot(post.draws1$sigma2s, type = "l", xlab = "Draws", ylab = "",
 lines(post.draws2$sigma2s, col="red")
 ```
 
-Even though the starting value for the error variance is far from the
-posterior distribution the burn-in phase of the sampler is very short.
+![](Chapter06_files/figure-html/unnamed-chunk-22-1.png) Even though the
+starting value for the error variance is far from the posterior
+distribution the burn-in phase of the sampler is very short.
 
 #### Example 6.6: Movie data: Analysis under the semi-conjugate prior
 
@@ -596,6 +605,8 @@ legend("topright", legend = c("Horseshoe", "Standard normal"),
        lty = 1:2, col = c("blue", "black"))
 ```
 
+![](Chapter06_files/figure-html/unnamed-chunk-29-1.png)
+
 We set up the Gibbs sampler of the regression model with a proper normal
 prior on the intercept and horseshoe priors on the covariate effects.
 
@@ -660,7 +671,7 @@ reg_hs <- function(y, X,  b0 = 0, B0 = 10000, c0 = 2.5, C0 = 1.5,
 }    
 ```
 
-#### Example 6.7: Movie data- Analysis under Horseshoe prior
+#### Example 6.7: Movie data - Analysis under the Horseshoe prior
 
 We estimate the parameters in the regression model with the same prior
 on intercept and error variance as in the semi-conjugate prior, but a
@@ -755,6 +766,8 @@ for (i in selection) {
 }
 ```
 
+![](Chapter06_files/figure-html/unnamed-chunk-35-1.png)
+
 Next, we investigate the trace plots of the draws from the posterior. As
 above, the plots on the left are obtained under the semi-conjugate
 prior, those on the right under the horseshoe prior.
@@ -805,6 +818,8 @@ for (i in seq_len(ncol(beta.hs))) {
 }
 ```
 
+![](Chapter06_files/figure-html/unnamed-chunk-38-1.png)
+
 #### Example 6.8: Movie data- Check convergence by a second MCMC run
 
 We verify convergence of the sampler by doing a second run of the six
@@ -815,20 +830,20 @@ identity line and hence we can conclude that the sampler has converged.
 ``` r
 post.draws.hs2 <- reg_hs(y, X, M = M)
 
-par(mfrow = c(1, 2))
+par(mfrow = c(1, 2),mar = c(2.0, 2.0, 2.0, .1), mgp = c(1, .2, 0))
 qqplot(post.draws.hs$betas[, 1], post.draws.hs2$betas[, 1], 
        xlim = range(post.draws.hs$betas[, 1], post.draws.hs2$betas[, 1]),
        ylim = range(post.draws.hs$betas[, 1], post.draws.hs2$betas[, 1]),
-       main = "QQ plot for the intercept", xlab = "Empirical quantiles from the first run", 
-       ylab = "Empirical quantiles from the second run" )
+       main = "QQ plot for the intercept", xlab = "First run", ylab = "Second run" )
 abline(a = 0, b = 1)
 qqplot(post.draws.hs$sigma2s, post.draws.hs2$sigma2s,
        xlim = range(post.draws.hs$sigma2s, post.draws.hs2$sigma2s),
        ylim = range(post.draws.hs$sigma2s, post.draws.hs2$sigma2s),
-       main = "QQ plot for the error variance", xlab = "Empirical quantiles from the first run",
-       ylab = "Empirical quantiles from the second run")
+       main = "QQ plot for the error variance",xlab = "First run", ylab = "Second run" )
 abline(a = 0, b = 1)
 ```
+
+![](Chapter06_files/figure-html/unnamed-chunk-39-1.png)
 
 #### Example 6.9: Movie data - Predictions
 
@@ -881,6 +896,8 @@ points(x = (1:nf)+0.2, y = pred.mean.hs, pch = 16, col = "red")
 
 axis(1, at = 1:nf, labels = c("A", "B", "C", "D"))
 ```
+
+![](Chapter06_files/figure-html/unnamed-chunk-41-1.png)
 
 ## Section 6.5: Shrinkage beyond the Horseshoe Prior
 
@@ -958,6 +975,8 @@ legend(x = "top",  inset = 0,
        lwd = 2, cex = 1, horiz = TRUE, xjust = 0.5)
 ```
 
+![](Chapter06_files/figure-html/unnamed-chunk-42-1.png)
+
 The shrinkage profiles of these priors are visualized in the following
 plot.
 
@@ -1003,6 +1022,8 @@ legend(x = 1.05, y = 3,
        lwd = 2, cex = 1, horiz = FALSE)
 ```
 
+![](Chapter06_files/figure-html/unnamed-chunk-43-1.png)
+
 #### Example 6.11: A hierarchical Bayesian lasso prior
 
 ``` r
@@ -1019,3 +1040,5 @@ for (a in c(0.1, 1, 10)) {
            drawlabels = FALSE)
 }
 ```
+
+![](Chapter06_files/figure-html/unnamed-chunk-44-1.png)
