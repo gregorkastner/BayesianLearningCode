@@ -447,29 +447,34 @@ reg_semiconj <- function(y, X, b0 = 0, B0 = 10000, c0 = 2.5, C0 = 1.5,
 
 #### Example 6.5: Movie data - Traceplots of the Gibbs sampler
 
-We run the sampler for 1000 draws starting with a very large value for
-the innovation variance.
+We run the sampler two times for 1000 draws. To show convergence to the
+posterior distribution we start with a very large and with a very small
+value for the innovation variance.
 
 ``` r
-set.seed(1)
+set.seed(421)
 M <- 1000L # number of draws after burn-in
-post.draws <- reg_semiconj(y, X, b0 = 0, B0 = 10000, c0 = 2.5, C0 = 1.5,
+post.draws1 <- reg_semiconj(y, X, b0 = 0, B0 = 10000, c0 = 2.5, C0 = 1.5,
                            burnin = 0L, M = M, start.sigma2 = 10^6)
+post.draws2 <- reg_semiconj(y, X, b0 = 0, B0 = 10000, c0 = 2.5, C0 = 1.5,
+                           burnin = 0L, M = M, start.sigma2 = 10^-6)
 ```
 
 From the trace plots we see that the sampler converges very quickly.
 
 ``` r
-for (i in seq_len(ncol(post.draws$betas))) {
-   plot(post.draws$betas[, i], type = "l", xlab = "m", ylab = "",
-        main = colnames(post.draws$betas)[i])
+for (i in seq_len(ncol(post.draws1$betas))) {
+   plot(post.draws1$betas[, i], type = "l", xlab = "Draws", ylab = "",
+        main = colnames(post.draws1$betas)[i])
+   lines(post.draws2$betas[, i], col="red")
 }
-plot(post.draws$sigma2s, type = "l", xlab = "m", ylab = "",
+plot(post.draws1$sigma2s, type = "l", xlab = "Draws", ylab = "",
      main = expression(paste("Error variance ", sigma^2)))
+lines(post.draws2$sigma2s, col="red")
 ```
 
 ![](Chapter06_files/figure-html/unnamed-chunk-22-1.png) Even though the
-starting value of the error variance was far from the posterior
+starting value for the error variance is far from the posterior
 distribution the burn-in phase of the sampler is very short.
 
 #### Example 6.6: Movie data: Analysis under the semi-conjugate prior
