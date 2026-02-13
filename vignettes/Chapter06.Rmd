@@ -471,7 +471,7 @@ We run the sampler  two times for 1000 draws. To show convergence to the posteri
 innovation variance. 
 
 ```{r}
-set.seed(1)
+set.seed(421)
 M <- 1000L # number of draws after burn-in
 post.draws1 <- reg_semiconj(y, X, b0 = 0, B0 = 10000, c0 = 2.5, C0 = 1.5,
                            burnin = 0L, M = M, start.sigma2 = 10^6)
@@ -487,16 +487,16 @@ if (pdfplots) {
   par(mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.6, .6, 0))
 }
 par(mfrow = c(2, 2))
-for (i in seq_len(ncol(post.draws$betas))) {
+for (i in seq_len(ncol(post.draws1$betas))) {
    plot(post.draws1$betas[, i], type = "l", xlab = "Draws", ylab = "",
-        main = colnames(post.draws$betas)[i])
-  lines(post.draws1$betas[, i], col="red")
+        main = colnames(post.draws1$betas)[i])
+   lines(post.draws2$betas[, i], col="red")
 }
 plot(post.draws1$sigma2s, type = "l", xlab = "Draws", ylab = "",
      main = expression(paste("Error variance ", sigma^2)))
-     lines(post.draws2$betas[, i], col="red")
+lines(post.draws2$sigma2s, col="red")
 ```
-Even though the starting value of the error variance was far from the posterior distribution the  burn-in phase of the sampler is very short.
+Even though the starting value for the error variance is far from the posterior distribution the  burn-in phase of the sampler is very short. 
 
 ### Example 6.6: Movie data: Analysis under the semi-conjugate prior
 
