@@ -33,7 +33,7 @@ X.unemp <- with(labor, cbind(intercept = rep(1, N.unemp),
 
 The regression coefficients are estimated using data augmentation and
 Gibbs sampling. We define a function yielding posterior draws using the
-algorithm detailed in Chapter 8.1.1.
+algorithm detailed in Section 8.1.1.
 
 ``` r
 probit <- function(y, X, b0 = 0, B0 = 10000,
@@ -56,7 +56,7 @@ probit <- function(y, X, b0 = 0, B0 = 10000,
   ind1 <- (y == 1) # indicators for ones
 
   # starting values
-  beta <- c(qnorm(sum(y)/length(y)),rep(0, d-1))
+  beta <- c(qnorm(mean(y)), rep(0, d-1))
 
   for (m in seq_len(burnin + M)) {
     # Draw z conditional on y and beta
@@ -80,7 +80,7 @@ probit <- function(y, X, b0 = 0, B0 = 10000,
 }
 ```
 
-We specify the prior on the regression effects as a rather flat Normal
+We specify the prior on the regression effects as a rather flat normal
 independence prior and estimate the model.
 
 ``` r
@@ -92,8 +92,8 @@ To compute summary statistics from the posterior we use the following
 function.
 
 ``` r
-res.mcmc <- function(x, lower = 0.025, upper = 0.975){
-  res<-c(quantile(x, lower), mean(x), quantile(x, upper))
+res.mcmc <- function(x, lower = 0.025, upper = 0.975) {
+  res <- c(quantile(x, lower), mean(x), quantile(x, upper))
   names(res) <- c(paste0(lower * 100, "%"), "Posterior mean", 
                   paste0(upper *   100, "%"))
   res
@@ -101,7 +101,7 @@ res.mcmc <- function(x, lower = 0.025, upper = 0.975){
 ```
 
 ``` r
-res_beta <-t(apply(betas, 2, res.mcmc))
+res_beta <- t(apply(betas, 2, res.mcmc))
 knitr::kable(round(res_beta, 3))
 ```
 
@@ -115,7 +115,7 @@ knitr::kable(round(res_beta, 3))
 
 ``` r
 
-(p_unemploy_base <- pnorm(res_beta[1,2]))
+(p_unemploy_base <- pnorm(res_beta[1, 2]))
 #> [1] 0.0241192
 ```
 
@@ -148,7 +148,8 @@ effectiveSize(betas)
 ![](Chapter08_files/figure-html/unnamed-chunk-10-1.png)
 
 The sampler is easy to implement, however there might be problems when
-the response variable contains either only few or very many successes.
+the response variable contains either only very few or very many
+successes.
 
 #### Example 8.3
 
@@ -169,7 +170,7 @@ betas2 <- probit(y2, X, b0 = 0, B0 = 10000)
 ```
 
 In both cases the autocorrelation of the draws decreases very slowly and
-remains high even higher lags.
+remains still high even for higher lags.
 
 ``` r
 plot(betas1, type = "l", main = "", xlab = "", ylab = "")
@@ -192,7 +193,7 @@ effectiveSize(betas2)
 #> 150.8803
 ```
 
-High autocorrelation in MCMC draws for probit models not only occur if
+High autocorrelation in MCMC draws for probit models not only occurs if
 successes or failures are very rare, but also when a covariate (or a
 linear combination of covariates) perfectly allows to predict successes
 and/or failures. Complete separation means that both successes and
@@ -200,20 +201,20 @@ failures can be perfectly predicted by a covariate, whereas
 quasi-complete separation means that either successes or failures can be
 predicted perfectly.
 
-## Example 8.4
+#### Example 8.4
 
 To illustrate the effect of complete separation on the estimates, we
-generate $N = 500$ observations with half of them successes and the
+generate $N = 500$ observations where half of them are successes and the
 other half are failures. We add a binary predictor $x$ where for $x = 1$
 we observe only successes and for $x = 0$ only failures.
 
 ``` r
 N <- 500
 ns <- 250
-x.sep <- rep(c(0,1), c(ns, N - ns))
-y <- rep(c(0,1), c(ns, N - ns))
+x.sep <- rep(c(0, 1), c(ns, N - ns))
+y <- rep(c(0, 1), c(ns, N - ns))
 
-table(x.sep,y)
+table(x.sep, y)
 #>      y
 #> x.sep   0   1
 #>     0 250   0
@@ -221,7 +222,8 @@ table(x.sep,y)
 ```
 
 We estimate the model parameters and plot the ACF of the draws. Again
-the autocorrelations remain high even for lag 35.
+the autocorrelations remain high for many lags and are still high even
+for lag 35.
 
 ``` r
 
@@ -245,15 +247,15 @@ effectiveSize(betas.sep)
 #> 8.375523 8.269881
 ```
 
-## Example 8.5
+#### Example 8.5
 
-To illustrate quasi-seperation we use the same responses as in Example
+To illustrate quasi-separation we use the same responses as in Example
 8.3., but now set $x = 1$ for all successes and additionally for 100
 failures. Hence for $x = 0$ always a failure is observed, whereas for
 $x = 1$ both successes and failures occur.
 
 ``` r
-x.qus1 <- rep(c(0,1), c(ns-100, N - ns+100))
+x.qus1 <- rep(c(0, 1), c(ns-100, N - ns+100))
 table(x.qus1, y)
 #>       y
 #> x.qus1   0   1
@@ -287,13 +289,13 @@ effectiveSize(betas.qus1)
 #> 8.529486 8.683472
 ```
 
-If we change the setting so that x takes values of $0$ not only for
+If we change the setting so that $x$ takes values of $0$ not only for
 failures but also for some successes, whereas $x = 1$ for all successes,
 we observe low autocorrelations for the intercept but still very high
 autocorrelations for the covariate effect.
 
 ``` r
-x.qus2 <- rep(c(0,1), c(ns+100, N - ns-100))
+x.qus2 <- rep(c(0, 1), c(ns+100, N - ns-100))
 table(x.qus2, y)
 #>       y
 #> x.qus2   0   1
@@ -329,7 +331,7 @@ regression effects will result in an improper posterior distribution.
 Hence, a proper prior is required to avoid improper posteriors in case
 of separation.
 
-We now analyse the data under the more informative prior,
+We now analyze the data under the more informative prior,
 \$\Normal(\mathbf{0}, \mathbf{I}}\$. With this prior we assume that both
 $P(y = 1)$ and $P(y = 0)$ have a prior probability of $\approx 0.95$ to
 be in the interval $\lbrack 0.023,0.977\rbrack$.
@@ -338,7 +340,7 @@ be in the interval $\lbrack 0.023,0.977\rbrack$.
 set.seed(1234)
 betas.sep1 <- probit(y, X.sep, b0 = 0, B0 = 1)
 
-res_betas.sep1 <-t(apply(betas.sep1, 2, res.mcmc))
+res_betas.sep1 <- t(apply(betas.sep1, 2, res.mcmc))
 knitr::kable(round(res_betas.sep1, 3))
 ```
 
@@ -426,7 +428,7 @@ logit <- function(y, X, b0 = 0, B0 = 10000,
 }
 ```
 
-We again use the flat independence Normal prior on the regression
+We again use the flat independence normal prior on the regression
 effects and estimate the model.
 
 ``` r
@@ -461,7 +463,7 @@ close, e.g., compare the probability to be unemployed for the baseline
 person.
 
 We can compare the posterior estimates of the coefficients in the probit
-model $\beta$ those of of logit model by multiplying them with
+model $\beta$ to those of the logit model by multiplying them with
 $\pi/\sqrt{3}$ and see that there is not much difference.
 
 ``` r
@@ -509,7 +511,7 @@ X <- cbind(intercept = rep(1, length(y)),
            holiday = rep(rep(c(0, 1, 0), c(6, 2, 4)), 16))
 ```
 
-To compute the parameters of the Normal proposal density, we use the
+To compute the parameters of the normal proposal density, we use the
 Newton-Raphson estimator described in Section 8.2.1.
 
 ``` r
@@ -546,7 +548,7 @@ gen.proposal.poisson <- function(y, X, e, b0 = 0, B0 = 100, t.max = 30) {
 }
 ```
 
-We use a flat Normal prior on the regression effects.
+We use a flat normal prior on the regression effects.
 
 ``` r
 parms.proposal <- gen.proposal.poisson(y, X, e, b0 = 0, B0 = 100)
@@ -593,7 +595,7 @@ poisson <- function(y, X, e, b0 = 0, B0 = 100, qmean, qvar,
     lpri_old  <- mvtnorm::dmvnorm(beta.old, mean = b0, sigma = B0,
                                   log = TRUE)
     
-    # compute loglikelihood of proposed and old value
+    # compute log-likelihood of proposed and old value
     lh_proposed <- dpois(y, e * exp(X %*% beta.proposed), log = TRUE)
     lh_old  <- dpois(y, e * exp(X %*% beta.old), log = TRUE)
     
@@ -641,7 +643,7 @@ print(res1$accept)
 ```
 
 We then fit an alternative model with intercept, intervention effect,
-linear trend and saisonal dummy variables.
+linear trend and seasonal dummy variables.
 
 ``` r
 seas <- rbind(diag(1, 11), rep(-1, 11)) 
@@ -700,9 +702,9 @@ print(res2$accept)
 
 ### Section 8.2.2: Negative binomial regression
 
-### Example 8.8: Road safety data
+#### Example 8.8: Road safety data
 
-Now we analyse the road safety data allowing for unobserved
+Now we analyze the road safety data allowing for unobserved
 heterogeneity. We first set up both the two versions of the three-block
 MH-within-Gibbs sampler
 
@@ -954,7 +956,7 @@ lines(xnew, preds_subset[, "upr"], lty = 2)
 
 ![](Chapter08_files/figure-html/unnamed-chunk-41-1.png)
 
-### Example 8.13: Star cluster data - heteroskedastic regression analysis with known outliers
+#### Example 8.13: Star cluster data - heteroskedastic regression analysis with known outliers
 
 We define the binary indicator indicating outlying observations, i.e.,
 in this case observations corresponding to giant stars.
@@ -1047,7 +1049,7 @@ lines(xnew, apply(pred_hetero, 1, quantile, 0.975), lty = 2)
 
 ![](Chapter08_files/figure-html/unnamed-chunk-46-1.png)
 
-### Example 8.14: Star cluster data - regression analysis with Gaussian two-component mixture errors
+#### Example 8.14: Star cluster data - regression analysis with Gaussian two-component mixture errors
 
 We now assume that the indices of the giant stars are not known. We only
 assume that a two-component mixture is used as weight distribution where
@@ -1130,7 +1132,7 @@ lines(xnew, apply(preds_mix_1, 1, quantile, 0.975), lty = 2)
 We now assume that the indices of the giant stars are not known. We only
 assume that a two-component mixture is used as weight distribution where
 the weights are given by $w_{i} = \phi^{S_{i} - 1}$ and the indicators
-$S_{i}$ are unkown. Now, we also assume that the proportion of giant
+$S_{i}$ are unknown. Now, we also assume that the proportion of giant
 stars is unknown.
 
 We need to specify a prior for $\eta$. The usual prior is a beta prior
@@ -1210,7 +1212,7 @@ Finally, we visualize again the mean and the 95%-HPD region together
 with the data points for the three modeling approaches: (1) a
 heteroskedastic regression analysis with known outliers, (2) a Gaussian
 two-component mixture with known component sizes and (3) a Gaussian
-two-component mixture where the component size is unkown.
+two-component mixture where the component size is unknown.
 
 ``` r
 plot(starsCYG, pch = 19, xlim = c(3, 5), ylim = c(3, 7),
