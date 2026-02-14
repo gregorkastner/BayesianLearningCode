@@ -90,9 +90,9 @@ C0 <- 0
 BN <- 1 / (N + N0)
 bN <- BN * (N * ybar + N0 * b0)
 cN <- c0 + N/2
-scale <- CN / cN * (BN + 1)
 CN <- C0 + .5 * sum((y - ybar)^2) + N0 * N / (2 * (N0 + N)) * (b0 - ybar)^2
 x <- seq(-3, 3, length.out = 200)
+scale <- sqrt(CN / cN * (BN + 1))
 plot(x, dstudt(x, location = bN, scale = scale, df = 2 * cN),
      type = "l", xlab = bquote(y[f]), ylab = "")
 plot(x, pstudt(x, location = bN, scale = scale, df = 2 * cN),
