@@ -109,3 +109,32 @@ determine the 95% predictive interval using the quantile function.
 round(c(location = bN, scale = scale, df = 2 * cN), digits = 3)
 round(qstudt(probs, location = bN, scale = scale, df = 2 * cN), digits = 3)
 ```
+
+## Example 9.3: Exchange Rate Data cont'd
+
+To compare with a method that ignores parameter uncertainty, we now plot
+the posterior predictive alongside the "classical" forecasting distribution
+for varying $N$.
+
+```{r, echo = -c(1:2)}
+if (pdfplots) {
+  pdf("9-1_3.pdf", width = 10, height = 8)
+  par(mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.6, .6, 0))
+}
+par(mfrow = c(2, 2))
+Ns <- c(5, 10, 30, N)
+
+for (i in seq_along(Ns)) {
+  N <- Ns[i]
+  yshort <- y[1:N]
+  ybar <- mean(yshort)
+  BN <- 1 / (N + N0)
+  bN <- BN * (N * ybar + N0 * b0)
+  cN <- c0 + N/2
+  CN <- C0 + .5 * sum((yshort - ybar)^2) + N0 * N / (2 * (N0 + N)) * (b0 - ybar)^2
+  scale <- sqrt(CN / cN * (BN + 1))
+  plot(x, dnorm(x, ybar, sd(yshort)), lty = 2, type = "l",
+       xlab = bquote(y[f]), ylab = "", main = paste("N =", N))
+  lines(x, dstudt(x, location = bN, scale = scale, df = 2 * cN))
+}
+```
