@@ -109,7 +109,7 @@ for varying $N$.
 
 ```{r, echo = -c(1:2)}
 if (pdfplots) {
-  pdf("9-1_3.pdf", width = 10, height = 8)
+  pdf("9-1_3.pdf", width = 8, height = 5)
   par(mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.6, .6, 0))
 }
 par(mfrow = c(2, 2))
