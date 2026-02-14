@@ -203,3 +203,20 @@ sigma2draws_t <- sigma2[leftind] + distprop *
   (sigma2[rightind] - sigma2[leftind])
 ```
 
+Next, we simulate draws from the posterior predictive. 
+
+```{r}
+yf_normal <- rnorm(ndraws, 0, sqrt(sigma2draws_normal))
+yf_t <- rstudt(ndraws, 0, sqrt(sigma2draws_t), 7)
+```
+
+Now we can compute their empirical quantiles, and those of the data.
+
+```{r}
+quants <- c(0.01, 0.05, 0.25, 0.4, 0.5, 0.6, 0.75, 0.95, 0.99)
+q_normal <- quantile(yf_normal, quants)
+q_t <- quantile(yf_t, quants)
+q_y <- quantile(y, quants)
+
+knitr::kable(round(t(cbind(q_y, q_t, q_normal)), 3))
+```
