@@ -97,8 +97,8 @@ We inspect the parameters of the negative binomial distributation and
 determine the 95% predictive interval using the quantile function.
 
 ```{r}
-round(c(location = bN, scale = scale, df = 2 * cN), digits = 3)
 round(qstudt(probs, location = bN, scale = scale, df = 2 * cN), digits = 3)
+round(c(mu = bN, sigma2 = scale^2, df = 2 * cN), digits = 3)
 ```
 
 ## Example 9.3: Exchange Rate Data cont'd
