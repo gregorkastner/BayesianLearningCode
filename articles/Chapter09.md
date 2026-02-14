@@ -134,3 +134,86 @@ knitr::kable(t(round(coverage, 4)))
 |      5 |     10 |     30 |   3139 |
 |-------:|-------:|-------:|-------:|
 | 0.8519 | 0.9055 | 0.9363 | 0.9499 |
+
+### Example 9.8: Sampling-based prediction for the CHF/USD exchange rates
+
+We proceed exactly as in Chapter 4. For the Gaussian distribution, the
+posterior of $\sigma^{2}$ is inverse gamma, and we can easily generate
+iid draws.
+
+``` r
+set.seed(2)
+ndraws <- 10000
+sigma2draws_normal <- rinvgamma(ndraws, N / 2, sum(y^2) / 2)
+```
+
+For the Student-$t$ model, we can use inverse transform sampling. First,
+we draw uniformly from the interval spanned by 0 and the maximum of the
+non-normalized cumulative posterior. Then, for each draw, we find the
+interval of our pointwise cdf approximation of the posterior, and
+interpolate linearly between the interval boundaries.
+
+``` r
+# We need the nonnormalized cumulative posterior distribution
+post_nonnormalized_nonvec <- function(sigma2, y, nu, log = FALSE) {
+  logdens <- -length(y) / 2 * log(sigma2) -
+    (nu + 1) / 2 * sum(log(1 + y^2 / (nu * sigma2))) - log(sigma2)
+  if (log) logdens else exp(logdens)
+}
+post_nonnormalized <- Vectorize(post_nonnormalized_nonvec, "sigma2")
+
+# Now, we compute the pdf and cdf on a reasonably chosen grid
+nu <- 7
+sigma2 <- seq(0.25, 0.45, length.out = 3000)
+pdf_u <- post_nonnormalized(sigma2, y = y, nu = nu)
+pdf_u <- pdf_u / max(pdf_u)
+cdf_u <- cumsum(pdf_u) / sum(pdf_u)
+
+# Now we can perform inverse transpose sampling
+unifdraws <- runif(ndraws, 0, cdf_u[length(cdf_u)])
+leftind <- findInterval(unifdraws, cdf_u)
+rightind <- leftind + 1L
+distprop <- (unifdraws - cdf_u[leftind]) / (cdf_u[rightind] - cdf_u[leftind])
+sigma2draws_t <- sigma2[leftind] + distprop *
+  (sigma2[rightind] - sigma2[leftind])
+```
+
+Next, we simulate draws from the posterior predictive.
+
+``` r
+yf_normal <- rnorm(ndraws, 0, sqrt(sigma2draws_normal))
+yf_t <- rstudt(ndraws, 0, sqrt(sigma2draws_t), 7)
+```
+
+Now we can compute their empirical quantiles, and those of the data.
+
+``` r
+quants <- c(0.01, 0.05, 0.25, 0.4, 0.5, 0.6, 0.75, 0.95, 0.99)
+q_normal <- quantile(yf_normal, quants)
+q_t <- quantile(yf_t, quants)
+q_y <- quantile(y, quants)
+
+knitr::kable(round(t(cbind(q_y, q_t, q_normal)), 3))
+```
+
+|          |     1% |     5% |    25% |    40% |   50% |   60% |   75% |   95% |   99% |
+|:---------|-------:|-------:|-------:|-------:|------:|------:|------:|------:|------:|
+| q_y      | -1.687 | -1.078 | -0.416 | -0.137 | 0.005 | 0.159 | 0.435 | 1.158 | 1.864 |
+| q_t      | -1.721 | -1.119 | -0.421 | -0.149 | 0.004 | 0.164 | 0.432 | 1.125 | 1.741 |
+| q_normal | -1.676 | -1.185 | -0.487 | -0.177 | 0.008 | 0.185 | 0.507 | 1.211 | 1.704 |
+
+We conclude by visualizing the data and the predictive distributions.
+
+``` r
+grid <- seq(-ceiling(max(abs(y))), ceiling(max(abs(y))), length.out = 50)
+hist(y, freq = FALSE, breaks = grid, main = "Histogram and predictive densitites")
+lines(density(yf_normal, adjust = 2), col = 4, lty = 1, lwd = 2)
+lines(density(yf_t, adjust = 2), col = 2, lty = 2, lwd = 2)
+legend("topleft", c("Normal", "Student t"), lty = 1:2, col = c(4,2), lwd = 2)
+ts.plot(y, main = "Time series plot and some predictive intervals")
+abline(h = q_normal, col = 4, lty = 1, lwd = 2)
+abline(h = q_t, col = 2, lty = 2, lwd = 2)
+legend("topleft", c("Normal", "Student t"), lty = 1:2, col = c(4,2), lwd = 2)
+```
+
+![](Chapter09_files/figure-html/unnamed-chunk-14-1.png)
