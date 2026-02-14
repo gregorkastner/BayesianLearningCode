@@ -36,7 +36,7 @@ $$
 
 ```{r, echo = -c(1,2)}
 if (pdfplots) {
-  pdf("9-1_1.pdf", width = 12, height = 8)
+  pdf("9-1_1.pdf", width = 10, height = 4)
   par(mar = c(2.5, 1.5, .1, .1), mgp = c(1.6, .6, 0))
 }
 par(mfrow = c(1, 2))
@@ -47,11 +47,11 @@ bN <- length(y)
 mu <- aN / bN
 yf <- 0:20
 plot(yf, dnbinom(yf, size = aN, mu = mu),
-     type = "h", xlab = "", ylab = "")
+     type = "h", xlab = bquote(y[f]), ylab = "")
 plot(yf, pnbinom(yf, size = aN, mu = mu),
-     type = "h", xlab = "", ylab = "")
+     type = "h", xlab = bquote(y[f]), ylab = "")
 probs <- c(0.025, 0.975)
-abline(h = probs)
+abline(h = probs, lty = 3)
 mtext(probs, side = 2, at = probs, adj = c(0, 1), cex = .8, col = "dimgrey")
 ```
 
@@ -74,7 +74,7 @@ $$
 
 ```{r, echo = -1}
 if (pdfplots) {
-  pdf("9-1_2.pdf", width = 12, height = 8)
+  pdf("9-1_2.pdf", width = 10, height = 4)
   par(mar = c(2.5, 1.5, .1, .1), mgp = c(1.6, .6, 0))
 }
 par(mfrow = c(1, 2))
@@ -94,11 +94,11 @@ CN <- C0 + 1/2 * sum((y - ybar)^2) + N0 * N / (2 * (N0 + N)) * (b0 - ybar)^2
 x <- seq(-5, 5, length.out = 200)
 scale <- CN / cN * (BN + 1)
 plot(x, dstudt(x, location = bN, scale = scale, df = 2 * cN),
-     type = "l", xlab = "", ylab = "")
+     type = "l", xlab = bquote(y[f]), ylab = "")
 plot(x, pstudt(x, location = bN, scale = scale, df = 2 * cN),
-     type = "l", xlab = "", ylab = "")
+     type = "l", xlab = bquote(y[f]), ylab = "")
 probs <- c(0.025, 0.975)
-abline(h = probs)
+abline(h = probs, lty = 3)
 mtext(probs, side = 2, at = probs, adj = c(0, 1), cex = .8, col = "dimgrey")
 ```
 
