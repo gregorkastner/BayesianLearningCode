@@ -93,11 +93,9 @@ abline(h = probs, lty = 3)
 mtext(probs, side = 2, at = probs, adj = c(0, 1), cex = .8, col = "dimgrey")
 ```
 
-We inspect the parameters of the negative binomial distributation and
-determine the 95% predictive interval using the quantile function.
+We inspect the parameters of the Student-t distribution.
 
 ```{r}
-round(qstudt(probs, location = bN, scale = scale, df = 2 * cN), digits = 3)
 round(c(mu = bN, sigma2 = scale^2, df = 2 * cN), digits = 3)
 ```
 
@@ -138,3 +136,12 @@ cdf and compute the effective coverage.
 ```{r}
 pnbinom(9, size = aN, mu = mu) - pnbinom(0, size = aN, mu = mu)
 ```
+
+## Example 9.5: Exchange Rate Data cont'd
+
+We determine the 95% predictive interval using the quantile function.
+
+```{r}
+round(qstudt(probs, location = bN, scale = scale, df = 2 * cN), digits = 3)
+```
+
