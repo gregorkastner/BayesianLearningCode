@@ -145,3 +145,18 @@ We determine the 95% predictive interval using the quantile function.
 round(qstudt(probs, location = bN, scale = scale, df = 2 * cN), digits = 3)
 ```
 
+We now work out the effective coverage of the naive interval which ignores
+parameter uncertainty.
+
+```{r}
+coverage <- rep(NA_real_, length(Ns))
+names(coverage) <- Ns
+for (i in seq_along(Ns)) {
+  N <- Ns[i]
+  yshort <- y[1:N]
+  quants <- qnorm(probs, mean(yshort), sd(yshort))
+  coverage[i] <- diff(pstudt(quants, mean(yshort), sd(yshort) * sqrt(1 + 1/N),
+                             2 * (c0 + N/2)))
+}
+knitr::kable(t(round(coverage, 4)))
+```
