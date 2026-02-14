@@ -220,3 +220,22 @@ q_y <- quantile(y, quants)
 
 knitr::kable(round(t(cbind(q_y, q_t, q_normal)), 3))
 ```
+
+We conclude by visualizing the data and the predictive distributions.
+
+```{r, echo = -c(1:2)}
+if (pdfplots) {
+  pdf("9-1_4.pdf", width = 10, height = 4)
+  par(mar = c(2.7, 1.5, 1.5, .1), mgp = c(1.6, .6, 0))
+}
+par(mfrow = c(1, 2))
+grid <- seq(-ceiling(max(abs(y))), ceiling(max(abs(y))), length.out = 50)
+hist(y, freq = FALSE, breaks = grid, main = "Histogram and predictive densitites")
+lines(density(yf_normal, adjust = 2), col = 4, lty = 1, lwd = 2)
+lines(density(yf_t, adjust = 2), col = 2, lty = 2, lwd = 2)
+legend("topleft", c("Normal", "Student t"), lty = 1:2, col = c(4,2), lwd = 2)
+ts.plot(y, main = "Time series plot and some predictive intervals")
+abline(h = q_normal, col = 4, lty = 1, lwd = 2)
+abline(h = q_t, col = 2, lty = 2, lwd = 2)
+legend("topleft", c("Normal", "Student t"), lty = 1:2, col = c(4,2), lwd = 2)
+```
