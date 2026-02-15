@@ -279,8 +279,38 @@ mtext(probs, side = 2, at = probs, adj = c(0, 1), cex = .8, col = "dimgrey")
 
 ## Example 9.11
 
+We illustrate the variance of the purely sampling-based estimator versus
+the Rao-Blackwellized version by running several experiments.
+
 ```{r}
-theta <- 0.5
+set.seed(42)
+
+a0 <- 1
+b0 <- 1
+N <- 100
+SN <- 42
 H <- 10
-M <- 10000
+M <- 100
+nsim <- 1000
+
+# compute the posterior parameters:
+aN <- a0 + SN
+bN <- b0 + N - SN
+mu <- aN / bN
+
+pk1 <- pk2 <- matrix(NA_real_, nsim, H + 1)
+colnames(pk1) <- colnames(pk2) <- 0:10
+
+for (i in seq_len(nsim)) {
+  # purely sampling-based:
+  thetas <- rbeta(M, aN, bN)
+  Sfs <- rbinom(M, H, thetas)
+  pk1[i, ] <- proportions(tabulate(Sfs + 1, nbins = 11)) # tabulate starts at 1
+  
+  # Rao-Blackwellized:
+  for (k in 0:H) {
+    pk2[i, k + 1] <- mean(dbinom(k, H, thetas))
+  }
+}
+```
 ```
