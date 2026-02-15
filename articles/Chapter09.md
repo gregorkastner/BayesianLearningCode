@@ -19,9 +19,9 @@ y <- accidents[, "seniors_accidents"]
 mu <- aN / bN
 yf <- 0:20
 plot(yf, dnbinom(yf, size = aN, mu = mu),
-     type = "h", xlab = bquote(y[f]), ylab = "")
+     type = "h", xlab = bquote(y[f]), ylab = "", lwd = 2)
 plot(yf, pnbinom(yf, size = aN, mu = mu),
-     type = "h", xlab = bquote(y[f]), ylab = "")
+     type = "h", xlab = bquote(y[f]), ylab = "", lwd = 2)
 probs <- c(0.025, 0.975)
 abline(h = probs, lty = 3)
 mtext(probs, side = 2, at = probs, adj = c(0, 1), cex = .8, col = "dimgrey")
@@ -52,9 +52,9 @@ CN <- C0 + .5 * sum((y - ybar)^2) + N0 * N / (2 * (N0 + N)) * (b0 - ybar)^2
 x <- seq(-3, 3, length.out = 200)
 scale <- sqrt(CN / cN * (BN + 1))
 plot(x, dstudt(x, location = bN, scale = scale, df = 2 * cN),
-     type = "l", xlab = bquote(y[f]), ylab = "")
+     type = "l", xlab = bquote(y[f]), ylab = "", lwd = 1.5)
 plot(x, pstudt(x, location = bN, scale = scale, df = 2 * cN),
-     type = "l", xlab = bquote(y[f]), ylab = "")
+     type = "l", xlab = bquote(y[f]), ylab = "", lwd = 1.5)
 probs <- c(0.025, 0.975)
 abline(h = probs, lty = 3)
 mtext(probs, side = 2, at = probs, adj = c(0, 1), cex = .8, col = "dimgrey")
@@ -88,9 +88,9 @@ for (i in seq_along(Ns)) {
   cN <- c0 + N/2
   CN <- C0 + .5 * sum((yshort - ybar)^2) + N0 * N / (2 * (N0 + N)) * (b0 - ybar)^2
   scale <- sqrt(CN / cN * (BN + 1))
-  plot(x, dnorm(x, ybar, sd(yshort)), lty = 2, type = "l",
+  plot(x, dnorm(x, ybar, sd(yshort)), lty = 2, type = "l", lwd = 1.5,
        xlab = bquote(y[f]), ylab = "", main = paste("N =", N))
-  lines(x, dstudt(x, location = bN, scale = scale, df = 2 * cN))
+  lines(x, dstudt(x, location = bN, scale = scale, df = 2 * cN), lwd = 1.5)
 }
 ```
 
@@ -193,27 +193,61 @@ q_normal <- quantile(yf_normal, quants)
 q_t <- quantile(yf_t, quants)
 q_y <- quantile(y, quants)
 
-knitr::kable(round(t(cbind(q_y, q_t, q_normal)), 3))
+knitr::kable(round(t(cbind("Data" = q_y, "Student t" = q_t,
+                           "Gaussian" = q_normal)), 3))
 ```
 
-|          |     1% |     5% |    25% |    40% |   50% |   60% |   75% |   95% |   99% |
-|:---------|-------:|-------:|-------:|-------:|------:|------:|------:|------:|------:|
-| q_y      | -1.687 | -1.078 | -0.416 | -0.137 | 0.005 | 0.159 | 0.435 | 1.158 | 1.864 |
-| q_t      | -1.721 | -1.119 | -0.421 | -0.149 | 0.004 | 0.164 | 0.432 | 1.125 | 1.741 |
-| q_normal | -1.676 | -1.185 | -0.487 | -0.177 | 0.008 | 0.185 | 0.507 | 1.211 | 1.704 |
+|           |     1% |     5% |    25% |    40% |   50% |   60% |   75% |   95% |   99% |
+|:----------|-------:|-------:|-------:|-------:|------:|------:|------:|------:|------:|
+| Data      | -1.687 | -1.078 | -0.416 | -0.137 | 0.005 | 0.159 | 0.435 | 1.158 | 1.864 |
+| Student t | -1.721 | -1.119 | -0.421 | -0.149 | 0.004 | 0.164 | 0.432 | 1.125 | 1.741 |
+| Gaussian  | -1.676 | -1.185 | -0.487 | -0.177 | 0.008 | 0.185 | 0.507 | 1.211 | 1.704 |
 
 We conclude by visualizing the data and the predictive distributions.
 
 ``` r
-grid <- seq(-ceiling(max(abs(y))), ceiling(max(abs(y))), length.out = 50)
-hist(y, freq = FALSE, breaks = grid, main = "Histogram and predictive densitites")
-lines(density(yf_normal, adjust = 2), col = 4, lty = 1, lwd = 2)
-lines(density(yf_t, adjust = 2), col = 2, lty = 2, lwd = 2)
-legend("topleft", c("Normal", "Student t"), lty = 1:2, col = c(4,2), lwd = 2)
-ts.plot(y, main = "Time series plot and some predictive intervals")
-abline(h = q_normal, col = 4, lty = 1, lwd = 2)
-abline(h = q_t, col = 2, lty = 2, lwd = 2)
-legend("topleft", c("Normal", "Student t"), lty = 1:2, col = c(4,2), lwd = 2)
+minmax <- ceiling(10 * max(abs(y))) / 10
+grid <- seq(-minmax, minmax, length.out = 50)
+hist(y, freq = FALSE, breaks = grid, border = NA,
+     main = "Histogram and predictive densitites")
+lines(density(yf_normal, adjust = 2), col = 4, lty = 1, lwd = 1.5)
+lines(density(yf_t, adjust = 2), col = 2, lty = 2, lwd = 1.5)
+legend("topleft", c("Normal", "Student t"), lty = 1:2, col = c(4,2), lwd = 1.5)
+ts.plot(y, main = "Time series plot and some predictive quantiles")
+abline(h = q_normal, col = 4, lty = 1, lwd = 1.5)
+abline(h = q_t, col = 2, lty = 2, lwd = 1.5)
+legend("topleft", c("Normal", "Student t"), lty = 1:2, col = c(4,2), lwd = 1.5)
 ```
 
 ![](Chapter09_files/figure-html/unnamed-chunk-14-1.png)
+
+### Example 9.9: Predicting yearly maxima for the road safety data
+
+We use a sampling-based approach to obtain draws from posterior
+predictive by first drawing from the posterior
+$\mu|{\mathbb{y}} \sim \mathcal{G}\left( a_{N},b_{N} \right)$. Then,
+using these draws as mean parameters for the Poisson likelihood, we draw
+12 times each to obtain yearly predictions. Of these, we take the
+maxima.
+
+``` r
+set.seed(1)
+y <- accidents[, "seniors_accidents"]
+aN <- sum(y) + 1
+bN <- length(y)
+mus <- rgamma(ndraws, aN, bN)
+yfs <- matrix(rpois(12 * ndraws, mus), ncol = 12)
+Us <- apply(yfs, 1, max)
+```
+
+Now we visualize.
+
+``` r
+plot(tab <- proportions(table(Us)), xlab = "U", ylab = "")
+plot(as.table(cumsum(tab)), type = "h", xlab = "U", ylab = "")
+probs <- c(0.025, 0.975)
+abline(h = probs, lty = 3)
+mtext(probs, side = 2, at = probs, adj = c(0, 1), cex = .8, col = "dimgrey")
+```
+
+![](Chapter09_files/figure-html/unnamed-chunk-16-1.png)
