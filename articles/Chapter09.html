@@ -72,7 +72,8 @@
     
     
 <div class="section level2">
-<h2 id="section-9-1">Section 9.1<a class="anchor" aria-label="anchor" href="#section-9-1"></a>
+<h2 id="section-9-1-from-bayesian-posterior-to-bayesian-predictive-inference">Section 9.1: From Bayesian Posterior to Bayesian Predictive
+Inference<a class="anchor" aria-label="anchor" href="#section-9-1-from-bayesian-posterior-to-bayesian-predictive-inference"></a>
 </h2>
 <div class="section level3">
 <h3 id="example-9-1-road-safety-data">Example 9.1: Road Safety Data<a class="anchor" aria-label="anchor" href="#example-9-1-road-safety-data"></a>
@@ -209,6 +210,10 @@ ignores parameter uncertainty.</p>
 </tr></tbody>
 </table>
 </div>
+</div>
+<div class="section level2">
+<h2 id="section-9-3-a-sampling-based-approach-to-prediction">Section 9.3: A Sampling-Based Approach to Prediction<a class="anchor" aria-label="anchor" href="#section-9-3-a-sampling-based-approach-to-prediction"></a>
+</h2>
 <div class="section level3">
 <h3 id="example-9-8-sampling-based-prediction-for-the-chfusd-exchange-rates">Example 9.8: Sampling-based prediction for the CHF/USD exchange
 rates<a class="anchor" aria-label="anchor" href="#example-9-8-sampling-based-prediction-for-the-chfusd-exchange-rates"></a>
@@ -374,10 +379,57 @@ the maxima.</p>
 <div class="section level3">
 <h3 id="example-9-11">Example 9.11<a class="anchor" aria-label="anchor" href="#example-9-11"></a>
 </h3>
+<p>We illustrate the variance of the purely sampling-based estimator
+versus the Rao-Blackwellized version by running several experiments.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">theta</span> <span class="op">&lt;-</span> <span class="fl">0.5</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">a0</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
+<span><span class="va">b0</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
+<span><span class="va">N</span> <span class="op">&lt;-</span> <span class="fl">100</span></span>
+<span><span class="va">SN</span> <span class="op">&lt;-</span> <span class="fl">42</span></span>
 <span><span class="va">H</span> <span class="op">&lt;-</span> <span class="fl">10</span></span>
-<span><span class="va">M</span> <span class="op">&lt;-</span> <span class="fl">10000</span></span></code></pre></div>
+<span><span class="va">M</span> <span class="op">&lt;-</span> <span class="fl">100</span></span>
+<span><span class="va">nsim</span> <span class="op">&lt;-</span> <span class="fl">1000</span></span>
+<span></span>
+<span><span class="co"># compute the posterior parameters:</span></span>
+<span><span class="va">aN</span> <span class="op">&lt;-</span> <span class="va">a0</span> <span class="op">+</span> <span class="va">SN</span></span>
+<span><span class="va">bN</span> <span class="op">&lt;-</span> <span class="va">b0</span> <span class="op">+</span> <span class="va">N</span> <span class="op">-</span> <span class="va">SN</span></span>
+<span><span class="va">mu</span> <span class="op">&lt;-</span> <span class="va">aN</span> <span class="op">/</span> <span class="va">bN</span></span>
+<span></span>
+<span><span class="va">pk1</span> <span class="op">&lt;-</span> <span class="va">pk2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="cn">NA_real_</span>, <span class="va">nsim</span>, <span class="va">H</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">pk1</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">pk2</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fl">0</span><span class="op">:</span><span class="fl">10</span></span>
+<span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">nsim</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="co"># purely sampling-based:</span></span>
+<span>  <span class="va">thetas</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Beta.html" class="external-link">rbeta</a></span><span class="op">(</span><span class="va">M</span>, <span class="va">aN</span>, <span class="va">bN</span><span class="op">)</span></span>
+<span>  <span class="va">Sfs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Binomial.html" class="external-link">rbinom</a></span><span class="op">(</span><span class="va">M</span>, <span class="va">H</span>, <span class="va">thetas</span><span class="op">)</span></span>
+<span>  <span class="va">pk1</span><span class="op">[</span><span class="va">i</span>, <span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/proportions.html" class="external-link">proportions</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tabulate.html" class="external-link">tabulate</a></span><span class="op">(</span><span class="va">Sfs</span> <span class="op">+</span> <span class="fl">1</span>, nbins <span class="op">=</span> <span class="fl">11</span><span class="op">)</span><span class="op">)</span> <span class="co"># tabulate starts at 1</span></span>
+<span>  </span>
+<span>  <span class="co"># Rao-Blackwellized:</span></span>
+<span>  <span class="kw">for</span> <span class="op">(</span><span class="va">k</span> <span class="kw">in</span> <span class="fl">0</span><span class="op">:</span><span class="va">H</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">pk2</span><span class="op">[</span><span class="va">i</span>, <span class="va">k</span> <span class="op">+</span> <span class="fl">1</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Binomial.html" class="external-link">dbinom</a></span><span class="op">(</span><span class="va">k</span>, <span class="va">H</span>, <span class="va">thetas</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="op">}</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+<p>To compute the exact probabilities, we need the density function of
+the beta-binomial distribution (which is not part of base R).</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dbetabinom</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">n</span>, <span class="va">a</span>, <span class="va">b</span>, <span class="va">log</span> <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">logdens</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Special.html" class="external-link">lchoose</a></span><span class="op">(</span><span class="va">n</span>, <span class="va">x</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Special.html" class="external-link">lbeta</a></span><span class="op">(</span><span class="va">x</span> <span class="op">+</span> <span class="va">a</span>, <span class="va">n</span> <span class="op">-</span> <span class="va">x</span> <span class="op">+</span> <span class="va">b</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Special.html" class="external-link">lbeta</a></span><span class="op">(</span><span class="va">a</span>, <span class="va">b</span><span class="op">)</span></span>
+<span>  <span class="kw">if</span> <span class="op">(</span><span class="va">log</span><span class="op">)</span> <span class="va">logdens</span> <span class="kw">else</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">logdens</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+<p>Now we can easily evaluate the probabilities.</p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">pk3</span> <span class="op">&lt;-</span> <span class="fu">dbetabinom</span><span class="op">(</span><span class="fl">0</span><span class="op">:</span><span class="va">H</span>, <span class="va">H</span>, <span class="va">aN</span>, <span class="va">bN</span><span class="op">)</span></span></code></pre></div>
+<p>To concluse, we visualize.</p>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/boxplot.html" class="external-link">boxplot</a></span><span class="op">(</span><span class="va">pk1</span>, xlab <span class="op">=</span> <span class="st">"k"</span>, range <span class="op">=</span> <span class="fl">0</span>, main <span class="op">=</span> <span class="st">"Purely sampling-based"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">pk3</span>, col <span class="op">=</span> <span class="fl">3</span>, cex <span class="op">=</span> <span class="fl">1.5</span>, pch <span class="op">=</span> <span class="fl">16</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/boxplot.html" class="external-link">boxplot</a></span><span class="op">(</span><span class="va">pk2</span>, xlab <span class="op">=</span> <span class="st">"k"</span>, range <span class="op">=</span> <span class="fl">0</span>, main <span class="op">=</span> <span class="st">"Rao-Blackwellized"</span>,</span>
+<span>        ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">pk1</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">pk3</span>, col <span class="op">=</span> <span class="fl">3</span>, cex <span class="op">=</span> <span class="fl">1.5</span>, pch <span class="op">=</span> <span class="fl">16</span><span class="op">)</span></span></code></pre></div>
+<p><img src="Chapter09_files/figure-html/unnamed-chunk-20-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

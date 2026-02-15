@@ -1,6 +1,6 @@
 # Chapter 9: Bayesian Predictive Analysis
 
-## Section 9.1
+## Section 9.1: From Bayesian Posterior to Bayesian Predictive Inference
 
 ### Example 9.1: Road Safety Data
 
@@ -135,6 +135,8 @@ knitr::kable(t(round(coverage, 4)))
 |-------:|-------:|-------:|-------:|
 | 0.8519 | 0.9055 | 0.9363 | 0.9499 |
 
+## Section 9.3: A Sampling-Based Approach to Prediction
+
 ### Example 9.8: Sampling-based prediction for the CHF/USD exchange rates
 
 We proceed exactly as in Chapter 4. For the Gaussian distribution, the
@@ -254,8 +256,66 @@ mtext(probs, side = 2, at = probs, adj = c(0, 1), cex = .8, col = "dimgrey")
 
 ### Example 9.11
 
+We illustrate the variance of the purely sampling-based estimator versus
+the Rao-Blackwellized version by running several experiments.
+
 ``` r
-theta <- 0.5
+set.seed(42)
+
+a0 <- 1
+b0 <- 1
+N <- 100
+SN <- 42
 H <- 10
-M <- 10000
+M <- 100
+nsim <- 1000
+
+# compute the posterior parameters:
+aN <- a0 + SN
+bN <- b0 + N - SN
+mu <- aN / bN
+
+pk1 <- pk2 <- matrix(NA_real_, nsim, H + 1)
+colnames(pk1) <- colnames(pk2) <- 0:10
+
+for (i in seq_len(nsim)) {
+  # purely sampling-based:
+  thetas <- rbeta(M, aN, bN)
+  Sfs <- rbinom(M, H, thetas)
+  pk1[i, ] <- proportions(tabulate(Sfs + 1, nbins = 11)) # tabulate starts at 1
+  
+  # Rao-Blackwellized:
+  for (k in 0:H) {
+    pk2[i, k + 1] <- mean(dbinom(k, H, thetas))
+  }
+}
 ```
+
+To compute the exact probabilities, we need the density function of the
+beta-binomial distribution (which is not part of base R).
+
+``` r
+dbetabinom <- function(x, n, a, b, log = FALSE) {
+  logdens <- lchoose(n, x) + lbeta(x + a, n - x + b) - lbeta(a, b)
+  if (log) logdens else exp(logdens)
+}
+```
+
+Now we can easily evaluate the probabilities.
+
+``` r
+pk3 <- dbetabinom(0:H, H, aN, bN)
+```
+
+To concluse, we visualize.
+
+``` r
+boxplot(pk1, xlab = "k", range = 0, main = "Purely sampling-based")
+points(pk3, col = 3, cex = 1.5, pch = 16)
+
+boxplot(pk2, xlab = "k", range = 0, main = "Rao-Blackwellized",
+        ylim = range(pk1))
+points(pk3, col = 3, cex = 1.5, pch = 16)
+```
+
+![](Chapter09_files/figure-html/unnamed-chunk-20-1.png)
