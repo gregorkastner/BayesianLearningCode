@@ -313,4 +313,21 @@ for (i in seq_len(nsim)) {
   }
 }
 ```
+
+To compute the exact probabilities, we need the density function of the
+beta-binomial distribution (which is not part of base R).
+
+```{r}
+dbetabinom <- function(x, n, a, b, log = FALSE) {
+  logdens <- lchoose(n, x) + lbeta(x + a, n - x + b) - lbeta(a, b)
+  if (log) logdens else exp(logdens)
+}
+```
+
+Now we can easily evaluate the probabilities.
+
+```{r}
+pk3 <- dbetabinom(0:H, H, aN, bN)
+```
+
 ```
