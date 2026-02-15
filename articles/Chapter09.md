@@ -251,3 +251,11 @@ mtext(probs, side = 2, at = probs, adj = c(0, 1), cex = .8, col = "dimgrey")
 ```
 
 ![](Chapter09_files/figure-html/unnamed-chunk-16-1.png)
+
+### Example 9.11
+
+``` r
+theta <- 0.5
+H <- 10
+M <- 10000
+```
