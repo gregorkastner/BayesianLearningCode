@@ -218,7 +218,8 @@ q_normal <- quantile(yf_normal, quants)
 q_t <- quantile(yf_t, quants)
 q_y <- quantile(y, quants)
 
-knitr::kable(round(t(cbind(q_y, q_t, q_normal)), 3))
+knitr::kable(round(t(cbind("Data" = q_y, "Student t" = q_t,
+                           "Gaussian" = q_normal)), 3))
 ```
 
 We conclude by visualizing the data and the predictive distributions.
@@ -234,7 +235,7 @@ hist(y, freq = FALSE, breaks = grid, main = "Histogram and predictive densitites
 lines(density(yf_normal, adjust = 2), col = 4, lty = 1, lwd = 2)
 lines(density(yf_t, adjust = 2), col = 2, lty = 2, lwd = 2)
 legend("topleft", c("Normal", "Student t"), lty = 1:2, col = c(4,2), lwd = 2)
-ts.plot(y, main = "Time series plot and some predictive intervals")
+ts.plot(y, main = "Time series plot and some predictive quantiles")
 abline(h = q_normal, col = 4, lty = 1, lwd = 2)
 abline(h = q_t, col = 2, lty = 2, lwd = 2)
 legend("topleft", c("Normal", "Student t"), lty = 1:2, col = c(4,2), lwd = 2)
