@@ -472,10 +472,40 @@ abline(h = 0, lty = 3)
 ![](Chapter09_files/figure-html/unnamed-chunk-26-1.png)
 
 Let us compute the probability of seeing negative growth rates a least
-once in eight quarters.
+once in eight quarters. Not that this is highly nonlinear.
 
 ``` r
 mins <- apply(yfs, 1, min)
 (mean(mins < 0))
 #> [1] 0.394
 ```
+
+Another example of a nonlinear function of the predicted log returns is
+the level, which, given our simulation-based approach, is easy to
+compute.
+
+``` r
+gdpfs <- tail(gdp, 1) * exp(apply(yfs, 1, cumsum))
+```
+
+We visualize.
+
+``` r
+par(mfrow = c(1, 1))
+plot(tail(gdp, 2 * horizon), type = "l", xlim = c(1, 3 * horizon),
+     ylim = range(quants, tail(gdp, 2 * horizon)), ylab = "U.S. GDP",
+     xlab = "Quarter", lwd = 1.5, xaxt = "n", main = "Fan chart")
+axis(side = 1, at = ats, labels = labs[ats])
+xs <- (2 * horizon + 1):(3 * horizon)
+lines(xs, quants["50%", ], lwd = 1.5, col = 2, lty = 2)
+pxs <- c(xs[1], xs, rev(xs))
+polygon(pxs, c(quants["25%", 1], quants["75%", ], rev(quants["25%", ])),
+        col = rgb(1, 0, 0, .2), border = NA)
+polygon(pxs, c(quants["10%", 1], quants["90%", ], rev(quants["10%", ])),
+        col = rgb(1, 0, 0, .2), border = NA)
+polygon(pxs, c(quants["5%", 1], quants["95%", ], rev(quants["5%", ])),
+        col = rgb(1, 0, 0, .2), border = NA)
+abline(h = 0, lty = 3)
+```
+
+![](Chapter09_files/figure-html/unnamed-chunk-29-1.png)
