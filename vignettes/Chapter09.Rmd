@@ -345,3 +345,25 @@ boxplot(pk2, xlab = "k", range = 0, main = "Rao-Blackwellized",
         ylim = range(pk1))
 points(pk3, col = 3, cex = 1.5, pch = 16)
 ```
+
+
+# Section 9.5: Bayesian Forecasting of Time Series
+
+## Example 2.14: One-step-ahead forecasting of GDP
+
+For creating the design matrix for an AR model, we re-use the function from
+Chapter 7.
+
+```{r}
+ARdesignmatrix <- function(dat, p = 1) {
+  d <- p + 1
+  N <- length(dat) - p
+
+  Xy <- matrix(NA_real_, N, d)
+  Xy[, 1] <- 1
+  for (i in seq_len(p)) {
+    Xy[, i + 1] <- dat[(p + 1 - i) : (length(dat) - i)]
+  }
+  Xy
+}
+```
