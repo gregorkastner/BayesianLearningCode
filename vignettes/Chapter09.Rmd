@@ -506,3 +506,11 @@ polygon(pxs, c(quants["5%", 1], quants["95%", ], rev(quants["5%", ])),
         col = rgb(1, 0, 0, .2), border = NA)
 abline(h = 0, lty = 3)
 ```
+
+Let us compute the probability of seeing negative growth rates a least once in
+eight quarters.
+
+```{r}
+mins <- apply(yfs, 1, min)
+(mean(mins < 0))
+```
