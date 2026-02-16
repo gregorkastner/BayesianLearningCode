@@ -367,3 +367,32 @@ ARdesignmatrix <- function(dat, p = 1) {
   Xy
 }
 ```
+
+We compute the one-step-ahead posterior predictive for various AR($p$) models
+under the improper prior.
+
+```{r}
+data(gdp)
+logret <- diff(log(gdp))
+
+means <- scales <- dfs <- rep(NA_real_, 4)
+for (p in 1:4) {
+  y <- tail(logret, -p)
+  X <- ARdesignmatrix(logret, p)
+  
+  N <- nrow(X)
+  d <- ncol(X)
+  
+  BN <- solve(crossprod(X))
+  bN <- tcrossprod(BN, X) %*% y
+  SSR <- sum((y - X %*% bN)^2)
+  cN <- (N - d) / 2
+  CN <- SSR / 2
+    
+  xf <- c(1, rev(tail(y, p)))
+  
+  means[p] <- xf %*% bN
+  scales[p] <- sqrt((crossprod(xf, BN) %*% xf + 1) * CN / cN)
+  dfs[p] <- 2 * cN
+}
+```
