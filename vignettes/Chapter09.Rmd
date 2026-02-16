@@ -373,7 +373,8 @@ under the improper prior.
 
 ```{r}
 data(gdp)
-logret <- diff(log(gdp))
+dat <- gdp[1:which(names(gdp) == "2019-10-01")]
+logret <- diff(log(dat))
 
 means <- scales <- dfs <- rep(NA_real_, 4)
 for (p in 1:4) {
