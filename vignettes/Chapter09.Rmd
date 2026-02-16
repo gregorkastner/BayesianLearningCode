@@ -418,3 +418,41 @@ for (p in 2:4) {
 }
 ```
 
+Now, we want to "sample the future" up to 12 steps ahead for $p = 2$.
+
+```{r}
+M <- 10000
+set.seed(1)
+y <- tail(logret, -2)
+X <- ARdesignmatrix(logret, 2)
+
+N <- nrow(X)
+d <- ncol(X)
+  
+BN <- solve(crossprod(X))
+bN <- tcrossprod(BN, X) %*% y
+SSR <- sum((y - X %*% bN)^2)
+cN <- (N - d) / 2
+CN <- SSR / 2
+
+sigma2s <- rinvgamma(M, cN, CN)
+betas <- matrix(NA_real_, M, 3)
+for (i in seq_len(M)) betas[i, ] <- mvtnorm::rmvnorm(1, bN, sigma2s[i] * BN)
+
+zetas <- betas[, 1]
+phi1s <- betas[, 2]
+phi2s <- betas[, 3]
+sigmas <- sqrt(sigma2s)
+yfs <- matrix(NA_real_, M, 8)
+
+yfs[, 1] <- rnorm(M, zetas + phi1s * y[length(y)] +
+                  phi2s * y[length(y) - 1], sigmas)
+
+yfs[, 2] <- rnorm(M, zetas + phi1s * yfs[, 1] +
+                  phi2s * y[length(y)], sigmas)
+
+for (h in 3:8) {
+  yfs[, h] <- rnorm(M, zetas + phi1s * yfs[, h - 1] + phi2s * yfs[, h - 2],
+                    sigmas)
+}
+```
