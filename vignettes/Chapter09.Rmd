@@ -456,3 +456,29 @@ for (h in 3:8) {
                     sigmas)
 }
 ```
+
+And we visualize. First, four randomly selected paths.
+
+```{r, echo = -c(1:2)}
+if (pdfplots) {
+  pdf("9-5_2.pdf", width = 7, height = 2.5)
+  par(mar = c(2.5, 2, 1.5, .5), mgp = c(1.6, .6, 0))
+}
+par(mfrow = c(1, 4))
+horizon <- 8
+ats <- seq(1, 3 * horizon)
+past <- as.numeric(substring(gsub("-.*", "", tail(names(y), 2 * horizon)), 3))
+years <- c(past, tail(past, 1) + rep(1:(horizon / 4), each = 4))
+labs <- paste0(years, "Q", 1:4)
+these <- sort(sample.int(M, 4))
+for (i in 1:4) {
+  plot(tail(y, 2 * horizon), main = paste("m =", these[i]),  type = "l",
+       xlim = c(1, 3 * horizon), ylim = range(tail(y, 2 * horizon), yfs[these, ]),
+       ylab = "", xlab = "Quarter", lwd = 1.5, xaxt = "n")
+  axis(side = 1, at = ats, labels = labs[ats])
+  lines((2 * horizon):(3 * horizon), c(tail(y, 1), yfs[i, ]), lty = 2, lwd = 1.5)
+  abline(v = 2 * horizon, lty = 3)
+  abline(h = 0, lty = 3)
+}
+```
+
