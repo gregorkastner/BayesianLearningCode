@@ -396,3 +396,24 @@ for (p in 1:4) {
   dfs[p] <- 2 * cN
 }
 ```
+
+And we visualize.
+
+```{r, echo = -c(1:2)}
+if (pdfplots) {
+  pdf("9-5_1.pdf", width = 8, height = 4)
+  par(mar = c(2.7, 2, 1.5, .5), mgp = c(1.6, .6, 0))
+}
+par(mfrow = c(1, 1))
+library(BayesianLearningCode)
+grid <- seq(min(means - 4 * scales), max(means + 4 * scales), length.out = 100)
+plot(grid, dstudt(grid, means[1], scales[1], dfs[1]), type = "l",
+     ylab = "", xlab = "Quarterly U.S. GDP growth", lwd = 1.5)
+title("Forecast for Q1 2020")
+legend("topright", paste0("AR(", 1:4, ")"), lty = 1:4, col = 1:4, lwd = 1.5)
+for (p in 2:4) {
+  lines(grid, dstudt(grid, means[p], scales[p], dfs[p]), col = p, lty = p,
+        lwd = 1.5)
+}
+```
+
