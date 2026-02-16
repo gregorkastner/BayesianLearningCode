@@ -319,3 +319,163 @@ points(pk3, col = 3, cex = 1.5, pch = 16)
 ```
 
 ![](Chapter09_files/figure-html/unnamed-chunk-20-1.png)
+
+## Section 9.5: Bayesian Forecasting of Time Series
+
+### Example 2.14: One-step-ahead forecasting of GDP
+
+For creating the design matrix for an AR model, we re-use the function
+from Chapter 7.
+
+``` r
+ARdesignmatrix <- function(dat, p = 1) {
+  d <- p + 1
+  N <- length(dat) - p
+
+  Xy <- matrix(NA_real_, N, d)
+  Xy[, 1] <- 1
+  for (i in seq_len(p)) {
+    Xy[, i + 1] <- dat[(p + 1 - i) : (length(dat) - i)]
+  }
+  Xy
+}
+```
+
+We compute the one-step-ahead posterior predictive for various AR($p$)
+models under the improper prior.
+
+``` r
+data(gdp)
+dat <- gdp[1:which(names(gdp) == "2019-10-01")]
+logret <- diff(log(dat))
+
+means <- scales <- dfs <- rep(NA_real_, 4)
+for (p in 1:4) {
+  y <- tail(logret, -p)
+  X <- ARdesignmatrix(logret, p)
+  
+  N <- nrow(X)
+  d <- ncol(X)
+  
+  BN <- solve(crossprod(X))
+  bN <- tcrossprod(BN, X) %*% y
+  SSR <- sum((y - X %*% bN)^2)
+  cN <- (N - d) / 2
+  CN <- SSR / 2
+    
+  xf <- c(1, rev(tail(y, p)))
+  
+  means[p] <- xf %*% bN
+  scales[p] <- sqrt((crossprod(xf, BN) %*% xf + 1) * CN / cN)
+  dfs[p] <- 2 * cN
+}
+```
+
+And we visualize.
+
+``` r
+library(BayesianLearningCode)
+grid <- seq(min(means - 4 * scales), max(means + 4 * scales), length.out = 100)
+plot(grid, dstudt(grid, means[1], scales[1], dfs[1]), type = "l",
+     ylab = "", xlab = "Quarterly U.S. GDP growth", lwd = 1.5)
+title("Forecast for Q1 2020")
+legend("topright", paste0("AR(", 1:4, ")"), lty = 1:4, col = 1:4, lwd = 1.5)
+for (p in 2:4) {
+  lines(grid, dstudt(grid, means[p], scales[p], dfs[p]), col = p, lty = p,
+        lwd = 1.5)
+}
+```
+
+![](Chapter09_files/figure-html/unnamed-chunk-23-1.png)
+
+Now, we want to “sample the future” up to 12 steps ahead for $p = 2$.
+
+``` r
+M <- 10000
+set.seed(1)
+y <- tail(logret, -2)
+X <- ARdesignmatrix(logret, 2)
+
+N <- nrow(X)
+d <- ncol(X)
+  
+BN <- solve(crossprod(X))
+bN <- tcrossprod(BN, X) %*% y
+SSR <- sum((y - X %*% bN)^2)
+cN <- (N - d) / 2
+CN <- SSR / 2
+
+sigma2s <- rinvgamma(M, cN, CN)
+betas <- matrix(NA_real_, M, 3)
+for (i in seq_len(M)) betas[i, ] <- mvtnorm::rmvnorm(1, bN, sigma2s[i] * BN)
+
+zetas <- betas[, 1]
+phi1s <- betas[, 2]
+phi2s <- betas[, 3]
+sigmas <- sqrt(sigma2s)
+yfs <- matrix(NA_real_, M, 8)
+
+yfs[, 1] <- rnorm(M, zetas + phi1s * y[length(y)] +
+                  phi2s * y[length(y) - 1], sigmas)
+
+yfs[, 2] <- rnorm(M, zetas + phi1s * yfs[, 1] +
+                  phi2s * y[length(y)], sigmas)
+
+for (h in 3:8) {
+  yfs[, h] <- rnorm(M, zetas + phi1s * yfs[, h - 1] + phi2s * yfs[, h - 2],
+                    sigmas)
+}
+```
+
+And we visualize. First, four randomly selected paths.
+
+``` r
+horizon <- 8
+ats <- seq(1, 3 * horizon)
+past <- as.numeric(substring(gsub("-.*", "", tail(names(y), 2 * horizon)), 3))
+years <- c(past, tail(past, 1) + rep(1:(horizon / 4), each = 4))
+labs <- paste0(years, "Q", 1:4)
+these <- sort(sample.int(M, 4))
+for (i in 1:4) {
+  plot(tail(y, 2 * horizon), main = paste("m =", these[i]),  type = "l",
+       xlim = c(1, 3 * horizon), ylim = range(tail(y, 2 * horizon), yfs[these, ]),
+       ylab = "", xlab = "Quarter", lwd = 1.5, xaxt = "n")
+  axis(side = 1, at = ats, labels = labs[ats])
+  lines((2 * horizon):(3 * horizon), c(tail(y, 1), yfs[i, ]), lty = 2, lwd = 1.5)
+  abline(v = 2 * horizon, lty = 3)
+  abline(h = 0, lty = 3)
+}
+```
+
+![](Chapter09_files/figure-html/unnamed-chunk-25-1.png)
+
+And now fan charts.
+
+``` r
+par(mfrow = c(1, 1))
+plot(tail(y, 2 * horizon), type = "l", xlim = c(1, 3 * horizon),
+     ylim = range(quants), ylab = "U.S. GDP growth", xlab = "Quarter",
+     lwd = 1.5, xaxt = "n", main = "Fan chart")
+axis(side = 1, at = ats, labels = labs[ats])
+xs <- (2 * horizon + 1):(3 * horizon)
+lines(xs, quants["50%", ], lwd = 1.5, col = 2, lty = 2)
+pxs <- c(xs[1], xs, rev(xs))
+polygon(pxs, c(quants["25%", 1], quants["75%", ], rev(quants["25%", ])),
+        col = rgb(1, 0, 0, .2), border = NA)
+polygon(pxs, c(quants["10%", 1], quants["90%", ], rev(quants["10%", ])),
+        col = rgb(1, 0, 0, .2), border = NA)
+polygon(pxs, c(quants["5%", 1], quants["95%", ], rev(quants["5%", ])),
+        col = rgb(1, 0, 0, .2), border = NA)
+abline(h = 0, lty = 3)
+```
+
+![](Chapter09_files/figure-html/unnamed-chunk-26-1.png)
+
+Let us compute the probability of seeing negative growth rates a least
+once in eight quarters.
+
+``` r
+mins <- apply(yfs, 1, min)
+(mean(mins < 0))
+#> [1] 0.394
+```
