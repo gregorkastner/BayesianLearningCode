@@ -31,6 +31,8 @@ knitr::kable(cbind(BF, logBF, PrM1, PrM2))
 |  403.4287935 |     6 | 0.9975274 | 0.0024726 |
 | 1096.6331584 |     7 | 0.9990889 | 0.0009111 |
 
+## Section 10.2: Bayesian Testing of Hypotheses
+
 ### Example 3.5: Testing for zero mean in the CHF-USD log returns
 
 We load the data, compute the required parameters, and evaluate the two
@@ -67,4 +69,74 @@ can check whether we get the same answer.
 #> [8] 0.85048010 0.01501194
 all.equal(logBF, logmarglikM1 - logmarglikM2)
 #> [1] TRUE
+```
+
+### Example 3.6: Testing for heterogeneity of the no-income risk
+
+First, we re-load the data from Chapter 3.
+
+``` r
+data("labor", package = "BayesianLearningCode")
+labor <- subset(labor,
+                income_1997 != "zero" & female,
+                c(income_1998, wcollar_1986))
+labor <- with(labor,
+              data.frame(unemployed = income_1998 == "zero",
+                         wcollar = wcollar_1986))
+```
+
+Next, we compute the marginal likelihoods for the homogeneity model.
+
+``` r
+N <- length(labor$unemployed)
+SN <- sum(labor$unemployed)
+hN <- SN / N
+N0 <- c(2, 10)
+a0 <- c(1, 0.5, hN * N0) 
+b0 <- c(1, 0.5, N0 * (1 - hN))
+
+aN <- a0 + sum(labor$unemployed)
+bN <- b0 + N - sum(labor$unemployed)
+
+logmarglikM1 <- lbeta(aN, bN) - lbeta(a0, b0)
+```
+
+And for the heterogeneity model.
+
+``` r
+N1 <- with(labor, sum(wcollar))
+SN1 <- with(labor, sum(wcollar & unemployed))
+N2 <- with(labor, sum(!wcollar))
+SN2 <- with(labor, sum(!wcollar & unemployed))
+hN <- (SN1 + SN2) / (N1 + N2) # redundant, same as above
+a01 <- a02 <- c(1, 0.5, hN * N0) # redundant, same as a0
+b01 <- b02 <- c(1, 0.5, N0 * (1 - hN)) # redundant, same as b0
+
+aN1 <- a01 + SN1
+bN1 <- b01 + N1 - SN1
+aN2 <- a02 + SN2
+bN2 <- b02 + N2 - SN2
+
+logmarglikM2 <- lbeta(aN1, bN1) + lbeta(aN2, bN2) -
+   lbeta(a01, b01) - lbeta(a02, b02)
+```
+
+We can now compute the model probabilities and the log BFs.
+
+``` r
+logBF <- logmarglikM1 - logmarglikM2
+PrM2 <- 0.5 / (0.5 + 0.5 * exp(logBF))
+PrM1 <- 1 - PrM2
+knitr::kable(res <- cbind(logmarglikM1, logmarglikM2, logBF, PrM1, PrM2))
+```
+
+| logmarglikM1 | logmarglikM2 |     logBF |      PrM1 |      PrM2 |
+|-------------:|-------------:|----------:|----------:|----------:|
+|    -387.5820 |    -385.9187 | -1.663244 | 0.1593270 | 0.8406730 |
+|    -387.5560 |    -385.8867 | -1.669302 | 0.1585173 | 0.8414827 |
+|    -387.2933 |    -385.3980 | -1.895305 | 0.1306408 | 0.8693592 |
+|    -386.2587 |    -383.4054 | -2.853317 | 0.0545101 | 0.9454899 |
+
+``` r
+#print(xtable::xtable(res, digits = c(0, 2, 2, 5, 5, 5), row.names = FALSE))
 ```
