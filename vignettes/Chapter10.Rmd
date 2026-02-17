@@ -32,6 +32,7 @@ PrM2 <- 1 - PrM1
 knitr::kable(cbind(BF, logBF, PrM1, PrM2))
 ```
 
+# Section 10.2: Bayesian Testing of Hypotheses
 ## Example 3.5: Testing for zero mean in the CHF-USD log returns
 
 We load the data, compute the required parameters, and evaluate the two 
