@@ -20,3 +20,5 @@
   Analysis](https://gregorkastner.github.io/BayesianLearningCode/articles/Chapter08.md):
 - [Chapter 9: Bayesian Predictive
   Analysis](https://gregorkastner.github.io/BayesianLearningCode/articles/Chapter09.md):
+- [Chapter 10: Bayesian Model
+  Selection](https://gregorkastner.github.io/BayesianLearningCode/articles/Chapter10.md):
