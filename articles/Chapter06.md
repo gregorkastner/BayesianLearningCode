@@ -17,7 +17,7 @@ data("movies", package = "BayesianLearningCode")
 
 ### Section 6.2.1 Bayesian Learning Under Improper Priors
 
-#### Example 6.2: Movie data: Analysis under improper prior
+#### Example 6.2: Movie data - Analysis under improper prior
 
 We use as response `y` the variable *OpenBoxOffice*, which contains the
 box office sales at the opening weekend in Mio.\$, and as covariates the
@@ -150,7 +150,7 @@ knitr::kable(round(cbind(qinvgamma(0.025, a = cN, b = reg.improp$CN),
 |--------------:|---------------:|---------------:|
 |        178.38 |         239.07 |         319.96 |
 
-#### Example 6.3: Movie data: Prediction
+#### Example 6.3: Movie data - Prediction
 
 We are now interested in predicting the box office sales on the opening
 weekend. We compute the predicted box office sales for a film with an
@@ -185,6 +185,9 @@ legend("bottomright",
 ```
 
 ![](Chapter06_files/figure-html/unnamed-chunk-10-1.png)
+
+We also compare the point predictions to the observed box office sales
+for the movies contained in the data set.
 
 ``` r
 y.pred <- X %*% beta.hat
@@ -247,7 +250,7 @@ Next, we compare the point predictions from both models to the observed
 box office sales.
 
 ``` r
-plot(y, y.pred,xlim = c(-20, 160), ylim = c(-20, 160),
+plot(y, y.pred, xlim = c(-20, 160), ylim = c(-20, 160),
      xlab = "Observed sales", ylab = "Predicted sales")
 points(y, exp(X %*% reg.lny$beta.hat), col = "blue", pch = 16)
 abline(a = 0, b = 1)
@@ -377,7 +380,7 @@ difference to the improper prior for the effects of *Budget* and
 *Screens*, however the intercept is shrunk to zero for $\lambda^{2} = 1$
 and even more for $\lambda^{2} = 0.1$.
 
-To illustrate the effect of the prior we compute the the weight matrix
+To illustrate the effect of the prior we compute the weight matrix
 $\textbf{𝐖}$ for the conjugate prior with mean $\textbf{𝟎}$ and
 covariance matrix $\lambda^{2}\textbf{𝐈}$ for $\lambda^{2} = 0.1$.
 
@@ -478,7 +481,7 @@ lines(post.draws2$sigma2s, col="red")
 starting value for the error variance is far from the posterior
 distribution the burn-in phase of the sampler is very short.
 
-#### Example 6.6: Movie data: Analysis under the semi-conjugate prior
+#### Example 6.6: Movie data - Analysis under the semi-conjugate prior
 
 We now include all available covariates in the regression analysis. As
 there is only one film with MPAA rating “G”, we merge the two ratings
@@ -511,12 +514,12 @@ post.draws <- reg_semiconj(y, X, b0 = 0, B0 = 10000, c0 = 2.5, C0 = 1.5,
                            burnin = 1000L, M = M)
 ```
 
-To summarize the results nicely, we compute equal-tailed 95% credible
-intervals for the regression effects.
+To summarize the results nicely, we determine the posterior means and
+compute equal-tailed 95% credible intervals for the regression effects.
 
 ``` r
 res.mcmc <- function(x, lower = 0.025, upper = 0.975){
-  res<-c(quantile(x, lower), mean(x), quantile(x, upper))
+  res <- c(quantile(x, lower), mean(x), quantile(x, upper))
   names(res) <- c(paste0(lower * 100, "%"), "Posterior mean", 
                   paste0(upper *   100, "%"))
   res
@@ -562,21 +565,22 @@ error variance is considerably lower than in the model with only
 *Budget* and *Screens* used as covariates.
 
 The different signs of the effects of *Vol-4-6* and *Vol-1-3* deserve
-some further comment. The two covariates are highly correlated. Due to
-this high correlation the usual interpretation of the effect by changing
-the value of one covariate only does not make sense. Hence, we predict
-the change in box office sales for a film where the twitter volume
-scores are 1 unit higher in weeks 4-6 as well as weeks 1-3.
+some further comment. The two covariates are highly correlated.
 
 ``` r
 cor(X[, "Vol-4-6"], X[, "Vol-1-3"])
 #> [1] 0.84403
 
 par(mfrow = c(1, 1))
-plot(X[, "Vol-4-6"], X[, "Vol-1-3"],xlab="Vol-4-6", ylab="Vol-1-3")
+plot(X[, "Vol-4-6"], X[, "Vol-1-3"], xlab = "Vol-4-6", ylab = "Vol-1-3")
 ```
 
 ![](Chapter06_files/figure-html/unnamed-chunk-28-1.png)
+
+Due to this high correlation the usual interpretation of the effect by
+changing the value of one covariate only does not make sense. Hence, we
+predict the change in box office sales for a film where the twitter
+volume scores are 1 unit higher in weeks 4-6 as well as weeks 1-3.
 
 ``` r
 round(sum(res_beta.sc[c("Vol-4-6", "Vol-1-3"), "Posterior mean"]), 
@@ -605,7 +609,7 @@ legend("topright", legend = c("Horseshoe", "Standard normal"),
        lty = 1:2, col = c("blue", "black"))
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-29-1.png)
+![](Chapter06_files/figure-html/unnamed-chunk-30-1.png)
 
 We set up the Gibbs sampler of the regression model with a proper normal
 prior on the intercept and horseshoe priors on the covariate effects.
@@ -671,7 +675,7 @@ reg_hs <- function(y, X,  b0 = 0, B0 = 10000, c0 = 2.5, C0 = 1.5,
 }    
 ```
 
-#### Example 6.7: Movie data - Analysis under the Horseshoe prior
+#### Example 6.7: Movie data - Analysis under the horseshoe prior
 
 We estimate the parameters in the regression model with the same prior
 on intercept and error variance as in the semi-conjugate prior, but a
@@ -745,7 +749,7 @@ for (i in seq_len(d)) {
 }
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-34-1.png)![](Chapter06_files/figure-html/unnamed-chunk-34-2.png)
+![](Chapter06_files/figure-html/unnamed-chunk-35-1.png)![](Chapter06_files/figure-html/unnamed-chunk-35-2.png)
 
 For illustration purposes, we overlay four selected marginal posteriors
 in order to illustrate the shrinkage effect.
@@ -766,7 +770,7 @@ for (i in selection) {
 }
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-35-1.png)
+![](Chapter06_files/figure-html/unnamed-chunk-36-1.png)
 
 Next, we investigate the trace plots of the draws from the posterior. As
 above, the plots on the left are obtained under the semi-conjugate
@@ -775,12 +779,14 @@ prior, those on the right under the horseshoe prior.
 ``` r
 par(mfrow = c(6, 2))
 for (i in seq_len(d)) {
-  plot(beta.sc[, i], type = "l", xlab = "", ylab = "", main = colnames(beta.sc)[i])
-  plot(beta.hs[, i], type = "l", xlab = "", ylab = "", main = colnames(beta.sc)[i])
+  plot(beta.sc[, i], type = "l", xlab = "", ylab = "",
+       main = colnames(beta.sc)[i])
+  plot(beta.hs[, i], type = "l", xlab = "", ylab = "",
+       main = colnames(beta.sc)[i])
 }
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-36-1.png)![](Chapter06_files/figure-html/unnamed-chunk-36-2.png)
+![](Chapter06_files/figure-html/unnamed-chunk-37-1.png)![](Chapter06_files/figure-html/unnamed-chunk-37-2.png)
 
 To sum up, we visualize the posterior of the effects and corresponding
 (square root of the) shrinkage parameters. For visual inspection, we
@@ -818,9 +824,9 @@ for (i in seq_len(ncol(beta.hs))) {
 }
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-38-1.png)
+![](Chapter06_files/figure-html/unnamed-chunk-39-1.png)
 
-#### Example 6.8: Movie data- Check convergence by a second MCMC run
+#### Example 6.8: Movie data - Check convergence by a second MCMC run
 
 We verify convergence of the sampler by doing a second run of the six
 block sampler in Algorithm 6.2. In the QQ plots of the draws of the
@@ -834,16 +840,16 @@ par(mfrow = c(1, 2),mar = c(2.0, 2.0, 2.0, .1), mgp = c(1, .2, 0))
 qqplot(post.draws.hs$betas[, 1], post.draws.hs2$betas[, 1], 
        xlim = range(post.draws.hs$betas[, 1], post.draws.hs2$betas[, 1]),
        ylim = range(post.draws.hs$betas[, 1], post.draws.hs2$betas[, 1]),
-       main = "QQ plot for the intercept", xlab = "First run", ylab = "Second run" )
+       main = "QQ plot for the intercept", xlab = "First run", ylab = "Second run")
 abline(a = 0, b = 1)
 qqplot(post.draws.hs$sigma2s, post.draws.hs2$sigma2s,
        xlim = range(post.draws.hs$sigma2s, post.draws.hs2$sigma2s),
        ylim = range(post.draws.hs$sigma2s, post.draws.hs2$sigma2s),
-       main = "QQ plot for the error variance",xlab = "First run", ylab = "Second run" )
+       main = "QQ plot for the error variance", xlab = "First run", ylab = "Second run")
 abline(a = 0, b = 1)
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-39-1.png)
+![](Chapter06_files/figure-html/unnamed-chunk-40-1.png)
 
 #### Example 6.9: Movie data - Predictions
 
@@ -897,7 +903,7 @@ points(x = (1:nf)+0.2, y = pred.mean.hs, pch = 16, col = "red")
 axis(1, at = 1:nf, labels = c("A", "B", "C", "D"))
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-41-1.png)
+![](Chapter06_files/figure-html/unnamed-chunk-42-1.png)
 
 ## Section 6.5: Shrinkage beyond the Horseshoe Prior
 
@@ -975,7 +981,7 @@ legend(x = "top",  inset = 0,
        lwd = 2, cex = 1, horiz = TRUE, xjust = 0.5)
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-42-1.png)
+![](Chapter06_files/figure-html/unnamed-chunk-43-1.png)
 
 The shrinkage profiles of these priors are visualized in the following
 plot.
@@ -1022,7 +1028,7 @@ legend(x = 1.05, y = 3,
        lwd = 2, cex = 1, horiz = FALSE)
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-43-1.png)
+![](Chapter06_files/figure-html/unnamed-chunk-44-1.png)
 
 #### Example 6.11: A hierarchical Bayesian lasso prior
 
@@ -1041,4 +1047,4 @@ for (a in c(0.1, 1, 10)) {
 }
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-44-1.png)
+![](Chapter06_files/figure-html/unnamed-chunk-45-1.png)
