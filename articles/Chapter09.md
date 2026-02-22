@@ -2,7 +2,7 @@
 
 ## Section 9.1: From Bayesian Posterior to Bayesian Predictive Inference
 
-### Example 9.1: Road Safety Data
+### Example 9.1: Road Safety Data - Single Predictions
 
 We load the data and extract the observations for the senior people in
 Linz. We then plot the pdf and cdf for the predictive distribution which
@@ -322,7 +322,7 @@ points(pk3, col = 3, cex = 1.5, pch = 16)
 
 ## Section 9.5: Bayesian Forecasting of Time Series
 
-### Example 2.14: One-step-ahead forecasting of GDP
+### Example 9.14: One-step-ahead forecasting of GDP
 
 For creating the design matrix for an AR model, we re-use the function
 from Chapter 7.
@@ -427,7 +427,7 @@ for (h in 3:8) {
 }
 ```
 
-And we visualize. First, four randomly selected paths.
+And we visualize. First, we plot four randomly selected paths.
 
 ``` r
 horizon <- 8
@@ -449,7 +449,7 @@ for (i in 1:4) {
 
 ![](Chapter09_files/figure-html/unnamed-chunk-25-1.png)
 
-And now fan charts.
+And now we plot fan charts.
 
 ``` r
 par(mfrow = c(1, 1))

@@ -13,11 +13,11 @@ library("BayesianLearningCode")
 data("labor", package = "BayesianLearningCode")
 ```
 
-We model the binary variable unemployment as dependent variable and use
-as covariates the variables female (binary), wcollar (binary), age18
-(quantitative, centered at 18 years) and unemployed in 1997 (binary).
-The baseline person is hence an 18 year old male blue collar worker who
-was employed in 1997.
+We model the income variable binarized into unemployed (zero income) and
+employed as dependent variable and use as covariates the variables
+female (binary), age18 (quantitative, centered at 18 years), wcollar
+(binary), and unemployed in 1997 (binary). The baseline person is hence
+an 18 year old male blue collar worker who was employed in 1997.
 
 ``` r
 y.unemp <- labor$income_1998 == "zero"
@@ -29,7 +29,7 @@ X.unemp <- with(labor, cbind(intercept = rep(1, N.unemp),
                              unemp97 = income_1997 == "zero")) # regressor matrix
 ```
 
-#### Example 8.2.
+#### Example 8.2
 
 The regression coefficients are estimated using data augmentation and
 Gibbs sampling. We define a function yielding posterior draws using the
@@ -39,7 +39,7 @@ algorithm detailed in Section 8.1.1.
 probit <- function(y, X, b0 = 0, B0 = 10000,
                    burnin = 1000L, M = 20000L) {
   N <- length(y)
-  d <- ncol(X) # number regression effects 
+  d <- ncol(X) # number of regression effects 
 
   B0.inv <- diag(rep(1 / B0, length.out = d), nrow = d) 
   b0 <- rep(b0, length.out = d) 
@@ -50,12 +50,12 @@ probit <- function(y, X, b0 = 0, B0 = 10000,
   
   z <- rep(NA_real_, N)
 
-  # define quantities for the Gibbs sampler
+  # Define quantities for the Gibbs sampler
   BN <- solve(B0.inv + crossprod(X))
   ind0 <- (y == 0) # indicators for zeros
   ind1 <- (y == 1) # indicators for ones
 
-  # starting values
+  # Set starting values
   beta <- c(qnorm(mean(y)), rep(0, d-1))
 
   for (m in seq_len(burnin + M)) {
@@ -67,7 +67,7 @@ probit <- function(y, X, b0 = 0, B0 = 10000,
     z[ind0] <- eta[ind0] + qnorm(u[ind0] * (1 - pi[ind0]))
     z[ind1] <- eta[ind1] + qnorm(1 - u[ind1] * pi[ind1])
   
-    # sample beta from the full conditional 
+    # Sample beta from the full conditional 
     bN <- BN %*% (B0inv.b0 + crossprod(X, z))
     beta <- t(mvtnorm::rmvnorm(1, mean = bN, sigma = BN))
     
@@ -95,10 +95,13 @@ function.
 res.mcmc <- function(x, lower = 0.025, upper = 0.975) {
   res <- c(quantile(x, lower), mean(x), quantile(x, upper))
   names(res) <- c(paste0(lower * 100, "%"), "Posterior mean", 
-                  paste0(upper *   100, "%"))
+                  paste0(upper * 100, "%"))
   res
 }
 ```
+
+We summarize the the regression effects using posterior means and
+equal-tailed 95% credible intervals.
 
 ``` r
 res_beta <- t(apply(betas, 2, res.mcmc))
@@ -113,8 +116,10 @@ knitr::kable(round(res_beta, 3))
 | wcollar   | -0.293 |         -0.183 | -0.074 |
 | unemp97   |  2.412 |          2.523 |  2.637 |
 
-``` r
+We determine the estimated risk of unemployment for a baseline person
+using the posterior mean estimate of the intercept.
 
+``` r
 (p_unemploy_base <- pnorm(res_beta[1, 2]))
 #> [1] 0.0241192
 ```
@@ -123,6 +128,9 @@ The estimated risk of unemployment for a baseline person is low and it
 is even lower for a white collar worker. It is higher for females, older
 persons and particularly for those unemployed in 1997.
 
+We visualize the estimated posterior distributions for the regression
+effects using histograms.
+
 ``` r
 for (j in seq_len(ncol(betas))) {
   hist(betas[, j], freq = FALSE, main = "", xlab = colnames(betas)[j], 
@@ -130,7 +138,7 @@ for (j in seq_len(ncol(betas))) {
 }
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-9-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-10-1.png)
 
 A plot of the autocorrelation of the draws shows that although there is
 some autocorrelation, it vanishes after a few lags.
@@ -139,13 +147,19 @@ some autocorrelation, it vanishes after a few lags.
 for (j in seq_len(ncol(betas))) {
   acf(betas[, j], main = "", xlab = colnames(betas)[j], ylab = "")
 }
+```
+
+![](Chapter08_files/figure-html/unnamed-chunk-11-1.png)
+
+We also determine the estimated effective sample sizes (ESSs) to assess
+the efficiency of the sampler.
+
+``` r
 library("coda")
 effectiveSize(betas)
 #> intercept    female     age18   wcollar   unemp97 
 #>  2861.744  3726.047  2758.979  3558.712  3615.351
 ```
-
-![](Chapter08_files/figure-html/unnamed-chunk-10-1.png)
 
 The sampler is easy to implement, however there might be problems when
 the response variable contains either only very few or very many
@@ -170,7 +184,8 @@ betas2 <- probit(y2, X, b0 = 0, B0 = 10000)
 ```
 
 In both cases the autocorrelation of the draws decreases very slowly and
-remains still high even for higher lags.
+remains still high even for higher lags. Also the ESSs are substantially
+reduced.
 
 ``` r
 plot(betas1, type = "l", main = "", xlab = "", ylab = "")
@@ -184,7 +199,7 @@ plot(betas2, type = "l", main = "", xlab = "", ylab = "")
 acf(betas2)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-12-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-14-1.png)
 
 ``` r
 
@@ -223,7 +238,7 @@ table(x.sep, y)
 
 We estimate the model parameters and plot the ACF of the draws. Again
 the autocorrelations remain high for many lags and are still high even
-for lag 35.
+for lag 35. Also the ESSs are very low.
 
 ``` r
 
@@ -238,7 +253,7 @@ plot(betas.sep[, 2], type = "l", main = "", xlab = "", ylab = "")
 acf(betas.sep[, 2])
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-14-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-16-1.png)
 
 ``` r
 
@@ -250,7 +265,7 @@ effectiveSize(betas.sep)
 #### Example 8.5
 
 To illustrate quasi-separation we use the same responses as in Example
-8.3., but now set $x = 1$ for all successes and additionally for 100
+8.3, but now set $x = 1$ for all successes and additionally for 100
 failures. Hence for $x = 0$ always a failure is observed, whereas for
 $x = 1$ both successes and failures occur.
 
@@ -264,7 +279,7 @@ table(x.qus1, y)
 ```
 
 Again autocorrelations are very high for both the intercept as well as
-the covariate effect.
+the covariate effect and the ESSs are very low.
 
 ``` r
 par(mfrow = c(2, 2), mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
@@ -280,7 +295,7 @@ plot(betas.qus1[, 2], type = "l", main = "", xlab = "", ylab = "")
 acf(betas.qus1[, 2])
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-16-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-18-1.png)
 
 ``` r
 
@@ -292,7 +307,8 @@ effectiveSize(betas.qus1)
 If we change the setting so that $x$ takes values of $0$ not only for
 failures but also for some successes, whereas $x = 1$ for all successes,
 we observe low autocorrelations for the intercept but still very high
-autocorrelations for the covariate effect.
+autocorrelations for the covariate effect. Also the ESSs are high for
+the intercept and low for the covariate effect.
 
 ``` r
 x.qus2 <- rep(c(0, 1), c(ns+100, N - ns-100))
@@ -314,7 +330,7 @@ plot(betas.qus2[, 2], type = "l", main = "", xlab = "", ylab = "")
 acf(betas.qus2[, 2])
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-17-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-19-1.png)
 
 ``` r
 
@@ -331,10 +347,10 @@ regression effects will result in an improper posterior distribution.
 Hence, a proper prior is required to avoid improper posteriors in case
 of separation.
 
-We now analyze the data under the more informative prior,
-\$\Normal(\mathbf{0}, \mathbf{I}}\$. With this prior we assume that both
-$P(y = 1)$ and $P(y = 0)$ have a prior probability of $\approx 0.95$ to
-be in the interval $\lbrack 0.023,0.977\rbrack$.
+We now analyze the data under a more informative prior, i.e.,
+$\mathcal{N}(\mathbf{0},\mathbf{I})$. With this prior we assume that
+both $P(y = 1)$ and $P(y = 0)$ have a prior probability of
+$\approx 0.95$ to be in the interval $\lbrack 0.023,0.977\rbrack$.
 
 ``` r
 set.seed(1234)
@@ -349,8 +365,8 @@ knitr::kable(round(res_betas.sep1, 3))
 |       | -2.853 |         -2.352 | -1.921 |
 | x.sep |  4.211 |          4.883 |  5.622 |
 
-In this case the autocorrelations are much lower and the effective
-sample sizes are roughly 700.
+In this case the autocorrelations are much lower and the ESSs are
+roughly 600.
 
 ``` r
 par(mfrow = c(2, 2), mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
@@ -362,7 +378,7 @@ plot(betas.sep1[, 2], type = "l", main = "", xlab = "", ylab = "")
 acf(betas.sep1[, 2])
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-19-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-21-1.png)
 
 ``` r
 
@@ -392,11 +408,11 @@ logit <- function(y, X, b0 = 0, B0 = 10000,
   betas <- matrix(NA_real_, nrow = M, ncol = d)
   colnames(betas) <- colnames(X)
 
-  # define quantities for the Gibbs sampler
+  # Define quantities for the Gibbs sampler
   ind0 <- (y == 0) # indicators for zeros
   ind1 <- (y == 1) # indicators for ones
   
-  # starting values
+  # Set starting values
   beta <- rep(0, d)
   z <- rep(NA_real_, N)
   omega <-rep(NA_real_, N)
@@ -413,7 +429,7 @@ logit <- function(y, X, b0 = 0, B0 = 10000,
     # Draw omega conditional on y, beta and z
     omega <- pgdraw::pgdraw(b = 1, c = z - eta)
   
-    # sample beta from the full conditional 
+    # Sample beta from the full conditional 
     Xomega <- matrix(omega, ncol = d, nrow = N) * X
     BN <- solve(B0.inv + crossprod(Xomega, X))
     bN <- BN %*% (B0inv.b0 + crossprod(Xomega, z))
@@ -429,31 +445,29 @@ logit <- function(y, X, b0 = 0, B0 = 10000,
 ```
 
 We again use the flat independence normal prior on the regression
-effects and estimate the model.
+effects and estimate the model. We summarize the posterior effect
+estimates and determine the risk of unemployment for a baseline person
+using the fitted logit model.
 
 ``` r
 betas_logit <- logit(y.unemp, X.unemp, b0 = 0, B0 = 10000)
-print(str(betas_logit))
-#>  num [1:5000, 1:5] -3.58 -3.53 -3.49 -3.71 -3.77 ...
-#>  - attr(*, "dimnames")=List of 2
-#>   ..$ : NULL
-#>   ..$ : chr [1:5] "intercept" "female" "age18" "wcollar" ...
-#> NULL
 
-res_beta_logit <- apply(betas_logit, 2, res.mcmc)
+res_beta_logit <- t(apply(betas_logit, 2, res.mcmc))
 knitr::kable(round(res_beta_logit, 3))
 ```
 
-|                | intercept | female | age18 | wcollar | unemp97 |
-|:---------------|----------:|-------:|------:|--------:|--------:|
-| 2.5%           |    -4.063 |  0.146 | 0.045 |  -0.608 |   4.089 |
-| Posterior mean |    -3.678 |  0.411 | 0.056 |  -0.338 |   4.380 |
-| 97.5%          |    -3.304 |  0.694 | 0.067 |  -0.048 |   4.666 |
+|           |   2.5% | Posterior mean |  97.5% |
+|:----------|-------:|---------------:|-------:|
+| intercept | -4.063 |         -3.678 | -3.304 |
+| female    |  0.146 |          0.411 |  0.694 |
+| age18     |  0.045 |          0.056 |  0.067 |
+| wcollar   | -0.608 |         -0.338 | -0.048 |
+| unemp97   |  4.089 |          4.380 |  4.666 |
 
 ``` r
 
 (p_unemploy_base <- plogis(res_beta_logit[1, 2]))
-#> [1] 0.5364618
+#> [1] 0.02464174
 ```
 
 Note that the logistic distribution has a variance of $\pi^{2}/3$ and
@@ -524,22 +538,22 @@ gen.proposal.poisson <- function(y, X, e, b0 = 0, B0 = 100, t.max = 30) {
   b0 <- rep(b0, length.out = d)
   B0.inv <- diag(rep(1 / B0, length.out = d), nrow = d) 
 
-  for (t in 1:t.max) {
+  for (t in seq_len(t.max)) {
     rate <- e * exp(X %*% beta.old)
     score <- t(crossprod(y - rate, X) - (beta.old - b0) %*% B0.inv)
 
     H <- -B0.inv
-    for (i in 1:N) {
+    for (i in seq_len(N)) {
       H <- H - rate[i] * tcrossprod(X[i, ])
     }
     betas[, t] <- beta.old - solve(H, score)
   }
   qmean <- betas[, t.max]
   
-  # determine the variance matrix  
+  # Determine the variance matrix  
   rate <- e * exp(X %*% qmean)
   H <- -B0.inv
-  for (i in 1:N) {
+  for (i in seq_len(N)) {
      H <- H - rate[i] * tcrossprod(X[i, ])
   }
   qvar <- -solve(H)
@@ -552,7 +566,7 @@ We use a flat normal prior on the regression effects.
 
 ``` r
 parms.proposal <- gen.proposal.poisson(y, X, e, b0 = 0, B0 = 100)
-print(parms.proposal)
+parms.proposal
 #> $mean
 #> [1]  0.8867173 -0.3465599 -0.5944486
 #> 
@@ -583,26 +597,26 @@ poisson <- function(y, X, e, b0 = 0, B0 = 100, qmean, qvar,
     beta.old <- beta
     beta.proposed <- as.vector(mvtnorm::rmvnorm(1, mean = qmean, sigma = qvar))
     
-    # compute log proposal density at proposed and old value
+    # Compute log proposal density at proposed and old value
     lq_proposed <- mvtnorm::dmvnorm(beta.proposed, mean = qmean, sigma = qvar,
                                     log = TRUE)
     lq_old  <- mvtnorm::dmvnorm(beta.old, mean = qmean, sigma = qvar,
                                 log = TRUE)
     
-    # compute log prior of proposed and old value
+    # Compute log prior of proposed and old value
     lpri_proposed <- mvtnorm::dmvnorm(beta.proposed, mean = b0, sigma = B0,
                                       log = TRUE)
     lpri_old  <- mvtnorm::dmvnorm(beta.old, mean = b0, sigma = B0,
                                   log = TRUE)
     
-    # compute log-likelihood of proposed and old value
+    # Compute log-likelihood of proposed and old value
     lh_proposed <- dpois(y, e * exp(X %*% beta.proposed), log = TRUE)
     lh_old  <- dpois(y, e * exp(X %*% beta.old), log = TRUE)
     
     maxlik <- max(lh_old, lh_proposed)
     ll <- sum(lh_proposed - maxlik) - sum(lh_old - maxlik)
     
-    # compute acceptance probability and accept or not
+    # Compute acceptance probability and accept or not
     log_acc <- min(0, ll + lpri_proposed - lpri_old + lq_old - lq_proposed)
     
     if (log(runif(1)) < log_acc) {
@@ -638,7 +652,7 @@ knitr::kable(round(res.poisson1, 3))
 | holiday      | -1.222 |         -0.824 | -0.439 |     0.439 |
 
 ``` r
-print(res1$accept)
+res1$accept
 #> [1] 0.3174
 ```
 
@@ -656,13 +670,13 @@ X.large <- cbind(X,
 ```
 
 We set the prior parameters and compute parameters of the proposal
-distribution
+distribution.
 
 ``` r
 parms.proposal2 <- gen.proposal.poisson(y, X.large, e, b0 = 0, B0 = 100)
 ```
 
-and fit the model.
+The we fit the model.
 
 ``` r
 res2 <- poisson(y, X.large, e, b0 = 0, B0 = 100,
@@ -691,13 +705,8 @@ knitr::kable(round(res.poisson2, 3))
 | Nov          | -1.500 |         -0.144 | 1.645 |     0.866 |
 
 ``` r
-print(res2$accept)
+res2$accept
 #> [1] 0.1132
-```
-
-``` r
-# xtable(res.poisson1, caption= "Count Data: estimation results for Model 1", label="res.count1", digits=3)
-# xtable(res.poisson2, caption= "Count Data: estimation results for Model 2", label="res.count2", digits=3)
 ```
 
 ### Section 8.2.2: Negative binomial regression
@@ -705,14 +714,14 @@ print(res2$accept)
 #### Example 8.8: Road safety data
 
 Now we analyze the road safety data allowing for unobserved
-heterogeneity. We first set up both the two versions of the three-block
-MH-within-Gibbs sampler
+heterogeneity. We first set up the two versions of the three-block
+MH-within-Gibbs sampler.
 
 ``` r
 negbin <- function(y, X, e, b0 = 0, B0 = 100, qmean, qvar, pri.alpha,
-                    full.gibbs= FALSE, burnin = 1000L, M = 50000L) {
+                   full.gibbs = FALSE, burnin = 1000L, M = 50000L) {
   
-  N=length(y)
+  N <- length(y)
   d <- ncol(X)
   beta.post <- matrix(ncol = d, nrow = M)
   colnames(beta.post) <- colnames(X)
@@ -722,39 +731,39 @@ negbin <- function(y, X, e, b0 = 0, B0 = 100, qmean, qvar, pri.alpha,
   
   acc.beta <- numeric(length = M)
   
-  alpha.post<- rep(NA,M)
-  acc.alpha <-rep(NA,M)
+  alpha.post <- rep(NA_real_, M)
+  acc.alpha <- rep(NA_real_, M)
   c_alpha <- 0.1
   
-  # set starting values
+  # Set starting values
   beta <- as.vector(mvtnorm::rmvnorm(1, mean = qmean, sigma = qvar))
   alpha <- pri.alpha$shape/pri.alpha$rate
-  phi <- rep(1.,N)
+  phi <- rep(1, N)
   
   for (m in seq_len(burnin + M)){
-     # Step 1: draw beta  
+     # Step 1: Draw beta  
      beta.old <- beta
      beta.proposed <- as.vector(mvtnorm::rmvnorm(1, mean = qmean, sigma = qvar))
 
-     # compute log proposal density at proposed and old value
+     # Compute log proposal density at proposed and old value
      lq_proposed <- mvtnorm::dmvnorm(beta.proposed, mean = qmean, sigma = qvar, 
                                      log = TRUE)
      lq_old  <- mvtnorm::dmvnorm(beta.old, mean = qmean, sigma = qvar,
                                  log = TRUE)
             
-     # compute log prior  of proposed and old value
+     # Compute log prior  of proposed and old value
      lpri_proposed <- mvtnorm::dmvnorm(beta.proposed, mean = b0, sigma = B0, 
                                        log = TRUE)
      lpri_old  <- mvtnorm::dmvnorm(beta.old,  mean = b0, sigma = B0, log = TRUE)
 
-     # compute log likelihood of proposed and old value
+     # Compute log likelihood of proposed and old value
      lh_proposed <- dpois(y, exp(X %*% beta.proposed),  log = TRUE)
      lh_old  <- dpois(y, exp(X %*% beta.old), log = TRUE)
 
      maxlik <- max(lh_old,lh_proposed)
      ll <- sum(lh_proposed - maxlik) - sum(lh_old - maxlik)
 
-     # compute acceptance probability and accept or not
+     # Compute acceptance probability and accept or not
      log_acc <- min(0, ll + lpri_proposed - lpri_old + lq_old - lq_proposed)
 
      if (log(runif(1)) < log_acc) {
@@ -766,7 +775,7 @@ negbin <- function(y, X, e, b0 = 0, B0 = 100, qmean, qvar, pri.alpha,
      }
      linpred <- X %*% beta
 
-     # Step 2:  Sample alpha
+     # Step 2: Sample alpha
      alpha.old <- alpha
      alpha.proposed <- alpha.old * exp(c_alpha * rnorm(1))
      
@@ -796,7 +805,7 @@ negbin <- function(y, X, e, b0 = 0, B0 = 100, qmean, qvar, pri.alpha,
         acc.a <- 0
      }
    
-    # Step 3:  sample phi from its full conditional
+    # Step 3: Sample phi from its full conditional
     phi <- rgamma(N, shape = alpha + y, rate = alpha + e * exp(linpred))
     
     # Save the draws
@@ -836,12 +845,12 @@ knitr::kable(round(res.negbin.full, 3))
 | alpha        |  6.565 |         12.455 | 21.430 |
 
 ``` r
-
                
 res2 <- negbin(y, X, e, qmean = parms.proposal$mean, qvar = parms.proposal$var,
                pri.alpha = pri.alpha, full.gibbs = FALSE)
 
-res.negbin.partial <- rbind(t(apply(res2$beta.post, 2, res.mcmc)),                          res.mcmc(res2$alpha.post))
+res.negbin.partial <- rbind(t(apply(res2$beta.post, 2, res.mcmc)),
+                            res.mcmc(res2$alpha.post))
 rownames(res.negbin.partial)[4] <- "alpha"
 knitr::kable(round(res.negbin.partial, 3))
 ```
@@ -854,11 +863,6 @@ knitr::kable(round(res.negbin.partial, 3))
 | alpha        |  6.513 |         12.534 | 22.046 |
 
 As expected estimation results using both samplers are rather similar.
-
-``` r
-#require(xtable)
-#xtable(cbind(t(res.negbin.full), t(res.negbin.partial)), label="exam:negbin_est")
-```
 
 ### Section 8.2.3: Evaluating MCMC samplers
 
@@ -873,9 +877,9 @@ print(c(mean(res2$acc.beta), mean(res2$acc.alpha)))
 if (pdfplots) {
   pdf("8-2_1.pdf", width = 8, height = 5)
 }
-par(mfrow = c(1,2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
+par(mfrow = c(1, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
 
-qqplot(res1$beta.post[,1], res2$beta.post[,1], xlab = "Full Gibbs",
+qqplot(res1$beta.post[, 1], res2$beta.post[, 1], xlab = "Full Gibbs",
        ylab = "Partial Gibbs", main = "Intercept")
 abline(a = 0, b = 1)
 
