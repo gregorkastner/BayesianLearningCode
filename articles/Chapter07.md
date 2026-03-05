@@ -38,6 +38,11 @@ standard regression model, using the tools developed in Chapter 6.
 
 ``` r
 library("BayesianLearningCode")
+#> 
+#> Attaching package: 'BayesianLearningCode'
+#> The following object is masked from 'package:datasets':
+#> 
+#>     cars
 library("mvtnorm")
 
 regression <- function(y, X, prior = "improper", b0 = 0, B0 = 1, c0 = 0.01,
@@ -1539,7 +1544,7 @@ legend("topleft", col = 2:6, lty = 1,
 legend("topright", col = 1, lty = 1:2,
        legend = c("female", "male"))
 plot(c(0.03, 0.23), c(0, 90), type = "n", xlab = "", ylab = "",
-     main = "Posterior of transition probabilities")
+     main = "Posterior of selected transition probabilities")
 trans_female <- cbind((1 + N_female)[cbind(1:5, 2:6)],
                   rowSums(1 + N_female)[1:5] - (1 + N_female)[cbind(1:5, 2:6)])
 trans_male <- cbind((1 + N_male)[cbind(1:5, 2:6)],

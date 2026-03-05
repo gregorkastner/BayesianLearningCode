@@ -45,6 +45,11 @@ variance.
 
 ``` r
 library("BayesianLearningCode")
+#> 
+#> Attaching package: 'BayesianLearningCode'
+#> The following object is masked from 'package:datasets':
+#> 
+#>     cars
 posteriorjoint <- function(mu, sigma2, ybar, s2, N) {
   dnorm(mu, ybar, sqrt(sigma2 / N)) *
     dinvgamma(sigma2, (N - 1) / 2, N * s2 / 2)

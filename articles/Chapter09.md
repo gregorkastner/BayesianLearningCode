@@ -37,6 +37,11 @@ $$y_{f}|\mathbf{y} \sim {\mathcal{t}}_{2c_{N}}\left( \bar{y},\frac{Ns_{y}^{2}}{N
 
 ``` r
 library("BayesianLearningCode")
+#> 
+#> Attaching package: 'BayesianLearningCode'
+#> The following object is masked from 'package:datasets':
+#> 
+#>     cars
 data("exrates", package = "stochvol")
 y <- 100 * diff(log(exrates$USD / exrates$CHF))
 ybar <- mean(y)
