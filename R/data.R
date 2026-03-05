@@ -1,3 +1,14 @@
+#' Car Registration Data
+#'
+#' Registrations counts of new passenger cars in Austria.
+#' Monthly time series data from January 2000 to January 2026.
+#'
+#' @format A monthly time series object with 313 observations.
+#' @source Statistik Austria open.data, retrieved from
+#' \url{https://data.statistik.gv.at/web/meta.jsp?dataset=OGD_fkfzul0759_OD_PkwNZL_1},
+#' March 5, 2026.
+"cars"
+
 #' Inflation Data
 #'
 #' Harmonized Index of Consumer Prices (HICP) in the Euro area (changing
