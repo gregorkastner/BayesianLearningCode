@@ -1,4 +1,4 @@
-#' Car Registration Data
+#' New Cars Registration Data
 #'
 #' Registrations counts of new passenger cars in Austria.
 #' Monthly time series data from January 2000 to January 2026.
@@ -7,7 +7,7 @@
 #' @source Statistik Austria open.data, retrieved from
 #' \url{https://data.statistik.gv.at/web/meta.jsp?dataset=OGD_fkfzul0759_OD_PkwNZL_1},
 #' March 5, 2026.
-"cars"
+"newcars"
 
 #' Inflation Data
 #'
