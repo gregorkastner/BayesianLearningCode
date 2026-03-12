@@ -13,8 +13,8 @@ library("BayesianLearningCode")
 data("labor", package = "BayesianLearningCode")
 ```
 
-We model the income variable binarized into unemployed (zero income) and
-employed as dependent variable and use as covariates the variables
+We model the income in 1998, binarized into unemployed (zero income) and
+employed as dependent variable, and use as covariates the variables
 female (binary), age18 (quantitative, centered at 18 years), wcollar
 (binary), and unemployed in 1997 (binary). The baseline person is hence
 an 18 year old male blue collar worker who was employed in 1997.
@@ -81,7 +81,7 @@ probit <- function(y, X, b0 = 0, B0 = 10000,
 ```
 
 We specify the prior on the regression effects as a rather flat normal
-independence prior and estimate the model.
+independence prior and estimate the model parameters.
 
 ``` r
 set.seed(1234)
@@ -100,8 +100,8 @@ res.mcmc <- function(x, lower = 0.025, upper = 0.975) {
 }
 ```
 
-We summarize the the regression effects using posterior means and
-equal-tailed 95% credible intervals.
+We show posterior means and equal-tailed 95% credible intervals of the
+regression effects.
 
 ``` r
 res_beta <- t(apply(betas, 2, res.mcmc))
@@ -116,20 +116,22 @@ knitr::kable(round(res_beta, 3))
 | wcollar   | -0.293 |         -0.183 | -0.074 |
 | unemp97   |  2.412 |          2.523 |  2.637 |
 
-We determine the estimated risk of unemployment for a baseline person
-using the posterior mean estimate of the intercept.
+Next, we determine the estimated risk of unemployment for a baseline
+person, i.e. a 18 year old male blue collar worker who was employed in
+1997, using the posterior mean estimate of the intercept.
 
 ``` r
-(p_unemploy_base <- pnorm(res_beta[1, 2]))
-#> [1] 0.0241192
+(p_unemploy_base <- round(pnorm(res_beta[1, 2]),4))
+#> [1] 0.0241
 ```
 
-The estimated risk of unemployment for a baseline person is low and it
-is even lower for a white collar worker. It is higher for females, older
+The estimated risk of unemployment for a baseline person is very low
+with a value of 0.0241. It is even lower  
+for a white collar worker, but higher than for a for females, older
 persons and particularly for those unemployed in 1997.
 
-We visualize the estimated posterior distributions for the regression
-effects using histograms.
+We next visualize the estimated posterior distributions for the
+regression effects by histograms.
 
 ``` r
 for (j in seq_len(ncol(betas))) {
@@ -236,9 +238,9 @@ table(x.sep, y)
 #>     1   0 250
 ```
 
-We estimate the model parameters and plot the ACF of the draws. Again
-the autocorrelations remain high for many lags and are still high even
-for lag 35. Also the ESSs are very low.
+We estimate the model parameters and plot the ACF of the draws. We see
+very high autocorrelations even at lag 35 and hence the ESSs are very
+low.
 
 ``` r
 
