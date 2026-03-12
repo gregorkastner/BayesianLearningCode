@@ -16,8 +16,6 @@
   : The Non-standardized Student t Distribution
 - [`accidents`](https://gregorkastner.github.io/BayesianLearningCode/reference/accidents.md)
   : Accidents Data
-- [`cars`](https://gregorkastner.github.io/BayesianLearningCode/reference/cars.md)
-  : Car Registration Data
 - [`eyetracking`](https://gregorkastner.github.io/BayesianLearningCode/reference/eyetracking.md)
   : Eye Tracking Data
 - [`gdp`](https://gregorkastner.github.io/BayesianLearningCode/reference/gdp.md)
@@ -28,5 +26,7 @@
   : Labor Market Data
 - [`movies`](https://gregorkastner.github.io/BayesianLearningCode/reference/movies.md)
   : Movie Open Box Office Data
+- [`newcars`](https://gregorkastner.github.io/BayesianLearningCode/reference/newcars.md)
+  : New Cars Registration Data
 - [`words`](https://gregorkastner.github.io/BayesianLearningCode/reference/words.md)
   : Words Data
