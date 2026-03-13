@@ -176,7 +176,7 @@ knitr::kable(res_eff)
 | unemp97   | 3615.4 |  5.53 |
 
 The effective sample size is larger than 3000 for each regression
-effect, thus yielding inefficiency factors below 6.6.
+effect, thus yielding inefficiency factors below 5.37.
 
 The sampler is easy to implement, however there might be problems when
 the response variable contains either only very few or very many
@@ -194,10 +194,10 @@ N <- 500
 X <- matrix(1, nrow = N)
 
 y1 <- c(0, rep(1, N-1))
-betas1 <- probit(y1, X, b0 = 0, B0 = 10000, M=M)
+betas1 <- probit(y1, X, b0 = 0, B0 = 10000,  burnin=1000,M=M)
 
 y2 <- c(rep(0, N-1), 1)
-betas2 <- probit(y2, X, b0 = 0, B0 = 10000) 
+betas2 <- probit(y2, X, b0 = 0, B0 = 10000, burnin=1000,M=M)
 ```
 
 In both cases the autocorrelation of the draws decreases very slowly and
@@ -205,14 +205,14 @@ remains still high even for higher lags. Also the ESSs are substantially
 reduced.
 
 ``` r
-plot(betas1, type = "l", main = "", xlab = "", ylab = "")
+plot(betas1, type = "l", main = "", xlab = "Draws after burnin", ylab = "")
 acf(betas1)
 
-effectiveSize(betas1)
-#>     var1 
-#> 165.9583
+round(M/ effectiveSize(betas1),2)
+#>   var1 
+#> 120.51
 
-plot(betas2, type = "l", main = "", xlab = "", ylab = "")
+plot(betas2, type = "l", main = "", xlab = "Draws after burnin", ylab = "")
 acf(betas2)
 ```
 
@@ -220,9 +220,9 @@ acf(betas2)
 
 ``` r
 
-effectiveSize(betas2)
-#>     var1 
-#> 150.8803
+round(M/ effectiveSize(betas2),2)
+#>   var1 
+#> 132.56
 ```
 
 High autocorrelation in MCMC draws for probit models not only occurs if
@@ -263,7 +263,7 @@ set.seed(1234)
 X.sep <- cbind(rep(1, N), x.sep)
 betas.sep <- probit(y, X.sep, b0 = 0, B0 = 10000)
 
-plot(betas.sep[, 1], type = "l", main = "", xlab = "", ylab = "")
+plot(betas.sep[, 1], type = "l",  xlab = "Draws after burnin", ylab = "")
 acf(betas.sep[, 1])
 
 plot(betas.sep[, 2], type = "l", main = "", xlab = "", ylab = "")
@@ -277,6 +277,9 @@ acf(betas.sep[, 2])
 effectiveSize(betas.sep)
 #>             x.sep 
 #> 8.375523 8.269881
+round(M/ effectiveSize(betas.sep),2)
+#>           x.sep 
+#> 2387.91 2418.41
 ```
 
 #### Example 8.5

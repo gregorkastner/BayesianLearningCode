@@ -279,7 +279,7 @@ assess the efficiency of the sampler.</p>
 </tbody>
 </table>
 <p>The effective sample size is larger than 3000 for each regression
-effect, thus yielding inefficiency factors below 6.6.</p>
+effect, thus yielding inefficiency factors below 5.37.</p>
 <p>The sampler is easy to implement, however there might be problems
 when the response variable contains either only very few or very many
 successes.</p>
@@ -297,29 +297,29 @@ trials only 1 success or only 1 failure is observed.</p>
 <span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1</span>, nrow <span class="op">=</span> <span class="va">N</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">y1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">N</span><span class="op">-</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">betas1</span> <span class="op">&lt;-</span> <span class="fu">probit</span><span class="op">(</span><span class="va">y1</span>, <span class="va">X</span>, b0 <span class="op">=</span> <span class="fl">0</span>, B0 <span class="op">=</span> <span class="fl">10000</span>, M<span class="op">=</span><span class="va">M</span><span class="op">)</span></span>
+<span><span class="va">betas1</span> <span class="op">&lt;-</span> <span class="fu">probit</span><span class="op">(</span><span class="va">y1</span>, <span class="va">X</span>, b0 <span class="op">=</span> <span class="fl">0</span>, B0 <span class="op">=</span> <span class="fl">10000</span>,  burnin<span class="op">=</span><span class="fl">1000</span>,M<span class="op">=</span><span class="va">M</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">y2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">N</span><span class="op">-</span><span class="fl">1</span><span class="op">)</span>, <span class="fl">1</span><span class="op">)</span></span>
-<span><span class="va">betas2</span> <span class="op">&lt;-</span> <span class="fu">probit</span><span class="op">(</span><span class="va">y2</span>, <span class="va">X</span>, b0 <span class="op">=</span> <span class="fl">0</span>, B0 <span class="op">=</span> <span class="fl">10000</span><span class="op">)</span> </span></code></pre></div>
+<span><span class="va">betas2</span> <span class="op">&lt;-</span> <span class="fu">probit</span><span class="op">(</span><span class="va">y2</span>, <span class="va">X</span>, b0 <span class="op">=</span> <span class="fl">0</span>, B0 <span class="op">=</span> <span class="fl">10000</span>, burnin<span class="op">=</span><span class="fl">1000</span>,M<span class="op">=</span><span class="va">M</span><span class="op">)</span></span></code></pre></div>
 <p>In both cases the autocorrelation of the draws decreases very slowly
 and remains still high even for higher lags. Also the ESSs are
 substantially reduced.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">betas1</span>, type <span class="op">=</span> <span class="st">"l"</span>, main <span class="op">=</span> <span class="st">""</span>, xlab <span class="op">=</span> <span class="st">""</span>, ylab <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">betas1</span>, type <span class="op">=</span> <span class="st">"l"</span>, main <span class="op">=</span> <span class="st">""</span>, xlab <span class="op">=</span> <span class="st">"Draws after burnin"</span>, ylab <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/acf.html" class="external-link">acf</a></span><span class="op">(</span><span class="va">betas1</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/coda/man/effectiveSize.html" class="external-link">effectiveSize</a></span><span class="op">(</span><span class="va">betas1</span><span class="op">)</span></span>
-<span><span class="co">#&gt;     var1 </span></span>
-<span><span class="co">#&gt; 165.9583</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">M</span><span class="op">/</span> <span class="fu"><a href="https://rdrr.io/pkg/coda/man/effectiveSize.html" class="external-link">effectiveSize</a></span><span class="op">(</span><span class="va">betas1</span><span class="op">)</span>,<span class="fl">2</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   var1 </span></span>
+<span><span class="co">#&gt; 120.51</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">betas2</span>, type <span class="op">=</span> <span class="st">"l"</span>, main <span class="op">=</span> <span class="st">""</span>, xlab <span class="op">=</span> <span class="st">""</span>, ylab <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">betas2</span>, type <span class="op">=</span> <span class="st">"l"</span>, main <span class="op">=</span> <span class="st">""</span>, xlab <span class="op">=</span> <span class="st">"Draws after burnin"</span>, ylab <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/acf.html" class="external-link">acf</a></span><span class="op">(</span><span class="va">betas2</span><span class="op">)</span></span></code></pre></div>
 <p><img src="Chapter08_files/figure-html/unnamed-chunk-14-1.png" class="r-plt" alt="" width="768"></p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/coda/man/effectiveSize.html" class="external-link">effectiveSize</a></span><span class="op">(</span><span class="va">betas2</span><span class="op">)</span></span>
-<span><span class="co">#&gt;     var1 </span></span>
-<span><span class="co">#&gt; 150.8803</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">M</span><span class="op">/</span> <span class="fu"><a href="https://rdrr.io/pkg/coda/man/effectiveSize.html" class="external-link">effectiveSize</a></span><span class="op">(</span><span class="va">betas2</span><span class="op">)</span>,<span class="fl">2</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   var1 </span></span>
+<span><span class="co">#&gt; 132.56</span></span></code></pre></div>
 <p>High autocorrelation in MCMC draws for probit models not only occurs
 if successes or failures are very rare, but also when a covariate (or a
 linear combination of covariates) perfectly allows to predict successes
@@ -362,7 +362,7 @@ very low.</p>
 <span><span class="va">X.sep</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">N</span><span class="op">)</span>, <span class="va">x.sep</span><span class="op">)</span></span>
 <span><span class="va">betas.sep</span> <span class="op">&lt;-</span> <span class="fu">probit</span><span class="op">(</span><span class="va">y</span>, <span class="va">X.sep</span>, b0 <span class="op">=</span> <span class="fl">0</span>, B0 <span class="op">=</span> <span class="fl">10000</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">betas.sep</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span>, type <span class="op">=</span> <span class="st">"l"</span>, main <span class="op">=</span> <span class="st">""</span>, xlab <span class="op">=</span> <span class="st">""</span>, ylab <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">betas.sep</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span>, type <span class="op">=</span> <span class="st">"l"</span>,  xlab <span class="op">=</span> <span class="st">"Draws after burnin"</span>, ylab <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/acf.html" class="external-link">acf</a></span><span class="op">(</span><span class="va">betas.sep</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">betas.sep</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span>, type <span class="op">=</span> <span class="st">"l"</span>, main <span class="op">=</span> <span class="st">""</span>, xlab <span class="op">=</span> <span class="st">""</span>, ylab <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
@@ -372,7 +372,10 @@ very low.</p>
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/coda/man/effectiveSize.html" class="external-link">effectiveSize</a></span><span class="op">(</span><span class="va">betas.sep</span><span class="op">)</span></span>
 <span><span class="co">#&gt;             x.sep </span></span>
-<span><span class="co">#&gt; 8.375523 8.269881</span></span></code></pre></div>
+<span><span class="co">#&gt; 8.375523 8.269881</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">M</span><span class="op">/</span> <span class="fu"><a href="https://rdrr.io/pkg/coda/man/effectiveSize.html" class="external-link">effectiveSize</a></span><span class="op">(</span><span class="va">betas.sep</span><span class="op">)</span>,<span class="fl">2</span><span class="op">)</span></span>
+<span><span class="co">#&gt;           x.sep </span></span>
+<span><span class="co">#&gt; 2387.91 2418.41</span></span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="example-8-5">Example 8.5<a class="anchor" aria-label="anchor" href="#example-8-5"></a>
