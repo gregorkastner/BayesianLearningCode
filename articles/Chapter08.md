@@ -85,7 +85,8 @@ independence prior and estimate the model parameters.
 
 ``` r
 set.seed(1234)
-betas <- probit(y.unemp, X.unemp, b0 = 0, B0 = 10000)
+M=20000
+betas <- probit(y.unemp, X.unemp, b0 = 0, B0 = 1000L,  burnin=1000,M=M)
 ```
 
 To compute summary statistics from the posterior we use the following
@@ -125,10 +126,10 @@ person, i.e. a 18 year old male blue collar worker who was employed in
 #> [1] 0.0241
 ```
 
-The estimated risk of unemployment for a baseline person is very low
-with a value of 0.0241. It is even lower  
-for a white collar worker, but higher than for a for females, older
-persons and particularly for those unemployed in 1997.
+The estimated risk to be unemployed in 1998 for a baseline person is
+very low with a value of 0.0241and even lower  
+for a white collar worker. This risk is higher for a female, an older
+person and particularly high if the person was unemployed in 1997.
 
 We next visualize the estimated posterior distributions for the
 regression effects by histograms.
@@ -147,7 +148,9 @@ some autocorrelation, it vanishes after a few lags.
 
 ``` r
 for (j in seq_len(ncol(betas))) {
-  acf(betas[, j], main = "", xlab = colnames(betas)[j], ylab = "")
+    acf(betas[, j], main = "", xlab = "Lag",
+        ylab="empirical ACF")
+    title(colnames(betas)[j])
 }
 ```
 
@@ -158,10 +161,22 @@ the efficiency of the sampler.
 
 ``` r
 library("coda")
-effectiveSize(betas)
-#> intercept    female     age18   wcollar   unemp97 
-#>  2861.744  3726.047  2758.979  3558.712  3615.351
+ess <- round(coda::effectiveSize(betas),1)
+ineff <- round(M/ ess,2)
+res_eff <-cbind(ess, ineff)
+knitr::kable(res_eff)
 ```
+
+|           |    ess | ineff |
+|:----------|-------:|------:|
+| intercept | 2861.8 |  6.99 |
+| female    | 3726.1 |  5.37 |
+| age18     | 2759.0 |  7.25 |
+| wcollar   | 3558.7 |  5.62 |
+| unemp97   | 3615.4 |  5.53 |
+
+The effective sample size is larger than 3000 for each regression
+effect, thus yielding inefficiency factors below 6.6.
 
 The sampler is easy to implement, however there might be problems when
 the response variable contains either only very few or very many
@@ -179,7 +194,7 @@ N <- 500
 X <- matrix(1, nrow = N)
 
 y1 <- c(0, rep(1, N-1))
-betas1 <- probit(y1, X, b0 = 0, B0 = 10000)
+betas1 <- probit(y1, X, b0 = 0, B0 = 10000, M=M)
 
 y2 <- c(rep(0, N-1), 1)
 betas2 <- probit(y2, X, b0 = 0, B0 = 10000) 
@@ -301,7 +316,7 @@ acf(betas.qus1[, 2])
 
 ``` r
 
-effectiveSize(betas.qus1)
+coda::effectiveSize(betas.qus1)
 #>            x.qus1 
 #> 8.529486 8.683472
 ```

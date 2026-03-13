@@ -153,7 +153,8 @@ algorithm detailed in Section 8.1.1.</p>
 normal independence prior and estimate the model parameters.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1234</span><span class="op">)</span></span>
-<span><span class="va">betas</span> <span class="op">&lt;-</span> <span class="fu">probit</span><span class="op">(</span><span class="va">y.unemp</span>, <span class="va">X.unemp</span>, b0 <span class="op">=</span> <span class="fl">0</span>, B0 <span class="op">=</span> <span class="fl">10000</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">M</span><span class="op">=</span><span class="fl">20000</span></span>
+<span><span class="va">betas</span> <span class="op">&lt;-</span> <span class="fu">probit</span><span class="op">(</span><span class="va">y.unemp</span>, <span class="va">X.unemp</span>, b0 <span class="op">=</span> <span class="fl">0</span>, B0 <span class="op">=</span> <span class="fl">1000L</span>,  burnin<span class="op">=</span><span class="fl">1000</span>,M<span class="op">=</span><span class="va">M</span><span class="op">)</span></span></code></pre></div>
 <p>To compute summary statistics from the posterior we use the following
 function.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
@@ -214,10 +215,10 @@ person, i.e. a 18 year old male blue collar worker who was employed in
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="op">(</span><span class="va">p_unemploy_base</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">pnorm</a></span><span class="op">(</span><span class="va">res_beta</span><span class="op">[</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">]</span><span class="op">)</span>,<span class="fl">4</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 0.0241</span></span></code></pre></div>
-<p>The estimated risk of unemployment for a baseline person is very low
-with a value of 0.0241. It is even lower<br>
-for a white collar worker, but higher than for a for females, older
-persons and particularly for those unemployed in 1997.</p>
+<p>The estimated risk to be unemployed in 1998 for a baseline person is
+very low with a value of 0.0241and even lower<br>
+for a white collar worker. This risk is higher for a female, an older
+person and particularly high if the person was unemployed in 1997.</p>
 <p>We next visualize the estimated posterior distributions for the
 regression effects by histograms.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
@@ -230,16 +231,55 @@ regression effects by histograms.</p>
 is some autocorrelation, it vanishes after a few lags.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">for</span> <span class="op">(</span><span class="va">j</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">betas</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/stats/acf.html" class="external-link">acf</a></span><span class="op">(</span><span class="va">betas</span><span class="op">[</span>, <span class="va">j</span><span class="op">]</span>, main <span class="op">=</span> <span class="st">""</span>, xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">betas</span><span class="op">)</span><span class="op">[</span><span class="va">j</span><span class="op">]</span>, ylab <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/stats/acf.html" class="external-link">acf</a></span><span class="op">(</span><span class="va">betas</span><span class="op">[</span>, <span class="va">j</span><span class="op">]</span>, main <span class="op">=</span> <span class="st">""</span>, xlab <span class="op">=</span> <span class="st">"Lag"</span>,</span>
+<span>        ylab<span class="op">=</span><span class="st">"empirical ACF"</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/graphics/title.html" class="external-link">title</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">betas</span><span class="op">)</span><span class="op">[</span><span class="va">j</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p><img src="Chapter08_files/figure-html/unnamed-chunk-11-1.png" class="r-plt" alt="" width="768"></p>
 <p>We also determine the estimated effective sample sizes (ESSs) to
 assess the efficiency of the sampler.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st">"coda"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/coda/man/effectiveSize.html" class="external-link">effectiveSize</a></span><span class="op">(</span><span class="va">betas</span><span class="op">)</span></span>
-<span><span class="co">#&gt; intercept    female     age18   wcollar   unemp97 </span></span>
-<span><span class="co">#&gt;  2861.744  3726.047  2758.979  3558.712  3615.351</span></span></code></pre></div>
+<span><span class="va">ess</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu">coda</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/coda/man/effectiveSize.html" class="external-link">effectiveSize</a></span><span class="op">(</span><span class="va">betas</span><span class="op">)</span>,<span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">ineff</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">M</span><span class="op">/</span> <span class="va">ess</span>,<span class="fl">2</span><span class="op">)</span></span>
+<span><span class="va">res_eff</span> <span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">ess</span>, <span class="va">ineff</span><span class="op">)</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">res_eff</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left"></th>
+<th align="right">ess</th>
+<th align="right">ineff</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">intercept</td>
+<td align="right">2861.8</td>
+<td align="right">6.99</td>
+</tr>
+<tr class="even">
+<td align="left">female</td>
+<td align="right">3726.1</td>
+<td align="right">5.37</td>
+</tr>
+<tr class="odd">
+<td align="left">age18</td>
+<td align="right">2759.0</td>
+<td align="right">7.25</td>
+</tr>
+<tr class="even">
+<td align="left">wcollar</td>
+<td align="right">3558.7</td>
+<td align="right">5.62</td>
+</tr>
+<tr class="odd">
+<td align="left">unemp97</td>
+<td align="right">3615.4</td>
+<td align="right">5.53</td>
+</tr>
+</tbody>
+</table>
+<p>The effective sample size is larger than 3000 for each regression
+effect, thus yielding inefficiency factors below 6.6.</p>
 <p>The sampler is easy to implement, however there might be problems
 when the response variable contains either only very few or very many
 successes.</p>
@@ -257,7 +297,7 @@ trials only 1 success or only 1 failure is observed.</p>
 <span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1</span>, nrow <span class="op">=</span> <span class="va">N</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">y1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">N</span><span class="op">-</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">betas1</span> <span class="op">&lt;-</span> <span class="fu">probit</span><span class="op">(</span><span class="va">y1</span>, <span class="va">X</span>, b0 <span class="op">=</span> <span class="fl">0</span>, B0 <span class="op">=</span> <span class="fl">10000</span><span class="op">)</span></span>
+<span><span class="va">betas1</span> <span class="op">&lt;-</span> <span class="fu">probit</span><span class="op">(</span><span class="va">y1</span>, <span class="va">X</span>, b0 <span class="op">=</span> <span class="fl">0</span>, B0 <span class="op">=</span> <span class="fl">10000</span>, M<span class="op">=</span><span class="va">M</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">y2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">N</span><span class="op">-</span><span class="fl">1</span><span class="op">)</span>, <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">betas2</span> <span class="op">&lt;-</span> <span class="fu">probit</span><span class="op">(</span><span class="va">y2</span>, <span class="va">X</span>, b0 <span class="op">=</span> <span class="fl">0</span>, B0 <span class="op">=</span> <span class="fl">10000</span><span class="op">)</span> </span></code></pre></div>
@@ -369,7 +409,7 @@ as the covariate effect and the ESSs are very low.</p>
 <p><img src="Chapter08_files/figure-html/unnamed-chunk-18-1.png" class="r-plt" alt="" width="768"></p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/coda/man/effectiveSize.html" class="external-link">effectiveSize</a></span><span class="op">(</span><span class="va">betas.qus1</span><span class="op">)</span></span>
+<span><span class="fu">coda</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/coda/man/effectiveSize.html" class="external-link">effectiveSize</a></span><span class="op">(</span><span class="va">betas.qus1</span><span class="op">)</span></span>
 <span><span class="co">#&gt;            x.qus1 </span></span>
 <span><span class="co">#&gt; 8.529486 8.683472</span></span></code></pre></div>
 <p>If we change the setting so that
