@@ -127,9 +127,9 @@ person, i.e. a 18 year old male blue collar worker who was employed in
 ```
 
 The estimated risk to be unemployed in 1998 for a baseline person is
-very low with a value of 0.0241and even lower  
-for a white collar worker. This risk is higher for a female, an older
-person and particularly high if the person was unemployed in 1997.
+very low with a value of 0.0241 and even lower for a white collar
+worker. This risk is higher for a female, an older person and
+particularly high if the person was unemployed in 1997.
 
 We next visualize the estimated posterior distributions for the
 regression effects by histograms.
@@ -163,6 +163,7 @@ the efficiency of the sampler.
 library("coda")
 ess <- round(coda::effectiveSize(betas),1)
 ineff <- round(M/ ess,2)
+
 res_eff <-cbind(ess, ineff)
 knitr::kable(res_eff)
 ```
@@ -175,8 +176,8 @@ knitr::kable(res_eff)
 | wcollar   | 3558.7 |  5.62 |
 | unemp97   | 3615.4 |  5.53 |
 
-The effective sample size is larger than 3000 for each regression
-effect, thus yielding inefficiency factors below 5.37.
+The effective sample size is larger than 2759 for each regression
+effect, thus yielding inefficiency factors below 7.25.
 
 The sampler is easy to implement, however there might be problems when
 the response variable contains either only very few or very many
@@ -185,7 +186,7 @@ successes.
 #### Example 8.3
 
 To illustrate this issue, we use data where in $N = 500$ trials only 1
-success or only 1 failure is observed.
+failure or only 1 success is observed.
 
 ``` r
 set.seed(1234)
@@ -200,33 +201,46 @@ y2 <- c(rep(0, N-1), 1)
 betas2 <- probit(y2, X, b0 = 0, B0 = 10000, burnin=1000,M=M)
 ```
 
-In both cases the autocorrelation of the draws decreases very slowly and
-remains still high even for higher lags. Also the ESSs are substantially
-reduced.
+In both cases the empirical autocorrelation of the draws decreases very
+slowly and remains high even for a lag of 40.
 
 ``` r
-plot(betas1, type = "l", main = "", xlab = "Draws after burnin", ylab = "")
-acf(betas1)
 
-round(M/ effectiveSize(betas1),2)
+par(mfrow = c(2, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
+
+plot(betas1, type = "l", main = "N=500, 1 failure", xlab = "Draws after burnin",
+     ylab = labels)
+acf(betas1, ylab="empirical ACF")
+
+(ess1 <- effectiveSize(betas1))
+#>     var1 
+#> 165.9583
+round(M/ ess1,2)
 #>   var1 
 #> 120.51
 
-plot(betas2, type = "l", main = "", xlab = "Draws after burnin", ylab = "")
-acf(betas2)
+plot(betas2, type = "l", main = "N=500, 1 success", xlab = "Draws after burnin",
+     ylab = labels)
+acf(betas2, ylab="empirical ACF")
 ```
 
 ![](Chapter08_files/figure-html/unnamed-chunk-14-1.png)
 
 ``` r
 
-round(M/ effectiveSize(betas2),2)
+(ess2<- effectiveSize(betas2))
+#>     var1 
+#> 150.8803
+round(M/ ess2,2)
 #>   var1 
 #> 132.56
 ```
 
-High autocorrelation in MCMC draws for probit models not only occurs if
-successes or failures are very rare, but also when a covariate (or a
+Hence for these data sets the estimated ESS of the intercept has a value
+of ~ 150, yielding an inefficiency factor of ~ 130.
+
+High autocorrelation in MCMC draws for probit models occur not only when
+either successes or failures are rare, but also when a covariate (or a
 linear combination of covariates) perfectly allows to predict successes
 and/or failures. Complete separation means that both successes and
 failures can be perfectly predicted by a covariate, whereas
@@ -253,39 +267,46 @@ table(x.sep, y)
 #>     1   0 250
 ```
 
-We estimate the model parameters and plot the ACF of the draws. We see
-very high autocorrelations even at lag 35 and hence the ESSs are very
-low.
+We estimate the model parameters ${\mathbf{β}} = \beta_{0},\beta_{1})$
+under the Normal prior \$\Normal{mathbf{0}, 10000\mathbf{I}}\$ and run
+the sampler for $M = 20000$ iterations after a burnin of 1000.
+
+From the plot of the ACF of the draws we see that auto are close to 1
+even at lag 40.
 
 ``` r
 
 set.seed(1234)
 X.sep <- cbind(rep(1, N), x.sep)
-betas.sep <- probit(y, X.sep, b0 = 0, B0 = 10000)
+betas.sep <- probit(y, X.sep, b0 = 0, B0 = 10000,burnin=1000,M=M)
 
-plot(betas.sep[, 1], type = "l",  xlab = "Draws after burnin", ylab = "")
-acf(betas.sep[, 1])
+labels <- expression(beta[0], beta[1])
+plot(betas.sep[, 1], type = "l",  xlab = "Draws after burnin", ylab = labels[1])
+acf(betas.sep[, 1], ylab="empirical ACF")
 
-plot(betas.sep[, 2], type = "l", main = "", xlab = "", ylab = "")
-acf(betas.sep[, 2])
+plot(betas.sep[, 2], type = "l",  xlab = "Draws after burnin", ylab =labels[2])
+acf(betas.sep[, 2], ylab="empirical ACF")
 ```
 
 ![](Chapter08_files/figure-html/unnamed-chunk-16-1.png)
 
 ``` r
 
-effectiveSize(betas.sep)
-#>             x.sep 
-#> 8.375523 8.269881
-round(M/ effectiveSize(betas.sep),2)
+(ess.sep<- round(coda::effectiveSize(betas.sep),2))
+#>       x.sep 
+#>  8.38  8.27
+round(M/ ess.sep,2)
 #>           x.sep 
-#> 2387.91 2418.41
+#> 2386.63 2418.38
 ```
+
+Hence the ESSs are very low with a value of ~ 8, resulting in
+inefficiency factors of ~2400.
 
 #### Example 8.5
 
 To illustrate quasi-separation we use the same responses as in Example
-8.3, but now set $x = 1$ for all successes and additionally for 100
+8.4, but now set $x = 1$ for all successes and additionally for 100
 failures. Hence for $x = 0$ always a failure is observed, whereas for
 $x = 1$ both successes and failures occur.
 
@@ -298,37 +319,40 @@ table(x.qus1, y)
 #>      1 100 250
 ```
 
-Again autocorrelations are very high for both the intercept as well as
-the covariate effect and the ESSs are very low.
+We again estimate the regression effects using data augmentation and
+Gibbs Sampling.
 
 ``` r
-par(mfrow = c(2, 2), mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
+par(mfrow = c(2, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
 
 set.seed(1234)
 X.qus1 <- cbind(rep(1, N), x.qus1)
-betas.qus1 <- probit(y, X.qus1, b0 = 0, B0 = 10000)
+betas.qus1 <- probit(y, X.qus1, b0 = 0, B0 = 10000, burnin=1000, M=M)
 
-plot(betas.qus1[, 1], type = "l", main = "", xlab = "", ylab = "")
-acf(betas.qus1[, 1])
+plot(betas.qus1[, 1], type = "l",  xlab="Draws after burnin", ylab = labels[1])
+acf(betas.qus1[, 1],ylab="empirical ACF")
 
-plot(betas.qus1[, 2], type = "l", main = "", xlab = "", ylab = "")
-acf(betas.qus1[, 2])
+plot(betas.qus1[, 2], type = "l", xlab= "Draws after burnin", ylab = labels[2])
+acf(betas.qus1[, 2],ylab="empirical ACF")
 ```
 
 ![](Chapter08_files/figure-html/unnamed-chunk-18-1.png)
 
 ``` r
 
-coda::effectiveSize(betas.qus1)
-#>            x.qus1 
-#> 8.529486 8.683472
+(ess.qus1 <- round(coda::effectiveSize(betas.qus1),2))
+#>        x.qus1 
+#>   8.53   8.68
+round(M/ ess.qus1,2)
+#>          x.qus1 
+#> 2344.67 2304.15
 ```
 
-If we change the setting so that $x$ takes values of $0$ not only for
-failures but also for some successes, whereas $x = 1$ for all successes,
-we observe low autocorrelations for the intercept but still very high
-autocorrelations for the covariate effect. Also the ESSs are high for
-the intercept and low for the covariate effect.
+Again autocorrelations are very high for both the intercept as well as
+the covariate effect resulting in high inefficiency factors of ~ 2340.
+
+We now change the setting so that $x$ takes values of $0$ not only for
+failures but also for some successes, whereas $x = 1$ for all successes.
 
 ``` r
 x.qus2 <- rep(c(0, 1), c(ns+100, N - ns-100))
@@ -340,24 +364,33 @@ table(x.qus2, y)
 
 set.seed(1234)
 X.qus2 <- cbind(rep(1, N), x.qus2)
-betas.qus2 <- probit(y, X.qus2, b0 = 0, B0 = 10000)
+betas.qus2 <- probit(y, X.qus2, b0 = 0, B0 = 10000, burnin=1000, M=M)
 
-par(mfrow = c(2, 2), mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
-plot(betas.qus2[, 1], type = "l", main = "", xlab = "", ylab = "")
-acf(betas.qus2[, 1])
+par(mfrow = c(2, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
+plot(betas.qus2[, 1], type = "l", xlab="Draws after burnin", ylab = labels[1])
+acf(betas.qus2[, 1], ylab="empirical ACF")
 
-plot(betas.qus2[, 2], type = "l", main = "", xlab = "", ylab = "")
-acf(betas.qus2[, 2])
+plot(betas.qus2[, 2], type = "l", xlab="Draws after burnin", ylab = labels[2])
+acf(betas.qus2[, 2], ylab="empirical ACF")
 ```
 
 ![](Chapter08_files/figure-html/unnamed-chunk-19-1.png)
 
 ``` r
 
-effectiveSize(betas.qus2)
-#>                  x.qus2 
-#> 7748.599768    6.283738
+(ess.qus2 <- round(coda::effectiveSize(betas.qus2),2))
+#>          x.qus2 
+#> 7748.60    6.28
+(ineff.qus2 <- round(M/ ess.qus2,2))
+#>          x.qus2 
+#>    2.58 3184.71
 ```
+
+Autocorrelations of the intercept are low and close to zero for small
+lags but remain very high for the covariate effect. Hence we have a high
+ESS for the intercept (7748.6) and low for the covariate effect (6.28),
+resulting in an inefficiency factor of 2.58 for the intercept, but of
+3184.71 for the effect of the covariate.
 
 High autocorrelations typically indicate problems with the sampler. If
 there is complete or quasi-complete separation in the data, the
@@ -367,45 +400,84 @@ regression effects will result in an improper posterior distribution.
 Hence, a proper prior is required to avoid improper posteriors in case
 of separation.
 
-We now analyze the data under a more informative prior, i.e.,
+We now analyze the data of example 8.4. under the more informative prior
 $\mathcal{N}(\mathbf{0},\mathbf{I})$. With this prior we assume that
 both $P(y = 1)$ and $P(y = 0)$ have a prior probability of
 $\approx 0.95$ to be in the interval $\lbrack 0.023,0.977\rbrack$.
 
+We compare the estimation results to those from exercise 8.4, where the
+prior was $\mathcal{N}(\mathbf{0},10000\mathbf{I})$
+
 ``` r
 set.seed(1234)
-betas.sep1 <- probit(y, X.sep, b0 = 0, B0 = 1)
+betas.sep1 <- probit(y, X.sep, b0 = 0, B0 = 1, burnin=1000, M=M)
 
-res_betas.sep1 <- t(apply(betas.sep1, 2, res.mcmc))
-knitr::kable(round(res_betas.sep1, 3))
+res_betas.sep <- t(apply(betas.sep, 2, res.mcmc))
+rownames(res_betas.sep) <- c("Intercept", "X")
+knitr:: kable(res_betas.sep)
 ```
 
-|       |   2.5% | Posterior mean |  97.5% |
-|:------|-------:|---------------:|-------:|
-|       | -2.853 |         -2.352 | -1.921 |
-| x.sep |  4.211 |          4.883 |  5.622 |
-
-In this case the autocorrelations are much lower and the ESSs are
-roughly 600.
+|           |       2.5% | Posterior mean |     97.5% |
+|:----------|-----------:|---------------:|----------:|
+| Intercept | -13.349387 |      -6.714191 | -3.079144 |
+| X         |   7.493688 |      13.644972 | 20.017280 |
 
 ``` r
-par(mfrow = c(2, 2), mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
 
-plot(betas.sep1[, 1], type = "l", main = "", xlab = "", ylab = "")
-acf(betas.sep1[, 1])
+res_betas.sep1 <- t(apply(betas.sep1, 2, res.mcmc))
+rownames(res_betas.sep1)<- c("Intercept", "X")
+knitr:: kable(res_betas.sep1)
+```
 
-plot(betas.sep1[, 2], type = "l", main = "", xlab = "", ylab = "")
-acf(betas.sep1[, 2])
+|           |      2.5% | Posterior mean |     97.5% |
+|:----------|----------:|---------------:|----------:|
+| Intercept | -2.852885 |      -2.351810 | -1.921237 |
+| X         |  4.211140 |       4.882632 |  5.621731 |
+
+We see that with the tighter prior the estimates are more shrunk to
+zero.
+
+``` r
+par(mfrow = c(2, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
+
+plot(betas.sep1[, 1], type = "l", xlab="Draws after burnin", ylab = labels[1])
+acf(betas.sep1[, 1], ylab="empirical ACF")
+
+plot(betas.sep1[, 2], type = "l", xlab="Draws after burnin", ylab = labels[2])
+acf(betas.sep1[, 2],ylab="empirical ACF")
 ```
 
 ![](Chapter08_files/figure-html/unnamed-chunk-21-1.png)
 
 ``` r
 
-effectiveSize(betas.sep1)
-#>             x.sep 
-#> 707.9111 604.7943
+(ess.sep <- round(effectiveSize(betas.sep),2))
+#>       x.sep 
+#>  8.38  8.27
+(ineff.sep <- round(M/ ess.sep,2))
+#>           x.sep 
+#> 2386.63 2418.38
+
+(ess.sep1 <- round(effectiveSize(betas.sep1),2))
+#>         x.sep 
+#> 707.91 604.79
+(ineff.sep1 <- round(M/ ess.sep1,2))
+#>       x.sep 
+#> 28.25 33.07
+
+ineff<- cbind(ineff.sep, ineff.sep1)
+colnames(ineff)<- c("N(0,10000)", "N(0,1)")
+rownames(ineff)<- c("Intercept", "X")
+knitr::kable(ineff)
 ```
+
+|           | N(0,10000) | N(0,1) |
+|:----------|-----------:|-------:|
+| Intercept |    2386.63 |  28.25 |
+| X         |    2418.38 |  33.07 |
+
+With a tighter prior the autocorrelations are much lower and hence the
+ESSs are higher and inefficiency is lower.
 
 ### Section 8.1.2: Logit model
 
