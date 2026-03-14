@@ -24,10 +24,9 @@ abline(v=0, col="red")
 polygon(c(dens$x[dens$x >=0],0), c(dens$y[dens$x>=0],0), col="red",border=NA)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-3-1.png) \### Example 8.1:
-Labor market data
+#### Example 8.1: Labor market data
 
-We illustrate probit regression analysis for the labor market data.
+We now perform probit regression analysis for the labor market data.
 
 ``` r
 library("BayesianLearningCode")
@@ -162,8 +161,6 @@ for (j in seq_len(ncol(betas))) {
 }
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-11-1.png)
-
 A plot of the autocorrelation of the draws shows that although there is
 some autocorrelation, it vanishes after a few lags.
 
@@ -174,8 +171,6 @@ for (j in seq_len(ncol(betas))) {
     title(colnames(betas)[j])
 }
 ```
-
-![](Chapter08_files/figure-html/unnamed-chunk-12-1.png)
 
 We also determine the estimated effective sample sizes (ESSs) to assess
 the efficiency of the sampler.
@@ -243,11 +238,6 @@ round(M/ ess1,2)
 plot(betas2, type = "l", main = "N=500, 1 success", xlab = "Draws after burnin",
      ylab = labels)
 acf(betas2, ylab="empirical ACF")
-```
-
-![](Chapter08_files/figure-html/unnamed-chunk-15-1.png)
-
-``` r
 
 (ess2<- effectiveSize(betas2))
 #>     var1 
@@ -307,11 +297,6 @@ acf(betas.sep[, 1], ylab="empirical ACF")
 
 plot(betas.sep[, 2], type = "l",  xlab = "Draws after burnin", ylab =labels[2])
 acf(betas.sep[, 2], ylab="empirical ACF")
-```
-
-![](Chapter08_files/figure-html/unnamed-chunk-17-1.png)
-
-``` r
 
 (ess.sep<- round(coda::effectiveSize(betas.sep),2))
 #>       x.sep 
@@ -355,11 +340,6 @@ acf(betas.qus1[, 1],ylab="empirical ACF")
 
 plot(betas.qus1[, 2], type = "l", xlab= "Draws after burnin", ylab = labels[2])
 acf(betas.qus1[, 2],ylab="empirical ACF")
-```
-
-![](Chapter08_files/figure-html/unnamed-chunk-19-1.png)
-
-``` r
 
 (ess.qus1 <- round(coda::effectiveSize(betas.qus1),2))
 #>        x.qus1 
@@ -393,11 +373,6 @@ acf(betas.qus2[, 1], ylab="empirical ACF")
 
 plot(betas.qus2[, 2], type = "l", xlab="Draws after burnin", ylab = labels[2])
 acf(betas.qus2[, 2], ylab="empirical ACF")
-```
-
-![](Chapter08_files/figure-html/unnamed-chunk-20-1.png)
-
-``` r
 
 (ess.qus2 <- round(coda::effectiveSize(betas.qus2),2))
 #>          x.qus2 
@@ -466,11 +441,6 @@ acf(betas.sep1[, 1], ylab="empirical ACF")
 
 plot(betas.sep1[, 2], type = "l", xlab="Draws after burnin", ylab = labels[2])
 acf(betas.sep1[, 2],ylab="empirical ACF")
-```
-
-![](Chapter08_files/figure-html/unnamed-chunk-22-1.png)
-
-``` r
 
 (ess.sep <- round(effectiveSize(betas.sep),2))
 #>       x.sep 
@@ -1001,8 +971,6 @@ qqplot(res1$alpha.post, res2$alpha.post, xlab = "Full Gibbs",
 abline(a = 0, b = 1)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-38-1.png)
-
 ## Section 8.3: Beyond i.i.d. Gaussian error distributions
 
 ### Section 8.3.1: Regression analysis with heteroskedastic errors
@@ -1070,8 +1038,6 @@ lines(xnew, preds_subset[, "fit"])
 lines(xnew, preds_subset[, "lwr"], lty = 2)
 lines(xnew, preds_subset[, "upr"], lty = 2)
 ```
-
-![](Chapter08_files/figure-html/unnamed-chunk-42-1.png)
 
 #### Example 8.13: Star cluster data - heteroskedastic regression analysis with known outliers
 
@@ -1348,8 +1314,6 @@ lines(xnew, rowMeans(preds_mix_2))
 lines(xnew, apply(preds_mix_2, 1, quantile, 0.025), lty = 2)
 lines(xnew, apply(preds_mix_2, 1, quantile, 0.975), lty = 2)
 ```
-
-![](Chapter08_files/figure-html/unnamed-chunk-56-1.png)
 
 The plot indicates that all three modeling approaches result in a fit
 that is robust to the outlying observations.
