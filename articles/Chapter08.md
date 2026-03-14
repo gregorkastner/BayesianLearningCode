@@ -4,7 +4,28 @@
 
 ### Section 8.1.1: Probit model
 
-#### Example 8.1: Labor market data
+#### Figure 8.1: Latent utility an outcome in the probit model
+
+We start by visualising a latent utility for a linear predictor
+$\mathbf{x}{\mathbf{β}}$ with value of 1.
+
+``` r
+curve(dnorm(x,mean=1), from=-3, to=5, xlab=expression(z[i]),ylab="", col="blue")
+abline(v=0, col="red")
+ 
+dens<- curve(dnorm(x,mean=1), from=-3,to=5,n=161 ,col="blue",
+             xlab=expression(paste(z[i],"|",y[i],"=0")),ylab="")
+abline(v=0, col="red")
+polygon(c(dens$x[dens$x <=0],0), c(dens$y[dens$x<=0],0), col="red",border=NA)
+
+dens<- curve(dnorm(x,mean=1), from=-3,to=5,,n=161,col="blue",
+             xlab=expression(paste(z[i],"|",y[i],"=1")),ylab="" )
+abline(v=0, col="red")
+polygon(c(dens$x[dens$x >=0],0), c(dens$y[dens$x>=0],0), col="red",border=NA)
+```
+
+![](Chapter08_files/figure-html/unnamed-chunk-3-1.png) \### Example 8.1:
+Labor market data
 
 We illustrate probit regression analysis for the labor market data.
 
@@ -141,7 +162,7 @@ for (j in seq_len(ncol(betas))) {
 }
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-10-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-11-1.png)
 
 A plot of the autocorrelation of the draws shows that although there is
 some autocorrelation, it vanishes after a few lags.
@@ -154,7 +175,7 @@ for (j in seq_len(ncol(betas))) {
 }
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-11-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-12-1.png)
 
 We also determine the estimated effective sample sizes (ESSs) to assess
 the efficiency of the sampler.
@@ -224,7 +245,7 @@ plot(betas2, type = "l", main = "N=500, 1 success", xlab = "Draws after burnin",
 acf(betas2, ylab="empirical ACF")
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-14-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-15-1.png)
 
 ``` r
 
@@ -288,7 +309,7 @@ plot(betas.sep[, 2], type = "l",  xlab = "Draws after burnin", ylab =labels[2])
 acf(betas.sep[, 2], ylab="empirical ACF")
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-16-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-17-1.png)
 
 ``` r
 
@@ -336,7 +357,7 @@ plot(betas.qus1[, 2], type = "l", xlab= "Draws after burnin", ylab = labels[2])
 acf(betas.qus1[, 2],ylab="empirical ACF")
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-18-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-19-1.png)
 
 ``` r
 
@@ -374,7 +395,7 @@ plot(betas.qus2[, 2], type = "l", xlab="Draws after burnin", ylab = labels[2])
 acf(betas.qus2[, 2], ylab="empirical ACF")
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-19-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-20-1.png)
 
 ``` r
 
@@ -447,7 +468,7 @@ plot(betas.sep1[, 2], type = "l", xlab="Draws after burnin", ylab = labels[2])
 acf(betas.sep1[, 2],ylab="empirical ACF")
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-21-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-22-1.png)
 
 ``` r
 
@@ -477,7 +498,7 @@ knitr::kable(ineff)
 | X         |    2418.38 |  33.07 |
 
 With a tighter prior the autocorrelations are much lower and hence the
-ESSs are higher and inefficiency is lower.
+estimated ESSs are higher and inefficiency is lower.
 
 ### Section 8.1.2: Logit model
 
@@ -980,7 +1001,7 @@ qqplot(res1$alpha.post, res2$alpha.post, xlab = "Full Gibbs",
 abline(a = 0, b = 1)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-37-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-38-1.png)
 
 ## Section 8.3: Beyond i.i.d. Gaussian error distributions
 
@@ -998,7 +1019,7 @@ plot(starsCYG, pch = 19, xlim = c(3, 5), ylim = c(3, 7),
      xlab = "log temperature", ylab = "log light intensity")
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-38-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-39-1.png)
 
 The four giant stars which can also be identified in the scatter plot
 have the following indices in the data set:
@@ -1050,7 +1071,7 @@ lines(xnew, preds_subset[, "lwr"], lty = 2)
 lines(xnew, preds_subset[, "upr"], lty = 2)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-41-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-42-1.png)
 
 #### Example 8.13: Star cluster data - heteroskedastic regression analysis with known outliers
 
@@ -1143,7 +1164,7 @@ lines(xnew, apply(pred_hetero, 1, quantile, 0.025), lty = 2)
 lines(xnew, apply(pred_hetero, 1, quantile, 0.975), lty = 2)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-46-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-47-1.png)
 
 #### Example 8.14: Star cluster data - regression analysis with Gaussian two-component mixture errors
 
@@ -1223,7 +1244,7 @@ lines(xnew, apply(preds_mix_1, 1, quantile, 0.025), lty = 2)
 lines(xnew, apply(preds_mix_1, 1, quantile, 0.975), lty = 2)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-51-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-52-1.png)
 
 We now assume that the indices of the giant stars are not known. We only
 assume that a two-component mixture is used as weight distribution where
@@ -1302,7 +1323,7 @@ lines(xnew, apply(preds_mix_2, 1, quantile, 0.025), lty = 2)
 lines(xnew, apply(preds_mix_2, 1, quantile, 0.975), lty = 2)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-54-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-55-1.png)
 
 Finally, we visualize again the mean and the 95%-HPD region together
 with the data points for the three modeling approaches: (1) a
@@ -1328,7 +1349,7 @@ lines(xnew, apply(preds_mix_2, 1, quantile, 0.025), lty = 2)
 lines(xnew, apply(preds_mix_2, 1, quantile, 0.975), lty = 2)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-55-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-56-1.png)
 
 The plot indicates that all three modeling approaches result in a fit
 that is robust to the outlying observations.
