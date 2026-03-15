@@ -205,3 +205,42 @@ PrM1 <- 1 - PrM2
 #print(xtable::xtable(res, digits = c(0, 2, 2, 3, 3, 3), row.names = FALSE))
 knitr::kable(res <- cbind(logmarglikM1, logmarglikM2, logBF, PrM1, PrM2))
 ```
+
+## Example 10.8: Testing for a structural break in the road safety data
+
+We load the data.
+
+```{r}
+data("accidents", package = "BayesianLearningCode")
+```
+
+We define the priors hyperparameters and compute the log marginal likelihood
+for the exchangable model.
+
+```{r}
+y <- accidents[, "children_accidents"]
+a0_tmp <- c(0.01, 0.1, 0.5, 1, 2)
+m0_tmp <- c(1, mean(y), 5, 7, 10)
+grid <- expand.grid(a0 = a0_tmp, m0 = m0_tmp)
+a0 <- grid$a0
+b0 <- grid$a0 / grid$m0
+aN <- sum(y) + a0
+bN <- length(y) + b0
+logmarglikM1 <- a0 * log(b0) + lgamma(aN) -
+                aN * log(bN) - lgamma(a0) -
+                sum(lgamma(y + 1))
+```
+
+And now the same for the model with structural break.
+
+```{r}
+accidents1 <- window(accidents, end = c(1994, 9))
+accidents2 <- window(accidents, start = c(1994, 10))
+
+a01 <- a02 <- a0
+b01 <- b02 <- b0
+
+aN1 <- a01 + sum(accidents1[, "children_accidents"])
+aN2 <- a02 + sum(accidents2[, "children_accidents"])
+bN1 <- b01 + length(accidents1[, "children_accidents"])
+bN2 <- b02 + length(accidents2[, "children_accidents"])
