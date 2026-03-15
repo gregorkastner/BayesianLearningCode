@@ -449,13 +449,13 @@ for (i in 1:4) {
 
 ![](Chapter09_files/figure-html/unnamed-chunk-25-1.png)
 
-And now we plot fan charts.
+And now we plot the predictions.
 
 ``` r
 par(mfrow = c(1, 1))
-plot(tail(y, 2 * horizon), type = "l", xlim = c(1, 3 * horizon),
+plot(tail(y, 2 * horizon), type = "l", xlim = c(1, 3 * horizon), lwd = 1.5,
      ylim = range(quants), ylab = "U.S. GDP growth", xlab = "Quarter",
-     lwd = 1.5, xaxt = "n", main = "Fan chart")
+     xaxt = "n", main = "Historical time series and predictive intervals")
 axis(side = 1, at = ats, labels = labs[ats])
 xs <- (2 * horizon + 1):(3 * horizon)
 lines(xs, quants["50%", ], lwd = 1.5, col = 2, lty = 2)
@@ -494,7 +494,8 @@ We visualize.
 par(mfrow = c(1, 1))
 plot(tail(gdp, 2 * horizon), type = "l", xlim = c(1, 3 * horizon),
      ylim = range(quants, tail(gdp, 2 * horizon)), ylab = "U.S. GDP",
-     xlab = "Quarter", lwd = 1.5, xaxt = "n", main = "Fan chart")
+     xlab = "Quarter", lwd = 1.5, xaxt = "n",
+     main = "Historical time series and predictive intervals")
 axis(side = 1, at = ats, labels = labs[ats])
 xs <- (2 * horizon + 1):(3 * horizon)
 lines(xs, quants["50%", ], lwd = 1.5, col = 2, lty = 2)

@@ -73,10 +73,10 @@
     
     
 <div class="section level2">
-<h2 id="section-9-1-the-foundations-of-bayesian-model-selections">Section 9.1: The Foundations of Bayesian Model Selections<a class="anchor" aria-label="anchor" href="#section-9-1-the-foundations-of-bayesian-model-selections"></a>
+<h2 id="section-10-1-the-foundations-of-bayesian-model-selections">Section 10.1: The Foundations of Bayesian Model Selections<a class="anchor" aria-label="anchor" href="#section-10-1-the-foundations-of-bayesian-model-selections"></a>
 </h2>
 <div class="section level3">
-<h3 id="table-3-1-log-bayes-factor-and-model-probabilities">Table 3.1: (Log) Bayes factor and model probabilities<a class="anchor" aria-label="anchor" href="#table-3-1-log-bayes-factor-and-model-probabilities"></a>
+<h3 id="table-10-1-log-bayes-factor-and-model-probabilities">Table 10.1: (Log) Bayes factor and model probabilities<a class="anchor" aria-label="anchor" href="#table-10-1-log-bayes-factor-and-model-probabilities"></a>
 </h3>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">logBF</span> <span class="op">&lt;-</span> <span class="op">-</span><span class="fl">7</span><span class="op">:</span><span class="fl">7</span></span>
@@ -191,10 +191,11 @@
 <h2 id="section-10-2-bayesian-testing-of-hypotheses">Section 10.2: Bayesian Testing of Hypotheses<a class="anchor" aria-label="anchor" href="#section-10-2-bayesian-testing-of-hypotheses"></a>
 </h2>
 <div class="section level3">
-<h3 id="example-3-5-testing-for-zero-mean-in-the-chf-usd-log-returns">Example 3.5: Testing for zero mean in the CHF-USD log returns<a class="anchor" aria-label="anchor" href="#example-3-5-testing-for-zero-mean-in-the-chf-usd-log-returns"></a>
+<h3 id="example-10-5-testing-for-zero-mean-in-the-chf-usd-log-returns">Example 10.5: Testing for zero mean in the CHF-USD log returns<a class="anchor" aria-label="anchor" href="#example-10-5-testing-for-zero-mean-in-the-chf-usd-log-returns"></a>
 </h3>
-<p>We load the data, compute the required parameters, and evaluate the
-two marginal likelihoods.</p>
+<p>Before producing Figure 10.1, we begin with a concrete example. We
+load the data, compute the required parameters, and evaluate the two
+marginal likelihoods.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">exrates</span>, package <span class="op">=</span> <span class="st">"stochvol"</span><span class="op">)</span></span>
 <span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fl">100</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/diff.html" class="external-link">diff</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">exrates</span><span class="op">$</span><span class="va">USD</span> <span class="op">/</span> <span class="va">exrates</span><span class="op">$</span><span class="va">CHF</span><span class="op">)</span><span class="op">)</span></span>
@@ -223,12 +224,32 @@ can check whether we get the same answer.</p>
 <span><span class="co">#&gt; [8] 0.85048010 0.01501194</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/all.equal.html" class="external-link">all.equal</a></span><span class="op">(</span><span class="va">logBF</span>, <span class="va">logmarglikM1</span> <span class="op">-</span> <span class="va">logmarglikM2</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
+<p>Now we are ready to investigate the sensitivity of the log Bayes
+factor with respect to prior hyperparameter choices.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">C0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0.001</span>, <span class="fl">1</span>, <span class="fl">100</span><span class="op">)</span></span>
+<span><span class="va">N0</span> <span class="op">&lt;-</span> <span class="fl">10</span><span class="op">^</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">10</span>, by <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">logBF</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="cn">NA_real_</span>, nrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">N0</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">c0</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">c0</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">cN</span> <span class="op">&lt;-</span> <span class="va">c0</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">+</span> <span class="va">N</span>  <span class="op">/</span> <span class="fl">2</span></span>
+<span>  <span class="va">CN_M1</span> <span class="op">&lt;-</span> <span class="va">C0</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">y</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span></span>
+<span>  <span class="va">CN_M2</span> <span class="op">&lt;-</span> <span class="va">C0</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">+</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="va">N</span> <span class="op">*</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="va">y</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">+</span> <span class="va">N0</span> <span class="op">/</span> <span class="op">(</span><span class="va">N0</span> <span class="op">+</span> <span class="va">N</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span></span>
+<span>  <span class="va">logBF</span><span class="op">[</span>, <span class="va">i</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">N0</span> <span class="op">+</span> <span class="va">N</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">N0</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="va">cN</span> <span class="op">*</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">CN_M2</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">CN_M1</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/matplot.html" class="external-link">matplot</a></span><span class="op">(</span><span class="va">N0</span>, <span class="va">logBF</span>, log <span class="op">=</span> <span class="st">"x"</span>, type <span class="op">=</span> <span class="st">"l"</span>,</span>
+<span>        xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">N</span><span class="op">[</span><span class="fl">0</span><span class="op">]</span>, <span class="st">" [log scale]"</span><span class="op">)</span><span class="op">)</span>, ylab <span class="op">=</span> <span class="st">"log BF"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>h <span class="op">=</span> <span class="fl">0</span>, lty <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topright"</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"IG("</span>, <span class="va">c0</span>, <span class="st">","</span>, <span class="va">C0</span>, <span class="st">")"</span><span class="op">)</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">c0</span><span class="op">)</span>,</span>
+<span>       lty <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">c0</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/title.html" class="external-link">title</a></span><span class="op">(</span><span class="st">"Log Bayes factor in favor of the zero-mean model"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="Chapter10_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 <div class="section level3">
 <h3 id="example-3-6-testing-for-heterogeneity-of-the-no-income-risk">Example 3.6: Testing for heterogeneity of the no-income risk<a class="anchor" aria-label="anchor" href="#example-3-6-testing-for-heterogeneity-of-the-no-income-risk"></a>
 </h3>
 <p>First, we re-load the data from Chapter 3.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"labor"</span>, package <span class="op">=</span> <span class="st">"BayesianLearningCode"</span><span class="op">)</span></span>
 <span><span class="va">labor</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">labor</span>,</span>
 <span>                <span class="va">income_1997</span> <span class="op">!=</span> <span class="st">"zero"</span> <span class="op">&amp;</span> <span class="va">female</span>,</span>
@@ -238,7 +259,7 @@ can check whether we get the same answer.</p>
 <span>                         wcollar <span class="op">=</span> <span class="va">wcollar_1986</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Next, we compute the marginal likelihoods for the homogeneity
 model.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">N</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">labor</span><span class="op">$</span><span class="va">unemployed</span><span class="op">)</span></span>
 <span><span class="va">SN</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">labor</span><span class="op">$</span><span class="va">unemployed</span><span class="op">)</span></span>
 <span><span class="va">hN</span> <span class="op">&lt;-</span> <span class="va">SN</span> <span class="op">/</span> <span class="va">N</span></span>
@@ -251,7 +272,7 @@ model.</p>
 <span></span>
 <span><span class="va">logmarglikM1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Special.html" class="external-link">lbeta</a></span><span class="op">(</span><span class="va">aN</span>, <span class="va">bN</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Special.html" class="external-link">lbeta</a></span><span class="op">(</span><span class="va">a0</span>, <span class="va">b0</span><span class="op">)</span></span></code></pre></div>
 <p>And for the heterogeneity model.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">N1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="va">labor</span>, <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">wcollar</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">SN1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="va">labor</span>, <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">wcollar</span> <span class="op">&amp;</span> <span class="va">unemployed</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">N2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="va">labor</span>, <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="op">!</span><span class="va">wcollar</span><span class="op">)</span><span class="op">)</span></span>
@@ -268,7 +289,7 @@ model.</p>
 <span><span class="va">logmarglikM2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Special.html" class="external-link">lbeta</a></span><span class="op">(</span><span class="va">aN1</span>, <span class="va">bN1</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Special.html" class="external-link">lbeta</a></span><span class="op">(</span><span class="va">aN2</span>, <span class="va">bN2</span><span class="op">)</span> <span class="op">-</span></span>
 <span>   <span class="fu"><a href="https://rdrr.io/r/base/Special.html" class="external-link">lbeta</a></span><span class="op">(</span><span class="va">a01</span>, <span class="va">b01</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Special.html" class="external-link">lbeta</a></span><span class="op">(</span><span class="va">a02</span>, <span class="va">b02</span><span class="op">)</span></span></code></pre></div>
 <p>We can now compute the model probabilities and the log BFs.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">logBF</span> <span class="op">&lt;-</span> <span class="va">logmarglikM1</span> <span class="op">-</span> <span class="va">logmarglikM2</span></span>
 <span><span class="va">PrM2</span> <span class="op">&lt;-</span> <span class="fl">0.5</span> <span class="op">/</span> <span class="op">(</span><span class="fl">0.5</span> <span class="op">+</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">logBF</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">PrM1</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="op">-</span> <span class="va">PrM2</span></span>
@@ -312,8 +333,12 @@ model.</p>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#print(xtable::xtable(res, digits = c(0, 2, 2, 5, 5, 5), row.names = FALSE))</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="example-3-7-testing-for-heterogeneity-of-the-mortality-rate">Example 3.7: Testing for heterogeneity of the mortality rate<a class="anchor" aria-label="anchor" href="#example-3-7-testing-for-heterogeneity-of-the-mortality-rate"></a>
+</h3>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

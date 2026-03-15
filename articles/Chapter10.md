@@ -1,8 +1,8 @@
 # Chapter 10: Bayesian Model Selection
 
-## Section 9.1: The Foundations of Bayesian Model Selections
+## Section 10.1: The Foundations of Bayesian Model Selections
 
-### Table 3.1: (Log) Bayes factor and model probabilities
+### Table 10.1: (Log) Bayes factor and model probabilities
 
 ``` r
 logBF <- -7:7
@@ -33,10 +33,11 @@ knitr::kable(cbind(BF, logBF, PrM1, PrM2))
 
 ## Section 10.2: Bayesian Testing of Hypotheses
 
-### Example 3.5: Testing for zero mean in the CHF-USD log returns
+### Example 10.5: Testing for zero mean in the CHF-USD log returns
 
-We load the data, compute the required parameters, and evaluate the two
-marginal likelihoods.
+Before producing Figure 10.1, we begin with a concrete example. We load
+the data, compute the required parameters, and evaluate the two marginal
+likelihoods.
 
 ``` r
 data(exrates, package = "stochvol")
@@ -70,6 +71,30 @@ can check whether we get the same answer.
 all.equal(logBF, logmarglikM1 - logmarglikM2)
 #> [1] TRUE
 ```
+
+Now we are ready to investigate the sensitivity of the log Bayes factor
+with respect to prior hyperparameter choices.
+
+``` r
+C0 <- c(0, 0, 0.001, 1, 100)
+N0 <- 10^seq(1, 10, by = 0.1)
+
+logBF <- matrix(NA_real_, nrow = length(N0), ncol = length(c0))
+for (i in seq_along(c0)) {
+  cN <- c0[i] + N  / 2
+  CN_M1 <- C0[i] + sum(y^2) / 2
+  CN_M2 <- C0[i] + 0.5 * N * (mean((y - mean(y))^2) + N0 / (N0 + N) * mean(y)^2)
+  logBF[, i] <- 0.5 * (log(N0 + N) - log(N0)) + cN * (log(CN_M2) - log(CN_M1))
+}
+matplot(N0, logBF, log = "x", type = "l",
+        xlab = expression(paste(N[0], " [log scale]")), ylab = "log BF")
+abline(h = 0, lty = 3)
+legend("topright", paste0("IG(", c0, ",", C0, ")"), col = seq_along(c0),
+       lty = seq_along(c0))
+title("Log Bayes factor in favor of the zero-mean model")
+```
+
+![](Chapter10_files/figure-html/unnamed-chunk-5-1.png)
 
 ### Example 3.6: Testing for heterogeneity of the no-income risk
 
@@ -140,3 +165,5 @@ knitr::kable(res <- cbind(logmarglikM1, logmarglikM2, logBF, PrM1, PrM2))
 ``` r
 #print(xtable::xtable(res, digits = c(0, 2, 2, 5, 5, 5), row.names = FALSE))
 ```
+
+### Example 3.7: Testing for heterogeneity of the mortality rate
