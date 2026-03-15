@@ -20,8 +20,8 @@ knitr::opts_knit$set(global.par = TRUE)
 pdfplots <- FALSE # default: FALSE; set this to TRUE only if you like pdf figures
 ```
 
-# Section 9.1: The Foundations of Bayesian Model Selections
-## Table 3.1: (Log) Bayes factor and model probabilities
+# Section 10.1: The Foundations of Bayesian Model Selections
+## Table 10.1: (Log) Bayes factor and model probabilities
 
 ```{r}
 logBF <- -7:7
@@ -33,7 +33,7 @@ knitr::kable(cbind(BF, logBF, PrM1, PrM2))
 ```
 
 # Section 10.2: Bayesian Testing of Hypotheses
-## Example 3.5: Testing for zero mean in the CHF-USD log returns
+## Example 10.5: Testing for zero mean in the CHF-USD log returns
 
 We load the data, compute the required parameters, and evaluate the two 
 marginal likelihoods.
