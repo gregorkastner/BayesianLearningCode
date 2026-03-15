@@ -96,7 +96,7 @@ title("Log Bayes factor in favor of the zero-mean model")
 
 ![](Chapter10_files/figure-html/unnamed-chunk-5-1.png)
 
-### Example 3.6: Testing for heterogeneity of the no-income risk
+### Example 10.6: Testing for heterogeneity of the no-income risk
 
 First, we re-load the data from Chapter 3.
 
@@ -152,6 +152,7 @@ We can now compute the model probabilities and the log BFs.
 logBF <- logmarglikM1 - logmarglikM2
 PrM2 <- 0.5 / (0.5 + 0.5 * exp(logBF))
 PrM1 <- 1 - PrM2
+#print(xtable::xtable(res, digits = c(0, 2, 2, 5, 5, 5), row.names = FALSE))
 knitr::kable(res <- cbind(logmarglikM1, logmarglikM2, logBF, PrM1, PrM2))
 ```
 
@@ -162,8 +163,101 @@ knitr::kable(res <- cbind(logmarglikM1, logmarglikM2, logBF, PrM1, PrM2))
 |    -387.2933 |    -385.3980 | -1.895305 | 0.1306408 | 0.8693592 |
 |    -386.2587 |    -383.4054 | -2.853317 | 0.0545101 | 0.9454899 |
 
+### Example 10.7: Testing for heterogeneity of the mortality rate
+
+We proceed exactly as above, just with different data.
+
 ``` r
-#print(xtable::xtable(res, digits = c(0, 2, 2, 5, 5, 5), row.names = FALSE))
+N1  <- 1668 # number at risk in City A
+SN1 <- 2    # cancer deaths in City A
+N2  <- 583  # number at risk in City B
+SN2 <- 1    # cancer deaths in City B
 ```
 
-### Example 3.7: Testing for heterogeneity of the mortality rate
+We again begin with the homogeneity model.
+
+``` r
+N <- N1 + N2
+SN <- SN1 + SN2
+hN <- SN / N
+N0 <- c(2, 10)
+a0 <- c(1, 0.5, hN * N0) 
+b0 <- c(1, 0.5, N0 * (1 - hN))
+
+aN <- a0 + SN
+bN <- b0 + N - SN
+
+logmarglikM1 <- lbeta(aN, bN) - lbeta(a0, b0)
+```
+
+Followed by the heterogeneity model.
+
+``` r
+a01 <- a02 <- a0
+b01 <- b02 <- b0
+
+aN1 <- a01 + SN1
+bN1 <- b01 + N1 - SN1
+aN2 <- a02 + SN2
+bN2 <- b02 + N2 - SN2
+
+logmarglikM2 <- lbeta(aN1, bN1) + lbeta(aN2, bN2) -
+   lbeta(a01, b01) - lbeta(a02, b02)
+```
+
+We can now compute the model probabilities and the log BFs.
+
+``` r
+logBF <- logmarglikM1 - logmarglikM2
+PrM2 <- 0.5 / (0.5 + 0.5 * exp(logBF))
+PrM1 <- 1 - PrM2
+#print(xtable::xtable(res, digits = c(0, 2, 2, 3, 3, 3), row.names = FALSE))
+knitr::kable(res <- cbind(logmarglikM1, logmarglikM2, logBF, PrM1, PrM2))
+```
+
+| logmarglikM1 | logmarglikM2 |    logBF |      PrM1 |      PrM2 |
+|-------------:|-------------:|---------:|----------:|----------:|
+|    -29.08387 |    -34.30308 | 5.219212 | 0.9946175 | 0.0053825 |
+|    -26.95877 |    -30.22452 | 3.265757 | 0.9632352 | 0.0367648 |
+|    -28.40707 |    -33.09584 | 4.688776 | 0.9908859 | 0.0091141 |
+|    -26.84585 |    -29.97906 | 3.133212 | 0.9582421 | 0.0417579 |
+
+### Example 10.8: Testing for a structural break in the road safety data
+
+We load the data.
+
+``` r
+data("accidents", package = "BayesianLearningCode")
+```
+
+We define the priors hyperparameters and compute the log marginal
+likelihood for the exchangable model.
+
+``` r
+y <- accidents[, "children_accidents"]
+a0_tmp <- c(0.01, 0.1, 0.5, 1, 2)
+m0_tmp <- c(1, mean(y), 5, 7, 10)
+grid <- expand.grid(a0 = a0_tmp, m0 = m0_tmp)
+a0 <- grid$a0
+b0 <- grid$a0 / grid$m0
+aN <- sum(y) + a0
+bN <- length(y) + b0
+logmarglikM1 <- a0 * log(b0) + lgamma(aN) -
+                aN * log(bN) - lgamma(a0) -
+                sum(lgamma(y + 1))
+```
+
+And now the same for the model with structural break.
+
+``` r
+accidents1 <- window(accidents, end = c(1994, 9))
+accidents2 <- window(accidents, start = c(1994, 10))
+
+a01 <- a02 <- a0
+b01 <- b02 <- b0
+
+aN1 <- a01 + sum(accidents1[, "children_accidents"])
+aN2 <- a02 + sum(accidents2[, "children_accidents"])
+bN1 <- b01 + length(accidents1[, "children_accidents"])
+bN2 <- b02 + length(accidents2[, "children_accidents"])
+```
