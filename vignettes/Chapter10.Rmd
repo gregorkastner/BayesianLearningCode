@@ -125,3 +125,4 @@ knitr::kable(res <- cbind(logmarglikM1, logmarglikM2, logBF, PrM1, PrM2))
 #print(xtable::xtable(res, digits = c(0, 2, 2, 5, 5, 5), row.names = FALSE))
 ```
 
+## Example 3.7: Testing for heterogeneity of the mortality rate
