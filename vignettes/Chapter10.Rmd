@@ -175,8 +175,8 @@ N0 <- c(2, 10)
 a0 <- c(1, 0.5, hN * N0) 
 b0 <- c(1, 0.5, N0 * (1 - hN))
 
-aN <- a0 + sum(labor$unemployed)
-bN <- b0 + N - sum(labor$unemployed)
+aN <- a0 + SN
+bN <- b0 + N - SN
 
 logmarglikM1 <- lbeta(aN, bN) - lbeta(a0, b0)
 ```
@@ -202,6 +202,6 @@ We can now compute the model probabilities and the log BFs.
 logBF <- logmarglikM1 - logmarglikM2
 PrM2 <- 0.5 / (0.5 + 0.5 * exp(logBF))
 PrM1 <- 1 - PrM2
-#print(xtable::xtable(res, digits = c(0, 2, 2, 5, 5, 5), row.names = FALSE))
+#print(xtable::xtable(res, digits = c(0, 2, 2, 3, 3, 3), row.names = FALSE))
 knitr::kable(res <- cbind(logmarglikM1, logmarglikM2, logBF, PrM1, PrM2))
 ```
