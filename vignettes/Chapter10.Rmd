@@ -35,6 +35,7 @@ knitr::kable(cbind(BF, logBF, PrM1, PrM2))
 # Section 10.2: Bayesian Testing of Hypotheses
 ## Example 10.5: Testing for zero mean in the CHF-USD log returns
 
+Before producing Figure 10.1, we begin with a concrete example.
 We load the data, compute the required parameters, and evaluate the two 
 marginal likelihoods.
 
@@ -64,6 +65,34 @@ whether we get the same answer.
 (logBF <- 0.5 * (log(N0 + N) - log(N0)) + cN * (log(CN_M2) - log(CN_M1)))
 all.equal(logBF, logmarglikM1 - logmarglikM2)
 ```
+
+Now we are ready to investigate the sensitivity of the log Bayes factor with
+respect to prior hyperparameter choices.
+
+```{r, echo = -c(1:2)}
+if (pdfplots) {
+  pdf("10-1_1.pdf", width = 8, height = 4)
+  par(mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.6, .6, 0))
+}
+c0 <- c(-1, 0, 0.001, 1, 100)
+C0 <- c(0, 0, 0.001, 1, 100)
+N0 <- 10^seq(1, 10, by = 0.1)
+
+logBF <- matrix(NA_real_, nrow = length(N0), ncol = length(c0))
+for (i in seq_along(c0)) {
+  cN <- c0[i] + N  / 2
+  CN_M1 <- C0[i] + sum(y^2) / 2
+  CN_M2 <- C0[i] + 0.5 * N * (mean((y - mean(y))^2) + N0 / (N0 + N) * mean(y)^2)
+  logBF[, i] <- 0.5 * (log(N0 + N) - log(N0)) + cN * (log(CN_M2) - log(CN_M1))
+}
+matplot(N0, logBF, log = "x", type = "l",
+        xlab = expression(paste(N[0], " [log scale]")), ylab = "log BF")
+abline(h = 0, lty = 3)
+legend("topright", paste0("IG(", c0, ",", C0, ")"), col = seq_along(c0),
+       lty = seq_along(c0))
+title("Log Bayes factor in favor of the zero-mean model")
+```
+
 
 ## Example 3.6: Testing for heterogeneity of the no-income risk
 
