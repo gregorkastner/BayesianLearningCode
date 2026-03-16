@@ -317,3 +317,13 @@ logmarglikM3 <- c30 * log(C30) +
                 N / 2 * log(nu * pi) +
                 logarea
 ```
+
+We can now compute log Bayes factors and corresponding model probabilities
+(under uniform prior probabilities).
+
+```{r}
+(logBF <- logmarglikM1 - logmarglikM3)
+PrM2 <- 0.5 / (0.5 + 0.5 * exp(logBF))
+PrM1 <- 1 - PrM2
+knitr::kable(round(rbind(PrM1, PrM2), 3))
+```
