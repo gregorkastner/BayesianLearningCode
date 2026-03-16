@@ -288,3 +288,32 @@ logmarglikM1 <- lgamma(c1N) + c10 * log(C10) -
    lgamma(c10) - c1N * log(C1N) - 0.5 * N * log(2 * pi)
 ```
 
+For the Student $t$ model, we need, e.g., numerical integration.
+
+```{r}
+nu <- 7
+integrand_nonvec <- function(sigma2, y, c0, C0, nu, const = 0) {
+  N <- length(y)
+  logint <- -(N/2 + c0 + 1) * log(sigma2) -
+            0.5 * (nu + 1) * sum(log(1 + y^2 / (nu * sigma2))) -
+            C0 / sigma2
+  exp(logint + const)
+}
+integrand <- Vectorize(integrand_nonvec, "sigma2")
+
+resolution <- 1000
+grid <- seq(0.01, 1, length.out = resolution + 1)
+
+tmp <- integrand(grid, y, c30, C30, nu)
+const <- -log(max(tmp))
+const <- 0
+tmp <- integrand(grid, y, c30, C30, nu, const = const)
+logarea <- log(sum(diff(grid) * .5 * (head(tmp, -1) + tail(tmp, -1)))) - const
+
+logmarglikM3 <- c30 * log(C30) +
+                N * lgamma((nu + 1) / 2) -
+                lgamma(c30) -
+                N * lgamma(nu / 2) -
+                N / 2 * log(nu * pi) +
+                logarea
+```
