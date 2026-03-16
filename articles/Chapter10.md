@@ -242,10 +242,21 @@ a0 <- grid$a0
 b0 <- grid$a0 / grid$m0
 aN <- sum(y) + a0
 bN <- length(y) + b0
-logmarglikM1 <- a0 * log(b0) + lgamma(aN) -
-                aN * log(bN) - lgamma(a0) -
-                sum(lgamma(y + 1))
+logmarglikM1 <- matrix(a0 * log(b0) + lgamma(aN) -
+                       aN * log(bN) - lgamma(a0) -
+                       sum(lgamma(y + 1)),
+                       nrow = length(a0_tmp), ncol = length(m0_tmp),
+                       dimnames = list(a0 = a0_tmp, m0 = round(m0_tmp, 2)))
+knitr::kable(round(logmarglikM1, 2))
 ```
+
+|      |       1 |    1.84 |       5 |       7 |      10 |
+|:-----|--------:|--------:|--------:|--------:|--------:|
+| 0.01 | -320.55 | -320.55 | -320.55 | -320.55 | -320.56 |
+| 0.1  | -318.50 | -318.47 | -318.51 | -318.53 | -318.56 |
+| 0.5  | -317.43 | -317.31 | -317.49 | -317.61 | -317.75 |
+| 1    | -317.12 | -316.89 | -317.26 | -317.49 | -317.77 |
+| 2    | -316.96 | -316.51 | -317.24 | -317.70 | -318.26 |
 
 And now the same for the model with structural break.
 
@@ -260,4 +271,102 @@ aN1 <- a01 + sum(accidents1[, "children_accidents"])
 aN2 <- a02 + sum(accidents2[, "children_accidents"])
 bN1 <- b01 + length(accidents1[, "children_accidents"])
 bN2 <- b02 + length(accidents2[, "children_accidents"])
+
+logmarglikM2 <- matrix(a01 * log(b01) + lgamma(aN1) +
+                       a02 * log(b02) + lgamma(aN2) -
+                       aN1 * log(bN1) - lgamma(a01) -
+                       aN2 * log(bN2) - lgamma(a02) -
+                       sum(lgamma(y + 1)),
+                       nrow = length(a0_tmp), ncol = length(m0_tmp),
+                       dimnames = list(a0 = a0_tmp, m0 = round(m0_tmp, 2)))
+knitr::kable(round(logmarglikM2, 2))
 ```
+
+|      |       1 |    1.84 |       5 |       7 |      10 |
+|:-----|--------:|--------:|--------:|--------:|--------:|
+| 0.01 | -321.40 | -321.40 | -321.40 | -321.41 | -321.41 |
+| 0.1  | -317.30 | -317.25 | -317.33 | -317.37 | -317.43 |
+| 0.5  | -315.17 | -314.94 | -315.31 | -315.54 | -315.81 |
+| 1    | -314.58 | -314.12 | -314.85 | -315.31 | -315.86 |
+| 2    | -314.30 | -313.38 | -314.83 | -315.75 | -316.86 |
+
+We can now compute log Bayes factors and corresponding model
+probabilities (under uniform prior probabilities).
+
+``` r
+logBF <- logmarglikM1[, 2] - logmarglikM2[, 2]
+PrM2 <- 0.5 / (0.5 + 0.5 * exp(logBF))
+PrM1 <- 1 - PrM2
+knitr::kable(round(rbind(PrM1, PrM2), 3))
+```
+
+|      |  0.01 |   0.1 |   0.5 |     1 |     2 |
+|:-----|------:|------:|------:|------:|------:|
+| PrM1 | 0.701 | 0.228 | 0.086 | 0.059 | 0.042 |
+| PrM2 | 0.299 | 0.772 | 0.914 | 0.941 | 0.958 |
+
+### Example 10.9: Testing normal versus t
+
+After loading the data, we define prior hyperparameters and compute log
+marginal likelihoods. This is straightforward for the normal model.
+
+``` r
+y <- 100 * diff(log(exrates$USD / exrates$CHF))
+N <- length(y)
+
+c10 <- c30 <- 1
+C10 <- 2
+C30 <- 5 / 7 * C10
+
+c1N <- c10 + N / 2
+C1N <- C10 + sum(y^2) / 2
+
+logmarglikM1 <- lgamma(c1N) + c10 * log(C10) -
+   lgamma(c10) - c1N * log(C1N) - 0.5 * N * log(2 * pi)
+```
+
+For the Student $t$ model, we need, e.g., numerical integration.
+
+``` r
+nu <- 7
+integrand_nonvec <- function(sigma2, y, c0, C0, nu, const = 0) {
+  N <- length(y)
+  logint <- -(N/2 + c0 + 1) * log(sigma2) -
+            0.5 * (nu + 1) * sum(log(1 + y^2 / (nu * sigma2))) -
+            C0 / sigma2
+  exp(logint + const)
+}
+integrand <- Vectorize(integrand_nonvec, "sigma2")
+
+resolution <- 1000
+grid <- seq(0.01, 1, length.out = resolution + 1)
+
+tmp <- integrand(grid, y, c30, C30, nu)
+const <- -log(max(tmp))
+const <- 0
+tmp <- integrand(grid, y, c30, C30, nu, const = const)
+logarea <- log(sum(diff(grid) * .5 * (head(tmp, -1) + tail(tmp, -1)))) - const
+
+logmarglikM3 <- c30 * log(C30) +
+                N * lgamma((nu + 1) / 2) -
+                lgamma(c30) -
+                N * lgamma(nu / 2) -
+                N / 2 * log(nu * pi) +
+                logarea
+```
+
+We can now compute log Bayes factors and corresponding model
+probabilities (under uniform prior probabilities).
+
+``` r
+(logBF <- logmarglikM1 - logmarglikM3)
+#> [1] -150.6869
+PrM2 <- 0.5 / (0.5 + 0.5 * exp(logBF))
+PrM1 <- 1 - PrM2
+knitr::kable(round(rbind(PrM1, PrM2), 3))
+```
+
+|      |     |
+|:-----|----:|
+| PrM1 |   0 |
+| PrM2 |   1 |
