@@ -226,9 +226,12 @@ a0 <- grid$a0
 b0 <- grid$a0 / grid$m0
 aN <- sum(y) + a0
 bN <- length(y) + b0
-logmarglikM1 <- a0 * log(b0) + lgamma(aN) -
-                aN * log(bN) - lgamma(a0) -
-                sum(lgamma(y + 1))
+logmarglikM1 <- matrix(a0 * log(b0) + lgamma(aN) -
+                       aN * log(bN) - lgamma(a0) -
+                       sum(lgamma(y + 1)),
+                       nrow = length(a0_tmp), ncol = length(m0_tmp),
+                       dimnames = list(a0 = a0_tmp, m0 = round(m0_tmp, 2)))
+knitr::kable(round(logmarglikM1, 2))
 ```
 
 And now the same for the model with structural break.
