@@ -258,3 +258,12 @@ logmarglikM2 <- matrix(a01 * log(b01) + lgamma(aN1) +
 knitr::kable(round(logmarglikM2, 2))
 ```
 
+We can now compute log Bayes factors and corresponding model probabilities
+(under uniform prior probabilities).
+
+```{r}
+logBF <- logmarglikM1[, 2] - logmarglikM2[, 2]
+PrM2 <- 0.5 / (0.5 + 0.5 * exp(logBF))
+PrM1 <- 1 - PrM2
+knitr::kable(round(rbind(PrM1, PrM2), 3))
+```
