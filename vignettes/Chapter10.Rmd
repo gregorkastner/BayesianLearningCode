@@ -247,3 +247,14 @@ aN1 <- a01 + sum(accidents1[, "children_accidents"])
 aN2 <- a02 + sum(accidents2[, "children_accidents"])
 bN1 <- b01 + length(accidents1[, "children_accidents"])
 bN2 <- b02 + length(accidents2[, "children_accidents"])
+
+logmarglikM2 <- matrix(a01 * log(b01) + lgamma(aN1) +
+                       a02 * log(b02) + lgamma(aN2) -
+                       aN1 * log(bN1) - lgamma(a01) -
+                       aN2 * log(bN2) - lgamma(a02) -
+                       sum(lgamma(y + 1)),
+                       nrow = length(a0_tmp), ncol = length(m0_tmp),
+                       dimnames = list(a0 = a0_tmp, m0 = round(m0_tmp, 2)))
+knitr::kable(round(logmarglikM2, 2))
+```
+
