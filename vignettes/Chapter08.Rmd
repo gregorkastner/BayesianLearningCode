@@ -508,7 +508,7 @@ knitr::kable(round(res_logit.labour, 3))
 The risk of being unemployed  1998 for a male blue  collar worker of age 18, who 
 was employed 1997 is very low with a value of `r p_unemploy_base_logit` and the risk is even lower for a white collar  worker. It is higher for females, increases with age and is particularly high for persons who were unemployed 1997.
 
- As discussed above, while the signs of the covariate effects can be interpreted in the same way for the probit and the logit model, their  numerical value will differ due to  the different scale of the link function.
+ While the signs of the covariate effects can be interpreted in the same way for the probit and the logit model, their  numerical value will differ due to  the different scale of the link function.
  
 As the logistic distribution has a variance of $\pi^2/3$ compared to 1 for the
 standard Normal distribution, the regression effects in the logit model  are
