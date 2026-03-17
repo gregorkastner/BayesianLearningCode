@@ -658,22 +658,222 @@ is 1.</p>
 probabilities (under equal prior model probabilities).</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">logBF</span> <span class="op">&lt;-</span> <span class="va">logmarglikM1</span> <span class="op">-</span> <span class="va">logmarglikM3</span></span>
-<span><span class="va">PrM2</span> <span class="op">&lt;-</span> <span class="fl">0.5</span> <span class="op">/</span> <span class="op">(</span><span class="fl">0.5</span> <span class="op">+</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">logBF</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">PrM1</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="op">-</span> <span class="va">PrM2</span></span>
-<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span>BF <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">logBF</span><span class="op">)</span>, logBF <span class="op">=</span> <span class="va">logBF</span>, <span class="va">PrM1</span>, <span class="va">PrM2</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">PrM3</span> <span class="op">&lt;-</span> <span class="fl">0.5</span> <span class="op">/</span> <span class="op">(</span><span class="fl">0.5</span> <span class="op">+</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">logBF</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">PrM1</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="op">-</span> <span class="va">PrM3</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span>logML1 <span class="op">=</span> <span class="va">logmarglikM1</span>, logML3 <span class="op">=</span> <span class="va">logmarglikM3</span>,</span>
+<span>                   BF <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">logBF</span><span class="op">)</span>, logBF <span class="op">=</span> <span class="va">logBF</span>, Pr1 <span class="op">=</span> <span class="va">PrM1</span>, Pr3 <span class="op">=</span> <span class="va">PrM3</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
+<th align="right">logML1</th>
+<th align="right">logML3</th>
 <th align="right">BF</th>
 <th align="right">logBF</th>
-<th align="right">PrM1</th>
-<th align="right">PrM2</th>
+<th align="right">Pr1</th>
+<th align="right">Pr3</th>
 </tr></thead>
 <tbody><tr class="odd">
+<td align="right">-3456.384</td>
+<td align="right">-3305.694</td>
 <td align="right">0</td>
 <td align="right">-150.6898</td>
 <td align="right">0</td>
 <td align="right">1</td>
 </tr></tbody>
+</table>
+</div>
+<div class="section level3">
+<h3 id="example-10-10-testing-homogeneity-against-unobserved-heterogeneity">Example 10.10: Testing homogeneity against unobserved
+heterogeneity<a class="anchor" aria-label="anchor" href="#example-10-10-testing-homogeneity-against-unobserved-heterogeneity"></a>
+</h3>
+<p>We begin by loading the data and specifying the hyperparameters.</p>
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">eyetracking</span>, package <span class="op">=</span> <span class="st">"BayesianLearningCode"</span><span class="op">)</span></span>
+<span><span class="va">y</span> <span class="op">&lt;-</span> <span class="va">eyetracking</span><span class="op">$</span><span class="va">anomalies</span></span>
+<span><span class="va">N</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">a0_tmp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.5</span>, <span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="va">m0_tmp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span>, <span class="fl">5</span>, <span class="fl">10</span>, <span class="fl">20</span><span class="op">)</span></span>
+<span><span class="va">grid</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span>a0 <span class="op">=</span> <span class="va">a0_tmp</span>, m0 <span class="op">=</span> <span class="va">m0_tmp</span><span class="op">)</span></span>
+<span><span class="va">a0</span> <span class="op">&lt;-</span> <span class="va">grid</span><span class="op">$</span><span class="va">a0</span></span>
+<span><span class="va">b0</span> <span class="op">&lt;-</span> <span class="va">grid</span><span class="op">$</span><span class="va">a0</span> <span class="op">/</span> <span class="va">grid</span><span class="op">$</span><span class="va">m0</span></span></code></pre></div>
+<p>Now we can compute and print the log marginal likelihoods.</p>
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">logmarglikM1</span> <span class="op">&lt;-</span> <span class="va">a0</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">b0</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Special.html" class="external-link">lgamma</a></span><span class="op">(</span><span class="va">a0</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">)</span> <span class="op">-</span></span>
+<span>                <span class="fu"><a href="https://rdrr.io/r/base/Special.html" class="external-link">lgamma</a></span><span class="op">(</span><span class="va">a0</span><span class="op">)</span> <span class="op">-</span> <span class="op">(</span><span class="va">a0</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">b0</span> <span class="op">+</span> <span class="va">N</span><span class="op">)</span> <span class="op">-</span></span>
+<span>                <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Special.html" class="external-link">lgamma</a></span><span class="op">(</span><span class="va">y</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">logmarglikM2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA_real_</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">a0</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">a0</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">logmarglikM2</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">N</span> <span class="op">*</span> <span class="va">a0</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">b0</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Special.html" class="external-link">lgamma</a></span><span class="op">(</span><span class="va">a0</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">+</span> <span class="va">y</span><span class="op">)</span><span class="op">)</span> <span class="op">-</span></span>
+<span>                     <span class="va">N</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Special.html" class="external-link">lgamma</a></span><span class="op">(</span><span class="va">a0</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">a0</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">+</span> <span class="va">y</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">b0</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span> <span class="op">-</span></span>
+<span>                     <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Special.html" class="external-link">lgamma</a></span><span class="op">(</span><span class="va">y</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="va">logmarglikM1</span>, nrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">a0_tmp</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">m0_tmp</span><span class="op">)</span>,</span>
+<span>             dimnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>a0 <span class="op">=</span> <span class="va">a0_tmp</span>, m0 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">m0_tmp</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, digits <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left"></th>
+<th align="right">1</th>
+<th align="right">3.52</th>
+<th align="right">5</th>
+<th align="right">10</th>
+<th align="right">20</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">0.1</td>
+<td align="right">-472.91</td>
+<td align="right">-472.78</td>
+<td align="right">-472.78</td>
+<td align="right">-472.82</td>
+<td align="right">-472.87</td>
+</tr>
+<tr class="even">
+<td align="left">0.5</td>
+<td align="right">-472.25</td>
+<td align="right">-471.62</td>
+<td align="right">-471.64</td>
+<td align="right">-471.81</td>
+<td align="right">-472.07</td>
+</tr>
+<tr class="odd">
+<td align="left">1</td>
+<td align="right">-472.45</td>
+<td align="right">-471.20</td>
+<td align="right">-471.25</td>
+<td align="right">-471.59</td>
+<td align="right">-472.11</td>
+</tr>
+<tr class="even">
+<td align="left">2</td>
+<td align="right">-473.31</td>
+<td align="right">-470.81</td>
+<td align="right">-470.92</td>
+<td align="right">-471.60</td>
+<td align="right">-472.63</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="va">logmarglikM2</span>, nrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">a0_tmp</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">m0_tmp</span><span class="op">)</span>,</span>
+<span>             dimnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>a0 <span class="op">=</span> <span class="va">a0_tmp</span>, m0 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">m0_tmp</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, digits <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left"></th>
+<th align="right">1</th>
+<th align="right">3.52</th>
+<th align="right">5</th>
+<th align="right">10</th>
+<th align="right">20</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">0.1</td>
+<td align="right">-249.61</td>
+<td align="right">-237.68</td>
+<td align="right">-238.22</td>
+<td align="right">-241.61</td>
+<td align="right">-246.80</td>
+</tr>
+<tr class="even">
+<td align="left">0.5</td>
+<td align="right">-271.04</td>
+<td align="right">-223.77</td>
+<td align="right">-226.24</td>
+<td align="right">-242.34</td>
+<td align="right">-267.54</td>
+</tr>
+<tr class="odd">
+<td align="left">1</td>
+<td align="right">-316.77</td>
+<td align="right">-241.38</td>
+<td align="right">-245.87</td>
+<td align="right">-276.12</td>
+<td align="right">-324.87</td>
+</tr>
+<tr class="even">
+<td align="left">2</td>
+<td align="right">-381.56</td>
+<td align="right">-273.80</td>
+<td align="right">-281.39</td>
+<td align="right">-335.39</td>
+<td align="right">-426.86</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section level3">
+<h3 id="example-10-11-testing-poisson-vs--negative-binomial">Example 10.11: Testing Poisson vs. negative binomial<a class="anchor" aria-label="anchor" href="#example-10-11-testing-poisson-vs--negative-binomial"></a>
+</h3>
+<p>In the negative binomial case, if
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>a</mi><mn>0</mn></msub><annotation encoding="application/x-tex">a_0</annotation></semantics></math>
+is fixed and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>b</mi><mn>0</mn></msub><annotation encoding="application/x-tex">b_0</annotation></semantics></math>
+follows a beta prime prior, we have a closed-form expression for the
+marginal likelihood.</p>
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">alpha_b0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">a0</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">beta_b0</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="op">+</span> <span class="va">alpha_b0</span> <span class="op">/</span> <span class="va">b0</span></span>
+<span><span class="va">sdb0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">alpha_b0</span> <span class="op">*</span> <span class="op">(</span><span class="va">alpha_b0</span> <span class="op">+</span> <span class="va">beta_b0</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">/</span></span>
+<span>             <span class="op">(</span><span class="op">(</span><span class="va">beta_b0</span> <span class="op">-</span> <span class="fl">2</span><span class="op">)</span> <span class="op">*</span> <span class="op">(</span><span class="va">beta_b0</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in sqrt(alpha_b0 * (alpha_b0 + beta_b0 - 1)/((beta_b0 - 2) * (beta_b0 -</span></span>
+<span><span class="co">#&gt; : NaNs produced</span></span>
+<span><span class="va">alpha_bN</span> <span class="op">&lt;-</span> <span class="va">alpha_b0</span> <span class="op">+</span> <span class="va">N</span> <span class="op">*</span> <span class="va">a0</span></span>
+<span><span class="va">beta_bN</span> <span class="op">&lt;-</span> <span class="va">beta_b0</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">logmarglikM3</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA_real_</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">a0</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">a0</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">logmarglikM3</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Special.html" class="external-link">lbeta</a></span><span class="op">(</span><span class="va">alpha_bN</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, <span class="va">beta_bN</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Special.html" class="external-link">lbeta</a></span><span class="op">(</span><span class="va">alpha_b0</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, <span class="va">beta_b0</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span> <span class="op">-</span></span>
+<span>                     <span class="va">N</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Special.html" class="external-link">lgamma</a></span><span class="op">(</span><span class="va">a0</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Special.html" class="external-link">lgamma</a></span><span class="op">(</span><span class="va">a0</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">+</span> <span class="va">y</span><span class="op">)</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Special.html" class="external-link">lgamma</a></span><span class="op">(</span><span class="va">y</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="va">logmarglikM3</span>, nrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">a0_tmp</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">m0_tmp</span><span class="op">)</span>,</span>
+<span>             dimnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>a0 <span class="op">=</span> <span class="va">a0_tmp</span>, m0 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">m0_tmp</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, digits <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left"></th>
+<th align="right">1</th>
+<th align="right">3.52</th>
+<th align="right">5</th>
+<th align="right">10</th>
+<th align="right">20</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">0.1</td>
+<td align="right">-239.42</td>
+<td align="right">-238.96</td>
+<td align="right">-239.02</td>
+<td align="right">-239.61</td>
+<td align="right">-241.09</td>
+</tr>
+<tr class="even">
+<td align="left">0.5</td>
+<td align="right">-226.13</td>
+<td align="right">-225.82</td>
+<td align="right">-225.89</td>
+<td align="right">-226.55</td>
+<td align="right">-228.38</td>
+</tr>
+<tr class="odd">
+<td align="left">1</td>
+<td align="right">-243.96</td>
+<td align="right">-243.78</td>
+<td align="right">-243.86</td>
+<td align="right">-244.49</td>
+<td align="right">-246.27</td>
+</tr>
+<tr class="even">
+<td align="left">2</td>
+<td align="right">-276.60</td>
+<td align="right">-276.55</td>
+<td align="right">-276.65</td>
+<td align="right">-277.22</td>
+<td align="right">-278.83</td>
+</tr>
+</tbody>
 </table>
 </div>
 </div>

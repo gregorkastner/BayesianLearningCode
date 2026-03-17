@@ -371,11 +371,99 @@ probabilities (under equal prior model probabilities).
 
 ``` r
 logBF <- logmarglikM1 - logmarglikM3
-PrM2 <- 0.5 / (0.5 + 0.5 * exp(logBF))
-PrM1 <- 1 - PrM2
-knitr::kable(cbind(BF = exp(logBF), logBF = logBF, PrM1, PrM2))
+PrM3 <- 0.5 / (0.5 + 0.5 * exp(logBF))
+PrM1 <- 1 - PrM3
+knitr::kable(cbind(logML1 = logmarglikM1, logML3 = logmarglikM3,
+                   BF = exp(logBF), logBF = logBF, Pr1 = PrM1, Pr3 = PrM3))
 ```
 
-|  BF |     logBF | PrM1 | PrM2 |
-|----:|----------:|-----:|-----:|
-|   0 | -150.6898 |    0 |    1 |
+|    logML1 |    logML3 |  BF |     logBF | Pr1 | Pr3 |
+|----------:|----------:|----:|----------:|----:|----:|
+| -3456.384 | -3305.694 |   0 | -150.6898 |   0 |   1 |
+
+### Example 10.10: Testing homogeneity against unobserved heterogeneity
+
+We begin by loading the data and specifying the hyperparameters.
+
+``` r
+data(eyetracking, package = "BayesianLearningCode")
+y <- eyetracking$anomalies
+N <- length(y)
+
+a0_tmp <- c(0.1, 0.5, 1, 2)
+m0_tmp <- c(1, mean(y), 5, 10, 20)
+grid <- expand.grid(a0 = a0_tmp, m0 = m0_tmp)
+a0 <- grid$a0
+b0 <- grid$a0 / grid$m0
+```
+
+Now we can compute and print the log marginal likelihoods.
+
+``` r
+logmarglikM1 <- a0 * log(b0) + lgamma(a0 + sum(y)) -
+                lgamma(a0) - (a0 + sum(y)) * log(b0 + N) -
+                sum(lgamma(y + 1))
+
+logmarglikM2 <- rep(NA_real_, length(a0))
+for (i in seq_along(a0)) {
+  logmarglikM2[i] <- N * a0[i] * log(b0[i]) + sum(lgamma(a0[i] + y)) -
+                     N * lgamma(a0[i]) - sum(a0[i] + y) * log(b0[i] + 1) -
+                     sum(lgamma(y + 1))
+}
+
+knitr::kable(matrix(logmarglikM1, nrow = length(a0_tmp), ncol = length(m0_tmp),
+             dimnames = list(a0 = a0_tmp, m0 = round(m0_tmp, 2))), digits = 2)
+```
+
+|     |       1 |    3.52 |       5 |      10 |      20 |
+|:----|--------:|--------:|--------:|--------:|--------:|
+| 0.1 | -472.91 | -472.78 | -472.78 | -472.82 | -472.87 |
+| 0.5 | -472.25 | -471.62 | -471.64 | -471.81 | -472.07 |
+| 1   | -472.45 | -471.20 | -471.25 | -471.59 | -472.11 |
+| 2   | -473.31 | -470.81 | -470.92 | -471.60 | -472.63 |
+
+``` r
+
+knitr::kable(matrix(logmarglikM2, nrow = length(a0_tmp), ncol = length(m0_tmp),
+             dimnames = list(a0 = a0_tmp, m0 = round(m0_tmp, 2))), digits = 2)
+```
+
+|     |       1 |    3.52 |       5 |      10 |      20 |
+|:----|--------:|--------:|--------:|--------:|--------:|
+| 0.1 | -249.61 | -237.68 | -238.22 | -241.61 | -246.80 |
+| 0.5 | -271.04 | -223.77 | -226.24 | -242.34 | -267.54 |
+| 1   | -316.77 | -241.38 | -245.87 | -276.12 | -324.87 |
+| 2   | -381.56 | -273.80 | -281.39 | -335.39 | -426.86 |
+
+### Example 10.11: Testing Poisson vs. negative binomial
+
+In the negative binomial case, if $a_{0}$ is fixed and $b_{0}$ follows a
+beta prime prior, we have a closed-form expression for the marginal
+likelihood.
+
+``` r
+alpha_b0 <- rep(1, length(a0))
+beta_b0 <- 1 + alpha_b0 / b0
+sdb0 <- sqrt(alpha_b0 * (alpha_b0 + beta_b0 - 1) /
+             ((beta_b0 - 2) * (beta_b0 - 1)^2))
+#> Warning in sqrt(alpha_b0 * (alpha_b0 + beta_b0 - 1)/((beta_b0 - 2) * (beta_b0 -
+#> : NaNs produced
+alpha_bN <- alpha_b0 + N * a0
+beta_bN <- beta_b0 + sum(y)
+
+logmarglikM3 <- rep(NA_real_, length(a0))
+for (i in seq_along(a0)) {
+  logmarglikM3[i] <- lbeta(alpha_bN[i], beta_bN[i]) - lbeta(alpha_b0[i], beta_b0[i]) -
+                     N * lgamma(a0[i]) + sum(lgamma(a0[i] + y)) - sum(lgamma(y + 1))
+}
+
+knitr::kable(matrix(logmarglikM3, nrow = length(a0_tmp), ncol = length(m0_tmp),
+             dimnames = list(a0 = a0_tmp, m0 = round(m0_tmp, 2))), digits = 2)
+```
+
+|     |       1 |    3.52 |       5 |      10 |      20 |
+|:----|--------:|--------:|--------:|--------:|--------:|
+| 0.1 | -239.42 | -238.96 | -239.02 | -239.61 | -241.09 |
+| 0.5 | -226.13 | -225.82 | -225.89 | -226.55 | -228.38 |
+| 1   | -243.96 | -243.78 | -243.86 | -244.49 | -246.27 |
+| 2   | -276.60 | -276.55 | -276.65 | -277.22 | -278.83 |
