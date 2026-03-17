@@ -371,3 +371,26 @@ knitr::kable(matrix(logmarglikM1, nrow = length(a0_tmp), ncol = length(m0_tmp),
 knitr::kable(matrix(logmarglikM2, nrow = length(a0_tmp), ncol = length(m0_tmp),
              dimnames = list(a0 = a0_tmp, m0 = round(m0_tmp, 2))), digits = 2)
 ```
+
+## Example 10.11: Testing Poisson vs. negative binomial
+
+In the negative binomial case, if $a_0$ is fixed and $b_0$ follows a beta prime
+prior, we have a closed-form expression for the marginal likelihood.
+
+```{r}
+alpha_b0 <- rep(1, length(a0))
+beta_b0 <- 1 + alpha_b0 / b0
+sdb0 <- sqrt(alpha_b0 * (alpha_b0 + beta_b0 - 1) /
+             ((beta_b0 - 2) * (beta_b0 - 1)^2))
+alpha_bN <- alpha_b0 + N * a0
+beta_bN <- beta_b0 + sum(y)
+
+logmarglikM3 <- rep(NA_real_, length(a0))
+for (i in seq_along(a0)) {
+  logmarglikM3[i] <- lbeta(alpha_bN[i], beta_bN[i]) - lbeta(alpha_b0[i], beta_b0[i]) -
+                     N * lgamma(a0[i]) + sum(lgamma(a0[i] + y)) - sum(lgamma(y + 1))
+}
+
+knitr::kable(matrix(logmarglikM3, nrow = length(a0_tmp), ncol = length(m0_tmp),
+             dimnames = list(a0 = a0_tmp, m0 = round(m0_tmp, 2))), digits = 2)
+```
