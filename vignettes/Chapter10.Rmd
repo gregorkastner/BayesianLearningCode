@@ -302,12 +302,12 @@ integrand_nonvec <- function(sigma2, y, c0, C0, nu, const = 0) {
 integrand <- Vectorize(integrand_nonvec, "sigma2")
 
 resolution <- 1000
-grid <- seq(0.01, 1, length.out = resolution + 1)
+grid <- seq(0.1, 0.6, length.out = resolution + 1)
 
 tmp <- integrand(grid, y, c30, C30, nu)
 const <- -log(max(tmp))
-const <- 0
 tmp <- integrand(grid, y, c30, C30, nu, const = const)
+plot(grid, tmp, type = 'l')
 logarea <- log(sum(diff(grid) * .5 * (head(tmp, -1) + tail(tmp, -1)))) - const
 
 logmarglikM3 <- c30 * log(C30) +
