@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
   fig.height = 6
 )
 knitr::opts_knit$set(global.par = TRUE)
-pdfplots <- TRUE # default: FALSE; set this to TRUE only if you like pdf figures
+pdfplots <- FALSE # default: FALSE; set this to TRUE only if you like pdf figures
 ```
 
 ```{r, include = FALSE}
@@ -28,9 +28,9 @@ par(mgp = c(1.6, .6, 0), mar = c(2.6, 2.6, 2.6, .4), lwd = 1)
 
 ## Section 8.1.1: Probit model
 
-### Figure 8.1: Latent utility an outcome in the probit model
-We start by visualising a latent  utility  for  a linear predictor  $\mathbf{x}\boldsymbol{\beta}$
-with value of 1.  
+### Figure 8.1: Latent utility and outcome in the probit model
+We start by visualising a latent  utility  for  a linear predictor  
+$\mathbf{x}\boldsymbol{\beta}$ with a value of 1.  
 
 ```{r, echo = -c(1:2)}
 if (pdfplots) {
@@ -150,17 +150,17 @@ We show posterior means and
 equal-tailed 95\% credible intervals of the regression effects.
 
 ```{r}
-res_beta <- t(apply(betas, 2, res.mcmc))
-knitr::kable(round(res_beta, 3))
+res_probit.labour <- t(apply(betas, 2, res.mcmc))
+knitr::kable(round(res_probit.labour, 3))
 ```
 Next, we  determine the estimated risk of unemployment for a baseline person, i.e. a 18 year
 old male blue collar worker who was employed in 1997, using the posterior mean estimate of the intercept.
 
 ```{r}
-(p_unemploy_base <- round(pnorm(res_beta[1, 2]),4))
+(p_unemploy_base_probit <- round(pnorm(res_probit.labour[1, 2]),4))
 ```
 
-The estimated risk to be unemployed in 1998 for a baseline person is  very low with a value of `r p_unemploy_base` and  even lower for a white collar worker. This risk is  higher for a female,
+The estimated risk to be unemployed in 1998 for a baseline person is  very low with a value of `r p_unemploy_base_probit` and  even lower for a white collar worker. This risk is  higher for a female,
 an older person  and particularly high if the person was unemployed in 1997.
 
 We next visualize the estimated posterior distributions for the regression
@@ -382,27 +382,38 @@ distribution. Hence, a proper prior is required to avoid improper
 posteriors in case of separation.
 
 We now analyze the data of example 8.4. under the  more informative prior
-$\mathcal{N}(\mathbf{0}, \mathbf{I})$. With this prior we assume that both
-$P(y=1)$ and $P(y=0)$ have a prior probability of $\approx 0.95$ to be
-in the interval $[0.023, 0.977]$.
-
+$\mathcal{N}(\mathbf{0}, \mathbf{I})$. This prior distribution encodes the prior believe that  $\beta_0$ and $\beta_1$ are in the interval $(-1.96, 1.96)$$ with probability $0.95$.
 
 We compare the estimation results to those from exercise 8.4, where the prior was 
-$\mathcal{N}(\mathbf{0}, 10000 \mathbf{I})$ 
+$\mathcal{N}(\mathbf{0}, 10000 \mathbf{I})$. 
 
 ```{r}
 set.seed(1234)
 betas.sep1 <- probit(y, X.sep, b0 = 0, B0 = 1, burnin=1000, M=M)
 
+#compare results to less informative prior
 res_betas.sep <- t(apply(betas.sep, 2, res.mcmc))
 rownames(res_betas.sep) <- c("Intercept", "X")
-knitr:: kable(res_betas.sep)
+
+ess.sep <- effectiveSize(betas.sep)
+ineff.sep <- M/ ess.sep
+res.sep <- round(cbind(res_betas.sep, ess.sep, ineff.sep),2)
+colnames(res.sep)[4:5] <- c("Ess","inefficiency")
+
+knitr:: kable(res.sep)
+
 
 res_betas.sep1 <- t(apply(betas.sep1, 2, res.mcmc))
-rownames(res_betas.sep1)<- c("Intercept", "X")
-knitr:: kable(res_betas.sep1)
+rownames(res_betas.sep1) <- c("Intercept", "X")
+
+ess.sep1 <- effectiveSize(betas.sep1)
+ineff.sep1 <-  M/ ess.sep1
+res.sep1 <- round(cbind(res_betas.sep1, ess.sep1, ineff.sep1),2)
+colnames(res.sep1)[4:5] <- c("Ess","inefficiency")
+
+knitr:: kable(res.sep1)
 ```
-We see that with the tighter prior the estimates are more shrunk to zero.
+We see that with the tighter prior the estimates are more shrunk to zero, estimates ESSs are higher and inflation p
 
 ```{r, echo = -c(1:2)}
 if (pdfplots) {
@@ -416,20 +427,9 @@ acf(betas.sep1[, 1], ylab="empirical ACF")
 
 plot(betas.sep1[, 2], type = "l", xlab="Draws after burnin", ylab = labels[2])
 acf(betas.sep1[, 2],ylab="empirical ACF")
-
-(ess.sep <- round(effectiveSize(betas.sep),2))
-(ineff.sep <- round(M/ ess.sep,2))
-
-(ess.sep1 <- round(effectiveSize(betas.sep1),2))
-(ineff.sep1 <- round(M/ ess.sep1,2))
-
-ineff<- cbind(ineff.sep, ineff.sep1)
-colnames(ineff)<- c("N(0,10000)", "N(0,1)")
-rownames(ineff)<- c("Intercept", "X")
-knitr::kable(ineff)
 ```
 
-With a tighter prior the autocorrelations are much lower and hence the estimated ESSs are higher and inefficiency is lower.
+Correspondingly the autocorrelation of the draws are much lower under the tighter prior. 
 
 
 ## Section 8.1.2: Logit model
@@ -495,26 +495,30 @@ estimates and determine the risk of unemployment for a baseline person
 using the fitted logit model.
 
 ```{r}
+set.seed(1234)
 betas_logit <- logit(y.unemp, X.unemp, b0 = 0, B0 = 10000)
 
-res_beta_logit <- t(apply(betas_logit, 2, res.mcmc))
-knitr::kable(round(res_beta_logit, 3))
+res_logit.labour <- t(apply(betas_logit, 2, res.mcmc))
+knitr::kable(round(res_logit.labour, 3))
 
-(p_unemploy_base <- plogis(res_beta_logit[1, 2]))
+(p_unemploy_base_logit <- round(plogis(res_logit.labour[1, 2]),4))
+
 ```
 
-Note that the logistic distribution has a variance of $\pi^2/3$ and
-hence the regression effects are absolutely larger than in the probit
-model. However any probability computed from the two models will be
-very close, e.g., compare the probability to be unemployed for the
-baseline person.
+The risk of being unemployed  1998 for a male blue  collar worker of age 18, who 
+was employed 1997 is very low with a value of `r p_unemploy_base_logit` and the risk is even lower for a white collar  worker. It is higher for females, increases with age and is particularly high for persons who were unemployed 1997.
 
-We can compare the posterior estimates of the coefficients in the
-probit model $\beta$ to those of the logit model by multiplying them with
-$\pi/\sqrt{3}$ and see that there is not much difference.
+ As discussed above, while the signs of the covariate effects can be interpreted in the same way for the probit and the logit model, their  numerical value will differ due to  the different scale of the link function.
+ 
+As the logistic distribution has a variance of $\pi^2/3$ compared to 1 for the
+standard Normal distribution, the regression effects in the logit model  are
+absolutely larger than those in the probit model. However any probability computed from the two models will be very close, e.g.,  the estimated probability to be unemployed for a baseline person is  `r p_unemploy_base_probit` in the probit model (compared to `r p_unemploy_base_logit` in the logit model).
+
+By multiplying the estimated coefficients in the probit model by
+$\pi/\sqrt{3}$ we can  compare them to those of the logit model and we see that there is not much difference.  
 
 ```{r}
-knitr::kable(round(res_beta * pi / sqrt(3), 3))
+knitr::kable(round(res_probit.labour * pi / sqrt(3), 3))
 ```
 
 # Section 8.2: Count response variables
