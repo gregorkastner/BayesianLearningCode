@@ -329,7 +329,8 @@ We can now compute log Bayes factors and corresponding model probabilities
 
 ```{r}
 logBF <- logmarglikM1 - logmarglikM3
-PrM2 <- 0.5 / (0.5 + 0.5 * exp(logBF))
-PrM1 <- 1 - PrM2
-knitr::kable(cbind(BF = exp(logBF), logBF = logBF, PrM1, PrM2))
+PrM3 <- 0.5 / (0.5 + 0.5 * exp(logBF))
+PrM1 <- 1 - PrM3
+knitr::kable(cbind(logML1 = logmarglikM1, logML3 = logmarglikM3,
+                   BF = exp(logBF), logBF = logBF, Pr1 = PrM1, Pr3 = PrM3))
 ```
