@@ -307,18 +307,22 @@ knitr::kable(round(rbind(PrM1, PrM2), 3))
 
 ### Example 10.9: Testing normal versus t
 
-After loading the data, we define prior hyperparameters and compute log
-marginal likelihoods. This is straightforward for the normal model.
+After loading the data, we define the degrees of freedom $\nu$ and the
+prior hyperparameters.
 
 ``` r
-nu <- 7
 y <- 100 * diff(log(exrates$USD / exrates$CHF))
 N <- length(y)
-
-c10 <- c30 <- 1
-C10 <- 2
+nu <- 7
+c10 <- c30 <- 3
+C10 <- 3
 C30 <- (nu - 2) / nu * C10
+```
 
+We now compute log marginal likelihoods. This is straightforward for the
+normal model.
+
+``` r
 c1N <- c10 + N / 2
 C1N <- C10 + sum(y^2) / 2
 
@@ -341,15 +345,15 @@ integrand_nonvec <- function(sigma2, y, c0, C0, nu, const = 0, log = FALSE) {
 integrand <- Vectorize(integrand_nonvec, "sigma2")
 
 resolution <- 1000
-grid <- seq(0.1, 0.6, length.out = resolution + 1)
+grid <- seq(0.1, 0.7, length.out = resolution + 1)
 
-tmp <- integrand(grid, y, c30, C30, nu, log = TRUE)
-const <- -max(tmp)
-tmp <- integrand(grid, y, c30, C30, nu, const = const)
+logtmp <- integrand(grid, y, c30, C30, nu, log = TRUE)
+const <- -max(logtmp)
+tmp <- exp(logtmp + const)
 plot(grid, tmp, type = 'l')
 ```
 
-![](Chapter10_files/figure-html/unnamed-chunk-19-1.png)
+![](Chapter10_files/figure-html/unnamed-chunk-20-1.png)
 
 ``` r
 logarea <- log(sum(diff(grid) * .5 * (head(tmp, -1) + tail(tmp, -1)))) - const
@@ -366,14 +370,12 @@ We can now compute log Bayes factors and corresponding model
 probabilities (under equal prior model probabilities).
 
 ``` r
-(logBF <- logmarglikM1 - logmarglikM3)
-#> [1] -150.6869
+logBF <- logmarglikM1 - logmarglikM3
 PrM2 <- 0.5 / (0.5 + 0.5 * exp(logBF))
 PrM1 <- 1 - PrM2
-knitr::kable(round(rbind(PrM1, PrM2), 3))
+knitr::kable(cbind(BF = exp(logBF), logBF = logBF, PrM1, PrM2))
 ```
 
-|      |     |
-|:-----|----:|
-| PrM1 |   0 |
-| PrM2 |   1 |
+|  BF |     logBF | PrM1 | PrM2 |
+|----:|----------:|-----:|-----:|
+|   0 | -150.6898 |    0 |    1 |
