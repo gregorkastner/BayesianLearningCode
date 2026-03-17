@@ -277,8 +277,8 @@ hyperparameters.
 y <- 100 * diff(log(exrates$USD / exrates$CHF))
 N <- length(y)
 nu <- 7
-c10 <- c30 <- 1
-C10 <- 2
+c10 <- c30 <- 3
+C10 <- 3
 C30 <- (nu - 2) / nu * C10
 ```
 
