@@ -334,3 +334,40 @@ PrM1 <- 1 - PrM3
 knitr::kable(cbind(logML1 = logmarglikM1, logML3 = logmarglikM3,
                    BF = exp(logBF), logBF = logBF, Pr1 = PrM1, Pr3 = PrM3))
 ```
+
+## Example 10.10: Testing homogeneity against unobserved heterogeneity
+
+We begin by loading the data and specifying the hyperparameters.
+
+```{r}
+data(eyetracking, package = "BayesianLearningCode")
+y <- eyetracking$anomalies
+N <- length(y)
+
+a0_tmp <- c(0.1, 0.5, 1, 2)
+m0_tmp <- c(1, mean(y), 5, 10, 20)
+grid <- expand.grid(a0 = a0_tmp, m0 = m0_tmp)
+a0 <- grid$a0
+b0 <- grid$a0 / grid$m0
+```
+
+Now we can compute and print the log marginal likelihoods.
+
+```{r}
+logmarglikM1 <- a0 * log(b0) + lgamma(a0 + sum(y)) -
+                lgamma(a0) - (a0 + sum(y)) * log(b0 + N) -
+                sum(lgamma(y + 1))
+
+logmarglikM2 <- rep(NA_real_, length(a0))
+for (i in seq_along(a0)) {
+  logmarglikM2[i] <- N * a0[i] * log(b0[i]) + sum(lgamma(a0[i] + y)) -
+                     N * lgamma(a0[i]) - sum(a0[i] + y) * log(b0[i] + 1) -
+                     sum(lgamma(y + 1))
+}
+
+knitr::kable(matrix(logmarglikM1, nrow = length(a0_tmp), ncol = length(m0_tmp),
+             dimnames = list(a0 = a0_tmp, m0 = round(m0_tmp, 2))), digits = 2)
+
+knitr::kable(matrix(logmarglikM2, nrow = length(a0_tmp), ncol = length(m0_tmp),
+             dimnames = list(a0 = a0_tmp, m0 = round(m0_tmp, 2))), digits = 2)
+```
