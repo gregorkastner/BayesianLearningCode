@@ -311,12 +311,13 @@ After loading the data, we define prior hyperparameters and compute log
 marginal likelihoods. This is straightforward for the normal model.
 
 ``` r
+nu <- 7
 y <- 100 * diff(log(exrates$USD / exrates$CHF))
 N <- length(y)
 
 c10 <- c30 <- 1
 C10 <- 2
-C30 <- 5 / 7 * C10
+C30 <- (nu - 2) / nu * C10
 
 c1N <- c10 + N / 2
 C1N <- C10 + sum(y^2) / 2
@@ -325,26 +326,32 @@ logmarglikM1 <- lgamma(c1N) + c10 * log(C10) -
    lgamma(c10) - c1N * log(C1N) - 0.5 * N * log(2 * pi)
 ```
 
-For the Student $t$ model, we need, e.g., numerical integration.
+For the Student $t$ model, we need, e.g., numerical integration. Note
+that we apply the “log-sum-exp” trick here to normalize the integrand so
+that its maximum is 1.
 
 ``` r
-nu <- 7
-integrand_nonvec <- function(sigma2, y, c0, C0, nu, const = 0) {
+integrand_nonvec <- function(sigma2, y, c0, C0, nu, const = 0, log = FALSE) {
   N <- length(y)
   logint <- -(N/2 + c0 + 1) * log(sigma2) -
             0.5 * (nu + 1) * sum(log(1 + y^2 / (nu * sigma2))) -
             C0 / sigma2
-  exp(logint + const)
+  if (log) logint + const else exp(logint + const)
 }
 integrand <- Vectorize(integrand_nonvec, "sigma2")
 
 resolution <- 1000
-grid <- seq(0.01, 1, length.out = resolution + 1)
+grid <- seq(0.1, 0.6, length.out = resolution + 1)
 
-tmp <- integrand(grid, y, c30, C30, nu)
-const <- -log(max(tmp))
-const <- 0
+tmp <- integrand(grid, y, c30, C30, nu, log = TRUE)
+const <- -max(tmp)
 tmp <- integrand(grid, y, c30, C30, nu, const = const)
+plot(grid, tmp, type = 'l')
+```
+
+![](Chapter10_files/figure-html/unnamed-chunk-19-1.png)
+
+``` r
 logarea <- log(sum(diff(grid) * .5 * (head(tmp, -1) + tail(tmp, -1)))) - const
 
 logmarglikM3 <- c30 * log(C30) +
@@ -356,7 +363,7 @@ logmarglikM3 <- c30 * log(C30) +
 ```
 
 We can now compute log Bayes factors and corresponding model
-probabilities (under uniform prior probabilities).
+probabilities (under equal prior model probabilities).
 
 ``` r
 (logBF <- logmarglikM1 - logmarglikM3)
