@@ -274,12 +274,13 @@ After loading the data, we define prior hyperparameters and compute log
 marginal likelihoods. This is straightforward for the normal model.
 
 ```{r}
+nu <- 7
 y <- 100 * diff(log(exrates$USD / exrates$CHF))
 N <- length(y)
 
 c10 <- c30 <- 1
 C10 <- 2
-C30 <- 5 / 7 * C10
+C30 <- (nu - 2) / nu * C10
 
 c1N <- c10 + N / 2
 C1N <- C10 + sum(y^2) / 2
@@ -291,7 +292,6 @@ logmarglikM1 <- lgamma(c1N) + c10 * log(C10) -
 For the Student $t$ model, we need, e.g., numerical integration.
 
 ```{r}
-nu <- 7
 integrand_nonvec <- function(sigma2, y, c0, C0, nu, const = 0) {
   N <- length(y)
   logint <- -(N/2 + c0 + 1) * log(sigma2) -
