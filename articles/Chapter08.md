@@ -4,10 +4,10 @@
 
 ### Section 8.1.1: Probit model
 
-#### Figure 8.1: Latent utility an outcome in the probit model
+#### Figure 8.1: Latent utility and outcome in the probit model
 
-We start by visualising a latent utility for a linear predictor
-$\mathbf{x}{\mathbf{β}}$ with value of 1.
+We start by visualising a latent utility for a linear predictor  
+$\mathbf{x}{\mathbf{β}}$ with a value of 1.
 
 ``` r
 curve(dnorm(x,mean=1), from=-3, to=5, xlab=expression(z[i]),ylab="", col="blue")
@@ -24,7 +24,8 @@ abline(v=0, col="red")
 polygon(c(dens$x[dens$x >=0],0), c(dens$y[dens$x>=0],0), col="red",border=NA)
 ```
 
-#### Example 8.1: Labor market data
+![](Chapter08_files/figure-html/unnamed-chunk-3-1.png) \### Example 8.1:
+Labor market data
 
 We now perform probit regression analysis for the labor market data.
 
@@ -125,8 +126,8 @@ We show posterior means and equal-tailed 95% credible intervals of the
 regression effects.
 
 ``` r
-res_beta <- t(apply(betas, 2, res.mcmc))
-knitr::kable(round(res_beta, 3))
+res_probit.labour <- t(apply(betas, 2, res.mcmc))
+knitr::kable(round(res_probit.labour, 3))
 ```
 
 |           |   2.5% | Posterior mean |  97.5% |
@@ -142,7 +143,7 @@ person, i.e. a 18 year old male blue collar worker who was employed in
 1997, using the posterior mean estimate of the intercept.
 
 ``` r
-(p_unemploy_base <- round(pnorm(res_beta[1, 2]),4))
+(p_unemploy_base_probit <- round(pnorm(res_probit.labour[1, 2]),4))
 #> [1] 0.0241
 ```
 
@@ -161,6 +162,8 @@ for (j in seq_len(ncol(betas))) {
 }
 ```
 
+![](Chapter08_files/figure-html/unnamed-chunk-11-1.png)
+
 A plot of the autocorrelation of the draws shows that although there is
 some autocorrelation, it vanishes after a few lags.
 
@@ -171,6 +174,8 @@ for (j in seq_len(ncol(betas))) {
     title(colnames(betas)[j])
 }
 ```
+
+![](Chapter08_files/figure-html/unnamed-chunk-12-1.png)
 
 We also determine the estimated effective sample sizes (ESSs) to assess
 the efficiency of the sampler.
@@ -238,6 +243,11 @@ round(M/ ess1,2)
 plot(betas2, type = "l", main = "N=500, 1 success", xlab = "Draws after burnin",
      ylab = labels)
 acf(betas2, ylab="empirical ACF")
+```
+
+![](Chapter08_files/figure-html/unnamed-chunk-15-1.png)
+
+``` r
 
 (ess2<- effectiveSize(betas2))
 #>     var1 
@@ -297,6 +307,11 @@ acf(betas.sep[, 1], ylab="empirical ACF")
 
 plot(betas.sep[, 2], type = "l",  xlab = "Draws after burnin", ylab =labels[2])
 acf(betas.sep[, 2], ylab="empirical ACF")
+```
+
+![](Chapter08_files/figure-html/unnamed-chunk-17-1.png)
+
+``` r
 
 (ess.sep<- round(coda::effectiveSize(betas.sep),2))
 #>       x.sep 
@@ -340,6 +355,11 @@ acf(betas.qus1[, 1],ylab="empirical ACF")
 
 plot(betas.qus1[, 2], type = "l", xlab= "Draws after burnin", ylab = labels[2])
 acf(betas.qus1[, 2],ylab="empirical ACF")
+```
+
+![](Chapter08_files/figure-html/unnamed-chunk-19-1.png)
+
+``` r
 
 (ess.qus1 <- round(coda::effectiveSize(betas.qus1),2))
 #>        x.qus1 
@@ -373,6 +393,11 @@ acf(betas.qus2[, 1], ylab="empirical ACF")
 
 plot(betas.qus2[, 2], type = "l", xlab="Draws after burnin", ylab = labels[2])
 acf(betas.qus2[, 2], ylab="empirical ACF")
+```
+
+![](Chapter08_files/figure-html/unnamed-chunk-20-1.png)
+
+``` r
 
 (ess.qus2 <- round(coda::effectiveSize(betas.qus2),2))
 #>          x.qus2 
@@ -397,41 +422,55 @@ Hence, a proper prior is required to avoid improper posteriors in case
 of separation.
 
 We now analyze the data of example 8.4. under the more informative prior
-$\mathcal{N}(\mathbf{0},\mathbf{I})$. With this prior we assume that
-both $P(y = 1)$ and $P(y = 0)$ have a prior probability of
-$\approx 0.95$ to be in the interval $\lbrack 0.023,0.977\rbrack$.
+$\mathcal{N}(\mathbf{0},\mathbf{I})$. This prior distribution encodes
+the prior believe that $\beta_{0}$ and $\beta_{1}$ are in the interval
+$( - 1.96,1.96)$\$ with probability $0.95$.
 
 We compare the estimation results to those from exercise 8.4, where the
-prior was $\mathcal{N}(\mathbf{0},10000\mathbf{I})$
+prior was $\mathcal{N}(\mathbf{0},10000\mathbf{I})$.
 
 ``` r
 set.seed(1234)
 betas.sep1 <- probit(y, X.sep, b0 = 0, B0 = 1, burnin=1000, M=M)
 
+#compare results to less informative prior
 res_betas.sep <- t(apply(betas.sep, 2, res.mcmc))
 rownames(res_betas.sep) <- c("Intercept", "X")
-knitr:: kable(res_betas.sep)
+
+ess.sep <- effectiveSize(betas.sep)
+ineff.sep <- M/ ess.sep
+res.sep <- round(cbind(res_betas.sep, ess.sep, ineff.sep),2)
+colnames(res.sep)[4:5] <- c("Ess","inefficiency")
+
+knitr:: kable(res.sep)
 ```
 
-|           |       2.5% | Posterior mean |     97.5% |
-|:----------|-----------:|---------------:|----------:|
-| Intercept | -13.349387 |      -6.714191 | -3.079144 |
-| X         |   7.493688 |      13.644972 | 20.017280 |
+|           |   2.5% | Posterior mean | 97.5% |  Ess | inefficiency |
+|:----------|-------:|---------------:|------:|-----:|-------------:|
+| Intercept | -13.35 |          -6.71 | -3.08 | 8.38 |      2387.91 |
+| X         |   7.49 |          13.64 | 20.02 | 8.27 |      2418.41 |
 
 ``` r
 
+
 res_betas.sep1 <- t(apply(betas.sep1, 2, res.mcmc))
-rownames(res_betas.sep1)<- c("Intercept", "X")
-knitr:: kable(res_betas.sep1)
+rownames(res_betas.sep1) <- c("Intercept", "X")
+
+ess.sep1 <- effectiveSize(betas.sep1)
+ineff.sep1 <-  M/ ess.sep1
+res.sep1 <- round(cbind(res_betas.sep1, ess.sep1, ineff.sep1),2)
+colnames(res.sep1)[4:5] <- c("Ess","inefficiency")
+
+knitr:: kable(res.sep1)
 ```
 
-|           |      2.5% | Posterior mean |     97.5% |
-|:----------|----------:|---------------:|----------:|
-| Intercept | -2.852885 |      -2.351810 | -1.921237 |
-| X         |  4.211140 |       4.882632 |  5.621731 |
+|           |  2.5% | Posterior mean | 97.5% |    Ess | inefficiency |
+|:----------|------:|---------------:|------:|-------:|-------------:|
+| Intercept | -2.85 |          -2.35 | -1.92 | 707.91 |        28.25 |
+| X         |  4.21 |           4.88 |  5.62 | 604.79 |        33.07 |
 
 We see that with the tighter prior the estimates are more shrunk to
-zero.
+zero, estimates ESSs are higher and inflation p
 
 ``` r
 par(mfrow = c(2, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
@@ -441,34 +480,12 @@ acf(betas.sep1[, 1], ylab="empirical ACF")
 
 plot(betas.sep1[, 2], type = "l", xlab="Draws after burnin", ylab = labels[2])
 acf(betas.sep1[, 2],ylab="empirical ACF")
-
-(ess.sep <- round(effectiveSize(betas.sep),2))
-#>       x.sep 
-#>  8.38  8.27
-(ineff.sep <- round(M/ ess.sep,2))
-#>           x.sep 
-#> 2386.63 2418.38
-
-(ess.sep1 <- round(effectiveSize(betas.sep1),2))
-#>         x.sep 
-#> 707.91 604.79
-(ineff.sep1 <- round(M/ ess.sep1,2))
-#>       x.sep 
-#> 28.25 33.07
-
-ineff<- cbind(ineff.sep, ineff.sep1)
-colnames(ineff)<- c("N(0,10000)", "N(0,1)")
-rownames(ineff)<- c("Intercept", "X")
-knitr::kable(ineff)
 ```
 
-|           | N(0,10000) | N(0,1) |
-|:----------|-----------:|-------:|
-| Intercept |    2386.63 |  28.25 |
-| X         |    2418.38 |  33.07 |
+![](Chapter08_files/figure-html/unnamed-chunk-22-1.png)
 
-With a tighter prior the autocorrelations are much lower and hence the
-estimated ESSs are higher and inefficiency is lower.
+Correspondingly the autocorrelation of the draws are much lower under
+the tighter prior.
 
 ### Section 8.1.2: Logit model
 
@@ -533,38 +550,50 @@ estimates and determine the risk of unemployment for a baseline person
 using the fitted logit model.
 
 ``` r
+set.seed(1234)
 betas_logit <- logit(y.unemp, X.unemp, b0 = 0, B0 = 10000)
 
-res_beta_logit <- t(apply(betas_logit, 2, res.mcmc))
-knitr::kable(round(res_beta_logit, 3))
+res_logit.labour <- t(apply(betas_logit, 2, res.mcmc))
+knitr::kable(round(res_logit.labour, 3))
 ```
 
 |           |   2.5% | Posterior mean |  97.5% |
 |:----------|-------:|---------------:|-------:|
-| intercept | -4.063 |         -3.678 | -3.304 |
-| female    |  0.146 |          0.411 |  0.694 |
-| age18     |  0.045 |          0.056 |  0.067 |
-| wcollar   | -0.608 |         -0.338 | -0.048 |
-| unemp97   |  4.089 |          4.380 |  4.666 |
+| intercept | -4.074 |         -3.674 | -3.302 |
+| female    |  0.139 |          0.409 |  0.670 |
+| age18     |  0.044 |          0.056 |  0.068 |
+| wcollar   | -0.603 |         -0.342 | -0.078 |
+| unemp97   |  4.103 |          4.382 |  4.663 |
 
 ``` r
 
-(p_unemploy_base <- plogis(res_beta_logit[1, 2]))
-#> [1] 0.02464174
+(p_unemploy_base_logit <- round(plogis(res_logit.labour[1, 2]),4))
+#> [1] 0.0247
 ```
 
-Note that the logistic distribution has a variance of $\pi^{2}/3$ and
-hence the regression effects are absolutely larger than in the probit
-model. However any probability computed from the two models will be very
-close, e.g., compare the probability to be unemployed for the baseline
-person.
+The risk of being unemployed 1998 for a male blue collar worker of age
+18, who was employed 1997 is very low with a value of 0.0247 and the
+risk is even lower for a white collar worker. It is higher for females,
+increases with age and is particularly high for persons who were
+unemployed 1997.
 
-We can compare the posterior estimates of the coefficients in the probit
-model $\beta$ to those of the logit model by multiplying them with
-$\pi/\sqrt{3}$ and see that there is not much difference.
+While the signs of the covariate effects can be interpreted in the same
+way for the probit and the logit model, their numerical value will
+differ due to the different scale of the link function.
+
+As the logistic distribution has a variance of $\pi^{2}/3$ compared to 1
+for the standard Normal distribution, the regression effects in the
+logit model are absolutely larger than those in the probit model.
+However any probability computed from the two models will be very close,
+e.g., the estimated probability to be unemployed for a baseline person
+is 0.0241 in the probit model (compared to 0.0247 in the logit model).
+
+By multiplying the estimated coefficients in the probit model by
+$\pi/\sqrt{3}$ we can compare them to those of the logit model and we
+see that there is not much difference.
 
 ``` r
-knitr::kable(round(res_beta * pi / sqrt(3), 3))
+knitr::kable(round(res_probit.labour * pi / sqrt(3), 3))
 ```
 
 |           |   2.5% | Posterior mean |  97.5% |
@@ -730,13 +759,13 @@ knitr::kable(round(res.poisson1, 3))
 
 |              |   2.5% | Posterior mean |  97.5% | exp(Mean) |
 |:-------------|-------:|---------------:|-------:|----------:|
-| intercept    |  0.697 |          0.868 |  1.011 |     2.383 |
-| intervention | -0.542 |         -0.353 | -0.140 |     0.702 |
-| holiday      | -1.222 |         -0.824 | -0.439 |     0.439 |
+| intercept    |  0.722 |          0.865 |  1.006 |     2.374 |
+| intervention | -0.571 |         -0.353 | -0.135 |     0.703 |
+| holiday      | -1.138 |         -0.784 | -0.425 |     0.456 |
 
 ``` r
 res1$accept
-#> [1] 0.3174
+#> [1] 0.354
 ```
 
 We then fit an alternative model with intercept, intervention effect,
@@ -769,27 +798,27 @@ res.poisson2 <- t(rbind(apply(res2$beta.post, 2, res.mcmc),
 knitr::kable(round(res.poisson2, 3))
 ```
 
-|              |   2.5% | Posterior mean | 97.5% | exp(Mean) |
-|:-------------|-------:|---------------:|------:|----------:|
-| intercept    | -0.770 |          0.933 | 2.260 |     2.541 |
-| intervention | -0.608 |         -0.375 | 0.087 |     0.688 |
-| holiday      | -8.970 |         -1.470 | 9.301 |     0.230 |
-| lin.trend    | -0.004 |          0.000 | 0.003 |     1.000 |
-| Jan          | -1.213 |          0.043 | 1.858 |     1.043 |
-| Feb          | -1.776 |         -0.550 | 1.347 |     0.577 |
-| Mar          | -1.450 |         -0.158 | 1.674 |     0.854 |
-| Apr          | -1.244 |          0.051 | 1.933 |     1.052 |
-| May          | -1.868 |         -0.492 | 1.326 |     0.611 |
-| Jun          | -0.956 |          0.204 | 1.975 |     1.226 |
-| Jul          | -8.130 |          0.491 | 6.648 |     1.635 |
-| Aug          | -8.226 |          0.525 | 7.077 |     1.690 |
-| Sep          | -1.492 |         -0.227 | 1.496 |     0.797 |
-| Oct          | -1.095 |          0.267 | 2.034 |     1.306 |
-| Nov          | -1.500 |         -0.144 | 1.645 |     0.866 |
+|              |    2.5% | Posterior mean |  97.5% | exp(Mean) |
+|:-------------|--------:|---------------:|-------:|----------:|
+| intercept    |  -1.156 |          0.773 |  2.573 |     2.166 |
+| intervention |  -0.721 |         -0.305 |  0.049 |     0.737 |
+| holiday      | -11.315 |         -0.369 | 11.371 |     0.692 |
+| lin.trend    |  -0.003 |          0.000 |  0.003 |     1.000 |
+| Jan          |  -1.653 |          0.216 |  2.369 |     1.241 |
+| Feb          |  -2.409 |         -0.377 |  1.514 |     0.686 |
+| Mar          |  -2.007 |          0.068 |  1.922 |     1.071 |
+| Apr          |  -1.601 |          0.285 |  2.225 |     1.329 |
+| May          |  -2.065 |         -0.284 |  1.428 |     0.753 |
+| Jun          |  -1.453 |          0.347 |  2.316 |     1.414 |
+| Jul          | -10.073 |         -0.208 |  9.137 |     0.812 |
+| Aug          |  -9.829 |         -0.466 |  9.026 |     0.628 |
+| Sep          |  -1.900 |         -0.046 |  1.847 |     0.955 |
+| Oct          |  -1.428 |          0.326 |  2.288 |     1.385 |
+| Nov          |  -1.905 |          0.002 |  2.038 |     1.002 |
 
 ``` r
 res2$accept
-#> [1] 0.1132
+#> [1] 0.1578
 ```
 
 ### Section 8.2.2: Negative binomial regression
@@ -922,10 +951,10 @@ knitr::kable(round(res.negbin.full, 3))
 
 |              |   2.5% | Posterior mean |  97.5% |
 |:-------------|-------:|---------------:|-------:|
-| intercept    |  0.719 |          0.869 |  1.013 |
-| intervention | -0.572 |         -0.352 | -0.149 |
-| holiday      | -1.194 |         -0.794 | -0.431 |
-| alpha        |  6.565 |         12.455 | 21.430 |
+| intercept    |  0.723 |          0.866 |  1.011 |
+| intervention | -0.562 |         -0.351 | -0.143 |
+| holiday      | -1.137 |         -0.780 | -0.426 |
+| alpha        |  6.685 |         12.468 | 21.618 |
 
 ``` r
                
@@ -940,10 +969,10 @@ knitr::kable(round(res.negbin.partial, 3))
 
 |              |   2.5% | Posterior mean |  97.5% |
 |:-------------|-------:|---------------:|-------:|
-| intercept    |  0.723 |          0.865 |  1.000 |
-| intervention | -0.558 |         -0.350 | -0.140 |
-| holiday      | -1.112 |         -0.777 | -0.426 |
-| alpha        |  6.513 |         12.534 | 22.046 |
+| intercept    |  0.726 |          0.864 |  1.002 |
+| intervention | -0.551 |         -0.350 | -0.138 |
+| holiday      | -1.180 |         -0.795 | -0.427 |
+| alpha        |  6.429 |         12.384 | 21.679 |
 
 As expected estimation results using both samplers are rather similar.
 
@@ -951,9 +980,9 @@ As expected estimation results using both samplers are rather similar.
 
 ``` r
 print(c(mean(res1$acc.beta), mean(res1$acc.alpha)))
-#> [1] 0.35490 0.70254
+#> [1] 0.36096 0.70318
 print(c(mean(res2$acc.beta), mean(res2$acc.alpha)))
-#> [1] 0.36328 0.89462
+#> [1] 0.34962 0.89410
 ```
 
 ``` r
@@ -970,6 +999,8 @@ qqplot(res1$alpha.post, res2$alpha.post, xlab = "Full Gibbs",
        ylab = "Partial Gibbs", main = "Alpha")
 abline(a = 0, b = 1)
 ```
+
+![](Chapter08_files/figure-html/unnamed-chunk-38-1.png)
 
 ## Section 8.3: Beyond i.i.d. Gaussian error distributions
 
@@ -1038,6 +1069,8 @@ lines(xnew, preds_subset[, "fit"])
 lines(xnew, preds_subset[, "lwr"], lty = 2)
 lines(xnew, preds_subset[, "upr"], lty = 2)
 ```
+
+![](Chapter08_files/figure-html/unnamed-chunk-42-1.png)
 
 #### Example 8.13: Star cluster data - heteroskedastic regression analysis with known outliers
 
@@ -1314,6 +1347,8 @@ lines(xnew, rowMeans(preds_mix_2))
 lines(xnew, apply(preds_mix_2, 1, quantile, 0.025), lty = 2)
 lines(xnew, apply(preds_mix_2, 1, quantile, 0.975), lty = 2)
 ```
+
+![](Chapter08_files/figure-html/unnamed-chunk-56-1.png)
 
 The plot indicates that all three modeling approaches result in a fit
 that is robust to the outlying observations.
