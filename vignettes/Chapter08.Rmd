@@ -28,29 +28,34 @@ par(mgp = c(1.6, .6, 0), mar = c(2.6, 2.6, 2.6, .4), lwd = 1)
 
 ## Section 8.1.1: Probit model
 
-### Figure 8.1: Latent utility an outcome in the probit model
-We start by visualising a latent  utility  for  a linear predictor  $\mathbf{x}\boldsymbol{\beta}$
-with value of 1.  
+### Figure 8.1: Latent utility and outcome in the probit model
+
+We start by visualising a latent utility for a linear predictor
+$\mathbf{x}\boldsymbol{\beta}$ with a value of 1.
 
 ```{r, echo = -c(1:2)}
 if (pdfplots) {
   pdf("8-1_0.pdf", width = 8, height = 4)
 }
 par(mfrow = c(1, 3), mar = c(2.5, 2.5, 2.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
-curve(dnorm(x,mean=1), from=-3, to=5, xlab=expression(z[i]),ylab="", col="blue")
-abline(v=0, col="red")
+curve(dnorm(x, mean = 1), from = -3, to = 5, col = "blue", 
+      xlab = expression(z[i]), ylab = "")
+abline(v = 0, col = "red")
  
-dens<- curve(dnorm(x,mean=1), from=-3,to=5,n=161 ,col="blue",
-             xlab=expression(paste(z[i],"|",y[i],"=0")),ylab="")
-abline(v=0, col="red")
-polygon(c(dens$x[dens$x <=0],0), c(dens$y[dens$x<=0],0), col="red",border=NA)
+dens <- curve(dnorm(x, mean = 1), from = -3, to = 5, n = 161, col = "blue",
+              xlab = expression(paste(z[i], "|", y[i], "=0")), ylab = "")
+abline(v = 0, col = "red")
+polygon(c(dens$x[dens$x <= 0], 0), c(dens$y[dens$x <= 0], 0),
+        col = "red", border = NA)
 
-dens<- curve(dnorm(x,mean=1), from=-3,to=5,,n=161,col="blue",
-             xlab=expression(paste(z[i],"|",y[i],"=1")),ylab="" )
-abline(v=0, col="red")
-polygon(c(dens$x[dens$x >=0],0), c(dens$y[dens$x>=0],0), col="red",border=NA)
+dens <- curve(dnorm(x, mean = 1), from = -3, to = 5, n = 161, col = "blue",
+             xlab = expression(paste(z[i], "|", y[i], "=1")), ylab = "" )
+abline(v = 0, col = "red")
+polygon(c(dens$x[dens$x >= 0], 0), c(dens$y[dens$x >= 0], 0),
+        col = "red", border = NA)
 
 ```
+
 ### Example 8.1: Labor market data
 
 We now perform probit regression analysis for the labor market data.
@@ -127,12 +132,13 @@ probit <- function(y, X, b0 = 0, B0 = 10000,
 }
 ```
 
-We specify the prior on the regression effects as a rather flat normal independence prior and estimate the model parameters.
+We specify the prior on the regression effects as a rather flat normal
+independence prior and estimate the model parameters.
  
 ```{r}
 set.seed(1234)
-M=20000
-betas <- probit(y.unemp, X.unemp, b0 = 0, B0 = 1000L,  burnin=1000,M=M)
+M <- 20000
+betas <- probit(y.unemp, X.unemp, b0 = 0, B0 = 1000L, burnin = 1000, M = M)
 ```
 
 To compute summary statistics from the posterior we use the following function. 
@@ -150,21 +156,25 @@ We show posterior means and
 equal-tailed 95\% credible intervals of the regression effects.
 
 ```{r}
-res_beta <- t(apply(betas, 2, res.mcmc))
-knitr::kable(round(res_beta, 3))
+res_probit.labour <- t(apply(betas, 2, res.mcmc))
+knitr::kable(round(res_probit.labour, 3))
 ```
-Next, we  determine the estimated risk of unemployment for a baseline person, i.e. a 18 year
-old male blue collar worker who was employed in 1997, using the posterior mean estimate of the intercept.
+
+Next, we determine the estimated risk of unemployment for a baseline
+person, i.e., a 18 year old male blue collar worker who was employed in
+1997, using the posterior mean estimate of the intercept.
 
 ```{r}
-(p_unemploy_base <- round(pnorm(res_beta[1, 2]),4))
+(p_unemploy_base_probit <- round(pnorm(res_probit.labour[1, 2]), 4))
 ```
 
-The estimated risk to be unemployed in 1998 for a baseline person is  very low with a value of `r p_unemploy_base` and  even lower for a white collar worker. This risk is  higher for a female,
-an older person  and particularly high if the person was unemployed in 1997.
+The estimated risk to be unemployed in 1998 for a baseline person is
+very low with a value of `r p_unemploy_base_probit` and even lower for
+a white collar worker. This risk is higher for a female, an older
+person and particularly high if the person was unemployed in 1997.
 
-We next visualize the estimated posterior distributions for the regression
-effects by histograms.
+Nex, we visualize the estimated posterior distributions for the
+regression effects by histograms.
 
 ```{r, echo = -c(1:2)}
 if (pdfplots) {
@@ -187,7 +197,7 @@ if (pdfplots) {
 par(mfrow = c(2, 3), mar = c(2.5, 2.5, 2.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
 for (j in seq_len(ncol(betas))) {
     acf(betas[, j], main = "", xlab = "Lag",
-        ylab="empirical ACF")
+        ylab = "empirical ACF")
     title(colnames(betas)[j])
 }
 ```
@@ -197,10 +207,10 @@ assess the efficiency of the sampler.
 
 ```{r}
 library("coda")
-ess <- round(coda::effectiveSize(betas),1)
-ineff <- round(M/ ess,2)
+ess <- round(coda::effectiveSize(betas), 1)
+ineff <- round(M/ess, 2)
 
-res_eff <-cbind(ess, ineff)
+res_eff <- cbind(ess, ineff)
 knitr::kable(res_eff)
 ```
 The effective sample size is larger than `r min(ess)` for each regression effect, thus yielding inefficiency factors below `r max(ineff)`.
@@ -209,8 +219,8 @@ The sampler is easy to implement, however there might be problems when the respo
 
 ### Example 8.3
 
-To illustrate this issue, we use data where in $N = 500$ trials only 1 failure
- or only 1 success is observed.
+To illustrate this issue, we use data where in $N = 500$ trials only 1
+ failure or only 1 success is observed.
 
 ```{r}
 set.seed(1234)
@@ -219,10 +229,10 @@ N <- 500
 X <- matrix(1, nrow = N)
 
 y1 <- c(0, rep(1, N-1))
-betas1 <- probit(y1, X, b0 = 0, B0 = 10000,  burnin=1000,M=M)
+betas1 <- probit(y1, X, b0 = 0, B0 = 10000, burnin = 1000, M = M)
 
 y2 <- c(rep(0, N-1), 1)
-betas2 <- probit(y2, X, b0 = 0, B0 = 10000, burnin=1000,M=M)
+betas2 <- probit(y2, X, b0 = 0, B0 = 10000, burnin = 1000, M = M)
 ```
 
 In both cases the empirical autocorrelation of the draws decreases very slowly and remains  high even for a lag of 40.
@@ -231,23 +241,22 @@ In both cases the empirical autocorrelation of the draws decreases very slowly a
 if (pdfplots) {
   pdf("8-1_3.pdf", width = 8, height = 5)
 }
-labels <- expression(beta[0])
-
 par(mfrow = c(2, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
+labels <- expression(beta[0])
 
 plot(betas1, type = "l", main = "N=500, 1 failure", xlab = "Draws after burnin",
      ylab = labels)
-acf(betas1, ylab="empirical ACF")
+acf(betas1, ylab = "empirical ACF")
 
 (ess1 <- effectiveSize(betas1))
-round(M/ ess1,2)
+round(M/ess1, 2)
 
 plot(betas2, type = "l", main = "N=500, 1 success", xlab = "Draws after burnin",
      ylab = labels)
-acf(betas2, ylab="empirical ACF")
+acf(betas2, ylab = "empirical ACF")
 
-(ess2<- effectiveSize(betas2))
-round(M/ ess2,2)
+(ess2 <- effectiveSize(betas2))
+round(M/ess2, 2)
 ```
 Hence for these data sets the estimated ESS of the intercept has a value of  ~ 150, yielding an inefficiency factor of ~ 130.
 
@@ -290,17 +299,17 @@ par(mfrow = c(2, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
 
 set.seed(1234)
 X.sep <- cbind(rep(1, N), x.sep)
-betas.sep <- probit(y, X.sep, b0 = 0, B0 = 10000,burnin=1000,M=M)
+betas.sep <- probit(y, X.sep, b0 = 0, B0 = 10000, burnin = 1000, M = M)
 
 labels <- expression(beta[0], beta[1])
-plot(betas.sep[, 1], type = "l",  xlab = "Draws after burnin", ylab = labels[1])
-acf(betas.sep[, 1], ylab="empirical ACF")
+plot(betas.sep[, 1], type = "l", xlab = "Draws after burnin", ylab = labels[1])
+acf(betas.sep[, 1], ylab = "empirical ACF")
 
-plot(betas.sep[, 2], type = "l",  xlab = "Draws after burnin", ylab =labels[2])
-acf(betas.sep[, 2], ylab="empirical ACF")
+plot(betas.sep[, 2], type = "l", xlab = "Draws after burnin", ylab = labels[2])
+acf(betas.sep[, 2], ylab = "empirical ACF")
 
-(ess.sep<- round(coda::effectiveSize(betas.sep),2))
-round(M/ ess.sep,2)
+(ess.sep <- round(coda::effectiveSize(betas.sep), 2))
+round(M/ess.sep, 2)
 ```
 Hence the ESSs are very low  with a value of ~ 8, resulting in inefficiency factors
 of ~2400.
@@ -322,21 +331,20 @@ We again estimate the regression effects using data augmentation and Gibbs Sampl
 if (pdfplots) {
   pdf("8-1_5.pdf", width = 8, height = 5)
 }
-
 par(mfrow = c(2, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
 
 set.seed(1234)
 X.qus1 <- cbind(rep(1, N), x.qus1)
-betas.qus1 <- probit(y, X.qus1, b0 = 0, B0 = 10000, burnin=1000, M=M)
+betas.qus1 <- probit(y, X.qus1, b0 = 0, B0 = 10000, burnin = 1000, M = M)
 
-plot(betas.qus1[, 1], type = "l",  xlab="Draws after burnin", ylab = labels[1])
-acf(betas.qus1[, 1],ylab="empirical ACF")
+plot(betas.qus1[, 1], type = "l", xlab = "Draws after burnin", ylab = labels[1])
+acf(betas.qus1[, 1], ylab = "empirical ACF")
 
-plot(betas.qus1[, 2], type = "l", xlab= "Draws after burnin", ylab = labels[2])
-acf(betas.qus1[, 2],ylab="empirical ACF")
+plot(betas.qus1[, 2], type = "l", xlab = "Draws after burnin", ylab = labels[2])
+acf(betas.qus1[, 2], ylab = "empirical ACF")
 
-(ess.qus1 <- round(coda::effectiveSize(betas.qus1),2))
-round(M/ ess.qus1,2)
+(ess.qus1 <- round(coda::effectiveSize(betas.qus1), 2))
+round(M/ess.qus1, 2)
 ```
 Again autocorrelations are very high for both the intercept as well as
 the covariate effect resulting in high inefficiency factors of ~ 2340.
@@ -355,17 +363,17 @@ table(x.qus2, y)
 
 set.seed(1234)
 X.qus2 <- cbind(rep(1, N), x.qus2)
-betas.qus2 <- probit(y, X.qus2, b0 = 0, B0 = 10000, burnin=1000, M=M)
+betas.qus2 <- probit(y, X.qus2, b0 = 0, B0 = 10000, burnin = 1000, M = M)
 
 par(mfrow = c(2, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
-plot(betas.qus2[, 1], type = "l", xlab="Draws after burnin", ylab = labels[1])
-acf(betas.qus2[, 1], ylab="empirical ACF")
+plot(betas.qus2[, 1], type = "l", xlab = "Draws after burnin", ylab = labels[1])
+acf(betas.qus2[, 1], ylab = "empirical ACF")
 
-plot(betas.qus2[, 2], type = "l", xlab="Draws after burnin", ylab = labels[2])
-acf(betas.qus2[, 2], ylab="empirical ACF")
+plot(betas.qus2[, 2], type = "l", xlab = "Draws after burnin", ylab = labels[2])
+acf(betas.qus2[, 2], ylab = "empirical ACF")
 
-(ess.qus2 <- round(coda::effectiveSize(betas.qus2),2))
-(ineff.qus2 <- round(M/ ess.qus2,2))
+(ess.qus2 <- round(coda::effectiveSize(betas.qus2), 2))
+(ineff.qus2 <- round(M/ess.qus2, 2))
 ```
 Autocorrelations of the intercept are low and close to zero for small lags  but
 remain very high for the covariate effect. Hence we have a high ESS for
@@ -381,55 +389,55 @@ regression effects will result in an improper posterior
 distribution. Hence, a proper prior is required to avoid improper
 posteriors in case of separation.
 
-We now analyze the data of example 8.4. under the  more informative prior
-$\mathcal{N}(\mathbf{0}, \mathbf{I})$. With this prior we assume that both
-$P(y=1)$ and $P(y=0)$ have a prior probability of $\approx 0.95$ to be
-in the interval $[0.023, 0.977]$.
+We now analyze the data of example 8.4. under the more informative
+prior $\mathcal{N}(\mathbf{0}, \mathbf{I})$. This prior distribution
+encodes the prior believe that $\beta_0$ and $\beta_1$ are in the
+interval $(-1.96, 1.96)$$ with probability $0.95$.
 
-
-We compare the estimation results to those from exercise 8.4, where the prior was 
-$\mathcal{N}(\mathbf{0}, 10000 \mathbf{I})$ 
+We compare the estimation results to those from example 8.4, where the
+prior was $\mathcal{N}(\mathbf{0}, 10000 \mathbf{I})$.
 
 ```{r}
 set.seed(1234)
-betas.sep1 <- probit(y, X.sep, b0 = 0, B0 = 1, burnin=1000, M=M)
+betas.sep1 <- probit(y, X.sep, b0 = 0, B0 = 1, burnin = 1000, M = M)
 
+# compare results to the less informative prior
 res_betas.sep <- t(apply(betas.sep, 2, res.mcmc))
 rownames(res_betas.sep) <- c("Intercept", "X")
-knitr:: kable(res_betas.sep)
+
+ess.sep <- effectiveSize(betas.sep)
+ineff.sep <- M/ess.sep
+res.sep <- round(cbind(res_betas.sep, ess.sep, ineff.sep), 2)
+colnames(res.sep)[4:5] <- c("ESS", "Inefficiency")
+
+knitr:: kable(res.sep)
 
 res_betas.sep1 <- t(apply(betas.sep1, 2, res.mcmc))
-rownames(res_betas.sep1)<- c("Intercept", "X")
-knitr:: kable(res_betas.sep1)
+rownames(res_betas.sep1) <- c("Intercept", "X")
+
+ess.sep1 <- effectiveSize(betas.sep1)
+ineff.sep1 <-  M/ess.sep1
+res.sep1 <- round(cbind(res_betas.sep1, ess.sep1, ineff.sep1), 2)
+colnames(res.sep1)[4:5] <- c("ESS", "Inefficiency")
+
+knitr:: kable(res.sep1)
 ```
-We see that with the tighter prior the estimates are more shrunk to zero.
+We see that with the tighter prior the estimates are more shrunk to zero, estimates ESSs are higher and inflation p
 
 ```{r, echo = -c(1:2)}
 if (pdfplots) {
   pdf("8-1_6.pdf", width = 8, height = 5)
 }
-
 par(mfrow = c(2, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
 
-plot(betas.sep1[, 1], type = "l", xlab="Draws after burnin", ylab = labels[1])
-acf(betas.sep1[, 1], ylab="empirical ACF")
+plot(betas.sep1[, 1], type = "l", xlab = "Draws after burnin", ylab = labels[1])
+acf(betas.sep1[, 1], ylab = "empirical ACF")
 
-plot(betas.sep1[, 2], type = "l", xlab="Draws after burnin", ylab = labels[2])
-acf(betas.sep1[, 2],ylab="empirical ACF")
-
-(ess.sep <- round(effectiveSize(betas.sep),2))
-(ineff.sep <- round(M/ ess.sep,2))
-
-(ess.sep1 <- round(effectiveSize(betas.sep1),2))
-(ineff.sep1 <- round(M/ ess.sep1,2))
-
-ineff<- cbind(ineff.sep, ineff.sep1)
-colnames(ineff)<- c("N(0,10000)", "N(0,1)")
-rownames(ineff)<- c("Intercept", "X")
-knitr::kable(ineff)
+plot(betas.sep1[, 2], type = "l", xlab = "Draws after burnin", ylab = labels[2])
+acf(betas.sep1[, 2], ylab = "empirical ACF")
 ```
 
-With a tighter prior the autocorrelations are much lower and hence the estimated ESSs are higher and inefficiency is lower.
+Correspondingly the autocorrelation of the draws are much lower under the tighter prior. 
 
 
 ## Section 8.1.2: Logit model
@@ -495,26 +503,30 @@ estimates and determine the risk of unemployment for a baseline person
 using the fitted logit model.
 
 ```{r}
+set.seed(1234)
 betas_logit <- logit(y.unemp, X.unemp, b0 = 0, B0 = 10000)
 
-res_beta_logit <- t(apply(betas_logit, 2, res.mcmc))
-knitr::kable(round(res_beta_logit, 3))
+res_logit.labour <- t(apply(betas_logit, 2, res.mcmc))
+knitr::kable(round(res_logit.labour, 3))
 
-(p_unemploy_base <- plogis(res_beta_logit[1, 2]))
+(p_unemploy_base_logit <- round(plogis(res_logit.labour[1, 2]), 4))
+
 ```
 
-Note that the logistic distribution has a variance of $\pi^2/3$ and
-hence the regression effects are absolutely larger than in the probit
-model. However any probability computed from the two models will be
-very close, e.g., compare the probability to be unemployed for the
-baseline person.
+The risk of being unemployed  1998 for a male blue  collar worker of age 18, who 
+was employed 1997 is very low with a value of `r p_unemploy_base_logit` and the risk is even lower for a white collar  worker. It is higher for females, increases with age and is particularly high for persons who were unemployed 1997.
 
-We can compare the posterior estimates of the coefficients in the
-probit model $\beta$ to those of the logit model by multiplying them with
-$\pi/\sqrt{3}$ and see that there is not much difference.
+ While the signs of the covariate effects can be interpreted in the same way for the probit and the logit model, their  numerical value will differ due to  the different scale of the link function.
+ 
+As the logistic distribution has a variance of $\pi^2/3$ compared to 1 for the
+standard Normal distribution, the regression effects in the logit model  are
+absolutely larger than those in the probit model. However any probability computed from the two models will be very close, e.g.,  the estimated probability to be unemployed for a baseline person is  `r p_unemploy_base_probit` in the probit model (compared to `r p_unemploy_base_logit` in the logit model).
+
+By multiplying the estimated coefficients in the probit model by
+$\pi/\sqrt{3}$ we can  compare them to those of the logit model and we see that there is not much difference.  
 
 ```{r}
-knitr::kable(round(res_beta * pi / sqrt(3), 3))
+knitr::kable(round(res_probit.labour * pi / sqrt(3), 3))
 ```
 
 # Section 8.2: Count response variables
@@ -669,7 +681,7 @@ linear trend and seasonal dummy variables.
 ```{r}
 seas <- rbind(diag(1, 11), rep(-1, 11)) 
 seas.dummies <- matrix(rep(t(seas), 16), ncol = 11, byrow = TRUE)
-colnames(seas.dummies) <- c("Jan", "Feb", "Mar", "Apr","May", "Jun", "Jul",
+colnames(seas.dummies) <- c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul",
                             "Aug", "Sep", "Oct", "Nov")
 X.large <- cbind(X,
                  lin.trend = 1:length(y),
