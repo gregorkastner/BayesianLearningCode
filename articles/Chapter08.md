@@ -6,26 +6,30 @@
 
 #### Figure 8.1: Latent utility and outcome in the probit model
 
-We start by visualising a latent utility for a linear predictor  
+We start by visualising a latent utility for a linear predictor
 $\mathbf{x}{\mathbf{β}}$ with a value of 1.
 
 ``` r
-curve(dnorm(x,mean=1), from=-3, to=5, xlab=expression(z[i]),ylab="", col="blue")
-abline(v=0, col="red")
+curve(dnorm(x, mean = 1), from = -3, to = 5, col = "blue", 
+      xlab = expression(z[i]), ylab = "")
+abline(v = 0, col = "red")
  
-dens<- curve(dnorm(x,mean=1), from=-3,to=5,n=161 ,col="blue",
-             xlab=expression(paste(z[i],"|",y[i],"=0")),ylab="")
-abline(v=0, col="red")
-polygon(c(dens$x[dens$x <=0],0), c(dens$y[dens$x<=0],0), col="red",border=NA)
+dens <- curve(dnorm(x, mean = 1), from = -3, to = 5, n = 161, col = "blue",
+              xlab = expression(paste(z[i], "|", y[i], "=0")), ylab = "")
+abline(v = 0, col = "red")
+polygon(c(dens$x[dens$x <= 0], 0), c(dens$y[dens$x <= 0], 0),
+        col = "red", border = NA)
 
-dens<- curve(dnorm(x,mean=1), from=-3,to=5,,n=161,col="blue",
-             xlab=expression(paste(z[i],"|",y[i],"=1")),ylab="" )
-abline(v=0, col="red")
-polygon(c(dens$x[dens$x >=0],0), c(dens$y[dens$x>=0],0), col="red",border=NA)
+dens <- curve(dnorm(x, mean = 1), from = -3, to = 5, n = 161, col = "blue",
+             xlab = expression(paste(z[i], "|", y[i], "=1")), ylab = "" )
+abline(v = 0, col = "red")
+polygon(c(dens$x[dens$x >= 0], 0), c(dens$y[dens$x >= 0], 0),
+        col = "red", border = NA)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-3-1.png) \### Example 8.1:
-Labor market data
+![](Chapter08_files/figure-html/unnamed-chunk-3-1.png)
+
+#### Example 8.1: Labor market data
 
 We now perform probit regression analysis for the labor market data.
 
@@ -106,8 +110,8 @@ independence prior and estimate the model parameters.
 
 ``` r
 set.seed(1234)
-M=20000
-betas <- probit(y.unemp, X.unemp, b0 = 0, B0 = 1000L,  burnin=1000,M=M)
+M <- 20000
+betas <- probit(y.unemp, X.unemp, b0 = 0, B0 = 1000L, burnin = 1000, M = M)
 ```
 
 To compute summary statistics from the posterior we use the following
@@ -139,11 +143,11 @@ knitr::kable(round(res_probit.labour, 3))
 | unemp97   |  2.412 |          2.523 |  2.637 |
 
 Next, we determine the estimated risk of unemployment for a baseline
-person, i.e. a 18 year old male blue collar worker who was employed in
+person, i.e., a 18 year old male blue collar worker who was employed in
 1997, using the posterior mean estimate of the intercept.
 
 ``` r
-(p_unemploy_base_probit <- round(pnorm(res_probit.labour[1, 2]),4))
+(p_unemploy_base_probit <- round(pnorm(res_probit.labour[1, 2]), 4))
 #> [1] 0.0241
 ```
 
@@ -152,7 +156,7 @@ very low with a value of 0.0241 and even lower for a white collar
 worker. This risk is higher for a female, an older person and
 particularly high if the person was unemployed in 1997.
 
-We next visualize the estimated posterior distributions for the
+Nex, we visualize the estimated posterior distributions for the
 regression effects by histograms.
 
 ``` r
@@ -170,7 +174,7 @@ some autocorrelation, it vanishes after a few lags.
 ``` r
 for (j in seq_len(ncol(betas))) {
     acf(betas[, j], main = "", xlab = "Lag",
-        ylab="empirical ACF")
+        ylab = "empirical ACF")
     title(colnames(betas)[j])
 }
 ```
@@ -182,10 +186,10 @@ the efficiency of the sampler.
 
 ``` r
 library("coda")
-ess <- round(coda::effectiveSize(betas),1)
-ineff <- round(M/ ess,2)
+ess <- round(coda::effectiveSize(betas), 1)
+ineff <- round(M/ess, 2)
 
-res_eff <-cbind(ess, ineff)
+res_eff <- cbind(ess, ineff)
 knitr::kable(res_eff)
 ```
 
@@ -216,43 +220,42 @@ N <- 500
 X <- matrix(1, nrow = N)
 
 y1 <- c(0, rep(1, N-1))
-betas1 <- probit(y1, X, b0 = 0, B0 = 10000,  burnin=1000,M=M)
+betas1 <- probit(y1, X, b0 = 0, B0 = 10000, burnin = 1000, M = M)
 
 y2 <- c(rep(0, N-1), 1)
-betas2 <- probit(y2, X, b0 = 0, B0 = 10000, burnin=1000,M=M)
+betas2 <- probit(y2, X, b0 = 0, B0 = 10000, burnin = 1000, M = M)
 ```
 
 In both cases the empirical autocorrelation of the draws decreases very
 slowly and remains high even for a lag of 40.
 
 ``` r
-
-par(mfrow = c(2, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
+labels <- expression(beta[0])
 
 plot(betas1, type = "l", main = "N=500, 1 failure", xlab = "Draws after burnin",
      ylab = labels)
-acf(betas1, ylab="empirical ACF")
+acf(betas1, ylab = "empirical ACF")
 
 (ess1 <- effectiveSize(betas1))
 #>     var1 
 #> 165.9583
-round(M/ ess1,2)
+round(M/ess1, 2)
 #>   var1 
 #> 120.51
 
 plot(betas2, type = "l", main = "N=500, 1 success", xlab = "Draws after burnin",
      ylab = labels)
-acf(betas2, ylab="empirical ACF")
+acf(betas2, ylab = "empirical ACF")
 ```
 
 ![](Chapter08_files/figure-html/unnamed-chunk-15-1.png)
 
 ``` r
 
-(ess2<- effectiveSize(betas2))
+(ess2 <- effectiveSize(betas2))
 #>     var1 
 #> 150.8803
-round(M/ ess2,2)
+round(M/ess2, 2)
 #>   var1 
 #> 132.56
 ```
@@ -299,24 +302,24 @@ even at lag 40.
 
 set.seed(1234)
 X.sep <- cbind(rep(1, N), x.sep)
-betas.sep <- probit(y, X.sep, b0 = 0, B0 = 10000,burnin=1000,M=M)
+betas.sep <- probit(y, X.sep, b0 = 0, B0 = 10000, burnin = 1000, M = M)
 
 labels <- expression(beta[0], beta[1])
-plot(betas.sep[, 1], type = "l",  xlab = "Draws after burnin", ylab = labels[1])
-acf(betas.sep[, 1], ylab="empirical ACF")
+plot(betas.sep[, 1], type = "l", xlab = "Draws after burnin", ylab = labels[1])
+acf(betas.sep[, 1], ylab = "empirical ACF")
 
-plot(betas.sep[, 2], type = "l",  xlab = "Draws after burnin", ylab =labels[2])
-acf(betas.sep[, 2], ylab="empirical ACF")
+plot(betas.sep[, 2], type = "l", xlab = "Draws after burnin", ylab = labels[2])
+acf(betas.sep[, 2], ylab = "empirical ACF")
 ```
 
 ![](Chapter08_files/figure-html/unnamed-chunk-17-1.png)
 
 ``` r
 
-(ess.sep<- round(coda::effectiveSize(betas.sep),2))
+(ess.sep <- round(coda::effectiveSize(betas.sep), 2))
 #>       x.sep 
 #>  8.38  8.27
-round(M/ ess.sep,2)
+round(M/ess.sep, 2)
 #>           x.sep 
 #> 2386.63 2418.38
 ```
@@ -344,27 +347,26 @@ We again estimate the regression effects using data augmentation and
 Gibbs Sampling.
 
 ``` r
-par(mfrow = c(2, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
 
 set.seed(1234)
 X.qus1 <- cbind(rep(1, N), x.qus1)
-betas.qus1 <- probit(y, X.qus1, b0 = 0, B0 = 10000, burnin=1000, M=M)
+betas.qus1 <- probit(y, X.qus1, b0 = 0, B0 = 10000, burnin = 1000, M = M)
 
-plot(betas.qus1[, 1], type = "l",  xlab="Draws after burnin", ylab = labels[1])
-acf(betas.qus1[, 1],ylab="empirical ACF")
+plot(betas.qus1[, 1], type = "l", xlab = "Draws after burnin", ylab = labels[1])
+acf(betas.qus1[, 1], ylab = "empirical ACF")
 
-plot(betas.qus1[, 2], type = "l", xlab= "Draws after burnin", ylab = labels[2])
-acf(betas.qus1[, 2],ylab="empirical ACF")
+plot(betas.qus1[, 2], type = "l", xlab = "Draws after burnin", ylab = labels[2])
+acf(betas.qus1[, 2], ylab = "empirical ACF")
 ```
 
 ![](Chapter08_files/figure-html/unnamed-chunk-19-1.png)
 
 ``` r
 
-(ess.qus1 <- round(coda::effectiveSize(betas.qus1),2))
+(ess.qus1 <- round(coda::effectiveSize(betas.qus1), 2))
 #>        x.qus1 
 #>   8.53   8.68
-round(M/ ess.qus1,2)
+round(M/ess.qus1, 2)
 #>          x.qus1 
 #> 2344.67 2304.15
 ```
@@ -385,24 +387,24 @@ table(x.qus2, y)
 
 set.seed(1234)
 X.qus2 <- cbind(rep(1, N), x.qus2)
-betas.qus2 <- probit(y, X.qus2, b0 = 0, B0 = 10000, burnin=1000, M=M)
+betas.qus2 <- probit(y, X.qus2, b0 = 0, B0 = 10000, burnin = 1000, M = M)
 
 par(mfrow = c(2, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
-plot(betas.qus2[, 1], type = "l", xlab="Draws after burnin", ylab = labels[1])
-acf(betas.qus2[, 1], ylab="empirical ACF")
+plot(betas.qus2[, 1], type = "l", xlab = "Draws after burnin", ylab = labels[1])
+acf(betas.qus2[, 1], ylab = "empirical ACF")
 
-plot(betas.qus2[, 2], type = "l", xlab="Draws after burnin", ylab = labels[2])
-acf(betas.qus2[, 2], ylab="empirical ACF")
+plot(betas.qus2[, 2], type = "l", xlab = "Draws after burnin", ylab = labels[2])
+acf(betas.qus2[, 2], ylab = "empirical ACF")
 ```
 
 ![](Chapter08_files/figure-html/unnamed-chunk-20-1.png)
 
 ``` r
 
-(ess.qus2 <- round(coda::effectiveSize(betas.qus2),2))
+(ess.qus2 <- round(coda::effectiveSize(betas.qus2), 2))
 #>          x.qus2 
 #> 7748.60    6.28
-(ineff.qus2 <- round(M/ ess.qus2,2))
+(ineff.qus2 <- round(M/ess.qus2, 2))
 #>          x.qus2 
 #>    2.58 3184.71
 ```
@@ -426,45 +428,44 @@ $\mathcal{N}(\mathbf{0},\mathbf{I})$. This prior distribution encodes
 the prior believe that $\beta_{0}$ and $\beta_{1}$ are in the interval
 $( - 1.96,1.96)$\$ with probability $0.95$.
 
-We compare the estimation results to those from exercise 8.4, where the
+We compare the estimation results to those from example 8.4, where the
 prior was $\mathcal{N}(\mathbf{0},10000\mathbf{I})$.
 
 ``` r
 set.seed(1234)
-betas.sep1 <- probit(y, X.sep, b0 = 0, B0 = 1, burnin=1000, M=M)
+betas.sep1 <- probit(y, X.sep, b0 = 0, B0 = 1, burnin = 1000, M = M)
 
-#compare results to less informative prior
+# compare results to the less informative prior
 res_betas.sep <- t(apply(betas.sep, 2, res.mcmc))
 rownames(res_betas.sep) <- c("Intercept", "X")
 
 ess.sep <- effectiveSize(betas.sep)
-ineff.sep <- M/ ess.sep
-res.sep <- round(cbind(res_betas.sep, ess.sep, ineff.sep),2)
-colnames(res.sep)[4:5] <- c("Ess","inefficiency")
+ineff.sep <- M/ess.sep
+res.sep <- round(cbind(res_betas.sep, ess.sep, ineff.sep), 2)
+colnames(res.sep)[4:5] <- c("ESS", "Inefficiency")
 
 knitr:: kable(res.sep)
 ```
 
-|           |   2.5% | Posterior mean | 97.5% |  Ess | inefficiency |
+|           |   2.5% | Posterior mean | 97.5% |  ESS | Inefficiency |
 |:----------|-------:|---------------:|------:|-----:|-------------:|
 | Intercept | -13.35 |          -6.71 | -3.08 | 8.38 |      2387.91 |
 | X         |   7.49 |          13.64 | 20.02 | 8.27 |      2418.41 |
 
 ``` r
 
-
 res_betas.sep1 <- t(apply(betas.sep1, 2, res.mcmc))
 rownames(res_betas.sep1) <- c("Intercept", "X")
 
 ess.sep1 <- effectiveSize(betas.sep1)
-ineff.sep1 <-  M/ ess.sep1
-res.sep1 <- round(cbind(res_betas.sep1, ess.sep1, ineff.sep1),2)
-colnames(res.sep1)[4:5] <- c("Ess","inefficiency")
+ineff.sep1 <-  M/ess.sep1
+res.sep1 <- round(cbind(res_betas.sep1, ess.sep1, ineff.sep1), 2)
+colnames(res.sep1)[4:5] <- c("ESS", "Inefficiency")
 
 knitr:: kable(res.sep1)
 ```
 
-|           |  2.5% | Posterior mean | 97.5% |    Ess | inefficiency |
+|           |  2.5% | Posterior mean | 97.5% |    ESS | Inefficiency |
 |:----------|------:|---------------:|------:|-------:|-------------:|
 | Intercept | -2.85 |          -2.35 | -1.92 | 707.91 |        28.25 |
 | X         |  4.21 |           4.88 |  5.62 | 604.79 |        33.07 |
@@ -473,13 +474,12 @@ We see that with the tighter prior the estimates are more shrunk to
 zero, estimates ESSs are higher and inflation p
 
 ``` r
-par(mfrow = c(2, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
 
-plot(betas.sep1[, 1], type = "l", xlab="Draws after burnin", ylab = labels[1])
-acf(betas.sep1[, 1], ylab="empirical ACF")
+plot(betas.sep1[, 1], type = "l", xlab = "Draws after burnin", ylab = labels[1])
+acf(betas.sep1[, 1], ylab = "empirical ACF")
 
-plot(betas.sep1[, 2], type = "l", xlab="Draws after burnin", ylab = labels[2])
-acf(betas.sep1[, 2],ylab="empirical ACF")
+plot(betas.sep1[, 2], type = "l", xlab = "Draws after burnin", ylab = labels[2])
+acf(betas.sep1[, 2], ylab = "empirical ACF")
 ```
 
 ![](Chapter08_files/figure-html/unnamed-chunk-22-1.png)
@@ -567,7 +567,7 @@ knitr::kable(round(res_logit.labour, 3))
 
 ``` r
 
-(p_unemploy_base_logit <- round(plogis(res_logit.labour[1, 2]),4))
+(p_unemploy_base_logit <- round(plogis(res_logit.labour[1, 2]), 4))
 #> [1] 0.0247
 ```
 
@@ -774,7 +774,7 @@ linear trend and seasonal dummy variables.
 ``` r
 seas <- rbind(diag(1, 11), rep(-1, 11)) 
 seas.dummies <- matrix(rep(t(seas), 16), ncol = 11, byrow = TRUE)
-colnames(seas.dummies) <- c("Jan", "Feb", "Mar", "Apr","May", "Jun", "Jul",
+colnames(seas.dummies) <- c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul",
                             "Aug", "Sep", "Oct", "Nov")
 X.large <- cbind(X,
                  lin.trend = 1:length(y),
