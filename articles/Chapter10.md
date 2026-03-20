@@ -522,6 +522,7 @@ plot(NULL, xlim = range(mus), log = "", xlab = expression(mu), ylab = "",
                          sqrt(CNs[length(N0s)] / (cNU * (N0s[length(N0s)] + N))),
                          df = 2 * cNU)))
 abline(v = 0, lty = 3)
+abline(h = 0, lty = 3)
 for (i in seq_along(N0s)) {
   lines(mus, dstudt(mus, 0, sqrt(C0 / (c0R * N0s[i])), df = 2 * c0R),
         lty = 2, col = i)
@@ -535,7 +536,42 @@ for (i in seq_along(N0s)) {
 legend("topright",
        paste0(rep(c("Posterior (N0 = ", "Prior (N0 = "), each = length(N0)),
               rep(N0, 2), ")"),
-       lty = rep(c(1, 2), each = length(N0)), col = rep(seq_along(N0), 2))
+       lty = rep(c(1, 2), each = length(N0)),
+       pch = rep(c(16, 1), each = length(N0)), 
+       col = rep(seq_along(N0), 2))
 ```
 
 ![](Chapter10_files/figure-html/unnamed-chunk-27-1.png)
+
+### Example 10.13: Savage-Dickey density ratio for the no-income-risk homogeneity test
+
+We only need to re-estimate the heterogeneity model which we use to
+simulate the prior and the posterior of the no-income-risk difference.
+
+``` r
+set.seed(1)
+M <- 100000
+
+a01 <- a02 <- 1
+b01 <- b02 <- 1
+N1 <- with(labor, sum(wcollar))
+SN1 <- with(labor, sum(wcollar & unemployed))
+N2 <- with(labor, sum(!wcollar))
+SN2 <- with(labor, sum(!wcollar & unemployed))
+hN <- (SN1 + SN2) / (N1 + N2) 
+
+aN1 <- a01 + SN1
+bN1 <- b01 + N1 - SN1
+aN2 <- a02 + SN2
+bN2 <- b02 + N2 - SN2
+
+psi <- rbeta(M, aN1, bN1) - rbeta(M, aN2, bN2)
+mybreaks <- seq(floor(200 * min(psi)) / 200 - 0.0025,
+                ceiling(200 * max(psi)) / 200 + 0.0025,
+                by = 0.005)
+hist(psi, breaks = mybreaks, freq = FALSE, xlab = expression(psi), ylab = "")
+lines(c(-1, 0, 1), c(0, 1, 0), lty = 2, lwd = 2)
+abline(v = 0, lty = 3)
+```
+
+![](Chapter10_files/figure-html/unnamed-chunk-28-1.png)
