@@ -431,3 +431,32 @@ logmarglikM2 <- lgamma(cNU) + c0U * log(C0) + 0.5 * log(N0) -
 all.equal(logSD, logBF)
 ```
 
+Here is a visualization.
+
+```{r, echo = -1}
+if (pdfplots) {
+  pdf("10-1_2.pdf", width = 8, height = 4)
+  par(mar = c(2.5, 1.5, .5, .5), mgp = c(1.6, .6, 0))
+}
+mus <- seq(-.01, .02, 0.0001)
+plot(NULL, xlim = range(mus), log = "", xlab = expression(mu), ylab = "",
+     ylim = range(dstudt(mus,
+                         bNs[length(N0s)],
+                         sqrt(CNs[length(N0s)] / (cNU * (N0s[length(N0s)] + N))),
+                         df = 2 * cNU)))
+abline(v = 0, lty = 3)
+for (i in seq_along(N0s)) {
+  lines(mus, dstudt(mus, 0, sqrt(C0 / (c0R * N0s[i])), df = 2 * c0R),
+        lty = 2, col = i)
+  lines(mus, dstudt(mus, bNs[i], sqrt(CNs[i] / (cNU * (N0s[i] + N))), df = 2 * cNU),
+        lty = 1, col = i)
+  points(c(0, 0),
+         c(dstudt(0, 0, sqrt(C0 / (c0R * N0s[i])), df = 2 * c0R),
+           dstudt(0, bNs[i], sqrt(CNs[i] / (cNU * (N0s[i] + N))), df = 2 * cNU)),
+         col = i, pch = c(1, 16))
+}
+legend("topright",
+       paste0(rep(c("Posterior (N0 = ", "Prior (N0 = "), each = length(N0)),
+              rep(N0, 2), ")"),
+       lty = rep(c(1, 2), each = length(N0)), col = rep(seq_along(N0), 2))
+```
