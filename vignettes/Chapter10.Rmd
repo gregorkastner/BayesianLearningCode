@@ -416,3 +416,18 @@ CNs <- C0 + 0.5 * sum((y - mean(y))^2) + 0.5 * N * N0s * mean(y)^2 / (N0s + N)
 (logSD <- dstudt(0, bNs, sqrt(CNs / (cNU * (N0s + N))), df = 2 * cNU, log = TRUE) -
           dstudt(0, 0, sqrt(C0 / (c0U * N0s)), df = 2 * c0U, log = TRUE))
 ```
+
+Let us double-check this:
+
+```{r}
+CN_M1 <- C0 + sum(y^2) / 2
+
+logmarglikM1 <- lgamma(cNR) + c0R * log(C0) -
+   lgamma(c0R) - cNR * log(CN_M1) - 0.5 * N * log(2 * pi)
+logmarglikM2 <- lgamma(cNU) + c0U * log(C0) + 0.5 * log(N0) -
+   lgamma(c0U) - cNU * log(CNs) - 0.5 * N * log(2 * pi) - 0.5 * log(N0 + N)
+
+(logBF <- logmarglikM1 - logmarglikM2)
+all.equal(logSD, logBF)
+```
+
