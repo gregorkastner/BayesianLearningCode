@@ -76,6 +76,7 @@ Now we are ready to investigate the sensitivity of the log Bayes factor
 with respect to prior hyperparameter choices.
 
 ``` r
+c0 <- c(-1, 0, 0.001, 1, 100)
 C0 <- c(0, 0, 0.001, 1, 100)
 N0 <- 10^seq(1, 10, by = 0.1)
 
@@ -467,3 +468,74 @@ knitr::kable(matrix(logmarglikM3, nrow = length(a0_tmp), ncol = length(m0_tmp),
 | 0.5 | -226.13 | -225.82 | -225.89 | -226.55 | -228.38 |
 | 1   | -243.96 | -243.78 | -243.86 | -244.49 | -246.27 |
 | 2   | -276.60 | -276.55 | -276.65 | -277.22 | -278.83 |
+
+### Example 10.12: The Savage-Dickey density ratio for CHF/USD log returns
+
+``` r
+library(BayesianLearningCode)
+#> 
+#> Attaching package: 'BayesianLearningCode'
+#> The following object is masked _by_ '.GlobalEnv':
+#> 
+#>     labor
+y <- 100 * diff(log(exrates$USD / exrates$CHF))
+
+c0R <- 1
+c0U <- c0R - 1/2 # This is needed for the SD theorem to be valid!
+C0 <- 1
+N0s <- N0 <- 10^(2:5)
+
+N <- length(y)
+bNs <- sum(y) / (N0s + N)
+cNR <- c0R + N / 2
+cNU <- c0U + N / 2
+CNs <- C0 + 0.5 * sum((y - mean(y))^2) + 0.5 * N * N0s * mean(y)^2 / (N0s + N)
+
+(logSD <- dstudt(0, bNs, sqrt(CNs / (cNU * (N0s + N))), df = 2 * cNU, log = TRUE) -
+          dstudt(0, 0, sqrt(C0 / (c0U * N0s)), df = 2 * c0U, log = TRUE))
+#> [1] 1.7416826 0.9061529 0.8085183 0.8784890
+```
+
+Let us double-check this:
+
+``` r
+CN_M1 <- C0 + sum(y^2) / 2
+
+logmarglikM1 <- lgamma(cNR) + c0R * log(C0) -
+   lgamma(c0R) - cNR * log(CN_M1) - 0.5 * N * log(2 * pi)
+logmarglikM2 <- lgamma(cNU) + c0U * log(C0) + 0.5 * log(N0) -
+   lgamma(c0U) - cNU * log(CNs) - 0.5 * N * log(2 * pi) - 0.5 * log(N0 + N)
+
+(logBF <- logmarglikM1 - logmarglikM2)
+#> [1] 1.7416826 0.9061529 0.8085183 0.8784890
+all.equal(logSD, logBF)
+#> [1] TRUE
+```
+
+Here is a visualization.
+
+``` r
+mus <- seq(-.01, .02, 0.0001)
+plot(NULL, xlim = range(mus), log = "", xlab = expression(mu), ylab = "",
+     ylim = range(dstudt(mus,
+                         bNs[length(N0s)],
+                         sqrt(CNs[length(N0s)] / (cNU * (N0s[length(N0s)] + N))),
+                         df = 2 * cNU)))
+abline(v = 0, lty = 3)
+for (i in seq_along(N0s)) {
+  lines(mus, dstudt(mus, 0, sqrt(C0 / (c0R * N0s[i])), df = 2 * c0R),
+        lty = 2, col = i)
+  lines(mus, dstudt(mus, bNs[i], sqrt(CNs[i] / (cNU * (N0s[i] + N))), df = 2 * cNU),
+        lty = 1, col = i)
+  points(c(0, 0),
+         c(dstudt(0, 0, sqrt(C0 / (c0R * N0s[i])), df = 2 * c0R),
+           dstudt(0, bNs[i], sqrt(CNs[i] / (cNU * (N0s[i] + N))), df = 2 * cNU)),
+         col = i, pch = c(1, 16))
+}
+legend("topright",
+       paste0(rep(c("Posterior (N0 = ", "Prior (N0 = "), each = length(N0)),
+              rep(N0, 2), ")"),
+       lty = rep(c(1, 2), each = length(N0)), col = rep(seq_along(N0), 2))
+```
+
+![](Chapter10_files/figure-html/unnamed-chunk-27-1.png)
