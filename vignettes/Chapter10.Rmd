@@ -469,7 +469,11 @@ legend("topright",
 We only need to re-estimate the heterogeneity model which we use to simulate
 the prior and the posterior of the no-income-risk difference.
 
-```{r}
+```{r, echo = -1}
+if (pdfplots) {
+  pdf("10-1_3a.pdf", width = 5, height = 4)
+  par(mar = c(2.5, 1.5, .5, .8), mgp = c(1.6, .6, 0))
+}
 set.seed(42)
 M <- 10000000
 
@@ -491,9 +495,10 @@ mybreaks <- seq(floor(200 * min(psi)) / 200 - 0.0025,
                 ceiling(200 * max(psi)) / 200 + 0.0025,
                 by = 0.005)
 hist(psi, breaks = mybreaks, freq = FALSE, xlab = expression(psi),
-     main = "", ylab = "")
+     main = "", ylab = "", border = NA)
 lines(c(-1, 0, 1), c(0, 1, 0), lty = 2, lwd = 2)
 abline(v = 0, lty = 3)
+abline(h = 0, lty = 3)
 ```
 
 We can approximate the Bayes factor through the estimated Savage-Dickey
