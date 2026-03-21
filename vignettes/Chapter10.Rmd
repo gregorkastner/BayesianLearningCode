@@ -498,17 +498,20 @@ hist(psi, breaks = mybreaks, freq = FALSE, xlab = expression(psi),
 lines(c(-1, 0, 1), c(0, 1, 0), lty = 2, lwd = 2)
 abline(v = 0, lty = 3)
 abline(h = 0, lty = 3)
+
+# Estimate density
+lines(d <- density(psi), lwd = 2)
 ```
 
 We can approximate the Bayes factor through the estimated Savage-Dickey
-density ratio. Note, though, that this is a very poor approximation.
+density ratio. Note, though, that this can be a very poor approximation.
 
 ```{r}
-# Estimate density
-d <- density(psi, bw = "SJ", n = 2^20)
-
-# Evaluate as close a possible to zero
-dpost <- d$y[which.min(abs(d$x))]
+# Evaluate as close a possible to zero (with linear interpolation)
+x1 <- sum(d$x < 0) # Find largest x below 0
+x2 <- x1 + 1L      # Find smallest x above 0
+pos <- -d$x[x1] / (d$x[x2] - d$x[x1])
+dpost <- (1 - pos) * d$y[x1] + pos * d$y[x2]
 
 # The prior is a symmetric triangular distribution on [-1, 1], thus p(0) = 1
 dprior <- 1
