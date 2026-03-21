@@ -483,7 +483,6 @@ N1 <- with(labor, sum(wcollar))
 SN1 <- with(labor, sum(wcollar & unemployed))
 N2 <- with(labor, sum(!wcollar))
 SN2 <- with(labor, sum(!wcollar & unemployed))
-hN <- (SN1 + SN2) / (N1 + N2) 
 
 aN1 <- a01 + SN1
 bN1 <- b01 + N1 - SN1
