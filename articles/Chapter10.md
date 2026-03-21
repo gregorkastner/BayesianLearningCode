@@ -549,8 +549,8 @@ We only need to re-estimate the heterogeneity model which we use to
 simulate the prior and the posterior of the no-income-risk difference.
 
 ``` r
-set.seed(1)
-M <- 100000
+set.seed(42)
+M <- 10000000
 
 a01 <- a02 <- 1
 b01 <- b02 <- 1
@@ -558,7 +558,6 @@ N1 <- with(labor, sum(wcollar))
 SN1 <- with(labor, sum(wcollar & unemployed))
 N2 <- with(labor, sum(!wcollar))
 SN2 <- with(labor, sum(!wcollar & unemployed))
-hN <- (SN1 + SN2) / (N1 + N2) 
 
 aN1 <- a01 + SN1
 bN1 <- b01 + N1 - SN1
@@ -569,9 +568,74 @@ psi <- rbeta(M, aN1, bN1) - rbeta(M, aN2, bN2)
 mybreaks <- seq(floor(200 * min(psi)) / 200 - 0.0025,
                 ceiling(200 * max(psi)) / 200 + 0.0025,
                 by = 0.005)
-hist(psi, breaks = mybreaks, freq = FALSE, xlab = expression(psi), ylab = "")
+hist(psi, breaks = mybreaks, freq = FALSE, xlab = expression(psi),
+     main = "", ylab = "", border = NA)
 lines(c(-1, 0, 1), c(0, 1, 0), lty = 2, lwd = 2)
 abline(v = 0, lty = 3)
+abline(h = 0, lty = 3)
+
+# Estimate density
+lines(d <- density(psi), lwd = 2)
 ```
 
 ![](Chapter10_files/figure-html/unnamed-chunk-28-1.png)
+
+We can approximate the Bayes factor through the estimated Savage-Dickey
+density ratio. Note, though, that this can be a very poor approximation.
+
+``` r
+# Evaluate as close a possible to zero (with linear interpolation)
+x1 <- sum(d$x < 0) # Find largest x below 0
+x2 <- x1 + 1L      # Find smallest x above 0
+pos <- -d$x[x1] / (d$x[x2] - d$x[x1])
+dpost <- (1 - pos) * d$y[x1] + pos * d$y[x2]
+
+# The prior is a symmetric triangular distribution on [-1, 1], thus p(0) = 1
+dprior <- 1
+
+(logSD <- log(dpost) - log(dprior))
+#> [1] -1.657269
+```
+
+### Example 10.14: Savage-Dickey density ratio for the mortality rate homogeneity test
+
+As above, with different data.
+
+``` r
+N1  <- 1668 # number at risk in City A
+SN1 <- 2    # cancer deaths in City A
+N2  <- 583  # number at risk in City B
+SN2 <- 1    # cancer deaths in City B
+
+aN1 <- a01 + SN1
+bN1 <- b01 + N1 - SN1
+aN2 <- a02 + SN2
+bN2 <- b02 + N2 - SN2
+
+psi <- rbeta(M, aN1, bN1) - rbeta(M, aN2, bN2)
+mybreaks <- seq(floor(1000 * min(psi)) / 1000 - 0.0005,
+                ceiling(1000 * max(psi)) / 1000 + 0.0005,
+                by = 0.001)
+d <- density(psi)
+hist(psi, breaks = mybreaks, freq = FALSE, xlab = expression(psi),
+     main = "", ylab = "", ylim = c(0, max(d$y)), border = NA)
+lines(d, lwd = 2)
+lines(c(-1, 0, 1), c(0, 1, 0), lty = 2, lwd = 2)
+abline(v = 0, lty = 3)
+abline(h = 0, lty = 3)
+```
+
+![](Chapter10_files/figure-html/unnamed-chunk-30-1.png)
+
+We can approximate the Bayes factor through the estimated Savage-Dickey
+density ratio. Note, though, that this can be a very poor approximation.
+
+``` r
+x1 <- sum(d$x < 0) # Find largest x below 0
+x2 <- x1 + 1L      # Find smallest x above 0
+pos <- -d$x[x1] / (d$x[x2] - d$x[x1])
+dpost <- (1 - pos) * d$y[x1] + pos * d$y[x2]
+dprior <- 1
+(logSD <- log(dpost) - log(dprior))
+#> [1] 5.218816
+```
