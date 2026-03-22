@@ -348,7 +348,8 @@ a0_tmp <- c(0.1, 0.5, 1, 2)
 m0_tmp <- c(1, mean(y), 5, 10, 20)
 grid <- expand.grid(a0 = a0_tmp, m0 = m0_tmp)
 a0 <- grid$a0
-b0 <- grid$a0 / grid$m0
+m0 <- grid$m0
+b0 <- a0 / m0
 ```
 
 Now we can compute and print the log marginal likelihoods.
@@ -378,8 +379,8 @@ In the negative binomial case, if $a_0$ is fixed and $b_0$ follows a beta prime
 prior, we have a closed-form expression for the marginal likelihood.
 
 ```{r}
-alpha_b0 <- rep(1, length(a0))
-beta_b0 <- 1 + alpha_b0 / b0
+alpha_b0 <- rep(6, length(a0))
+beta_b0 <- (alpha_b0 - 1) * m0 / a0
 sdb0 <- sqrt(alpha_b0 * (alpha_b0 + beta_b0 - 1) /
              ((beta_b0 - 2) * (beta_b0 - 1)^2))
 alpha_bN <- alpha_b0 + N * a0
