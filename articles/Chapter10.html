@@ -696,7 +696,8 @@ heterogeneity<a class="anchor" aria-label="anchor" href="#example-10-10-testing-
 <span><span class="va">m0_tmp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span>, <span class="fl">5</span>, <span class="fl">10</span>, <span class="fl">20</span><span class="op">)</span></span>
 <span><span class="va">grid</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span>a0 <span class="op">=</span> <span class="va">a0_tmp</span>, m0 <span class="op">=</span> <span class="va">m0_tmp</span><span class="op">)</span></span>
 <span><span class="va">a0</span> <span class="op">&lt;-</span> <span class="va">grid</span><span class="op">$</span><span class="va">a0</span></span>
-<span><span class="va">b0</span> <span class="op">&lt;-</span> <span class="va">grid</span><span class="op">$</span><span class="va">a0</span> <span class="op">/</span> <span class="va">grid</span><span class="op">$</span><span class="va">m0</span></span></code></pre></div>
+<span><span class="va">m0</span> <span class="op">&lt;-</span> <span class="va">grid</span><span class="op">$</span><span class="va">m0</span></span>
+<span><span class="va">b0</span> <span class="op">&lt;-</span> <span class="va">a0</span> <span class="op">/</span> <span class="va">m0</span></span></code></pre></div>
 <p>Now we can compute and print the log marginal likelihoods.</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">logmarglikM1</span> <span class="op">&lt;-</span> <span class="va">a0</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">b0</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Special.html" class="external-link">lgamma</a></span><span class="op">(</span><span class="va">a0</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">)</span> <span class="op">-</span></span>
@@ -815,12 +816,10 @@ is fixed and
 follows a beta prime prior, we have a closed-form expression for the
 marginal likelihood.</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">alpha_b0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">a0</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">beta_b0</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="op">+</span> <span class="va">alpha_b0</span> <span class="op">/</span> <span class="va">b0</span></span>
+<code class="sourceCode R"><span><span class="va">alpha_b0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">6</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">a0</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">beta_b0</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">alpha_b0</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">*</span> <span class="va">m0</span> <span class="op">/</span> <span class="va">a0</span></span>
 <span><span class="va">sdb0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">alpha_b0</span> <span class="op">*</span> <span class="op">(</span><span class="va">alpha_b0</span> <span class="op">+</span> <span class="va">beta_b0</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">/</span></span>
 <span>             <span class="op">(</span><span class="op">(</span><span class="va">beta_b0</span> <span class="op">-</span> <span class="fl">2</span><span class="op">)</span> <span class="op">*</span> <span class="op">(</span><span class="va">beta_b0</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in sqrt(alpha_b0 * (alpha_b0 + beta_b0 - 1)/((beta_b0 - 2) * (beta_b0 -</span></span>
-<span><span class="co">#&gt; : NaNs produced</span></span>
 <span><span class="va">alpha_bN</span> <span class="op">&lt;-</span> <span class="va">alpha_b0</span> <span class="op">+</span> <span class="va">N</span> <span class="op">*</span> <span class="va">a0</span></span>
 <span><span class="va">beta_bN</span> <span class="op">&lt;-</span> <span class="va">beta_b0</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span></span>
 <span></span>
@@ -844,35 +843,35 @@ marginal likelihood.</p>
 <tbody>
 <tr class="odd">
 <td align="left">0.1</td>
-<td align="right">-239.42</td>
-<td align="right">-238.96</td>
-<td align="right">-239.02</td>
+<td align="right">-241.31</td>
+<td align="right">-238.24</td>
+<td align="right">-238.23</td>
 <td align="right">-239.61</td>
-<td align="right">-241.09</td>
+<td align="right">-242.82</td>
 </tr>
 <tr class="even">
 <td align="left">0.5</td>
-<td align="right">-226.13</td>
-<td align="right">-225.82</td>
-<td align="right">-225.89</td>
-<td align="right">-226.55</td>
-<td align="right">-228.38</td>
+<td align="right">-228.15</td>
+<td align="right">-224.98</td>
+<td align="right">-224.96</td>
+<td align="right">-227.12</td>
+<td align="right">-233.66</td>
 </tr>
 <tr class="odd">
 <td align="left">1</td>
-<td align="right">-243.96</td>
-<td align="right">-243.78</td>
-<td align="right">-243.86</td>
-<td align="right">-244.49</td>
-<td align="right">-246.27</td>
+<td align="right">-245.75</td>
+<td align="right">-242.92</td>
+<td align="right">-242.88</td>
+<td align="right">-245.01</td>
+<td align="right">-252.11</td>
 </tr>
 <tr class="even">
 <td align="left">2</td>
-<td align="right">-276.60</td>
-<td align="right">-276.55</td>
-<td align="right">-276.65</td>
-<td align="right">-277.22</td>
-<td align="right">-278.83</td>
+<td align="right">-278.03</td>
+<td align="right">-275.68</td>
+<td align="right">-275.62</td>
+<td align="right">-277.48</td>
+<td align="right">-284.21</td>
 </tr>
 </tbody>
 </table>
@@ -893,7 +892,7 @@ returns<a class="anchor" aria-label="anchor" href="#example-10-12-the-savage-dic
 <span><span class="va">c0R</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
 <span><span class="va">c0U</span> <span class="op">&lt;-</span> <span class="va">c0R</span> <span class="op">-</span> <span class="fl">1</span><span class="op">/</span><span class="fl">2</span> <span class="co"># This is needed for the SD theorem to be valid!</span></span>
 <span><span class="va">C0</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
-<span><span class="va">N0s</span> <span class="op">&lt;-</span> <span class="va">N0</span> <span class="op">&lt;-</span> <span class="fl">10</span><span class="op">^</span><span class="op">(</span><span class="fl">2</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span></span>
+<span><span class="va">N0s</span> <span class="op">&lt;-</span> <span class="va">N0</span> <span class="op">&lt;-</span> <span class="fl">10</span><span class="op">^</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">2.5</span>, <span class="fl">7</span>, by <span class="op">=</span> <span class="fl">.1</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">N</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span></span>
 <span><span class="va">bNs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="va">N0s</span> <span class="op">+</span> <span class="va">N</span><span class="op">)</span></span>
@@ -903,7 +902,16 @@ returns<a class="anchor" aria-label="anchor" href="#example-10-12-the-savage-dic
 <span></span>
 <span><span class="op">(</span><span class="va">logSD</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/StudTDist.html">dstudt</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">bNs</span>, <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">CNs</span> <span class="op">/</span> <span class="op">(</span><span class="va">cNU</span> <span class="op">*</span> <span class="op">(</span><span class="va">N0s</span> <span class="op">+</span> <span class="va">N</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, df <span class="op">=</span> <span class="fl">2</span> <span class="op">*</span> <span class="va">cNU</span>, log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">-</span></span>
 <span>          <span class="fu"><a href="../reference/StudTDist.html">dstudt</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">C0</span> <span class="op">/</span> <span class="op">(</span><span class="va">c0U</span> <span class="op">*</span> <span class="va">N0s</span><span class="op">)</span><span class="op">)</span>, df <span class="op">=</span> <span class="fl">2</span> <span class="op">*</span> <span class="va">c0U</span>, log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 1.7416826 0.9061529 0.8085183 0.8784890</span></span></code></pre></div>
+<span><span class="co">#&gt;  [1] 1.2539440 1.1698030 1.0920726 1.0216664 0.9594487 0.9061529 0.8622889</span></span>
+<span><span class="co">#&gt;  [8] 0.8280519 0.8032528 0.7872897 0.7791769 0.7776305 0.7811990 0.7884095</span></span>
+<span><span class="co">#&gt; [15] 0.7979005 0.8085183 0.8193645 0.8298015 0.8394245 0.8480177 0.8555049</span></span>
+<span><span class="co">#&gt; [22] 0.8619045 0.8672923 0.8717745 0.8754681 0.8784890 0.8809449 0.8829321</span></span>
+<span><span class="co">#&gt; [29] 0.8845339 0.8858211 0.8868532 0.8876790 0.8883389 0.8888655 0.8892853</span></span>
+<span><span class="co">#&gt; [36] 0.8896197 0.8898860 0.8900979 0.8902665 0.8904006 0.8905072 0.8905919</span></span>
+<span><span class="co">#&gt; [43] 0.8906592 0.8907127 0.8907553 0.8907891</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">N0s</span>, <span class="va">logSD</span>, type <span class="op">=</span> <span class="st">"l"</span>, log <span class="op">=</span> <span class="st">"x"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="Chapter10_files/figure-html/unnamed-chunk-25-1.png" class="r-plt" alt="" width="768"></p>
 <p>Let us double-check this:</p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">CN_M1</span> <span class="op">&lt;-</span> <span class="va">C0</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">y</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span></span>
@@ -914,7 +922,13 @@ returns<a class="anchor" aria-label="anchor" href="#example-10-12-the-savage-dic
 <span>   <span class="fu"><a href="https://rdrr.io/r/base/Special.html" class="external-link">lgamma</a></span><span class="op">(</span><span class="va">c0U</span><span class="op">)</span> <span class="op">-</span> <span class="va">cNU</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">CNs</span><span class="op">)</span> <span class="op">-</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="va">N</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">2</span> <span class="op">*</span> <span class="va">pi</span><span class="op">)</span> <span class="op">-</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">N0</span> <span class="op">+</span> <span class="va">N</span><span class="op">)</span></span>
 <span></span>
 <span><span class="op">(</span><span class="va">logBF</span> <span class="op">&lt;-</span> <span class="va">logmarglikM1</span> <span class="op">-</span> <span class="va">logmarglikM2</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 1.7416826 0.9061529 0.8085183 0.8784890</span></span>
+<span><span class="co">#&gt;  [1] 1.2539440 1.1698030 1.0920726 1.0216664 0.9594487 0.9061529 0.8622889</span></span>
+<span><span class="co">#&gt;  [8] 0.8280519 0.8032528 0.7872897 0.7791769 0.7776305 0.7811990 0.7884095</span></span>
+<span><span class="co">#&gt; [15] 0.7979005 0.8085183 0.8193645 0.8298015 0.8394245 0.8480177 0.8555049</span></span>
+<span><span class="co">#&gt; [22] 0.8619045 0.8672923 0.8717745 0.8754681 0.8784890 0.8809449 0.8829321</span></span>
+<span><span class="co">#&gt; [29] 0.8845339 0.8858211 0.8868532 0.8876790 0.8883389 0.8888655 0.8892853</span></span>
+<span><span class="co">#&gt; [36] 0.8896197 0.8898860 0.8900979 0.8902665 0.8904006 0.8905072 0.8905919</span></span>
+<span><span class="co">#&gt; [43] 0.8906592 0.8907127 0.8907553 0.8907891</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/all.equal.html" class="external-link">all.equal</a></span><span class="op">(</span><span class="va">logSD</span>, <span class="va">logBF</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
 <p>Here is a visualization.</p>
