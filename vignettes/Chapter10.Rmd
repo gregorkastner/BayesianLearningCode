@@ -406,7 +406,7 @@ y <- 100 * diff(log(exrates$USD / exrates$CHF))
 c0R <- 1
 c0U <- c0R - 1/2 # This is needed for the SD theorem to be valid!
 C0 <- 1
-N0s <- N0 <- 10^(2:5)
+N0s <- N0 <- 10^(seq(2.5, 7, by = .1))
 
 N <- length(y)
 bNs <- sum(y) / (N0s + N)
@@ -416,6 +416,8 @@ CNs <- C0 + 0.5 * sum((y - mean(y))^2) + 0.5 * N * N0s * mean(y)^2 / (N0s + N)
 
 (logSD <- dstudt(0, bNs, sqrt(CNs / (cNU * (N0s + N))), df = 2 * cNU, log = TRUE) -
           dstudt(0, 0, sqrt(C0 / (c0U * N0s)), df = 2 * c0U, log = TRUE))
+
+plot(N0s, logSD, type = "l", log = "x")
 ```
 
 Let us double-check this:
