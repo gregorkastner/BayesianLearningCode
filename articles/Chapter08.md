@@ -610,16 +610,19 @@ knitr::kable(round(res_probit.labour * pi / sqrt(3), 3))
 
 #### Example 8.7: Road safety data
 
-We fit two different Poisson regression models:
+We fit two different Poisson regression models to the series of monthly
+death and seriously injured children aged 6-10 in Linz introduced in
+Example 2.1:
 
 1.  a small model with intercept, intervention effect and holiday dummy
     (activated in July/August);
 
-2.  a large model with intercept, intervention effect, linear trend, and
-    a seasonal pattern captured by monthly dummies.
+2.  a larger model with intercept, intervention effect, linear trend,
+    and a seasonal pattern captured by monthly dummies.
 
 The sampler performance for these two models is assessed to study how
-the acceptance rate deteroriates, if $d$ increases.
+the acceptance rate deteroriates, when the dimension of regression
+effects $d$ increases.
 
 We load the data and extract the observations for the children in Linz.
 
@@ -641,26 +644,28 @@ To compute the parameters of the normal proposal density, we use the
 Newton-Raphson estimator described in Section 8.2.1.
 
 ``` r
-gen.proposal.poisson <- function(y, X, e, b0 = 0, B0 = 100, t.max = 30) {
+gen.proposal.poisson <- function(y, X, e, b0 = 0, B0 = 100, t.max = 20){
   N <- length(y)
   d <- ncol(X)
   betas <- matrix(NA_real_, ncol = t.max, nrow = d)
-  beta.old <- c(log(mean(y)), rep(0, d - 1))
-
-  b0 <- rep(b0, length.out = d)
-  B0.inv <- diag(rep(1 / B0, length.out = d), nrow = d) 
+  beta.new <- matrix(c(log(mean(y)), rep(0, d - 1)), nrow=d) 
+  
+  b0 <- matrix(rep(b0, length.out = d), nrow=d) 
+  B0.inv <-diag(rep(1 / B0, length.out = d), nrow = d) 
 
   for (t in seq_len(t.max)) {
+    beta.old <- beta.new
+    
     rate <- e * exp(X %*% beta.old)
-    score <- t(crossprod(y - rate, X) - (beta.old - b0) %*% B0.inv)
+    score <- t(crossprod(y - rate, X) - t(beta.old - b0) %*% B0.inv)
 
     H <- -B0.inv
     for (i in seq_len(N)) {
       H <- H - rate[i] * tcrossprod(X[i, ])
     }
-    betas[, t] <- beta.old - solve(H, score)
+    beta.new <- beta.old - solve(H, score)
   }
-  qmean <- betas[, t.max]
+  qmean <- beta.new
   
   # Determine the variance matrix  
   rate <- e * exp(X %*% qmean)
@@ -674,19 +679,22 @@ gen.proposal.poisson <- function(y, X, e, b0 = 0, B0 = 100, t.max = 30) {
 }
 ```
 
-We use a flat normal prior on the regression effects.
+We use a rather flat normal prior on the regression effects.
 
 ``` r
 parms.proposal <- gen.proposal.poisson(y, X, e, b0 = 0, B0 = 100)
 parms.proposal
 #> $mean
-#> [1]  0.8867173 -0.3465599 -0.5944486
+#>            [,1]
+#> [1,]  0.8678593
+#> [2,] -0.3480300
+#> [3,] -0.7731900
 #> 
 #> $var
 #>              [,1]          [,2]          [,3]
-#> [1,]  0.005121126 -0.0048204767 -0.0031235498
-#> [2,] -0.004820477  0.0111451181  0.0002039249
-#> [3,] -0.003123550  0.0002039249  0.0303637113
+#> [1,]  0.005253748 -0.0049930968 -0.0031862420
+#> [2,] -0.004993097  0.0115538664  0.0002113405
+#> [3,] -0.003186242  0.0002113405  0.0364113871
 ```
 
 Next we set up the independence Metropolis-Hastings algorithm and
@@ -759,13 +767,13 @@ knitr::kable(round(res.poisson1, 3))
 
 |              |   2.5% | Posterior mean |  97.5% | exp(Mean) |
 |:-------------|-------:|---------------:|-------:|----------:|
-| intercept    |  0.722 |          0.865 |  1.006 |     2.374 |
-| intervention | -0.571 |         -0.353 | -0.135 |     0.703 |
-| holiday      | -1.138 |         -0.784 | -0.425 |     0.456 |
+| intercept    |  0.721 |          0.866 |  1.006 |     2.376 |
+| intervention | -0.563 |         -0.350 | -0.145 |     0.704 |
+| holiday      | -1.179 |         -0.789 | -0.409 |     0.454 |
 
 ``` r
 res1$accept
-#> [1] 0.354
+#> [1] 0.9356
 ```
 
 We then fit an alternative model with intercept, intervention effect,
@@ -800,25 +808,25 @@ knitr::kable(round(res.poisson2, 3))
 
 |              |    2.5% | Posterior mean |  97.5% | exp(Mean) |
 |:-------------|--------:|---------------:|-------:|----------:|
-| intercept    |  -1.156 |          0.773 |  2.573 |     2.166 |
-| intervention |  -0.721 |         -0.305 |  0.049 |     0.737 |
-| holiday      | -11.315 |         -0.369 | 11.371 |     0.692 |
-| lin.trend    |  -0.003 |          0.000 |  0.003 |     1.000 |
-| Jan          |  -1.653 |          0.216 |  2.369 |     1.241 |
-| Feb          |  -2.409 |         -0.377 |  1.514 |     0.686 |
-| Mar          |  -2.007 |          0.068 |  1.922 |     1.071 |
-| Apr          |  -1.601 |          0.285 |  2.225 |     1.329 |
-| May          |  -2.065 |         -0.284 |  1.428 |     0.753 |
-| Jun          |  -1.453 |          0.347 |  2.316 |     1.414 |
-| Jul          | -10.073 |         -0.208 |  9.137 |     0.812 |
-| Aug          |  -9.829 |         -0.466 |  9.026 |     0.628 |
-| Sep          |  -1.900 |         -0.046 |  1.847 |     0.955 |
-| Oct          |  -1.428 |          0.326 |  2.288 |     1.385 |
-| Nov          |  -1.905 |          0.002 |  2.038 |     1.002 |
+| intercept    |  -1.242 |          0.744 |  2.726 |     2.104 |
+| intervention |  -0.788 |         -0.350 |  0.055 |     0.705 |
+| holiday      | -12.037 |         -0.282 | 11.632 |     0.754 |
+| lin.trend    |  -0.004 |          0.000 |  0.004 |     1.000 |
+| Jan          |  -1.723 |          0.238 |  2.265 |     1.269 |
+| Feb          |  -2.391 |         -0.380 |  1.652 |     0.684 |
+| Mar          |  -1.976 |          0.058 |  2.085 |     1.060 |
+| Apr          |  -1.726 |          0.293 |  2.300 |     1.341 |
+| May          |  -2.306 |         -0.289 |  1.709 |     0.749 |
+| Jun          |  -1.596 |          0.373 |  2.365 |     1.451 |
+| Jul          | -10.284 |         -0.337 |  9.405 |     0.714 |
+| Aug          | -10.349 |         -0.468 |  9.246 |     0.626 |
+| Sep          |  -2.048 |         -0.036 |  1.976 |     0.965 |
+| Oct          |  -1.599 |          0.390 |  2.379 |     1.477 |
+| Nov          |  -1.984 |          0.017 |  2.040 |     1.017 |
 
 ``` r
 res2$accept
-#> [1] 0.1578
+#> [1] 0.7444
 ```
 
 ### Section 8.2.2: Negative binomial regression
@@ -951,10 +959,10 @@ knitr::kable(round(res.negbin.full, 3))
 
 |              |   2.5% | Posterior mean |  97.5% |
 |:-------------|-------:|---------------:|-------:|
-| intercept    |  0.723 |          0.866 |  1.011 |
-| intervention | -0.562 |         -0.351 | -0.143 |
-| holiday      | -1.137 |         -0.780 | -0.426 |
-| alpha        |  6.685 |         12.468 | 21.618 |
+| intercept    |  0.721 |          0.865 |  1.004 |
+| intervention | -0.560 |         -0.349 | -0.140 |
+| holiday      | -1.179 |         -0.789 | -0.427 |
+| alpha        |  6.480 |         12.156 | 21.407 |
 
 ``` r
                
@@ -969,10 +977,10 @@ knitr::kable(round(res.negbin.partial, 3))
 
 |              |   2.5% | Posterior mean |  97.5% |
 |:-------------|-------:|---------------:|-------:|
-| intercept    |  0.726 |          0.864 |  1.002 |
-| intervention | -0.551 |         -0.350 | -0.138 |
-| holiday      | -1.180 |         -0.795 | -0.427 |
-| alpha        |  6.429 |         12.384 | 21.679 |
+| intercept    |  0.718 |          0.865 |  1.005 |
+| intervention | -0.559 |         -0.348 | -0.140 |
+| holiday      | -1.176 |         -0.788 | -0.428 |
+| alpha        |  6.493 |         12.458 | 21.495 |
 
 As expected estimation results using both samplers are rather similar.
 
@@ -980,9 +988,9 @@ As expected estimation results using both samplers are rather similar.
 
 ``` r
 print(c(mean(res1$acc.beta), mean(res1$acc.alpha)))
-#> [1] 0.36096 0.70318
+#> [1] 0.93708 0.70344
 print(c(mean(res2$acc.beta), mean(res2$acc.alpha)))
-#> [1] 0.34962 0.89410
+#> [1] 0.93574 0.89450
 ```
 
 ``` r
