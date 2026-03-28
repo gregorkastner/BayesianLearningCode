@@ -535,16 +535,16 @@ knitr::kable(round(res_probit.labour * pi / sqrt(3), 3))
 
 ### Example 8.7: Road safety data
 
-We fit two different Poisson regression models:
+We fit two different Poisson regression models to the series of monthly death and seriously injured children aged 6-10 in Linz introduced in Example 2.1:
 
 1. a small model with intercept, intervention effect and holiday dummy
    (activated in July/August);
 
-2. a large model with intercept, intervention effect, linear trend,
+2. a larger model with intercept, intervention effect, linear trend,
    and a seasonal pattern captured by monthly dummies.
 
 The sampler performance for these two models is assessed to study how
-the acceptance rate deteroriates, if $d$ increases.
+the acceptance rate deteroriates, when the dimension of regression effects $d$ increases.
 
 We load the data and extract the observations for the children in
 Linz. 
@@ -566,26 +566,28 @@ To compute the parameters of the normal proposal density, we use the
 Newton-Raphson estimator described in Section 8.2.1.
 
 ```{r}
-gen.proposal.poisson <- function(y, X, e, b0 = 0, B0 = 100, t.max = 30) {
+gen.proposal.poisson <- function(y, X, e, b0 = 0, B0 = 100, t.max = 20){
   N <- length(y)
   d <- ncol(X)
   betas <- matrix(NA_real_, ncol = t.max, nrow = d)
-  beta.old <- c(log(mean(y)), rep(0, d - 1))
-
-  b0 <- rep(b0, length.out = d)
-  B0.inv <- diag(rep(1 / B0, length.out = d), nrow = d) 
+  beta.new <- matrix(c(log(mean(y)), rep(0, d - 1)), nrow=d) 
+  
+  b0 <- matrix(rep(b0, length.out = d), nrow=d) 
+  B0.inv <-diag(rep(1 / B0, length.out = d), nrow = d) 
 
   for (t in seq_len(t.max)) {
+    beta.old <- beta.new
+    
     rate <- e * exp(X %*% beta.old)
-    score <- t(crossprod(y - rate, X) - (beta.old - b0) %*% B0.inv)
+    score <- t(crossprod(y - rate, X) - t(beta.old - b0) %*% B0.inv)
 
     H <- -B0.inv
     for (i in seq_len(N)) {
       H <- H - rate[i] * tcrossprod(X[i, ])
     }
-    betas[, t] <- beta.old - solve(H, score)
+    beta.new <- beta.old - solve(H, score)
   }
-  qmean <- betas[, t.max]
+  qmean <- beta.new
   
   # Determine the variance matrix  
   rate <- e * exp(X %*% qmean)
@@ -599,7 +601,7 @@ gen.proposal.poisson <- function(y, X, e, b0 = 0, B0 = 100, t.max = 30) {
 }
 ```
 
-We use a flat normal prior on the regression effects.
+We use a rather flat normal prior on the regression effects.
 
 ```{r}
 parms.proposal <- gen.proposal.poisson(y, X, e, b0 = 0, B0 = 100)
