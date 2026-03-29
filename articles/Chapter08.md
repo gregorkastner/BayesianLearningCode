@@ -629,7 +629,7 @@ We load the data and extract the observations for the children in Linz.
 ``` r
 data("accidents", package = "BayesianLearningCode")
 y <- accidents[, "children_accidents"]
-e <- rep(1, length(y))
+e <- accidents[, "children_exposure"]
 ```
 
 Then, we define the regressor matrix.
@@ -679,22 +679,24 @@ gen.proposal.poisson <- function(y, X, e, b0 = 0, B0 = 100, t.max = 20){
 }
 ```
 
-We use a rather flat normal prior on the regression effects.
+We use a rather flat normal prior \$\Normal{mathbf{0}, 100
+\mathbf{100}}\$ on the regression effects and first determine the
+parameters of a Normal proposal distribution.
 
 ``` r
 parms.proposal <- gen.proposal.poisson(y, X, e, b0 = 0, B0 = 100)
 parms.proposal
 #> $mean
-#>            [,1]
-#> [1,]  0.8678593
-#> [2,] -0.3480300
-#> [3,] -0.7731900
+#>            rate
+#> [1,] -8.2140876
+#> [2,] -0.3608576
+#> [3,] -0.7739759
 #> 
 #> $var
 #>              [,1]          [,2]          [,3]
-#> [1,]  0.005253748 -0.0049930968 -0.0031862420
-#> [2,] -0.004993097  0.0115538664  0.0002113405
-#> [3,] -0.003186242  0.0002113405  0.0364113871
+#> [1,]  0.005251979 -0.0049915918 -0.0031889269
+#> [2,] -0.004991592  0.0115517153  0.0002195915
+#> [3,] -0.003188927  0.0002195915  0.0364108173
 ```
 
 Next we set up the independence Metropolis-Hastings algorithm and
@@ -702,7 +704,7 @@ estimate the model parameters.
 
 ``` r
 poisson <- function(y, X, e, b0 = 0, B0 = 100, qmean, qvar,
-                    burnin = 1000L, M = 5000L) {
+                    burnin = 1000L, M = 10000L) {
   d <- ncol(X)
   beta.post <- matrix(ncol = d, nrow = M)
   colnames(beta.post) <- colnames(X)
@@ -758,23 +760,29 @@ poisson <- function(y, X, e, b0 = 0, B0 = 100, qmean, qvar,
 ```
 
 ``` r
+set.seed(1234)
 res1 <- poisson(y, X, e, b0 = 0, B0 = 100,
                 qmean = parms.proposal$mean, qvar = parms.proposal$var)
-res.poisson1 <- t(rbind(apply(res1$beta.post, 2, res.mcmc),
-                        `exp(Mean)` = exp(colMeans(res1$beta.post))))
+res.poisson1 <- t(apply(res1$beta.post, 2, res.mcmc))
+                       
 knitr::kable(round(res.poisson1, 3))
 ```
 
-|              |   2.5% | Posterior mean |  97.5% | exp(Mean) |
-|:-------------|-------:|---------------:|-------:|----------:|
-| intercept    |  0.721 |          0.866 |  1.006 |     2.376 |
-| intervention | -0.563 |         -0.350 | -0.145 |     0.704 |
-| holiday      | -1.179 |         -0.789 | -0.409 |     0.454 |
+|              |   2.5% | Posterior mean |  97.5% |
+|:-------------|-------:|---------------:|-------:|
+| intercept    | -8.363 |         -8.217 | -8.077 |
+| intervention | -0.572 |         -0.361 | -0.145 |
+| holiday      | -1.185 |         -0.794 | -0.432 |
 
 ``` r
+base_risk=(exp(res.poisson1[1,"Posterior mean"])*10^4)
+
 res1$accept
-#> [1] 0.9356
+#> [1] 0.9349
 ```
+
+The baseline risk is \`r base_risk’ and it is lower in holiday months as
+well as after the intervention.
 
 We then fit an alternative model with intercept, intervention effect,
 linear trend and seasonal dummy variables.
@@ -784,7 +792,7 @@ seas <- rbind(diag(1, 11), rep(-1, 11))
 seas.dummies <- matrix(rep(t(seas), 16), ncol = 11, byrow = TRUE)
 colnames(seas.dummies) <- c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul",
                             "Aug", "Sep", "Oct", "Nov")
-X.large <- cbind(X,
+X.large <- cbind(X[,-3],
                  lin.trend = 1:length(y),
                  seas.dummies)
 ```
@@ -796,38 +804,68 @@ distribution.
 parms.proposal2 <- gen.proposal.poisson(y, X.large, e, b0 = 0, B0 = 100)
 ```
 
-The we fit the model.
+Next we fit the model.
 
 ``` r
+set.seed(1234)
 res2 <- poisson(y, X.large, e, b0 = 0, B0 = 100,
                 qmean = parms.proposal2$mean, qvar = parms.proposal2$var)
-res.poisson2 <- t(rbind(apply(res2$beta.post, 2, res.mcmc),
-                        `exp(Mean)` = exp(colMeans(res2$beta.post))))
+res.poisson2 <- t(rbind(apply(res2$beta.post, 2, res.mcmc)))
 knitr::kable(round(res.poisson2, 3))
 ```
 
-|              |    2.5% | Posterior mean |  97.5% | exp(Mean) |
-|:-------------|--------:|---------------:|-------:|----------:|
-| intercept    |  -1.242 |          0.744 |  2.726 |     2.104 |
-| intervention |  -0.788 |         -0.350 |  0.055 |     0.705 |
-| holiday      | -12.037 |         -0.282 | 11.632 |     0.754 |
-| lin.trend    |  -0.004 |          0.000 |  0.004 |     1.000 |
-| Jan          |  -1.723 |          0.238 |  2.265 |     1.269 |
-| Feb          |  -2.391 |         -0.380 |  1.652 |     0.684 |
-| Mar          |  -1.976 |          0.058 |  2.085 |     1.060 |
-| Apr          |  -1.726 |          0.293 |  2.300 |     1.341 |
-| May          |  -2.306 |         -0.289 |  1.709 |     0.749 |
-| Jun          |  -1.596 |          0.373 |  2.365 |     1.451 |
-| Jul          | -10.284 |         -0.337 |  9.405 |     0.714 |
-| Aug          | -10.349 |         -0.468 |  9.246 |     0.626 |
-| Sep          |  -2.048 |         -0.036 |  1.976 |     0.965 |
-| Oct          |  -1.599 |          0.390 |  2.379 |     1.477 |
-| Nov          |  -1.984 |          0.017 |  2.040 |     1.017 |
+|              |   2.5% | Posterior mean |  97.5% |
+|:-------------|-------:|---------------:|-------:|
+| intercept    | -8.595 |         -8.361 | -8.133 |
+| intervention | -0.746 |         -0.321 |  0.103 |
+| lin.trend    | -0.004 |          0.000 |  0.003 |
+| Jan          | -0.059 |          0.285 |  0.595 |
+| Feb          | -0.778 |         -0.340 |  0.062 |
+| Mar          | -0.248 |          0.108 |  0.447 |
+| Apr          |  0.031 |          0.340 |  0.649 |
+| May          | -0.651 |         -0.242 |  0.147 |
+| Jun          |  0.109 |          0.413 |  0.705 |
+| Jul          | -1.049 |         -0.570 | -0.137 |
+| Aug          | -1.235 |         -0.700 | -0.234 |
+| Sep          | -0.359 |          0.008 |  0.351 |
+| Oct          |  0.123 |          0.439 |  0.737 |
+| Nov          | -0.300 |          0.061 |  0.392 |
+
+``` r
+
+(base_risk2=(exp(res.poisson2[1,"Posterior mean"])*10^4))
+#> [1] 2.337261
+
+eff_dec=-rowSums(res2$beta.post[, 4:14])
+(eff_dec.res <- round(c(quantile(eff_dec, probs=0.025),
+                        mean(eff_dec), 
+                        quantile(eff_dec, probs=0.975)),3))
+#>   2.5%         97.5% 
+#> -0.152  0.200  0.521
+```
+
+In Model 2 the estimated baseline risk is similar that from model 1 with
+0 dead or seriously injured children per 10 000 at risk. Also the
+estimated intervention effect is very similar in both models, indicating
+a reduction of the risk by a factor of 0.72 in model 2 (compared to a
+factor of 0.70 in model 1). The posterior mean for the linear trend
+effect is zero, and hence we can conclude that there is no linear trend.
+
+With respect to monthly effects, we see that there is a positive effect,
+i.e. an increased risk for a child in Linz to be killed or seriously
+injured in the months April, June and October, whereas it is
+considerably smaller in the holiday months July and August. As noted
+above, due to the sum to zero constraint the effect of December results
+as the negative of the sum of the effects of all other months.
 
 ``` r
 res2$accept
-#> [1] 0.7444
+#> [1] 0.7503
 ```
+
+The acceptance rate is 0.93 for the smaller model 1 with three
+parameters, but only 0.75 for model 2, where 14 parameters have to be
+estimated.
 
 ### Section 8.2.2: Negative binomial regression
 
@@ -959,10 +997,10 @@ knitr::kable(round(res.negbin.full, 3))
 
 |              |   2.5% | Posterior mean |  97.5% |
 |:-------------|-------:|---------------:|-------:|
-| intercept    |  0.721 |          0.865 |  1.004 |
-| intervention | -0.560 |         -0.349 | -0.140 |
-| holiday      | -1.179 |         -0.789 | -0.427 |
-| alpha        |  6.480 |         12.156 | 21.407 |
+| intercept    | -8.088 |         -8.005 | -7.965 |
+| intervention | -0.433 |         -0.356 | -0.236 |
+| holiday      | -0.930 |         -0.739 | -0.442 |
+| alpha        |  5.889 |         11.132 | 19.449 |
 
 ``` r
                
@@ -977,10 +1015,10 @@ knitr::kable(round(res.negbin.partial, 3))
 
 |              |   2.5% | Posterior mean |  97.5% |
 |:-------------|-------:|---------------:|-------:|
-| intercept    |  0.718 |          0.865 |  1.005 |
-| intervention | -0.559 |         -0.348 | -0.140 |
-| holiday      | -1.176 |         -0.788 | -0.428 |
-| alpha        |  6.493 |         12.458 | 21.495 |
+| intercept    | -8.055 |         -7.983 | -7.918 |
+| intervention | -0.562 |         -0.387 | -0.215 |
+| holiday      | -0.924 |         -0.850 | -0.622 |
+| alpha        |  5.681 |         10.866 | 19.037 |
 
 As expected estimation results using both samplers are rather similar.
 
@@ -988,9 +1026,9 @@ As expected estimation results using both samplers are rather similar.
 
 ``` r
 print(c(mean(res1$acc.beta), mean(res1$acc.alpha)))
-#> [1] 0.93708 0.70344
+#> [1] 0.00016 0.70136
 print(c(mean(res2$acc.beta), mean(res2$acc.alpha)))
-#> [1] 0.93574 0.89450
+#> [1] 0.00012 0.90092
 ```
 
 ``` r
@@ -1008,7 +1046,7 @@ qqplot(res1$alpha.post, res2$alpha.post, xlab = "Full Gibbs",
 abline(a = 0, b = 1)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-38-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-40-1.png)
 
 ## Section 8.3: Beyond i.i.d. Gaussian error distributions
 
@@ -1026,7 +1064,7 @@ plot(starsCYG, pch = 19, xlim = c(3, 5), ylim = c(3, 7),
      xlab = "log temperature", ylab = "log light intensity")
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-39-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-41-1.png)
 
 The four giant stars which can also be identified in the scatter plot
 have the following indices in the data set:
@@ -1078,7 +1116,7 @@ lines(xnew, preds_subset[, "lwr"], lty = 2)
 lines(xnew, preds_subset[, "upr"], lty = 2)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-42-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-44-1.png)
 
 #### Example 8.13: Star cluster data - heteroskedastic regression analysis with known outliers
 
@@ -1171,7 +1209,7 @@ lines(xnew, apply(pred_hetero, 1, quantile, 0.025), lty = 2)
 lines(xnew, apply(pred_hetero, 1, quantile, 0.975), lty = 2)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-47-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-49-1.png)
 
 #### Example 8.14: Star cluster data - regression analysis with Gaussian two-component mixture errors
 
@@ -1251,7 +1289,7 @@ lines(xnew, apply(preds_mix_1, 1, quantile, 0.025), lty = 2)
 lines(xnew, apply(preds_mix_1, 1, quantile, 0.975), lty = 2)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-52-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-54-1.png)
 
 We now assume that the indices of the giant stars are not known. We only
 assume that a two-component mixture is used as weight distribution where
@@ -1330,7 +1368,7 @@ lines(xnew, apply(preds_mix_2, 1, quantile, 0.025), lty = 2)
 lines(xnew, apply(preds_mix_2, 1, quantile, 0.975), lty = 2)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-55-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-57-1.png)
 
 Finally, we visualize again the mean and the 95%-HPD region together
 with the data points for the three modeling approaches: (1) a
@@ -1356,7 +1394,7 @@ lines(xnew, apply(preds_mix_2, 1, quantile, 0.025), lty = 2)
 lines(xnew, apply(preds_mix_2, 1, quantile, 0.975), lty = 2)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-56-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-58-1.png)
 
 The plot indicates that all three modeling approaches result in a fit
 that is robust to the outlying observations.
