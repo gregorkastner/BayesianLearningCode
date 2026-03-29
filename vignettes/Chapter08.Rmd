@@ -552,7 +552,7 @@ Linz.
 ```{r}
 data("accidents", package = "BayesianLearningCode")
 y <- accidents[, "children_accidents"]
-e <- rep(1, length(y))
+e <- accidents[, "children_exposure"]
 ```
 
 Then, we define the regressor matrix.
@@ -601,7 +601,7 @@ gen.proposal.poisson <- function(y, X, e, b0 = 0, B0 = 100, t.max = 20){
 }
 ```
 
-We use a rather flat normal prior on the regression effects.
+We use a rather flat normal prior $\Normal{mathbf{0}, 100 \mathbf{100}}$ on the regression effects and first determine the parameters of a Normal proposal distribution.
 
 ```{r}
 parms.proposal <- gen.proposal.poisson(y, X, e, b0 = 0, B0 = 100)
@@ -613,7 +613,7 @@ estimate the model parameters.
 
 ```{r}
 poisson <- function(y, X, e, b0 = 0, B0 = 100, qmean, qvar,
-                    burnin = 1000L, M = 5000L) {
+                    burnin = 1000L, M = 10000L) {
   d <- ncol(X)
   beta.post <- matrix(ncol = d, nrow = M)
   colnames(beta.post) <- colnames(X)
@@ -669,13 +669,20 @@ poisson <- function(y, X, e, b0 = 0, B0 = 100, qmean, qvar,
 ```
 
 ```{r}
+set.seed(1234)
 res1 <- poisson(y, X, e, b0 = 0, B0 = 100,
                 qmean = parms.proposal$mean, qvar = parms.proposal$var)
-res.poisson1 <- t(rbind(apply(res1$beta.post, 2, res.mcmc),
-                        `exp(Mean)` = exp(colMeans(res1$beta.post))))
+res.poisson1 <- t(apply(res1$beta.post, 2, res.mcmc))
+                       
 knitr::kable(round(res.poisson1, 3))
+```
+
+```{r}
+base_risk=(exp(res.poisson1[1,"Posterior mean"])*10^4)
+
 res1$accept
 ```
+The baseline risk is `r base_risk' and it is lower in holiday months as well as after the intervention.  
 
 We then fit an alternative model with intercept, intervention effect,
 linear trend and seasonal dummy variables.
@@ -685,7 +692,7 @@ seas <- rbind(diag(1, 11), rep(-1, 11))
 seas.dummies <- matrix(rep(t(seas), 16), ncol = 11, byrow = TRUE)
 colnames(seas.dummies) <- c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul",
                             "Aug", "Sep", "Oct", "Nov")
-X.large <- cbind(X,
+X.large <- cbind(X[,-3],
                  lin.trend = 1:length(y),
                  seas.dummies)
 ```
@@ -696,17 +703,33 @@ distribution.
 ```{r}
 parms.proposal2 <- gen.proposal.poisson(y, X.large, e, b0 = 0, B0 = 100)
 ```
-
-The we fit the model.
+Next we fit the model.
 
 ```{r}
+set.seed(1234)
 res2 <- poisson(y, X.large, e, b0 = 0, B0 = 100,
                 qmean = parms.proposal2$mean, qvar = parms.proposal2$var)
-res.poisson2 <- t(rbind(apply(res2$beta.post, 2, res.mcmc),
-                        `exp(Mean)` = exp(colMeans(res2$beta.post))))
+res.poisson2 <- t(rbind(apply(res2$beta.post, 2, res.mcmc)))
 knitr::kable(round(res.poisson2, 3))
+
+(base_risk2=(exp(res.poisson2[1,"Posterior mean"])*10^4))
+
+eff_dec=-rowSums(res2$beta.post[, 4:14])
+(eff_dec.res <- round(c(quantile(eff_dec, probs=0.025),
+                        mean(eff_dec), 
+                        quantile(eff_dec, probs=0.975)),3))
+```
+In Model 2 the estimated baseline risk is similar that from model 1  with `r round(exp(res.poisson2[1,2]),2)*10^4` dead or seriously injured children per 10 000 at risk.
+Also the estimated  intervention effect is very similar  in both models, indicating a reduction of the risk by a factor of 0.72 in model 2 (compared to a factor of 0.70 in model 1). The posterior mean for the linear trend effect is zero, and hence we can conclude that there is no linear trend. 
+
+With respect to monthly effects, we see that there is a positive effect, i.e. an increased risk for a child in Linz to be killed or seriously injured in the months April, June and October, whereas it is considerably smaller in the holiday months July and August.
+As noted above,  due to the sum to zero constraint the effect of December results as the negative of the sum of the effects of all other months.   
+
+```{r}
 res2$accept
 ```
+The  acceptance rate is `r round(res1$accept,2)` for the smaller model 1 with three parameters, but  only `r round(res2$accept,2)` for model 2, where 14 parameters
+have to be estimated. 
 
 ## Section 8.2.2: Negative binomial regression
 
