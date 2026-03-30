@@ -875,6 +875,15 @@ Now we analyze the road safety data allowing for unobserved
 heterogeneity. We first set up the two versions of the three-block
 MH-within-Gibbs sampler.
 
+Note that the negative binomial distribution in R is specified as
+$$p\left( y|\alpha,p \right) = \left( \frac{\alpha - 1 + y}{\alpha - 1} \right)p^{\alpha}(1 - p)^{y}$$
+or alternatively by the parameters $\alpha$ and its expected value
+$$\mu = \alpha(1 - p)/p.$$ The expected value of
+$p\left( y|\alpha,\beta \right)$ his given as
+$$\mu = \alpha\frac{\frac{1}{1 + \alpha/e\exp( - \mathbf{x}{\mathbf{β}})}}{\frac{\alpha/e\exp( - \mathbf{x}{\mathbf{β}})}{1 + \alpha/e\exp( - \mathbf{x}{\mathbf{β}})}} = e\exp(\mathbf{x}{\mathbf{β}}),$$
+and we will use $\alpha$ and $\mu$ to specify the negative binomial
+distribution.
+
 ``` r
 negbin <- function(y, X, e, b0 = 0, B0 = 100, qmean, qvar, pri.alpha,
                    full.gibbs = FALSE, burnin = 1000L, M = 50000L) {
@@ -915,12 +924,12 @@ negbin <- function(y, X, e, b0 = 0, B0 = 100, qmean, qvar, pri.alpha,
      lpri_old  <- mvtnorm::dmvnorm(beta.old,  mean = b0, sigma = B0, log = TRUE)
 
      # Compute log likelihood of proposed and old value
-     lh_proposed <- dpois(y, exp(X %*% beta.proposed),  log = TRUE)
-     lh_old  <- dpois(y, exp(X %*% beta.old), log = TRUE)
-
-     maxlik <- max(lh_old,lh_proposed)
+     lh_proposed <- dpois(y, e * exp(X %*% beta.proposed), log = TRUE)
+     lh_old  <- dpois(y, e * exp(X %*% beta.old), log = TRUE)
+    
+     maxlik <- max(lh_old, lh_proposed)
      ll <- sum(lh_proposed - maxlik) - sum(lh_old - maxlik)
-
+    
      # Compute acceptance probability and accept or not
      log_acc <- min(0, ll + lpri_proposed - lpri_old + lq_old - lq_proposed)
 
@@ -984,6 +993,7 @@ We specify the prior on $\alpha$ as the Gamma distribution with shape 2
 and rate 0.5 and use both samplers to estimate the model parameters.
 
 ``` r
+set.seed(1234)
 pri.alpha <- data.frame(shape = 2, rate = 0.5)
 
 res1 <- negbin(y, X, e, qmean = parms.proposal$mean, qvar = parms.proposal$var,
@@ -997,10 +1007,10 @@ knitr::kable(round(res.negbin.full, 3))
 
 |              |   2.5% | Posterior mean |  97.5% |
 |:-------------|-------:|---------------:|-------:|
-| intercept    | -8.088 |         -8.005 | -7.965 |
-| intervention | -0.433 |         -0.356 | -0.236 |
-| holiday      | -0.930 |         -0.739 | -0.442 |
-| alpha        |  5.889 |         11.132 | 19.449 |
+| intercept    | -8.361 |         -8.217 | -8.077 |
+| intervention | -0.571 |         -0.362 | -0.152 |
+| holiday      | -1.194 |         -0.792 | -0.426 |
+| alpha        |  6.526 |         12.292 | 21.164 |
 
 ``` r
                
@@ -1015,10 +1025,10 @@ knitr::kable(round(res.negbin.partial, 3))
 
 |              |   2.5% | Posterior mean |  97.5% |
 |:-------------|-------:|---------------:|-------:|
-| intercept    | -8.055 |         -7.983 | -7.918 |
-| intervention | -0.562 |         -0.387 | -0.215 |
-| holiday      | -0.924 |         -0.850 | -0.622 |
-| alpha        |  5.681 |         10.866 | 19.037 |
+| intercept    | -8.361 |         -8.217 | -8.078 |
+| intervention | -0.574 |         -0.361 | -0.153 |
+| holiday      | -1.186 |         -0.789 | -0.424 |
+| alpha        |  6.352 |         12.353 | 21.544 |
 
 As expected estimation results using both samplers are rather similar.
 
@@ -1026,9 +1036,9 @@ As expected estimation results using both samplers are rather similar.
 
 ``` r
 print(c(mean(res1$acc.beta), mean(res1$acc.alpha)))
-#> [1] 0.00016 0.70136
+#> [1] 0.93478 0.70528
 print(c(mean(res2$acc.beta), mean(res2$acc.alpha)))
-#> [1] 0.00012 0.90092
+#> [1] 0.93588 0.89602
 ```
 
 ``` r
