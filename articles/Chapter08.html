@@ -243,7 +243,7 @@ person, i.e., a 18 year old male blue collar worker who was employed in
 very low with a value of 0.0241 and even lower for a white collar
 worker. This risk is higher for a female, an older person and
 particularly high if the person was unemployed in 1997.</p>
-<p>Nex, we visualize the estimated posterior distributions for the
+<p>Next, we visualize the estimated posterior distributions for the
 regression effects by histograms.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">for</span> <span class="op">(</span><span class="va">j</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">betas</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
@@ -303,8 +303,8 @@ assess the efficiency of the sampler.</p>
 </tr>
 </tbody>
 </table>
-<p>The effective sample size is larger than 2759 for each regression
-effect, thus yielding inefficiency factors below 7.25.</p>
+<p>The effective sample size is at least 2759 for every regression
+effect, and hence all inefficiency factors are below 7.25.</p>
 <p>The sampler is easy to implement, however there might be problems
 when the response variable contains either only very few or very many
 successes.</p>
@@ -390,13 +390,16 @@ only failures.</p>
 <span><span class="co">#&gt;     0 250   0</span></span>
 <span><span class="co">#&gt;     1   0 250</span></span></code></pre></div>
 <p>We estimate the model parameters
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝛃</mi><mo>=</mo><msub><mi>β</mi><mn>0</mn></msub><mo>,</mo><msub><mi>β</mi><mn>1</mn></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\boldsymbol{\beta}= \beta_0, \beta_1)</annotation></semantics></math>
-under the Normal prior <span class="math inline">$\Normal{mathbf{0},
-10000\mathbf{I}}$</span> and run the sampler for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝛃</mi><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>β</mi><mn>0</mn></msub><mo>,</mo><msub><mi>β</mi><mn>1</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mi>′</mi></mrow><annotation encoding="application/x-tex">\boldsymbol{\beta}= (\beta_0, \beta_1)'</annotation></semantics></math>
+under the Normal prior with mean
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>𝟎</mn><annotation encoding="application/x-tex">\mathbf{0}</annotation></semantics></math>
+and variance matrix
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>10000</mn><mi>𝐈</mi></mrow><annotation encoding="application/x-tex">10000\mathbf{I}</annotation></semantics></math>
+and run the sampler for
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi><mo>=</mo><mn>20000</mn></mrow><annotation encoding="application/x-tex">M=20000</annotation></semantics></math>
 iterations after a burnin of 1000.</p>
-<p>From the plot of the ACF of the draws we see that auto are close to 1
-even at lag 40.</p>
+<p>From the plot of the ACF of the draws we see that autocorrelations
+are close to 1 even at lag 40.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1234</span><span class="op">)</span></span>
@@ -499,17 +502,18 @@ for all successes.</p>
 <span><span class="co">#&gt;          x.qus2 </span></span>
 <span><span class="co">#&gt;    2.58 3184.71</span></span></code></pre></div>
 <p>Autocorrelations of the intercept are low and close to zero for small
-lags but remain very high for the covariate effect. Hence we have a high
-ESS for the intercept (7748.6) and low for the covariate effect (6.28),
-resulting in an inefficiency factor of 2.58 for the intercept, but of
-3184.71 for the effect of the covariate.</p>
+lags but remain very high even at lag 40 for the covariate effect. Hence
+we have a high ESS for the intercept (7748.6) and a low for the
+covariate effect (6.28), resulting in an inefficiency factor of 2.58 for
+the intercept, but of 3184.71 for the effect of the covariate.</p>
 <p>High autocorrelations typically indicate problems with the sampler.
 If there is complete or quasi-complete separation in the data, the
 likelihood is monotone and the maximum likelihood estimate does not
 exist. In a Bayesian approach using a flat, improper prior on the
 regression effects will result in an improper posterior distribution.
 Hence, a proper prior is required to avoid improper posteriors in case
-of separation.</p>
+of separation and with a tighter prior we can shrink coefficients to
+zero.</p>
 <p>We now analyze the data of example 8.4. under the more informative
 prior
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝒩</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>𝟎</mn><mo>,</mo><mi>𝐈</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathcal{N}(\mathbf{0}, \mathbf{I})</annotation></semantics></math>.
@@ -519,11 +523,9 @@ and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mn>1</mn></msub><annotation encoding="application/x-tex">\beta_1</annotation></semantics></math>
 are in the interval
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mo>−</mo><mn>1.96</mn><mo>,</mo><mn>1.96</mn><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(-1.96, 1.96)</annotation></semantics></math>$
-with probability
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>0.95</mn><annotation encoding="application/x-tex">0.95</annotation></semantics></math>.</p>
-<p>We compare the estimation results to those from example 8.4, where
-the prior was
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝒩</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>𝟎</mn><mo>,</mo><mn>10000</mn><mi>𝐈</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathcal{N}(\mathbf{0}, 10000 \mathbf{I})</annotation></semantics></math>.</p>
+with probability $0.95. We compare the estimation results to those from
+example 8.4, where the prior variance was larger by a factor of
+10000.</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1234</span><span class="op">)</span></span>
 <span><span class="va">betas.sep1</span> <span class="op">&lt;-</span> <span class="fu">probit</span><span class="op">(</span><span class="va">y</span>, <span class="va">X.sep</span>, b0 <span class="op">=</span> <span class="fl">0</span>, B0 <span class="op">=</span> <span class="fl">1</span>, burnin <span class="op">=</span> <span class="fl">1000</span>, M <span class="op">=</span> <span class="va">M</span><span class="op">)</span></span>
@@ -605,8 +607,8 @@ the prior was
 </tr>
 </tbody>
 </table>
-<p>We see that with the tighter prior the estimates are more shrunk to
-zero, estimates ESSs are higher and inflation p</p>
+<p>We see that the tighter prior shrinks the estimates to zero,
+estimated ESSs are higher and inefficiency factors are lower.</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">betas.sep1</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span>, type <span class="op">=</span> <span class="st">"l"</span>, xlab <span class="op">=</span> <span class="st">"Draws after burnin"</span>, ylab <span class="op">=</span> <span class="va">labels</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></span>
@@ -675,10 +677,11 @@ using the two-block Polya-Gamma sampler.</p>
 <span> <span class="op">}</span></span>
 <span> <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="va">betas</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>We again use the flat independence normal prior on the regression
-effects and estimate the model. We summarize the posterior effect
-estimates and determine the risk of unemployment for a baseline person
-using the fitted logit model.</p>
+<p>We again use the Normaö prior with mean <span class="math inline">$\mathbf{\zerov}$</span> and covariance matrix
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>10000</mn><mi>𝐈</mi></mrow><annotation encoding="application/x-tex">10000 \mathbf{I}</annotation></semantics></math>
+on the regression effects and estimate the model. We summarize the
+posterior effect estimates and determine the risk of unemployment for a
+baseline person using the fitted logit model.</p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1234</span><span class="op">)</span></span>
 <span><span class="va">betas_logit</span> <span class="op">&lt;-</span> <span class="fu">logit</span><span class="op">(</span><span class="va">y.unemp</span>, <span class="va">X.unemp</span>, b0 <span class="op">=</span> <span class="fl">0</span>, B0 <span class="op">=</span> <span class="fl">10000</span><span class="op">)</span></span>
@@ -747,8 +750,8 @@ baseline person is 0.0241 in the probit model (compared to 0.0247 in the
 logit model).</p>
 <p>By multiplying the estimated coefficients in the probit model by
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>π</mi><mi>/</mi><msqrt><mn>3</mn></msqrt></mrow><annotation encoding="application/x-tex">\pi/\sqrt{3}</annotation></semantics></math>
-we can compare them to those of the logit model and we see that there is
-not much difference.</p>
+we can compare them to the estimates of the logit model and we see that
+there is not much difference.</p>
 <div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">res_probit.labour</span> <span class="op">*</span> <span class="va">pi</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
@@ -812,8 +815,8 @@ dummy (activated in July/August);</p></li>
 <li><p>a larger model with intercept, intervention effect, linear trend,
 and a seasonal pattern captured by monthly dummies.</p></li>
 </ol>
-<p>The sampler performance for these two models is assessed to study how
-the acceptance rate deteroriates, when the dimension of regression
+<p>The sampling performance for these two models is assessed to study
+how the acceptance rate deteroriates, when the dimension of regression
 effects
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>d</mi><annotation encoding="application/x-tex">d</annotation></semantics></math>
 increases.</p>
@@ -864,8 +867,9 @@ Newton-Raphson estimator described in Section 8.2.1.</p>
 <span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span>parms.proposal <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>mean <span class="op">=</span> <span class="va">qmean</span>,</span>
 <span>                               var <span class="op">=</span> <span class="va">qvar</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>We use a rather flat normal prior <span class="math inline">$\Normal{mathbf{0}, 100 \mathbf{100}}$</span> on the
-regression effects and first determine the parameters of a Normal
+<p>We use again rather flat normal independence prior
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝒩</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>𝟎</mn><mo>,</mo><mn>100</mn><mi>𝐈</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathcal{N}(\mathbf{0}, 100 \mathbf{I})</annotation></semantics></math>
+on the regression effects. First we determine the parameters of a Normal
 proposal distribution.</p>
 <div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">parms.proposal</span> <span class="op">&lt;-</span> <span class="fu">gen.proposal.poisson</span><span class="op">(</span><span class="va">y</span>, <span class="va">X</span>, <span class="va">e</span>, b0 <span class="op">=</span> <span class="fl">0</span>, B0 <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
@@ -881,7 +885,7 @@ proposal distribution.</p>
 <span><span class="co">#&gt; [1,]  0.005251979 -0.0049915918 -0.0031889269</span></span>
 <span><span class="co">#&gt; [2,] -0.004991592  0.0115517153  0.0002195915</span></span>
 <span><span class="co">#&gt; [3,] -0.003188927  0.0002195915  0.0364108173</span></span></code></pre></div>
-<p>Next we set up the independence Metropolis-Hastings algorithm and
+<p>Next we set up the independence Metropolis-Hastings algorithm to
 estimate the model parameters.</p>
 <div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">poisson</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">y</span>, <span class="va">X</span>, <span class="va">e</span>, <span class="va">b0</span> <span class="op">=</span> <span class="fl">0</span>, <span class="va">B0</span> <span class="op">=</span> <span class="fl">100</span>, <span class="va">qmean</span>, <span class="va">qvar</span>,</span>
@@ -974,12 +978,13 @@ estimate the model parameters.</p>
 </tbody>
 </table>
 <div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">base_risk</span><span class="op">=</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">res.poisson1</span><span class="op">[</span><span class="fl">1</span>,<span class="st">"Posterior mean"</span><span class="op">]</span><span class="op">)</span><span class="op">*</span><span class="fl">10</span><span class="op">^</span><span class="fl">4</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="op">(</span><span class="va">base_risk</span><span class="op">=</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">res.poisson1</span><span class="op">[</span><span class="fl">1</span>,<span class="st">"Posterior mean"</span><span class="op">]</span><span class="op">)</span><span class="op">*</span><span class="fl">10</span><span class="op">^</span><span class="fl">4</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 2.700796</span></span>
 <span></span>
 <span><span class="va">res1</span><span class="op">$</span><span class="va">accept</span></span>
 <span><span class="co">#&gt; [1] 0.9349</span></span></code></pre></div>
-<p>The baseline risk is `r base_risk’ and it is lower in holiday months
-as well as after the intervention.</p>
+<p>The baseline risk is 2.7 per 10000 children months and it is lower in
+holiday months as well as after the intervention.</p>
 <p>We then fit an alternative model with intercept, intervention effect,
 linear trend and seasonal dummy variables.</p>
 <div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
@@ -1107,18 +1112,18 @@ distribution.</p>
 <span><span class="co">#&gt;   2.5%         97.5% </span></span>
 <span><span class="co">#&gt; -0.152  0.200  0.521</span></span></code></pre></div>
 <p>In Model 2 the estimated baseline risk is similar that from model 1
-with 0 dead or seriously injured children per 10 000 at risk. Also the
+with 2.3 dead or seriously injured children per 10 000 at risk. Also the
 estimated intervention effect is very similar in both models, indicating
 a reduction of the risk by a factor of 0.72 in model 2 (compared to a
 factor of 0.70 in model 1). The posterior mean for the linear trend
 effect is zero, and hence we can conclude that there is no linear
 trend.</p>
-<p>With respect to monthly effects, we see that there is a positive
-effect, i.e. an increased risk for a child in Linz to be killed or
-seriously injured in the months April, June and October, whereas it is
-considerably smaller in the holiday months July and August. As noted
-above, due to the sum to zero constraint the effect of December results
-as the negative of the sum of the effects of all other months.</p>
+<p>With respect to monthly effects, we see that the effect has positive
+sign, which means an increased risk in the months April, June and
+October, whereas also the upper limit of the 95% HPD interval is
+negative, i.e. risk is loweron the holiday months July and August. As
+noted above, due to the sum to zero constraint the effect of December
+results as the negative sum of the effects of all other months.</p>
 <div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">res2</span><span class="op">$</span><span class="va">accept</span></span>
 <span><span class="co">#&gt; [1] 0.7503</span></span></code></pre></div>
@@ -1133,7 +1138,7 @@ estimated.</p>
 <div class="section level4">
 <h4 id="example-8-8-road-safety-data">Example 8.8: Road safety data<a class="anchor" aria-label="anchor" href="#example-8-8-road-safety-data"></a>
 </h4>
-<p>Now we analyze the road safety data allowing for unobserved
+<p>Now we re-analyze the road safety data allowing for unobserved
 heterogeneity. We first set up the two versions of the three-block
 MH-within-Gibbs sampler.</p>
 <p>Note that the negative binomial distribution in R is specified as
@@ -1144,7 +1149,7 @@ and its expected value
 <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>μ</mi><mo>=</mo><mi>α</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>p</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>/</mi><mi>p</mi><mi>.</mi></mrow><annotation encoding="application/x-tex">\mu=\alpha (1-p)/p.</annotation></semantics></math>
 The expected value of
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>y</mi><mo stretchy="false" form="prefix">|</mo><mi>α</mi><mo>,</mo><mi>β</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">p(y|\alpha, \beta)</annotation></semantics></math>
-his given as
+is given as
 <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>μ</mi><mo>=</mo><mi>α</mi><mfrac><mfrac><mn>1</mn><mrow><mn>1</mn><mo>+</mo><mi>α</mi><mi>/</mi><mi>e</mi><mo>exp</mo><mrow><mo stretchy="true" form="prefix">(</mo><mo>−</mo><mi>𝐱</mi><mi>𝛃</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow></mfrac><mfrac><mrow><mi>α</mi><mi>/</mi><mi>e</mi><mo>exp</mo><mrow><mo stretchy="true" form="prefix">(</mo><mo>−</mo><mi>𝐱</mi><mi>𝛃</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mrow><mn>1</mn><mo>+</mo><mi>α</mi><mi>/</mi><mi>e</mi><mo>exp</mo><mrow><mo stretchy="true" form="prefix">(</mo><mo>−</mo><mi>𝐱</mi><mi>𝛃</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow></mfrac></mfrac><mo>=</mo><mi>e</mi><mo>exp</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>𝐱</mi><mi>𝛃</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo></mrow><annotation encoding="application/x-tex">\mu=\alpha \frac{\frac{1}{1+\alpha/e \exp(- \mathbf{x}\boldsymbol{\beta})}}
 {\frac{\alpha/e \exp(- \mathbf{x}\boldsymbol{\beta})}{1+\alpha/e \exp(- \mathbf{x}\boldsymbol{\beta})}} = e \exp( \mathbf{x}\boldsymbol{\beta}),</annotation></semantics></math>
 and we will use
@@ -1176,7 +1181,7 @@ to specify the negative binomial distribution.</p>
 <span>  <span class="va">phi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">N</span><span class="op">)</span></span>
 <span>  </span>
 <span>  <span class="kw">for</span> <span class="op">(</span><span class="va">m</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">burnin</span> <span class="op">+</span> <span class="va">M</span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span>
-<span>     <span class="co"># Step 1: Draw beta  </span></span>
+<span>     <span class="co"># Step (a): Draw beta  </span></span>
 <span>     <span class="va">beta.old</span> <span class="op">&lt;-</span> <span class="va">beta</span></span>
 <span>     <span class="va">beta.proposed</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/vector.html" class="external-link">as.vector</a></span><span class="op">(</span><span class="fu">mvtnorm</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/mvtnorm/man/Mvnorm.html" class="external-link">rmvnorm</a></span><span class="op">(</span><span class="fl">1</span>, mean <span class="op">=</span> <span class="va">qmean</span>, sigma <span class="op">=</span> <span class="va">qvar</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -1210,7 +1215,7 @@ to specify the negative binomial distribution.</p>
 <span>     <span class="op">}</span></span>
 <span>     <span class="va">linpred</span> <span class="op">&lt;-</span> <span class="va">X</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="va">beta</span></span>
 <span></span>
-<span>     <span class="co"># Step 2: Sample alpha</span></span>
+<span>     <span class="co"># Step (b): Draw alpha</span></span>
 <span>     <span class="va">alpha.old</span> <span class="op">&lt;-</span> <span class="va">alpha</span></span>
 <span>     <span class="va">alpha.proposed</span> <span class="op">&lt;-</span> <span class="va">alpha.old</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">c_alpha</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span>     </span>
@@ -1240,7 +1245,7 @@ to specify the negative binomial distribution.</p>
 <span>        <span class="va">acc.a</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
 <span>     <span class="op">}</span></span>
 <span>   </span>
-<span>    <span class="co"># Step 3: Sample phi from its full conditional</span></span>
+<span>    <span class="co"># Step (c) : Draw phi from its full conditional</span></span>
 <span>    <span class="va">phi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html" class="external-link">rgamma</a></span><span class="op">(</span><span class="va">N</span>, shape <span class="op">=</span> <span class="va">alpha</span> <span class="op">+</span> <span class="va">y</span>, rate <span class="op">=</span> <span class="va">alpha</span> <span class="op">+</span> <span class="va">e</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">linpred</span><span class="op">)</span><span class="op">)</span></span>
 <span>    </span>
 <span>    <span class="co"># Save the draws</span></span>
@@ -1255,20 +1260,34 @@ to specify the negative binomial distribution.</p>
 <span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span>res <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>beta.post <span class="op">=</span> <span class="va">beta.post</span>, acc.beta <span class="op">=</span> <span class="va">acc.beta</span>,</span>
 <span>                    alpha.post <span class="op">=</span> <span class="va">alpha.post</span>,acc.alpha <span class="op">=</span> <span class="va">acc.alpha</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>We specify the prior on
+<p>We use the same Normal prior as in the Poisson model for the
+regression effects
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝛃</mi><annotation encoding="application/x-tex">\boldsymbol{\beta}</annotation></semantics></math>
+and a Gamma prior
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝒢</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>2</mn><mo>,</mo><mn>0.5</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathcal{G}(2 , 0.5)</annotation></semantics></math>
+for
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>α</mi><annotation encoding="application/x-tex">\alpha</annotation></semantics></math>
-as the Gamma distribution with shape 2 and rate 0.5 and use both
-samplers to estimate the model parameters.</p>
+and run both samplers for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi><mo>=</mo><mn>50</mn><mo>,</mo><mn>000</mn></mrow><annotation encoding="application/x-tex">M=50,000</annotation></semantics></math>
+iterations after a burn-in of 1000.</p>
 <div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1234</span><span class="op">)</span></span>
 <span><span class="va">pri.alpha</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>shape <span class="op">=</span> <span class="fl">2</span>, rate <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span>
+<span><span class="va">M</span><span class="op">=</span><span class="fl">50000L</span></span>
 <span></span>
+<span><span class="co"># Full Gibbs sampler</span></span>
 <span><span class="va">res1</span> <span class="op">&lt;-</span> <span class="fu">negbin</span><span class="op">(</span><span class="va">y</span>, <span class="va">X</span>, <span class="va">e</span>, qmean <span class="op">=</span> <span class="va">parms.proposal</span><span class="op">$</span><span class="va">mean</span>, qvar <span class="op">=</span> <span class="va">parms.proposal</span><span class="op">$</span><span class="va">var</span>,</span>
-<span>               pri.alpha <span class="op">=</span> <span class="va">pri.alpha</span>, full.gibbs <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span>               pri.alpha <span class="op">=</span> <span class="va">pri.alpha</span>, full.gibbs <span class="op">=</span> <span class="cn">TRUE</span>, M <span class="op">=</span><span class="va">M</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">res.negbin.full</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">res1</span><span class="op">$</span><span class="va">beta.post</span>, <span class="fl">2</span>, <span class="va">res.mcmc</span><span class="op">)</span><span class="op">)</span>, </span>
 <span>                         <span class="fu">res.mcmc</span><span class="op">(</span><span class="va">res1</span><span class="op">$</span><span class="va">alpha.post</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">res.negbin.full</span><span class="op">)</span><span class="op">[</span><span class="fl">4</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"alpha"</span></span>
+<span></span>
+<span><span class="va">ess.beta1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/coda/man/effectiveSize.html" class="external-link">effectiveSize</a></span><span class="op">(</span><span class="va">res1</span><span class="op">$</span><span class="va">beta.post</span><span class="op">)</span></span>
+<span><span class="va">ess.alpha1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/coda/man/effectiveSize.html" class="external-link">effectiveSize</a></span><span class="op">(</span><span class="va">res1</span><span class="op">$</span><span class="va">alpha.post</span><span class="op">)</span></span>
+<span><span class="va">ineff.res1</span> <span class="op">&lt;-</span>  <span class="va">M</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">ess.beta1</span>, <span class="va">ess.alpha1</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">res.negbin.full</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">res.negbin.full</span>, inefficiency<span class="op">=</span><span class="va">ineff.res1</span><span class="op">)</span></span>
 <span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">res.negbin.full</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
@@ -1276,6 +1295,7 @@ samplers to estimate the model parameters.</p>
 <th align="right">2.5%</th>
 <th align="right">Posterior mean</th>
 <th align="right">97.5%</th>
+<th align="right">inefficiency</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
@@ -1283,35 +1303,49 @@ samplers to estimate the model parameters.</p>
 <td align="right">-8.361</td>
 <td align="right">-8.217</td>
 <td align="right">-8.077</td>
+<td align="right">1.232</td>
 </tr>
 <tr class="even">
 <td align="left">intervention</td>
 <td align="right">-0.571</td>
 <td align="right">-0.362</td>
 <td align="right">-0.152</td>
+<td align="right">1.224</td>
 </tr>
 <tr class="odd">
 <td align="left">holiday</td>
 <td align="right">-1.194</td>
 <td align="right">-0.792</td>
 <td align="right">-0.426</td>
+<td align="right">2.211</td>
 </tr>
 <tr class="even">
 <td align="left">alpha</td>
 <td align="right">6.526</td>
 <td align="right">12.292</td>
 <td align="right">21.164</td>
+<td align="right">73.778</td>
 </tr>
 </tbody>
 </table>
 <div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span>               </span>
+<code class="sourceCode R"><span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">res1</span><span class="op">$</span><span class="va">acc.beta</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">res1</span><span class="op">$</span><span class="va">acc.alpha</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 0.93478 0.70528</span></span>
+<span></span>
+<span><span class="co"># Partially  marginalised sampler               </span></span>
 <span><span class="va">res2</span> <span class="op">&lt;-</span> <span class="fu">negbin</span><span class="op">(</span><span class="va">y</span>, <span class="va">X</span>, <span class="va">e</span>, qmean <span class="op">=</span> <span class="va">parms.proposal</span><span class="op">$</span><span class="va">mean</span>, qvar <span class="op">=</span> <span class="va">parms.proposal</span><span class="op">$</span><span class="va">var</span>,</span>
-<span>               pri.alpha <span class="op">=</span> <span class="va">pri.alpha</span>, full.gibbs <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span>               pri.alpha <span class="op">=</span> <span class="va">pri.alpha</span>, full.gibbs <span class="op">=</span> <span class="cn">FALSE</span>, M <span class="op">=</span> <span class="va">M</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">res.negbin.partial</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">res2</span><span class="op">$</span><span class="va">beta.post</span>, <span class="fl">2</span>, <span class="va">res.mcmc</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>                            <span class="fu">res.mcmc</span><span class="op">(</span><span class="va">res2</span><span class="op">$</span><span class="va">alpha.post</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">res.negbin.partial</span><span class="op">)</span><span class="op">[</span><span class="fl">4</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"alpha"</span></span>
+<span></span>
+<span><span class="va">ess.beta2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/coda/man/effectiveSize.html" class="external-link">effectiveSize</a></span><span class="op">(</span><span class="va">res2</span><span class="op">$</span><span class="va">beta.post</span><span class="op">)</span></span>
+<span><span class="va">ess.alpha2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/coda/man/effectiveSize.html" class="external-link">effectiveSize</a></span><span class="op">(</span><span class="va">res2</span><span class="op">$</span><span class="va">alpha.post</span><span class="op">)</span></span>
+<span><span class="va">ineff.res2</span> <span class="op">&lt;-</span>  <span class="va">M</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">ess.beta2</span>, <span class="va">ess.alpha2</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">res.negbin.partial</span><span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">res.negbin.partial</span>, inefficiency<span class="op">=</span><span class="va">ineff.res2</span><span class="op">)</span></span>
 <span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">res.negbin.partial</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
@@ -1319,6 +1353,7 @@ samplers to estimate the model parameters.</p>
 <th align="right">2.5%</th>
 <th align="right">Posterior mean</th>
 <th align="right">97.5%</th>
+<th align="right">inefficiency</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
@@ -1326,39 +1361,52 @@ samplers to estimate the model parameters.</p>
 <td align="right">-8.361</td>
 <td align="right">-8.217</td>
 <td align="right">-8.078</td>
+<td align="right">1.224</td>
 </tr>
 <tr class="even">
 <td align="left">intervention</td>
 <td align="right">-0.574</td>
 <td align="right">-0.361</td>
 <td align="right">-0.153</td>
+<td align="right">1.202</td>
 </tr>
 <tr class="odd">
 <td align="left">holiday</td>
 <td align="right">-1.186</td>
 <td align="right">-0.789</td>
 <td align="right">-0.424</td>
+<td align="right">1.420</td>
 </tr>
 <tr class="even">
 <td align="left">alpha</td>
 <td align="right">6.352</td>
 <td align="right">12.353</td>
 <td align="right">21.544</td>
+<td align="right">48.180</td>
 </tr>
 </tbody>
 </table>
-<p>As expected estimation results using both samplers are rather
-similar.</p>
+<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">res2</span><span class="op">$</span><span class="va">acc.beta</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">res2</span><span class="op">$</span><span class="va">acc.alpha</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 0.93588 0.89602</span></span></code></pre></div>
+<p>Both samplers yield essentially the same estimation results, which is
+to be expected, since both target the same posterior distribution. The
+overdispersion parameter
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>α</mi><annotation encoding="application/x-tex">\alpha</annotation></semantics></math>
+has a posterior mean of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mspace width="0.222em"></mspace><mn>12.3</mn></mrow><annotation encoding="application/x-tex">~12.3</annotation></semantics></math>,
+which means that overdispersion is not very pronounced.</p>
+<p>The two sampler differ, however particularly w.r.t. the inefficiency
+of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>α</mi><annotation encoding="application/x-tex">\alpha</annotation></semantics></math>
+which has a value of 73.78 in the full sampler, but is smaller with a
+value of 48.18 for the partially marginalised Gibbs sampler.</p>
 </div>
 </div>
 <div class="section level3">
 <h3 id="section-8-2-3-evaluating-mcmc-samplers">Section 8.2.3: Evaluating MCMC samplers<a class="anchor" aria-label="anchor" href="#section-8-2-3-evaluating-mcmc-samplers"></a>
 </h3>
-<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">res1</span><span class="op">$</span><span class="va">acc.beta</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">res1</span><span class="op">$</span><span class="va">acc.alpha</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.93478 0.70528</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">res2</span><span class="op">$</span><span class="va">acc.beta</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">res2</span><span class="op">$</span><span class="va">acc.alpha</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.93588 0.89602</span></span></code></pre></div>
 <div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="va">pdfplots</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/grDevices/pdf.html" class="external-link">pdf</a></span><span class="op">(</span><span class="st">"8-2_1.pdf"</span>, width <span class="op">=</span> <span class="fl">8</span>, height <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
@@ -1372,7 +1420,7 @@ similar.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/qqnorm.html" class="external-link">qqplot</a></span><span class="op">(</span><span class="va">res1</span><span class="op">$</span><span class="va">alpha.post</span>, <span class="va">res2</span><span class="op">$</span><span class="va">alpha.post</span>, xlab <span class="op">=</span> <span class="st">"Full Gibbs"</span>,</span>
 <span>       ylab <span class="op">=</span> <span class="st">"Partial Gibbs"</span>, main <span class="op">=</span> <span class="st">"Alpha"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>a <span class="op">=</span> <span class="fl">0</span>, b <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Chapter08_files/figure-html/unnamed-chunk-40-1.png" class="r-plt" alt="" width="768"></p>
+<p><img src="Chapter08_files/figure-html/unnamed-chunk-39-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 </div>
 <div class="section level2">
@@ -1391,7 +1439,7 @@ visualize it in a scatter plot:</p>
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"starsCYG"</span>, package <span class="op">=</span> <span class="st">"robustbase"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">starsCYG</span>, pch <span class="op">=</span> <span class="fl">19</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">5</span><span class="op">)</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">7</span><span class="op">)</span>,</span>
 <span>     xlab <span class="op">=</span> <span class="st">"log temperature"</span>, ylab <span class="op">=</span> <span class="st">"log light intensity"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Chapter08_files/figure-html/unnamed-chunk-41-1.png" class="r-plt" alt="" width="768"></p>
+<p><img src="Chapter08_files/figure-html/unnamed-chunk-40-1.png" class="r-plt" alt="" width="768"></p>
 <p>The four giant stars which can also be identified in the scatter plot
 have the following indices in the data set:</p>
 <div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
@@ -1446,7 +1494,7 @@ and only the subset without the giant stars (right).</p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">xnew</span>, <span class="va">preds_subset</span><span class="op">[</span>, <span class="st">"fit"</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">xnew</span>, <span class="va">preds_subset</span><span class="op">[</span>, <span class="st">"lwr"</span><span class="op">]</span>, lty <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">xnew</span>, <span class="va">preds_subset</span><span class="op">[</span>, <span class="st">"upr"</span><span class="op">]</span>, lty <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Chapter08_files/figure-html/unnamed-chunk-44-1.png" class="r-plt" alt="" width="768"></p>
+<p><img src="Chapter08_files/figure-html/unnamed-chunk-43-1.png" class="r-plt" alt="" width="768"></p>
 <div class="section level4">
 <h4 id="example-8-13-star-cluster-data---heteroskedastic-regression-analysis-with-known-outliers">Example 8.13: Star cluster data - heteroskedastic regression
 analysis with known outliers<a class="anchor" aria-label="anchor" href="#example-8-13-star-cluster-data---heteroskedastic-regression-analysis-with-known-outliers"></a>
@@ -1527,7 +1575,7 @@ from the predictive distributions for new observations with
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">xnew</span>, <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="va">pred_hetero</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">xnew</span>, <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">pred_hetero</span>, <span class="fl">1</span>, <span class="va">quantile</span>, <span class="fl">0.025</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">xnew</span>, <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">pred_hetero</span>, <span class="fl">1</span>, <span class="va">quantile</span>, <span class="fl">0.975</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Chapter08_files/figure-html/unnamed-chunk-49-1.png" class="r-plt" alt="" width="768"></p>
+<p><img src="Chapter08_files/figure-html/unnamed-chunk-48-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 <div class="section level4">
 <h4 id="example-8-14-star-cluster-data---regression-analysis-with-gaussian-two-component-mixture-errors">Example 8.14: Star cluster data - regression analysis with Gaussian
@@ -1599,7 +1647,7 @@ observations.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">xnew</span>, <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="va">preds_mix_1</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">xnew</span>, <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">preds_mix_1</span>, <span class="fl">1</span>, <span class="va">quantile</span>, <span class="fl">0.025</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">xnew</span>, <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">preds_mix_1</span>, <span class="fl">1</span>, <span class="va">quantile</span>, <span class="fl">0.975</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Chapter08_files/figure-html/unnamed-chunk-54-1.png" class="r-plt" alt="" width="768"></p>
+<p><img src="Chapter08_files/figure-html/unnamed-chunk-53-1.png" class="r-plt" alt="" width="768"></p>
 <p>We now assume that the indices of the giant stars are not known. We
 only assume that a two-component mixture is used as weight distribution
 where the weights are given by
@@ -1672,7 +1720,7 @@ for the component size.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">xnew</span>, <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="va">preds_mix_2</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">xnew</span>, <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">preds_mix_2</span>, <span class="fl">1</span>, <span class="va">quantile</span>, <span class="fl">0.025</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">xnew</span>, <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">preds_mix_2</span>, <span class="fl">1</span>, <span class="va">quantile</span>, <span class="fl">0.975</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Chapter08_files/figure-html/unnamed-chunk-57-1.png" class="r-plt" alt="" width="768"></p>
+<p><img src="Chapter08_files/figure-html/unnamed-chunk-56-1.png" class="r-plt" alt="" width="768"></p>
 <p>Finally, we visualize again the mean and the 95%-HPD region together
 with the data points for the three modeling approaches: (1) a
 heteroskedastic regression analysis with known outliers, (2) a Gaussian
@@ -1694,7 +1742,7 @@ two-component mixture where the component size is unknown.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">xnew</span>, <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="va">preds_mix_2</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">xnew</span>, <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">preds_mix_2</span>, <span class="fl">1</span>, <span class="va">quantile</span>, <span class="fl">0.025</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">xnew</span>, <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">preds_mix_2</span>, <span class="fl">1</span>, <span class="va">quantile</span>, <span class="fl">0.975</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Chapter08_files/figure-html/unnamed-chunk-58-1.png" class="r-plt" alt="" width="768"></p>
+<p><img src="Chapter08_files/figure-html/unnamed-chunk-57-1.png" class="r-plt" alt="" width="768"></p>
 <p>The plot indicates that all three modeling approaches result in a fit
 that is robust to the outlying observations.</p>
 </div>

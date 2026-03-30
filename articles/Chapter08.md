@@ -156,7 +156,7 @@ very low with a value of 0.0241 and even lower for a white collar
 worker. This risk is higher for a female, an older person and
 particularly high if the person was unemployed in 1997.
 
-Nex, we visualize the estimated posterior distributions for the
+Next, we visualize the estimated posterior distributions for the
 regression effects by histograms.
 
 ``` r
@@ -201,8 +201,8 @@ knitr::kable(res_eff)
 | wcollar   | 3558.7 |  5.62 |
 | unemp97   | 3615.4 |  5.53 |
 
-The effective sample size is larger than 2759 for each regression
-effect, thus yielding inefficiency factors below 7.25.
+The effective sample size is at least 2759 for every regression effect,
+and hence all inefficiency factors are below 7.25.
 
 The sampler is easy to implement, however there might be problems when
 the response variable contains either only very few or very many
@@ -291,12 +291,14 @@ table(x.sep, y)
 #>     1   0 250
 ```
 
-We estimate the model parameters ${\mathbf{β}} = \beta_{0},\beta_{1})$
-under the Normal prior \$\Normal{mathbf{0}, 10000\mathbf{I}}\$ and run
-the sampler for $M = 20000$ iterations after a burnin of 1000.
+We estimate the model parameters
+${\mathbf{β}} = \left( \beta_{0},\beta_{1} \right)\prime$ under the
+Normal prior with mean $\mathbf{0}$ and variance matrix
+$10000\mathbf{I}$ and run the sampler for $M = 20000$ iterations after a
+burnin of 1000.
 
-From the plot of the ACF of the draws we see that auto are close to 1
-even at lag 40.
+From the plot of the ACF of the draws we see that autocorrelations are
+close to 1 even at lag 40.
 
 ``` r
 
@@ -410,10 +412,10 @@ acf(betas.qus2[, 2], ylab = "empirical ACF")
 ```
 
 Autocorrelations of the intercept are low and close to zero for small
-lags but remain very high for the covariate effect. Hence we have a high
-ESS for the intercept (7748.6) and low for the covariate effect (6.28),
-resulting in an inefficiency factor of 2.58 for the intercept, but of
-3184.71 for the effect of the covariate.
+lags but remain very high even at lag 40 for the covariate effect. Hence
+we have a high ESS for the intercept (7748.6) and a low for the
+covariate effect (6.28), resulting in an inefficiency factor of 2.58 for
+the intercept, but of 3184.71 for the effect of the covariate.
 
 High autocorrelations typically indicate problems with the sampler. If
 there is complete or quasi-complete separation in the data, the
@@ -421,15 +423,15 @@ likelihood is monotone and the maximum likelihood estimate does not
 exist. In a Bayesian approach using a flat, improper prior on the
 regression effects will result in an improper posterior distribution.
 Hence, a proper prior is required to avoid improper posteriors in case
-of separation.
+of separation and with a tighter prior we can shrink coefficients to
+zero.
 
 We now analyze the data of example 8.4. under the more informative prior
 $\mathcal{N}(\mathbf{0},\mathbf{I})$. This prior distribution encodes
 the prior believe that $\beta_{0}$ and $\beta_{1}$ are in the interval
-$( - 1.96,1.96)$\$ with probability $0.95$.
-
-We compare the estimation results to those from example 8.4, where the
-prior was $\mathcal{N}(\mathbf{0},10000\mathbf{I})$.
+$( - 1.96,1.96)$\$ with probability \$0.95. We compare the estimation
+results to those from example 8.4, where the prior variance was larger
+by a factor of 10000.
 
 ``` r
 set.seed(1234)
@@ -470,8 +472,8 @@ knitr:: kable(res.sep1)
 | Intercept | -2.85 |          -2.35 | -1.92 | 707.91 |        28.25 |
 | X         |  4.21 |           4.88 |  5.62 | 604.79 |        33.07 |
 
-We see that with the tighter prior the estimates are more shrunk to
-zero, estimates ESSs are higher and inflation p
+We see that the tighter prior shrinks the estimates to zero, estimated
+ESSs are higher and inefficiency factors are lower.
 
 ``` r
 
@@ -544,10 +546,11 @@ logit <- function(y, X, b0 = 0, B0 = 10000,
 }
 ```
 
-We again use the flat independence normal prior on the regression
-effects and estimate the model. We summarize the posterior effect
-estimates and determine the risk of unemployment for a baseline person
-using the fitted logit model.
+We again use the Normaö prior with mean \$\mathbf{\zerov}\$ and
+covariance matrix $10000\mathbf{I}$ on the regression effects and
+estimate the model. We summarize the posterior effect estimates and
+determine the risk of unemployment for a baseline person using the
+fitted logit model.
 
 ``` r
 set.seed(1234)
@@ -589,8 +592,8 @@ e.g., the estimated probability to be unemployed for a baseline person
 is 0.0241 in the probit model (compared to 0.0247 in the logit model).
 
 By multiplying the estimated coefficients in the probit model by
-$\pi/\sqrt{3}$ we can compare them to those of the logit model and we
-see that there is not much difference.
+$\pi/\sqrt{3}$ we can compare them to the estimates of the logit model
+and we see that there is not much difference.
 
 ``` r
 knitr::kable(round(res_probit.labour * pi / sqrt(3), 3))
@@ -620,7 +623,7 @@ Example 2.1:
 2.  a larger model with intercept, intervention effect, linear trend,
     and a seasonal pattern captured by monthly dummies.
 
-The sampler performance for these two models is assessed to study how
+The sampling performance for these two models is assessed to study how
 the acceptance rate deteroriates, when the dimension of regression
 effects $d$ increases.
 
@@ -679,9 +682,9 @@ gen.proposal.poisson <- function(y, X, e, b0 = 0, B0 = 100, t.max = 20){
 }
 ```
 
-We use a rather flat normal prior \$\Normal{mathbf{0}, 100
-\mathbf{100}}\$ on the regression effects and first determine the
-parameters of a Normal proposal distribution.
+We use again rather flat normal independence prior
+$\mathcal{N}(\mathbf{0},100\mathbf{I})$ on the regression effects. First
+we determine the parameters of a Normal proposal distribution.
 
 ``` r
 parms.proposal <- gen.proposal.poisson(y, X, e, b0 = 0, B0 = 100)
@@ -699,7 +702,7 @@ parms.proposal
 #> [3,] -0.003188927  0.0002195915  0.0364108173
 ```
 
-Next we set up the independence Metropolis-Hastings algorithm and
+Next we set up the independence Metropolis-Hastings algorithm to
 estimate the model parameters.
 
 ``` r
@@ -775,14 +778,15 @@ knitr::kable(round(res.poisson1, 3))
 | holiday      | -1.185 |         -0.794 | -0.432 |
 
 ``` r
-base_risk=(exp(res.poisson1[1,"Posterior mean"])*10^4)
+(base_risk=(exp(res.poisson1[1,"Posterior mean"])*10^4))
+#> [1] 2.700796
 
 res1$accept
 #> [1] 0.9349
 ```
 
-The baseline risk is \`r base_risk’ and it is lower in holiday months as
-well as after the intervention.
+The baseline risk is 2.7 per 10000 children months and it is lower in
+holiday months as well as after the intervention.
 
 We then fit an alternative model with intercept, intervention effect,
 linear trend and seasonal dummy variables.
@@ -845,18 +849,18 @@ eff_dec=-rowSums(res2$beta.post[, 4:14])
 ```
 
 In Model 2 the estimated baseline risk is similar that from model 1 with
-0 dead or seriously injured children per 10 000 at risk. Also the
+2.3 dead or seriously injured children per 10 000 at risk. Also the
 estimated intervention effect is very similar in both models, indicating
 a reduction of the risk by a factor of 0.72 in model 2 (compared to a
 factor of 0.70 in model 1). The posterior mean for the linear trend
 effect is zero, and hence we can conclude that there is no linear trend.
 
-With respect to monthly effects, we see that there is a positive effect,
-i.e. an increased risk for a child in Linz to be killed or seriously
-injured in the months April, June and October, whereas it is
-considerably smaller in the holiday months July and August. As noted
-above, due to the sum to zero constraint the effect of December results
-as the negative of the sum of the effects of all other months.
+With respect to monthly effects, we see that the effect has positive
+sign, which means an increased risk in the months April, June and
+October, whereas also the upper limit of the 95% HPD interval is
+negative, i.e. risk is loweron the holiday months July and August. As
+noted above, due to the sum to zero constraint the effect of December
+results as the negative sum of the effects of all other months.
 
 ``` r
 res2$accept
@@ -871,7 +875,7 @@ estimated.
 
 #### Example 8.8: Road safety data
 
-Now we analyze the road safety data allowing for unobserved
+Now we re-analyze the road safety data allowing for unobserved
 heterogeneity. We first set up the two versions of the three-block
 MH-within-Gibbs sampler.
 
@@ -879,7 +883,7 @@ Note that the negative binomial distribution in R is specified as
 $$p\left( y|\alpha,p \right) = \left( \frac{\alpha - 1 + y}{\alpha - 1} \right)p^{\alpha}(1 - p)^{y}$$
 or alternatively by the parameters $\alpha$ and its expected value
 $$\mu = \alpha(1 - p)/p.$$ The expected value of
-$p\left( y|\alpha,\beta \right)$ his given as
+$p\left( y|\alpha,\beta \right)$ is given as
 $$\mu = \alpha\frac{\frac{1}{1 + \alpha/e\exp( - \mathbf{x}{\mathbf{β}})}}{\frac{\alpha/e\exp( - \mathbf{x}{\mathbf{β}})}{1 + \alpha/e\exp( - \mathbf{x}{\mathbf{β}})}} = e\exp(\mathbf{x}{\mathbf{β}}),$$
 and we will use $\alpha$ and $\mu$ to specify the negative binomial
 distribution.
@@ -908,7 +912,7 @@ negbin <- function(y, X, e, b0 = 0, B0 = 100, qmean, qvar, pri.alpha,
   phi <- rep(1, N)
   
   for (m in seq_len(burnin + M)){
-     # Step 1: Draw beta  
+     # Step (a): Draw beta  
      beta.old <- beta
      beta.proposed <- as.vector(mvtnorm::rmvnorm(1, mean = qmean, sigma = qvar))
 
@@ -942,7 +946,7 @@ negbin <- function(y, X, e, b0 = 0, B0 = 100, qmean, qvar, pri.alpha,
      }
      linpred <- X %*% beta
 
-     # Step 2: Sample alpha
+     # Step (b): Draw alpha
      alpha.old <- alpha
      alpha.proposed <- alpha.old * exp(c_alpha * rnorm(1))
      
@@ -972,7 +976,7 @@ negbin <- function(y, X, e, b0 = 0, B0 = 100, qmean, qvar, pri.alpha,
         acc.a <- 0
      }
    
-    # Step 3: Sample phi from its full conditional
+    # Step (c) : Draw phi from its full conditional
     phi <- rgamma(N, shape = alpha + y, rate = alpha + e * exp(linpred))
     
     # Save the draws
@@ -989,57 +993,83 @@ negbin <- function(y, X, e, b0 = 0, B0 = 100, qmean, qvar, pri.alpha,
 }
 ```
 
-We specify the prior on $\alpha$ as the Gamma distribution with shape 2
-and rate 0.5 and use both samplers to estimate the model parameters.
+We use the same Normal prior as in the Poisson model for the regression
+effects $\mathbf{β}$ and a Gamma prior $\mathcal{G}(2,0.5)$ for $\alpha$
+and run both samplers for $M = 50,000$ iterations after a burn-in of
+1000.
 
 ``` r
 set.seed(1234)
 pri.alpha <- data.frame(shape = 2, rate = 0.5)
+M=50000L
 
+# Full Gibbs sampler
 res1 <- negbin(y, X, e, qmean = parms.proposal$mean, qvar = parms.proposal$var,
-               pri.alpha = pri.alpha, full.gibbs = TRUE)
+               pri.alpha = pri.alpha, full.gibbs = TRUE, M =M)
 
 res.negbin.full <- rbind(t(apply(res1$beta.post, 2, res.mcmc)), 
                          res.mcmc(res1$alpha.post))
 rownames(res.negbin.full)[4] <- "alpha"
+
+ess.beta1 <- effectiveSize(res1$beta.post)
+ess.alpha1 <- effectiveSize(res1$alpha.post)
+ineff.res1 <-  M/c(ess.beta1, ess.alpha1)
+
+res.negbin.full <- cbind(res.negbin.full, inefficiency=ineff.res1)
 knitr::kable(round(res.negbin.full, 3))
 ```
 
-|              |   2.5% | Posterior mean |  97.5% |
-|:-------------|-------:|---------------:|-------:|
-| intercept    | -8.361 |         -8.217 | -8.077 |
-| intervention | -0.571 |         -0.362 | -0.152 |
-| holiday      | -1.194 |         -0.792 | -0.426 |
-| alpha        |  6.526 |         12.292 | 21.164 |
+|              |   2.5% | Posterior mean |  97.5% | inefficiency |
+|:-------------|-------:|---------------:|-------:|-------------:|
+| intercept    | -8.361 |         -8.217 | -8.077 |        1.232 |
+| intervention | -0.571 |         -0.362 | -0.152 |        1.224 |
+| holiday      | -1.194 |         -0.792 | -0.426 |        2.211 |
+| alpha        |  6.526 |         12.292 | 21.164 |       73.778 |
 
 ``` r
-               
+
+c(mean(res1$acc.beta), mean(res1$acc.alpha))
+#> [1] 0.93478 0.70528
+
+# Partially  marginalised sampler               
 res2 <- negbin(y, X, e, qmean = parms.proposal$mean, qvar = parms.proposal$var,
-               pri.alpha = pri.alpha, full.gibbs = FALSE)
+               pri.alpha = pri.alpha, full.gibbs = FALSE, M = M)
 
 res.negbin.partial <- rbind(t(apply(res2$beta.post, 2, res.mcmc)),
                             res.mcmc(res2$alpha.post))
 rownames(res.negbin.partial)[4] <- "alpha"
+
+ess.beta2 <- effectiveSize(res2$beta.post)
+ess.alpha2 <- effectiveSize(res2$alpha.post)
+ineff.res2 <-  M/c(ess.beta2, ess.alpha2)
+
+res.negbin.partial<- cbind(res.negbin.partial, inefficiency=ineff.res2)
 knitr::kable(round(res.negbin.partial, 3))
 ```
 
-|              |   2.5% | Posterior mean |  97.5% |
-|:-------------|-------:|---------------:|-------:|
-| intercept    | -8.361 |         -8.217 | -8.078 |
-| intervention | -0.574 |         -0.361 | -0.153 |
-| holiday      | -1.186 |         -0.789 | -0.424 |
-| alpha        |  6.352 |         12.353 | 21.544 |
-
-As expected estimation results using both samplers are rather similar.
-
-### Section 8.2.3: Evaluating MCMC samplers
+|              |   2.5% | Posterior mean |  97.5% | inefficiency |
+|:-------------|-------:|---------------:|-------:|-------------:|
+| intercept    | -8.361 |         -8.217 | -8.078 |        1.224 |
+| intervention | -0.574 |         -0.361 | -0.153 |        1.202 |
+| holiday      | -1.186 |         -0.789 | -0.424 |        1.420 |
+| alpha        |  6.352 |         12.353 | 21.544 |       48.180 |
 
 ``` r
-print(c(mean(res1$acc.beta), mean(res1$acc.alpha)))
-#> [1] 0.93478 0.70528
-print(c(mean(res2$acc.beta), mean(res2$acc.alpha)))
+
+c(mean(res2$acc.beta), mean(res2$acc.alpha))
 #> [1] 0.93588 0.89602
 ```
+
+Both samplers yield essentially the same estimation results, which is to
+be expected, since both target the same posterior distribution. The
+overdispersion parameter $\alpha$ has a posterior mean of $\ 12.3$,
+which means that overdispersion is not very pronounced.
+
+The two sampler differ, however particularly w.r.t. the inefficiency of
+$\alpha$ which has a value of 73.78 in the full sampler, but is smaller
+with a value of 48.18 for the partially marginalised Gibbs sampler.
+
+### Section 8.2.3: Evaluating MCMC samplers
 
 ``` r
 if (pdfplots) {
@@ -1056,7 +1086,7 @@ qqplot(res1$alpha.post, res2$alpha.post, xlab = "Full Gibbs",
 abline(a = 0, b = 1)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-40-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-39-1.png)
 
 ## Section 8.3: Beyond i.i.d. Gaussian error distributions
 
@@ -1074,7 +1104,7 @@ plot(starsCYG, pch = 19, xlim = c(3, 5), ylim = c(3, 7),
      xlab = "log temperature", ylab = "log light intensity")
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-41-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-40-1.png)
 
 The four giant stars which can also be identified in the scatter plot
 have the following indices in the data set:
@@ -1126,7 +1156,7 @@ lines(xnew, preds_subset[, "lwr"], lty = 2)
 lines(xnew, preds_subset[, "upr"], lty = 2)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-44-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-43-1.png)
 
 #### Example 8.13: Star cluster data - heteroskedastic regression analysis with known outliers
 
@@ -1219,7 +1249,7 @@ lines(xnew, apply(pred_hetero, 1, quantile, 0.025), lty = 2)
 lines(xnew, apply(pred_hetero, 1, quantile, 0.975), lty = 2)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-49-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-48-1.png)
 
 #### Example 8.14: Star cluster data - regression analysis with Gaussian two-component mixture errors
 
@@ -1299,7 +1329,7 @@ lines(xnew, apply(preds_mix_1, 1, quantile, 0.025), lty = 2)
 lines(xnew, apply(preds_mix_1, 1, quantile, 0.975), lty = 2)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-54-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-53-1.png)
 
 We now assume that the indices of the giant stars are not known. We only
 assume that a two-component mixture is used as weight distribution where
@@ -1378,7 +1408,7 @@ lines(xnew, apply(preds_mix_2, 1, quantile, 0.025), lty = 2)
 lines(xnew, apply(preds_mix_2, 1, quantile, 0.975), lty = 2)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-57-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-56-1.png)
 
 Finally, we visualize again the mean and the 95%-HPD region together
 with the data points for the three modeling approaches: (1) a
@@ -1404,7 +1434,7 @@ lines(xnew, apply(preds_mix_2, 1, quantile, 0.025), lty = 2)
 lines(xnew, apply(preds_mix_2, 1, quantile, 0.975), lty = 2)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-58-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-57-1.png)
 
 The plot indicates that all three modeling approaches result in a fit
 that is robust to the outlying observations.
