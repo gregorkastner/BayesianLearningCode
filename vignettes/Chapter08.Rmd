@@ -390,7 +390,9 @@ distribution. Hence, a proper prior is required to avoid improper
 posteriors in case of separation and with a tighter prior we can shrink coefficients
 to zero.
 
+
 # Example 8.6: Complete seperation: analysis under an informative prior
+
 We now analyze the data of example 8.4. under the more informative
 prior $\mathcal{N}(\mathbf{0}, \mathbf{I})$. This prior distribution
 encodes the prior believe that $\beta_0$ and $\beta_1$ are in the
