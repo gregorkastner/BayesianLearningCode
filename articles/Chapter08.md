@@ -887,6 +887,8 @@ $$\mu = \alpha\frac{\frac{1}{1 + \alpha/e\exp( - \mathbf{x}{\mathbf{β}})}}{\fra
 and we will use $\alpha$ and $\mu$ to specify the negative binomial
 distribution.
 
+Extra Functions for the sampling steps ?ß
+
 ``` r
 negbin <- function(y, X, e, b0 = 0, B0 = 100, qmean, qvar, pri.alpha,
                    full.gibbs = FALSE, burnin = 1000L, M = 50000L) {
