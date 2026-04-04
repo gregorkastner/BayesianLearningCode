@@ -682,7 +682,9 @@ using the two-block Polya-Gamma sampler.</p>
 <span> <span class="op">}</span></span>
 <span> <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="va">betas</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>We again use the Normaö prior with mean <span class="math inline">$\mathbf{\zerov}$</span> and covariance matrix
+<p>We again use the Normaö prior with mean
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>𝟎</mn><annotation encoding="application/x-tex">\mathbf{0}</annotation></semantics></math>
+and covariance matrix
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>10000</mn><mi>𝐈</mi></mrow><annotation encoding="application/x-tex">10000 \mathbf{I}</annotation></semantics></math>
 on the regression effects and estimate the model. We summarize the
 posterior effect estimates and determine the risk of unemployment for a
@@ -1136,8 +1138,8 @@ estimated intervention effect is very similar in both models, indicating
 a reduction of the risk by a factor of 0.69 in model 2 (compared to 0.70
 in model 1). The monthly effects have rather wide 95% HPD intervals that
 cover 0 for all months except for July and August. For these two holiday
-months they are clearly negative, indicating a reduction of the
-risk.</p>
+months they are clearly negative, indicating a considerable reduction of
+the risk.</p>
 <div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">res2</span><span class="op">$</span><span class="va">accept</span></span>
 <span><span class="co">#&gt; [1] 0.7655</span></span></code></pre></div>

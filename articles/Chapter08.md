@@ -548,11 +548,10 @@ logit <- function(y, X, b0 = 0, B0 = 10000,
 }
 ```
 
-We again use the Normaö prior with mean \$\mathbf{\zerov}\$ and
-covariance matrix $10000\mathbf{I}$ on the regression effects and
-estimate the model. We summarize the posterior effect estimates and
-determine the risk of unemployment for a baseline person using the
-fitted logit model.
+We again use the Normaö prior with mean $\mathbf{0}$ and covariance
+matrix $10000\mathbf{I}$ on the regression effects and estimate the
+model. We summarize the posterior effect estimates and determine the
+risk of unemployment for a baseline person using the fitted logit model.
 
 ``` r
 set.seed(1234)
@@ -859,7 +858,8 @@ estimated intervention effect is very similar in both models, indicating
 a reduction of the risk by a factor of 0.69 in model 2 (compared to 0.70
 in model 1). The monthly effects have rather wide 95% HPD intervals that
 cover 0 for all months except for July and August. For these two holiday
-months they are clearly negative, indicating a reduction of the risk.
+months they are clearly negative, indicating a considerable reduction of
+the risk.
 
 ``` r
 res2$accept
