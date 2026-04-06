@@ -1200,7 +1200,7 @@ posterior.
 
 ``` r
 if (pdfplots) {
-  pdf("8-3_1.pdf", width = 8, height = 4)
+  pdf("8-2_1.pdf", width = 8, height = 4)
 }
 set.seed(123)
 
@@ -1343,7 +1343,7 @@ intercept and the heterogeneity parameter.
 
 ``` r
 if (pdfplots) {
-  pdf("8-3_2.pdf", width = 8, height = 4)
+  pdf("8-2_2.pdf", width = 8, height = 4)
 }
 set.seed(123)
 
@@ -1373,7 +1373,7 @@ order (a)-(b)-(c)
 ``` r
 
 if (pdfplots) {
-  pdf("8-3_3.pdf", width = 8, height = 4)
+  pdf("8-2_3.pdf", width = 8, height = 4)
 }
 set.seed(123)
 #order (a)-(b)-(c)
@@ -1399,7 +1399,7 @@ and then in the order (c)-(b)-(a)
 ``` r
 set.seed(1)
 if (pdfplots) {
-  pdf("8-3_4.pdf", width = 8, height = 4)
+  pdf("8-2_4.pdf", width = 8, height = 4)
 }
 set.seed(123)
 # order (c)- (b)-(a)
