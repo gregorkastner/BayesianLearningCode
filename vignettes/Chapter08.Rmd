@@ -1066,7 +1066,7 @@ parameter via Q-Q plots of draws from the prior and the posterior.
 
 ```{r}
 if (pdfplots) {
-  pdf("8-3_1.pdf", width = 8, height = 4)
+  pdf("8-2_1.pdf", width = 8, height = 4)
 }
 set.seed(123)
 
@@ -1204,7 +1204,7 @@ We run the sampler under this scheme and show the Q-Q-Plots for the intercept an
 
 ```{r}
 if (pdfplots) {
-  pdf("8-3_2.pdf", width = 8, height = 4)
+  pdf("8-2_2.pdf", width = 8, height = 4)
 }
 set.seed(123)
 
@@ -1231,7 +1231,7 @@ We now analyse the partial marginalised Gibbs sampler, first in the order (a)-(b
 ```{r}
 
 if (pdfplots) {
-  pdf("8-3_3.pdf", width = 8, height = 4)
+  pdf("8-2_3.pdf", width = 8, height = 4)
 }
 set.seed(123)
 #order (a)-(b)-(c)
@@ -1255,7 +1255,7 @@ and then in the order (c)-(b)-(a)
 ```{r}
 set.seed(1)
 if (pdfplots) {
-  pdf("8-3_4.pdf", width = 8, height = 4)
+  pdf("8-2_4.pdf", width = 8, height = 4)
 }
 set.seed(123)
 # order (c)- (b)-(a)
