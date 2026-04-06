@@ -6,7 +6,7 @@
 
 #### Figure 8.1: Latent utility and outcome in the probit model
 
-We start by visualising a latent utility for a linear predictor
+We start by visualizing a latent utility for a linear predictor
 $\mathbf{x}{\mathbf{β}}$ with a value of 1.
 
 ``` r
@@ -21,7 +21,7 @@ polygon(c(dens$x[dens$x <= 0], 0), c(dens$y[dens$x <= 0], 0),
         col = "red", border = NA)
 
 dens <- curve(dnorm(x, mean = 1), from = -3, to = 5, n = 161, col = "blue",
-             xlab = expression(paste(z[i], "|", y[i], "=1")), ylab = "" )
+              xlab = expression(paste(z[i], "|", y[i], "=1")), ylab = "" )
 abline(v = 0, col = "red")
 polygon(c(dens$x[dens$x >= 0], 0), c(dens$y[dens$x >= 0], 0),
         col = "red", border = NA)
@@ -39,7 +39,7 @@ data("labor", package = "BayesianLearningCode")
 ```
 
 We model the income in 1998, binarized into unemployed (zero income) and
-employed as dependent variable, and use as covariates the variables
+employed, as dependent variable, and use as covariates the variables
 female (binary), age18 (quantitative, centered at 18 years), wcollar
 (binary), and unemployed in 1997 (binary). The baseline person is hence
 an 18 year old male blue collar worker who was employed in 1997.
@@ -54,7 +54,7 @@ X.unemp <- with(labor, cbind(intercept = rep(1, N.unemp),
                              unemp97 = income_1997 == "zero")) # regressor matrix
 ```
 
-#### Example 8.2: Fitting a probit model to the labour market data
+#### Example 8.2: Fitting a probit model to the labor market data
 
 The regression coefficients are estimated using data augmentation and
 Gibbs sampling. We define a function yielding posterior draws using the
@@ -66,8 +66,8 @@ probit <- function(y, X, b0 = 0, B0 = 10000,
   N <- length(y)
   d <- ncol(X) # number of regression effects 
 
-  B0.inv <- diag(rep(1 / B0, length.out = d), nrow = d) 
   b0 <- rep(b0, length.out = d) 
+  B0.inv <- diag(rep(1 / B0, length.out = d), nrow = d)
   B0inv.b0 <- B0.inv %*% b0
 
   betas <- matrix(NA_real_, nrow = M, ncol = d)
@@ -130,8 +130,8 @@ We show posterior means and equal-tailed 95% credible intervals of the
 regression effects.
 
 ``` r
-res_probit.labour <- t(apply(betas, 2, res.mcmc))
-knitr::kable(round(res_probit.labour, 3))
+res_probit.labor <- t(apply(betas, 2, res.mcmc))
+knitr::kable(round(res_probit.labor, 3))
 ```
 
 |           |   2.5% | Posterior mean |  97.5% |
@@ -147,7 +147,7 @@ person, i.e., a 18 year old male blue collar worker who was employed in
 1997, using the posterior mean estimate of the intercept.
 
 ``` r
-(p_unemploy_base_probit <- round(pnorm(res_probit.labour[1, 2]), 4))
+(p_unemploy_base_probit <- round(pnorm(res_probit.labor[1, 2]), 4))
 #> [1] 0.0241
 ```
 
@@ -185,24 +185,24 @@ We also determine the estimated effective sample sizes (ESSs) to assess
 the efficiency of the sampler.
 
 ``` r
-library("coda")
-ess <- round(coda::effectiveSize(betas), 1)
-ineff <- round(M/ess, 2)
-
-res_eff <- cbind(ess, ineff)
+ESS <- coda::effectiveSize(betas)
+IF <- M / ESS
+res_eff <- cbind(ESS = round(ESS, digits = 1),
+                 IF = round(IF, digits = 2))
 knitr::kable(res_eff)
 ```
 
-|           |    ess | ineff |
-|:----------|-------:|------:|
-| intercept | 2861.8 |  6.99 |
-| female    | 3726.1 |  5.37 |
-| age18     | 2759.0 |  7.25 |
-| wcollar   | 3558.7 |  5.62 |
-| unemp97   | 3615.4 |  5.53 |
+|           |    ESS |   IF |
+|:----------|-------:|-----:|
+| intercept | 2861.8 | 6.99 |
+| female    | 3726.1 | 5.37 |
+| age18     | 2759.0 | 7.25 |
+| wcollar   | 3558.7 | 5.62 |
+| unemp97   | 3615.4 | 5.53 |
 
-The effective sample size is at least 2759 for every regression effect,
-and hence all inefficiency factors are below 7.25.
+The estimated effective sample size is at least 2759 for every
+regression effect, and hence all estimated inefficiency factors (IFs)
+are below 7.25.
 
 The sampler is easy to implement, however there might be problems when
 the response variable contains either only very few or very many
@@ -231,15 +231,14 @@ slowly and remains high even for a lag of 40.
 
 ``` r
 labels <- expression(beta[0])
-
 plot(betas1, type = "l", main = "N=500, 1 failure", xlab = "Draws after burnin",
      ylab = labels)
 acf(betas1, ylab = "empirical ACF")
 
-(ess1 <- coda::effectiveSize(betas1))
+(ESS1 <- coda::effectiveSize(betas1))
 #>     var1 
 #> 165.9583
-round(M/ess1, 2)
+(IF1 <- round(M/ESS1, 2))
 #>   var1 
 #> 120.51
 
@@ -252,26 +251,26 @@ acf(betas2, ylab = "empirical ACF")
 
 ``` r
 
-(ess2 <- coda::effectiveSize(betas2))
+(ESS2 <- coda::effectiveSize(betas2))
 #>     var1 
 #> 150.8803
-round(M/ess2, 2)
+(IF2 <- round(M/ESS2, 2))
 #>   var1 
 #> 132.56
 ```
 
 Hence for these data sets the estimated ESS of the intercept has a value
-of ~ 150, yielding an inefficiency factor of ~ 130.
+of at most 170, yielding an estimated IF of at most 133.
 
-High autocorrelation in MCMC draws for probit models occur not only when
-either successes or failures are rare, but also when a covariate (or a
-linear combination of covariates) perfectly allows to predict successes
-and/or failures. Complete separation means that both successes and
-failures can be perfectly predicted by a covariate, whereas
-quasi-complete separation means that either successes or failures can be
-predicted perfectly.
+High autocorrelation in MCMC draws for probit models occurs not only
+when either successes or failures are rare, but also when a covariate
+(or a linear combination of covariates) perfectly allows to predict
+successes and/or failures. Complete separation means that both successes
+and failures can be perfectly predicted by a covariate, whereas
+quasi-complete separation means that only either successes or failures
+can be predicted perfectly.
 
-#### Example 8.4: Complete Seperation
+#### Example 8.4: Complete separation
 
 To illustrate the effect of complete separation on the estimates, we
 generate $N = 500$ observations where half of them are successes and the
@@ -295,22 +294,21 @@ We estimate the model parameters
 ${\mathbf{β}} = \left( \beta_{0},\beta_{1} \right)\prime$ under the
 Normal prior with mean $\mathbf{0}$ and variance matrix
 $10000\mathbf{I}$ and run the sampler for $M = 20000$ iterations after a
-burnin of 1000.
+burn-in of 1000.
 
-From the plot of the ACF of the draws we see that autocorrelations are
-close to 1 even at lag 40.
+From the plot of the empirical ACF of the draws we see that
+autocorrelations are close to 1 even at lag 40.
 
 ``` r
-
 set.seed(1234)
 X.sep <- cbind(rep(1, N), x.sep)
 betas.sep <- probit(y, X.sep, b0 = 0, B0 = 10000, burnin = 1000, M = M)
 
 labels <- expression(beta[0], beta[1])
-plot(betas.sep[, 1], type = "l", xlab = "Draws after burnin", ylab = labels[1])
+plot(betas.sep[, 1], type = "l", xlab = "Draws after burn-in", ylab = labels[1])
 acf(betas.sep[, 1], ylab = "empirical ACF")
 
-plot(betas.sep[, 2], type = "l", xlab = "Draws after burnin", ylab = labels[2])
+plot(betas.sep[, 2], type = "l", xlab = "Draws after burn-in", ylab = labels[2])
 acf(betas.sep[, 2], ylab = "empirical ACF")
 ```
 
@@ -318,18 +316,18 @@ acf(betas.sep[, 2], ylab = "empirical ACF")
 
 ``` r
 
-(ess.sep <- round(coda::effectiveSize(betas.sep), 2))
-#>       x.sep 
-#>  8.38  8.27
-round(M/ess.sep, 2)
-#>           x.sep 
-#> 2386.63 2418.38
+(ESS.sep <- coda::effectiveSize(betas.sep))
+#>             x.sep 
+#> 8.375523 8.269881
+(IF.sep <- M/ESS.sep)
+#>             x.sep 
+#> 2387.911 2418.415
 ```
 
-Hence the ESSs are very low with a value of ~ 8, resulting in
-inefficiency factors of ~2400.
+Hence the estimated ESSs are very low with a value of around 8,
+resulting in estimated IFs of about 2400.
 
-#### Example 8.5: Quasi-complete seperation
+#### Example 8.5: Quasi-complete separation
 
 To illustrate quasi-separation we use the same responses as in Example
 8.4, but now set $x = 1$ for all successes and additionally for 100
@@ -346,18 +344,17 @@ table(x.qus1, y)
 ```
 
 We again estimate the regression effects using data augmentation and
-Gibbs Sampling.
+Gibbs sampling.
 
 ``` r
-
 set.seed(1234)
 X.qus1 <- cbind(rep(1, N), x.qus1)
 betas.qus1 <- probit(y, X.qus1, b0 = 0, B0 = 10000, burnin = 1000, M = M)
 
-plot(betas.qus1[, 1], type = "l", xlab = "Draws after burnin", ylab = labels[1])
+plot(betas.qus1[, 1], type = "l", xlab = "Draws after burn-in", ylab = labels[1])
 acf(betas.qus1[, 1], ylab = "empirical ACF")
 
-plot(betas.qus1[, 2], type = "l", xlab = "Draws after burnin", ylab = labels[2])
+plot(betas.qus1[, 2], type = "l", xlab = "Draws after burn-in", ylab = labels[2])
 acf(betas.qus1[, 2], ylab = "empirical ACF")
 ```
 
@@ -365,16 +362,16 @@ acf(betas.qus1[, 2], ylab = "empirical ACF")
 
 ``` r
 
-(ess.qus1 <- round(coda::effectiveSize(betas.qus1), 2))
-#>        x.qus1 
-#>   8.53   8.68
-round(M/ess.qus1, 2)
-#>          x.qus1 
-#> 2344.67 2304.15
+(ESS.qus1 <- coda::effectiveSize(betas.qus1))
+#>            x.qus1 
+#> 8.529486 8.683472
+(IF.qus1 <- M/ESS.qus1)
+#>            x.qus1 
+#> 2344.807 2303.226
 ```
 
 Again autocorrelations are very high for both the intercept as well as
-the covariate effect resulting in high inefficiency factors of ~ 2340.
+the covariate effect resulting in high estimated IFs of about 2320.
 
 We now change the setting so that $x$ takes values of $0$ not only for
 failures but also for some successes, whereas $x = 1$ for all successes.
@@ -391,11 +388,10 @@ set.seed(1234)
 X.qus2 <- cbind(rep(1, N), x.qus2)
 betas.qus2 <- probit(y, X.qus2, b0 = 0, B0 = 10000, burnin = 1000, M = M)
 
-par(mfrow = c(2, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
-plot(betas.qus2[, 1], type = "l", xlab = "Draws after burnin", ylab = labels[1])
+plot(betas.qus2[, 1], type = "l", xlab = "Draws after burn-in", ylab = labels[1])
 acf(betas.qus2[, 1], ylab = "empirical ACF")
 
-plot(betas.qus2[, 2], type = "l", xlab = "Draws after burnin", ylab = labels[2])
+plot(betas.qus2[, 2], type = "l", xlab = "Draws after burn-in", ylab = labels[2])
 acf(betas.qus2[, 2], ylab = "empirical ACF")
 ```
 
@@ -403,19 +399,19 @@ acf(betas.qus2[, 2], ylab = "empirical ACF")
 
 ``` r
 
-(ess.qus2 <- round(coda::effectiveSize(betas.qus2), 2))
-#>          x.qus2 
-#> 7748.60    6.28
-(ineff.qus2 <- round(M/ess.qus2, 2))
-#>          x.qus2 
-#>    2.58 3184.71
+(ESS.qus2 <- coda::effectiveSize(betas.qus2))
+#>                  x.qus2 
+#> 7748.599768    6.283738
+(IF.qus2 <- M/ESS.qus2)
+#>                  x.qus2 
+#>    2.581112 3182.818740
 ```
 
 Autocorrelations of the intercept are low and close to zero for small
 lags but remain very high even at lag 40 for the covariate effect. Hence
-we have a high ESS for the intercept (7748.6) and a low for the
-covariate effect (6.28), resulting in an inefficiency factor of 2.58 for
-the intercept, but of 3184.71 for the effect of the covariate.
+we have a high ESS for the intercept (7749) and a low for the covariate
+effect (6), resulting in an estimated IF of 3 for the intercept, but of
+3183 for the effect of the covariate.
 
 High autocorrelations typically indicate problems with the sampler. If
 there is complete or quasi-complete separation in the data, the
@@ -426,7 +422,7 @@ Hence, a proper prior is required to avoid improper posteriors in case
 of separation and with a tighter prior we can shrink coefficients to
 zero.
 
-## Example 8.6: Complete seperation: analysis under an informative prior
+## Example 8.6: Complete separation: analysis under an informative prior
 
 We now analyze the data of example 8.4. under the more informative prior
 $\mathcal{N}(\mathbf{0},\mathbf{I})$. This prior distribution encodes
@@ -443,46 +439,46 @@ betas.sep1 <- probit(y, X.sep, b0 = 0, B0 = 1, burnin = 1000, M = M)
 res_betas.sep <- t(apply(betas.sep, 2, res.mcmc))
 rownames(res_betas.sep) <- c("Intercept", "X")
 
-ess.sep <- coda::effectiveSize(betas.sep)
-ineff.sep <- M/ess.sep
-res.sep <- round(cbind(res_betas.sep, ess.sep, ineff.sep), 2)
-colnames(res.sep)[4:5] <- c("ESS", "Inefficiency")
+ESS.sep <- coda::effectiveSize(betas.sep)
+IF.sep <- M/ESS.sep
+res.sep <- round(cbind(res_betas.sep, ESS.sep, IF.sep), 2)
+colnames(res.sep)[4:5] <- c("Estimated ESS", "Estimated IF")
 
 knitr:: kable(res.sep)
 ```
 
-|           |   2.5% | Posterior mean | 97.5% |  ESS | Inefficiency |
-|:----------|-------:|---------------:|------:|-----:|-------------:|
-| Intercept | -13.35 |          -6.71 | -3.08 | 8.38 |      2387.91 |
-| X         |   7.49 |          13.64 | 20.02 | 8.27 |      2418.41 |
+|           |   2.5% | Posterior mean | 97.5% | Estimated ESS | Estimated IF |
+|:----------|-------:|---------------:|------:|--------------:|-------------:|
+| Intercept | -13.35 |          -6.71 | -3.08 |          8.38 |      2387.91 |
+| X         |   7.49 |          13.64 | 20.02 |          8.27 |      2418.41 |
 
 ``` r
 
 res_betas.sep1 <- t(apply(betas.sep1, 2, res.mcmc))
 rownames(res_betas.sep1) <- c("Intercept", "X")
 
-ess.sep1 <- coda::effectiveSize(betas.sep1)
-ineff.sep1 <-  M/ess.sep1
-res.sep1 <- round(cbind(res_betas.sep1, ess.sep1, ineff.sep1), 2)
-colnames(res.sep1)[4:5] <- c("ESS", "Inefficiency")
+ESS.sep1 <- coda::effectiveSize(betas.sep1)
+IF.sep1 <-  M/ESS.sep1
+res.sep1 <- round(cbind(res_betas.sep1, ESS.sep1, IF.sep1), 2)
+colnames(res.sep1)[4:5] <- c("Estimated ESS", "Estimated IF")
 
 knitr:: kable(res.sep1)
 ```
 
-|           |  2.5% | Posterior mean | 97.5% |    ESS | Inefficiency |
-|:----------|------:|---------------:|------:|-------:|-------------:|
-| Intercept | -2.85 |          -2.35 | -1.92 | 707.91 |        28.25 |
-| X         |  4.21 |           4.88 |  5.62 | 604.79 |        33.07 |
+|           |  2.5% | Posterior mean | 97.5% | Estimated ESS | Estimated IF |
+|:----------|------:|---------------:|------:|--------------:|-------------:|
+| Intercept | -2.85 |          -2.35 | -1.92 |        707.91 |        28.25 |
+| X         |  4.21 |           4.88 |  5.62 |        604.79 |        33.07 |
 
 We see that the tighter prior shrinks the estimates to zero, estimated
-ESSs are higher and inefficiency factors are lower.
+ESSs are higher and estimated IFs are lower.
 
 ``` r
 
-plot(betas.sep1[, 1], type = "l", xlab = "Draws after burnin", ylab = labels[1])
+plot(betas.sep1[, 1], type = "l", xlab = "Draws after burn-in", ylab = labels[1])
 acf(betas.sep1[, 1], ylab = "empirical ACF")
 
-plot(betas.sep1[, 2], type = "l", xlab = "Draws after burnin", ylab = labels[2])
+plot(betas.sep1[, 2], type = "l", xlab = "Draws after burn-in", ylab = labels[2])
 acf(betas.sep1[, 2], ylab = "empirical ACF")
 ```
 
@@ -501,54 +497,54 @@ using the two-block Polya-Gamma sampler.
 ``` r
 logit <- function(y, X, b0 = 0, B0 = 10000,
                   burnin = 1000L, M = 5000L) {
-  
-  N <- length(y)
-  d <- ncol(X) # number regression effects 
-
-  B0.inv <- diag(rep(1 / B0, length.out = d), nrow = d) 
-  b0 <- rep(b0, length.out = d) 
-  B0inv.b0 <- B0.inv %*% b0
-
-  betas <- matrix(NA_real_, nrow = M, ncol = d)
-  colnames(betas) <- colnames(X)
-
-  # Define quantities for the Gibbs sampler
-  ind0 <- (y == 0) # indicators for zeros
-  ind1 <- (y == 1) # indicators for ones
-  
-  # Set starting values
-  beta <- rep(0, d)
-  z <- rep(NA_real_, N)
-  omega <-rep(NA_real_, N)
-
-  for (m in seq_len(burnin + M)) {
-    # Draw z conditional on y and beta
-    eta <- X %*% beta
-    pi <- plogis(eta) 
-      
-    u <- runif(N)
-    z[ind0] <- eta[ind0] + qlogis(u[ind0] * (1 - pi[ind0]))
-    z[ind1] <- eta[ind1] + qlogis (1 - u[ind1] * pi[ind1])
-      
-    # Draw omega conditional on y, beta and z
-    omega <- pgdraw::pgdraw(b = 1, c = z - eta)
-  
-    # Sample beta from the full conditional 
-    Xomega <- matrix(omega, ncol = d, nrow = N) * X
-    BN <- solve(B0.inv + crossprod(Xomega, X))
-    bN <- BN %*% (B0inv.b0 + crossprod(Xomega, z))
-    beta <- t(mvtnorm::rmvnorm(1, mean = bN, sigma = BN))
     
-    # Store the beta draws
-    if (m > burnin) {
-      betas[m - burnin, ] <- beta
+    N <- length(y)
+    d <- ncol(X) # number regression effects 
+
+    b0 <- rep(b0, length.out = d) 
+    B0.inv <- diag(rep(1 / B0, length.out = d), nrow = d)
+    B0inv.b0 <- B0.inv %*% b0
+
+    betas <- matrix(NA_real_, nrow = M, ncol = d)
+    colnames(betas) <- colnames(X)
+
+                                        # Define quantities for the Gibbs sampler
+    ind0 <- (y == 0) # indicators for zeros
+    ind1 <- (y == 1) # indicators for ones
+    
+                                        # Set starting values
+    beta <- rep(0, d)
+    z <- rep(NA_real_, N)
+    omega <-rep(NA_real_, N)
+
+    for (m in seq_len(burnin + M)) {
+                                        # Draw z conditional on y and beta
+        eta <- X %*% beta
+        pi <- plogis(eta) 
+        
+        u <- runif(N)
+        z[ind0] <- eta[ind0] + qlogis(u[ind0] * (1 - pi[ind0]))
+        z[ind1] <- eta[ind1] + qlogis (1 - u[ind1] * pi[ind1])
+        
+                                        # Draw omega conditional on y, beta and z
+        omega <- pgdraw::pgdraw(b = 1, c = z - eta)
+        
+                                        # Sample beta from the full conditional 
+        Xomega <- matrix(omega, ncol = d, nrow = N) * X
+        BN <- solve(B0.inv + crossprod(Xomega, X))
+        bN <- BN %*% (B0inv.b0 + crossprod(Xomega, z))
+        beta <- t(mvtnorm::rmvnorm(1, mean = bN, sigma = BN))
+        
+                                        # Store the beta draws
+        if (m > burnin) {
+            betas[m - burnin, ] <- beta
+        }
     }
- }
- return(betas)
+    return(betas)
 }
 ```
 
-We again use the Normaö prior with mean $\mathbf{0}$ and covariance
+We again use the Normal prior with mean $\mathbf{0}$ and covariance
 matrix $10000\mathbf{I}$ on the regression effects and estimate the
 model. We summarize the posterior effect estimates and determine the
 risk of unemployment for a baseline person using the fitted logit model.
@@ -557,8 +553,8 @@ risk of unemployment for a baseline person using the fitted logit model.
 set.seed(1234)
 betas_logit <- logit(y.unemp, X.unemp, b0 = 0, B0 = 10000)
 
-res_logit.labour <- t(apply(betas_logit, 2, res.mcmc))
-knitr::kable(round(res_logit.labour, 3))
+res_logit.labor <- t(apply(betas_logit, 2, res.mcmc))
+knitr::kable(round(res_logit.labor, 3))
 ```
 
 |           |   2.5% | Posterior mean |  97.5% |
@@ -571,7 +567,7 @@ knitr::kable(round(res_logit.labour, 3))
 
 ``` r
 
-(p_unemploy_base_logit <- round(plogis(res_logit.labour[1, 2]), 4))
+(p_unemploy_base_logit <- round(plogis(res_logit.labor[1, 2]), 4))
 #> [1] 0.0247
 ```
 
@@ -597,7 +593,7 @@ $\pi/\sqrt{3}$ we can compare them to the estimates of the logit model
 and we see that there is not much difference.
 
 ``` r
-knitr::kable(round(res_probit.labour * pi / sqrt(3), 3))
+knitr::kable(round(res_probit.labor * pi / sqrt(3), 3))
 ```
 
 |           |   2.5% | Posterior mean |  97.5% |
@@ -652,10 +648,10 @@ gen.proposal.poisson <- function(y, X, e, b0 = 0, B0 = 100, t.max = 20){
   N <- length(y)
   d <- ncol(X)
   betas <- matrix(NA_real_, ncol = t.max, nrow = d)
-  beta.new <- matrix(c(log(mean(y)), rep(0, d - 1)), nrow=d) 
+  beta.new <- matrix(c(log(mean(y)), rep(0, d - 1)), nrow = d) 
   
-  b0 <- matrix(rep(b0, length.out = d), nrow=d) 
-  B0.inv <-diag(rep(1 / B0, length.out = d), nrow = d) 
+  b0 <- matrix(rep(b0, length.out = d), nrow = d) 
+  B0.inv <-diag(rep(1 / B0, length.out = d), nrow = d)
 
   for (t in seq_len(t.max)) {
     beta.old <- beta.new
@@ -1084,16 +1080,9 @@ negbin_check_abc <- function(X,e, b0 = 0, B0 = 100, qmean, qvar, pri.alpha,
   N <- nrow(X)
   d <- ncol(X)
   
-  if (length(b0)==1){ 
-     b0 <- rep(b0, length.out = d)
-  }
-   if (length(B0)==1){ 
-      B0 <- diag(rep(B0, length.out = d), nrow = d)
-      }else{ 
-        if(length(B0)==d){
-        B0 <- diag(B0, nrow = d)
-        }
-  }
+  b0 <- rep(b0, length.out = d)
+  B0 <- diag(rep(B0, length.out = d), nrow = d)    
+  
   beta.post  <- matrix(ncol = d, nrow = M)
   colnames(beta.post) <- colnames(X)
   acc.beta <- numeric(length = M)
@@ -1202,7 +1191,7 @@ diagonal elements of the proposal. We generate also draws from the prior
 distribution.
 
 ``` r
-pri.beta <-list(b0=parms.proposal$mean, B0=diag(parms.proposal$var))
+pri.beta <-list(b0=parms.proposal$mean, B0 = diag(parms.proposal$var))
 ```
 
 We then run the sampler and investigate the draws of intercept and
@@ -1246,16 +1235,9 @@ negbin_check_cba <- function(X,e, b0 = 0, B0 = 100, qmean, qvar, pri.alpha,
   N <- nrow(X)
   d <- ncol(X)
   
-  if (length(b0)==1){ 
-     b0 <- rep(b0, length.out = d)
-  }
-   if (length(B0)==1){ 
-      B0 <- diag(rep(B0, length.out = d), nrow = d)
-      }else{ 
-        if(length(B0)==d){
-        B0 <- diag(B0, nrow = d)
-        }
-  }
+  b0 <- rep(b0, length.out = d)
+  B0 <- diag(rep(B0, length.out = d), nrow = d)
+    
   beta.post  <- matrix(ncol = d, nrow = M)
   colnames(beta.post) <- colnames(X)
   acc.beta <- numeric(length = M)
@@ -1543,7 +1525,7 @@ linear regression defined in Chapter 6 accordingly.
 set.seed(1)
 
 # define prior parameters of semi-conjugate prior
-B0inv <- diag(rep(1 / 10000, d), nrow = d)
+B0.inv <- diag(rep(1 / 10000, d), nrow = d)
 b0 <- rep(0, d)
 
 c0 <- 2.5
@@ -1571,8 +1553,8 @@ sigma2 <- var(y) / 2
 
 for (m in 1:(burnin + M)) {
     # sample beta from the full conditional
-    BN <- solve(B0inv + wXX / sigma2)
-    bN <- BN %*% (B0inv %*% b0 + wXy / sigma2)
+    BN <- solve(B0.inv + wXX / sigma2)
+    bN <- BN %*% (B0.inv %*% b0 + wXy / sigma2)
     beta <- t(mvtnorm::rmvnorm(1, mean = bN, sigma = BN))
 
     # sample sigma^2 from its full conditional
@@ -1616,7 +1598,7 @@ phi <- 0.001
 
 ``` r
 # define prior parameters of semi-conjugate prior
-B0inv <- diag(rep(1, d), nrow = d)
+B0.inv <- diag(rep(1, d), nrow = d)
 b0 <- coef(ols_subset)
 ```
 
@@ -1647,8 +1629,8 @@ for (m in seq_len(burnin + M)) {
     wXy <- t(Xtilde) %*% ytilde
 
     # sample beta from the full conditional
-    BN <- solve(B0inv + wXX / sigma2)
-    bN <- BN %*% (B0inv %*% b0 + wXy / sigma2)
+    BN <- solve(B0.inv + wXX / sigma2)
+    bN <- BN %*% (B0.inv %*% b0 + wXy / sigma2)
     beta <- t(mvtnorm::rmvnorm(1, mean = bN, sigma = BN))
 
     # sample sigma^2 from its full conditional
@@ -1732,8 +1714,8 @@ for (m in seq_len(burnin + M)) {
     wXy <- t(Xtilde) %*% ytilde
 
     # sample beta from the full conditional
-    BN <- solve(B0inv + wXX / sigma2)
-    bN <- BN %*% (B0inv %*% b0 + wXy / sigma2)
+    BN <- solve(B0.inv + wXX / sigma2)
+    bN <- BN %*% (B0.inv %*% b0 + wXy / sigma2)
     beta <- t(mvtnorm::rmvnorm(1, mean = bN, sigma = BN))
 
     # sample sigma^2 from its full conditional
