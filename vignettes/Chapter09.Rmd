@@ -244,10 +244,9 @@ abline(h = q_t, col = 2, lty = 2, lwd = 1.5)
 legend("topleft", c("Normal", "Student t"), lty = 1:2, col = c(4,2), lwd = 1.5)
 ```
 
-
 ## Example 9.9: Predicting yearly maxima for the road safety data
 
-We use a sampling-based approach to obtain draws from posterior predictive
+We use a sampling-based approach to obtain draws from the posterior predictive
 by first drawing from the posterior $\mu|\mathbb{y} \sim \mathcal{G}(a_N, b_N)$.
 Then, using these draws as mean parameters for the Poisson likelihood, we draw
 12 times each to obtain yearly predictions. Of these, we take the maxima.
@@ -372,7 +371,7 @@ We compute the one-step-ahead posterior predictive for various AR($p$) models
 under the improper prior.
 
 ```{r}
-data(gdp)
+data("gdp", package = "BayesianLearningCode")
 dat <- gdp[1:which(names(gdp) == "2019-10-01")]
 logret <- diff(log(dat))
 
@@ -406,7 +405,6 @@ if (pdfplots) {
   par(mar = c(2.7, 2, 1.5, .5), mgp = c(1.6, .6, 0))
 }
 par(mfrow = c(1, 1))
-library(BayesianLearningCode)
 grid <- seq(min(means - 4 * scales), max(means + 4 * scales), length.out = 100)
 plot(grid, dstudt(grid, means[1], scales[1], dfs[1]), type = "l",
      ylab = "", xlab = "Quarterly U.S. GDP growth", lwd = 1.5)
