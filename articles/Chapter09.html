@@ -77,7 +77,7 @@
 Inference<a class="anchor" aria-label="anchor" href="#section-9-1-from-bayesian-posterior-to-bayesian-predictive-inference"></a>
 </h2>
 <div class="section level3">
-<h3 id="example-9-1-road-safety-data---single-predictions">Example 9.1: Road Safety Data - Single Predictions<a class="anchor" aria-label="anchor" href="#example-9-1-road-safety-data---single-predictions"></a>
+<h3 id="example-9-1-road-safety-data---single-predictions">Example 9.1: Road safety data - single predictions<a class="anchor" aria-label="anchor" href="#example-9-1-road-safety-data---single-predictions"></a>
 </h3>
 <p>We load the data and extract the observations for the senior people
 in Linz. We then plot the pdf and cdf for the predictive distribution
@@ -104,7 +104,7 @@ y_f|\mathbf{y} \sim \mathcal NB(N\bar y + 1, N).
 <p><img src="Chapter09_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 <div class="section level3">
-<h3 id="example-9-2-exchange-rate-data">Example 9.2: Exchange Rate Data<a class="anchor" aria-label="anchor" href="#example-9-2-exchange-rate-data"></a>
+<h3 id="example-9-2-chf-exchange-rate-data---single-predictions">Example 9.2: CHF exchange rate data - single predictions<a class="anchor" aria-label="anchor" href="#example-9-2-chf-exchange-rate-data---single-predictions"></a>
 </h3>
 <p>We load the data and then plot the pdf and cdf for the predictive
 distribution which corresponds under the improper prior to
@@ -142,7 +142,8 @@ y_f|\mathbf{y} \sim \mathcal t_{2c_N}\left(\bar y, \frac{N s_y^2}{N-1}\left(1 + 
 <span><span class="co">#&gt;    0.018    0.528 3138.000</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="example-9-3-exchange-rate-data-contd">Example 9.3: Exchange Rate Data cont’d<a class="anchor" aria-label="anchor" href="#example-9-3-exchange-rate-data-contd"></a>
+<h3 id="example-9-3-chf-exchange-rate-data---plug-in-versus-bayesian-forecasting">Example 9.3: CHF exchange rate data - plug-in versus Bayesian
+forecasting<a class="anchor" aria-label="anchor" href="#example-9-3-chf-exchange-rate-data---plug-in-versus-bayesian-forecasting"></a>
 </h3>
 <p>To compare with a method that ignores parameter uncertainty, we now
 plot the posterior predictive alongside the “classical” forecasting
@@ -167,18 +168,20 @@ distribution for varying
 <p><img src="Chapter09_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 <div class="section level3">
-<h3 id="example-9-4-road-safety-data-contd">Example 9.4: Road Safety Data cont’d<a class="anchor" aria-label="anchor" href="#example-9-4-road-safety-data-contd"></a>
+<h3 id="example-9-4-road-safety-data---posterior-predictive-credible-interval">Example 9.4: Road safety data - posterior predictive credible
+interval<a class="anchor" aria-label="anchor" href="#example-9-4-road-safety-data---posterior-predictive-credible-interval"></a>
 </h3>
-<p>We verify that a 95% predictive interval is given by [1, 9] using the
-cdf and compute the effective coverage.</p>
+<p>We verify that a 95% posterior predictive interval is given by [1, 9]
+using the cdf and compute the effective coverage.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/NegBinomial.html" class="external-link">pnbinom</a></span><span class="op">(</span><span class="fl">9</span>, size <span class="op">=</span> <span class="va">aN</span>, mu <span class="op">=</span> <span class="va">mu</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/stats/NegBinomial.html" class="external-link">pnbinom</a></span><span class="op">(</span><span class="fl">0</span>, size <span class="op">=</span> <span class="va">aN</span>, mu <span class="op">=</span> <span class="va">mu</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 0.9522248</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="example-9-5-exchange-rate-data-contd">Example 9.5: Exchange Rate Data cont’d<a class="anchor" aria-label="anchor" href="#example-9-5-exchange-rate-data-contd"></a>
+<h3 id="example-9-5-chf-exchange-rate-data---posterior-predictive-credible-interval">Example 9.5: CHF exchange rate data - posterior predictive credible
+interval<a class="anchor" aria-label="anchor" href="#example-9-5-chf-exchange-rate-data---posterior-predictive-credible-interval"></a>
 </h3>
-<p>We determine the 95% predictive interval using the quantile
+<p>We determine the 95% posterior predictive interval using the quantile
 function.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="../reference/StudTDist.html">qstudt</a></span><span class="op">(</span><span class="va">probs</span>, location <span class="op">=</span> <span class="va">bN</span>, scale <span class="op">=</span> <span class="va">scale</span>, df <span class="op">=</span> <span class="fl">2</span> <span class="op">*</span> <span class="va">cN</span><span class="op">)</span>, digits <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
@@ -216,8 +219,7 @@ ignores parameter uncertainty.</p>
 <h2 id="section-9-3-a-sampling-based-approach-to-prediction">Section 9.3: A Sampling-Based Approach to Prediction<a class="anchor" aria-label="anchor" href="#section-9-3-a-sampling-based-approach-to-prediction"></a>
 </h2>
 <div class="section level3">
-<h3 id="example-9-8-sampling-based-prediction-for-the-chfusd-exchange-rates">Example 9.8: Sampling-based prediction for the CHF/USD exchange
-rates<a class="anchor" aria-label="anchor" href="#example-9-8-sampling-based-prediction-for-the-chfusd-exchange-rates"></a>
+<h3 id="example-9-8-chf-exchange-rate-data---sampling-based-prediction">Example 9.8: CHF exchange rate data - sampling-based prediction<a class="anchor" aria-label="anchor" href="#example-9-8-chf-exchange-rate-data---sampling-based-prediction"></a>
 </h3>
 <p>We proceed exactly as in Chapter 4. For the Gaussian distribution,
 the posterior of
@@ -344,15 +346,15 @@ distributions.</p>
 <span>     main <span class="op">=</span> <span class="st">"Histogram and predictive densitites"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/density.html" class="external-link">density</a></span><span class="op">(</span><span class="va">yf_normal</span>, adjust <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>, col <span class="op">=</span> <span class="fl">4</span>, lty <span class="op">=</span> <span class="fl">1</span>, lwd <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/density.html" class="external-link">density</a></span><span class="op">(</span><span class="va">yf_t</span>, adjust <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>, col <span class="op">=</span> <span class="fl">2</span>, lty <span class="op">=</span> <span class="fl">2</span>, lwd <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topleft"</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Normal"</span>, <span class="st">"Student t"</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span>,<span class="fl">2</span><span class="op">)</span>, lwd <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topleft"</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Normal"</span>, <span class="st">"Student t"</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fl">2</span><span class="op">)</span>, lwd <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/ts.plot.html" class="external-link">ts.plot</a></span><span class="op">(</span><span class="va">y</span>, main <span class="op">=</span> <span class="st">"Time series plot and some predictive quantiles"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>h <span class="op">=</span> <span class="va">q_normal</span>, col <span class="op">=</span> <span class="fl">4</span>, lty <span class="op">=</span> <span class="fl">1</span>, lwd <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>h <span class="op">=</span> <span class="va">q_t</span>, col <span class="op">=</span> <span class="fl">2</span>, lty <span class="op">=</span> <span class="fl">2</span>, lwd <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topleft"</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Normal"</span>, <span class="st">"Student t"</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span>,<span class="fl">2</span><span class="op">)</span>, lwd <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topleft"</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Normal"</span>, <span class="st">"Student t"</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fl">2</span><span class="op">)</span>, lwd <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span></span></code></pre></div>
 <p><img src="Chapter09_files/figure-html/unnamed-chunk-14-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 <div class="section level3">
-<h3 id="example-9-9-predicting-yearly-maxima-for-the-road-safety-data">Example 9.9: Predicting yearly maxima for the road safety data<a class="anchor" aria-label="anchor" href="#example-9-9-predicting-yearly-maxima-for-the-road-safety-data"></a>
+<h3 id="example-9-9-road-safety-data---sampling-based-prediction">Example 9.9: Road safety data - sampling-based prediction<a class="anchor" aria-label="anchor" href="#example-9-9-road-safety-data---sampling-based-prediction"></a>
 </h3>
 <p>We use a sampling-based approach to obtain draws from the posterior
 predictive by first drawing from the posterior
@@ -367,18 +369,21 @@ the maxima.</p>
 <span><span class="va">bN</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span></span>
 <span><span class="va">mus</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html" class="external-link">rgamma</a></span><span class="op">(</span><span class="va">ndraws</span>, <span class="va">aN</span>, <span class="va">bN</span><span class="op">)</span></span>
 <span><span class="va">yfs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Poisson.html" class="external-link">rpois</a></span><span class="op">(</span><span class="fl">12</span> <span class="op">*</span> <span class="va">ndraws</span>, <span class="va">mus</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fl">12</span><span class="op">)</span></span>
-<span><span class="va">Us</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">yfs</span>, <span class="fl">1</span>, <span class="va">max</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">Us</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">yfs</span>, <span class="fl">1</span>, <span class="va">max</span><span class="op">)</span></span>
+<span><span class="va">probs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.025</span>, <span class="fl">0.975</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">Us</span>, <span class="va">probs</span><span class="op">)</span></span>
+<span><span class="co">#&gt;  2.5% 97.5% </span></span>
+<span><span class="co">#&gt;     7    13</span></span></code></pre></div>
 <p>Now we visualize.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">tab</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/proportions.html" class="external-link">proportions</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">Us</span><span class="op">)</span><span class="op">)</span>, xlab <span class="op">=</span> <span class="st">"U"</span>, ylab <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">as.table</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cumsum.html" class="external-link">cumsum</a></span><span class="op">(</span><span class="va">tab</span><span class="op">)</span><span class="op">)</span>, type <span class="op">=</span> <span class="st">"h"</span>, xlab <span class="op">=</span> <span class="st">"U"</span>, ylab <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
-<span><span class="va">probs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.025</span>, <span class="fl">0.975</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>h <span class="op">=</span> <span class="va">probs</span>, lty <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/mtext.html" class="external-link">mtext</a></span><span class="op">(</span><span class="va">probs</span>, side <span class="op">=</span> <span class="fl">2</span>, at <span class="op">=</span> <span class="va">probs</span>, adj <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, cex <span class="op">=</span> <span class="fl">.8</span>, col <span class="op">=</span> <span class="st">"dimgrey"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="Chapter09_files/figure-html/unnamed-chunk-16-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 <div class="section level3">
-<h3 id="example-9-11">Example 9.11<a class="anchor" aria-label="anchor" href="#example-9-11"></a>
+<h3 id="example-9-11-predicting-the-probability-of-future-successes">Example 9.11: Predicting the probability of future successes<a class="anchor" aria-label="anchor" href="#example-9-11-predicting-the-probability-of-future-successes"></a>
 </h3>
 <p>We illustrate the variance of the purely sampling-based estimator
 versus the Rao-Blackwellized version by running several experiments.</p>
@@ -393,7 +398,7 @@ versus the Rao-Blackwellized version by running several experiments.</p>
 <span><span class="va">M</span> <span class="op">&lt;-</span> <span class="fl">100</span></span>
 <span><span class="va">nsim</span> <span class="op">&lt;-</span> <span class="fl">1000</span></span>
 <span></span>
-<span><span class="co"># compute the posterior parameters:</span></span>
+<span><span class="co"># compute the posterior parameters</span></span>
 <span><span class="va">aN</span> <span class="op">&lt;-</span> <span class="va">a0</span> <span class="op">+</span> <span class="va">SN</span></span>
 <span><span class="va">bN</span> <span class="op">&lt;-</span> <span class="va">b0</span> <span class="op">+</span> <span class="va">N</span> <span class="op">-</span> <span class="va">SN</span></span>
 <span><span class="va">mu</span> <span class="op">&lt;-</span> <span class="va">aN</span> <span class="op">/</span> <span class="va">bN</span></span>
@@ -402,12 +407,12 @@ versus the Rao-Blackwellized version by running several experiments.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">pk1</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">pk2</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fl">0</span><span class="op">:</span><span class="fl">10</span></span>
 <span></span>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">nsim</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="co"># purely sampling-based:</span></span>
+<span>  <span class="co"># purely sampling-based</span></span>
 <span>  <span class="va">thetas</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Beta.html" class="external-link">rbeta</a></span><span class="op">(</span><span class="va">M</span>, <span class="va">aN</span>, <span class="va">bN</span><span class="op">)</span></span>
 <span>  <span class="va">Sfs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Binomial.html" class="external-link">rbinom</a></span><span class="op">(</span><span class="va">M</span>, <span class="va">H</span>, <span class="va">thetas</span><span class="op">)</span></span>
 <span>  <span class="va">pk1</span><span class="op">[</span><span class="va">i</span>, <span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/proportions.html" class="external-link">proportions</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tabulate.html" class="external-link">tabulate</a></span><span class="op">(</span><span class="va">Sfs</span> <span class="op">+</span> <span class="fl">1</span>, nbins <span class="op">=</span> <span class="fl">11</span><span class="op">)</span><span class="op">)</span> <span class="co"># tabulate starts at 1</span></span>
 <span>  </span>
-<span>  <span class="co"># Rao-Blackwellized:</span></span>
+<span>  <span class="co"># Rao-Blackwellized</span></span>
 <span>  <span class="kw">for</span> <span class="op">(</span><span class="va">k</span> <span class="kw">in</span> <span class="fl">0</span><span class="op">:</span><span class="va">H</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="va">pk2</span><span class="op">[</span><span class="va">i</span>, <span class="va">k</span> <span class="op">+</span> <span class="fl">1</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Binomial.html" class="external-link">dbinom</a></span><span class="op">(</span><span class="va">k</span>, <span class="va">H</span>, <span class="va">thetas</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="op">}</span></span>
@@ -422,7 +427,7 @@ the beta-binomial distribution (which is not part of base R).</p>
 <p>Now we can easily evaluate the probabilities.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pk3</span> <span class="op">&lt;-</span> <span class="fu">dbetabinom</span><span class="op">(</span><span class="fl">0</span><span class="op">:</span><span class="va">H</span>, <span class="va">H</span>, <span class="va">aN</span>, <span class="va">bN</span><span class="op">)</span></span></code></pre></div>
-<p>To concluse, we visualize.</p>
+<p>To conclude, we visualize.</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/boxplot.html" class="external-link">boxplot</a></span><span class="op">(</span><span class="va">pk1</span>, xlab <span class="op">=</span> <span class="st">"k"</span>, range <span class="op">=</span> <span class="fl">0</span>, main <span class="op">=</span> <span class="st">"Purely sampling-based"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">pk3</span>, col <span class="op">=</span> <span class="fl">3</span>, cex <span class="op">=</span> <span class="fl">1.5</span>, pch <span class="op">=</span> <span class="fl">16</span><span class="op">)</span></span>
@@ -437,7 +442,7 @@ the beta-binomial distribution (which is not part of base R).</p>
 <h2 id="section-9-5-bayesian-forecasting-of-time-series">Section 9.5: Bayesian Forecasting of Time Series<a class="anchor" aria-label="anchor" href="#section-9-5-bayesian-forecasting-of-time-series"></a>
 </h2>
 <div class="section level3">
-<h3 id="example-9-14-one-step-ahead-forecasting-of-gdp">Example 9.14: One-step-ahead forecasting of GDP<a class="anchor" aria-label="anchor" href="#example-9-14-one-step-ahead-forecasting-of-gdp"></a>
+<h3 id="example-9-13-us-gdp-data---one-step-ahead-forecasting">Example 9.13: US GDP data - one-step-ahead forecasting<a class="anchor" aria-label="anchor" href="#example-9-13-us-gdp-data---one-step-ahead-forecasting"></a>
 </h3>
 <p>For creating the design matrix for an AR model, we re-use the
 function from Chapter 7.</p>
@@ -493,6 +498,10 @@ models under the improper prior.</p>
 <span>        lwd <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p><img src="Chapter09_files/figure-html/unnamed-chunk-23-1.png" class="r-plt" alt="" width="768"></p>
+</div>
+<div class="section level3">
+<h3 id="example-9-15-us-gdp-data---multi-step-forecasting">Example 9.15: US GDP data - multi-step forecasting<a class="anchor" aria-label="anchor" href="#example-9-15-us-gdp-data---multi-step-forecasting"></a>
+</h3>
 <p>Now, we want to “sample the future” up to 12 steps ahead for
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">p = 2</annotation></semantics></math>.</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
@@ -566,12 +575,20 @@ models under the improper prior.</p>
 <span>        col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/rgb.html" class="external-link">rgb</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">.2</span><span class="op">)</span>, border <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>h <span class="op">=</span> <span class="fl">0</span>, lty <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
 <p><img src="Chapter09_files/figure-html/unnamed-chunk-26-1.png" class="r-plt" alt="" width="768"></p>
+</div>
+<div class="section level3">
+<h3 id="example-9-16-us-gdp-data---forecasting-non-linear-functionals">Example 9.16: US GDP data - forecasting non-linear functionals<a class="anchor" aria-label="anchor" href="#example-9-16-us-gdp-data---forecasting-non-linear-functionals"></a>
+</h3>
 <p>Let us compute the probability of seeing negative growth rates a
 least once in eight quarters. Not that this is highly nonlinear.</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mins</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">yfs</span>, <span class="fl">1</span>, <span class="va">min</span><span class="op">)</span></span>
 <span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">mins</span> <span class="op">&lt;</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 0.394</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="example-9-17-us-gdp-data---forecasting-the-level">Example 9.17: US GDP data - forecasting the level<a class="anchor" aria-label="anchor" href="#example-9-17-us-gdp-data---forecasting-the-level"></a>
+</h3>
 <p>Another example of a nonlinear function of the predicted log returns
 is the level, which, given our simulation-based approach, is easy to
 compute.</p>

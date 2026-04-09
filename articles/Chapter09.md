@@ -2,7 +2,7 @@
 
 ## Section 9.1: From Bayesian Posterior to Bayesian Predictive Inference
 
-### Example 9.1: Road Safety Data - Single Predictions
+### Example 9.1: Road safety data - single predictions
 
 We load the data and extract the observations for the senior people in
 Linz. We then plot the pdf and cdf for the predictive distribution which
@@ -29,7 +29,7 @@ mtext(probs, side = 2, at = probs, adj = c(0, 1), cex = .8, col = "dimgrey")
 
 ![](Chapter09_files/figure-html/unnamed-chunk-3-1.png)
 
-### Example 9.2: Exchange Rate Data
+### Example 9.2: CHF exchange rate data - single predictions
 
 We load the data and then plot the pdf and cdf for the predictive
 distribution which corresponds under the improper prior to
@@ -70,7 +70,7 @@ round(c(mu = bN, sigma2 = scale^2, df = 2 * cN), digits = 3)
 #>    0.018    0.528 3138.000
 ```
 
-### Example 9.3: Exchange Rate Data cont’d
+### Example 9.3: CHF exchange rate data - plug-in versus Bayesian forecasting
 
 To compare with a method that ignores parameter uncertainty, we now plot
 the posterior predictive alongside the “classical” forecasting
@@ -96,19 +96,20 @@ for (i in seq_along(Ns)) {
 
 ![](Chapter09_files/figure-html/unnamed-chunk-6-1.png)
 
-### Example 9.4: Road Safety Data cont’d
+### Example 9.4: Road safety data - posterior predictive credible interval
 
-We verify that a 95% predictive interval is given by \[1, 9\] using the
-cdf and compute the effective coverage.
+We verify that a 95% posterior predictive interval is given by \[1, 9\]
+using the cdf and compute the effective coverage.
 
 ``` r
 pnbinom(9, size = aN, mu = mu) - pnbinom(0, size = aN, mu = mu)
 #> [1] 0.9522248
 ```
 
-### Example 9.5: Exchange Rate Data cont’d
+### Example 9.5: CHF exchange rate data - posterior predictive credible interval
 
-We determine the 95% predictive interval using the quantile function.
+We determine the 95% posterior predictive interval using the quantile
+function.
 
 ``` r
 round(qstudt(probs, location = bN, scale = scale, df = 2 * cN), digits = 3)
@@ -137,7 +138,7 @@ knitr::kable(t(round(coverage, 4)))
 
 ## Section 9.3: A Sampling-Based Approach to Prediction
 
-### Example 9.8: Sampling-based prediction for the CHF/USD exchange rates
+### Example 9.8: CHF exchange rate data - sampling-based prediction
 
 We proceed exactly as in Chapter 4. For the Gaussian distribution, the
 posterior of $\sigma^{2}$ is inverse gamma, and we can easily generate
@@ -214,16 +215,16 @@ hist(y, freq = FALSE, breaks = grid, border = NA,
      main = "Histogram and predictive densitites")
 lines(density(yf_normal, adjust = 2), col = 4, lty = 1, lwd = 1.5)
 lines(density(yf_t, adjust = 2), col = 2, lty = 2, lwd = 1.5)
-legend("topleft", c("Normal", "Student t"), lty = 1:2, col = c(4,2), lwd = 1.5)
+legend("topleft", c("Normal", "Student t"), lty = 1:2, col = c(4, 2), lwd = 1.5)
 ts.plot(y, main = "Time series plot and some predictive quantiles")
 abline(h = q_normal, col = 4, lty = 1, lwd = 1.5)
 abline(h = q_t, col = 2, lty = 2, lwd = 1.5)
-legend("topleft", c("Normal", "Student t"), lty = 1:2, col = c(4,2), lwd = 1.5)
+legend("topleft", c("Normal", "Student t"), lty = 1:2, col = c(4, 2), lwd = 1.5)
 ```
 
 ![](Chapter09_files/figure-html/unnamed-chunk-14-1.png)
 
-### Example 9.9: Predicting yearly maxima for the road safety data
+### Example 9.9: Road safety data - sampling-based prediction
 
 We use a sampling-based approach to obtain draws from the posterior
 predictive by first drawing from the posterior
@@ -240,6 +241,10 @@ bN <- length(y)
 mus <- rgamma(ndraws, aN, bN)
 yfs <- matrix(rpois(12 * ndraws, mus), ncol = 12)
 Us <- apply(yfs, 1, max)
+probs <- c(0.025, 0.975)
+quantile(Us, probs)
+#>  2.5% 97.5% 
+#>     7    13
 ```
 
 Now we visualize.
@@ -247,14 +252,13 @@ Now we visualize.
 ``` r
 plot(tab <- proportions(table(Us)), xlab = "U", ylab = "")
 plot(as.table(cumsum(tab)), type = "h", xlab = "U", ylab = "")
-probs <- c(0.025, 0.975)
 abline(h = probs, lty = 3)
 mtext(probs, side = 2, at = probs, adj = c(0, 1), cex = .8, col = "dimgrey")
 ```
 
 ![](Chapter09_files/figure-html/unnamed-chunk-16-1.png)
 
-### Example 9.11
+### Example 9.11: Predicting the probability of future successes
 
 We illustrate the variance of the purely sampling-based estimator versus
 the Rao-Blackwellized version by running several experiments.
@@ -270,7 +274,7 @@ H <- 10
 M <- 100
 nsim <- 1000
 
-# compute the posterior parameters:
+# compute the posterior parameters
 aN <- a0 + SN
 bN <- b0 + N - SN
 mu <- aN / bN
@@ -279,12 +283,12 @@ pk1 <- pk2 <- matrix(NA_real_, nsim, H + 1)
 colnames(pk1) <- colnames(pk2) <- 0:10
 
 for (i in seq_len(nsim)) {
-  # purely sampling-based:
+  # purely sampling-based
   thetas <- rbeta(M, aN, bN)
   Sfs <- rbinom(M, H, thetas)
   pk1[i, ] <- proportions(tabulate(Sfs + 1, nbins = 11)) # tabulate starts at 1
   
-  # Rao-Blackwellized:
+  # Rao-Blackwellized
   for (k in 0:H) {
     pk2[i, k + 1] <- mean(dbinom(k, H, thetas))
   }
@@ -307,7 +311,7 @@ Now we can easily evaluate the probabilities.
 pk3 <- dbetabinom(0:H, H, aN, bN)
 ```
 
-To concluse, we visualize.
+To conclude, we visualize.
 
 ``` r
 boxplot(pk1, xlab = "k", range = 0, main = "Purely sampling-based")
@@ -322,7 +326,7 @@ points(pk3, col = 3, cex = 1.5, pch = 16)
 
 ## Section 9.5: Bayesian Forecasting of Time Series
 
-### Example 9.14: One-step-ahead forecasting of GDP
+### Example 9.13: US GDP data - one-step-ahead forecasting
 
 For creating the design matrix for an AR model, we re-use the function
 from Chapter 7.
@@ -386,6 +390,8 @@ for (p in 2:4) {
 ```
 
 ![](Chapter09_files/figure-html/unnamed-chunk-23-1.png)
+
+### Example 9.15: US GDP data - multi-step forecasting
 
 Now, we want to “sample the future” up to 12 steps ahead for $p = 2$.
 
@@ -470,6 +476,8 @@ abline(h = 0, lty = 3)
 
 ![](Chapter09_files/figure-html/unnamed-chunk-26-1.png)
 
+### Example 9.16: US GDP data - forecasting non-linear functionals
+
 Let us compute the probability of seeing negative growth rates a least
 once in eight quarters. Not that this is highly nonlinear.
 
@@ -478,6 +486,8 @@ mins <- apply(yfs, 1, min)
 (mean(mins < 0))
 #> [1] 0.394
 ```
+
+### Example 9.17: US GDP data - forecasting the level
 
 Another example of a nonlinear function of the predicted log returns is
 the level, which, given our simulation-based approach, is easy to
