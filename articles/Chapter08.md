@@ -1574,7 +1574,6 @@ We use a more informative prior for the semi-conjugate prior on the
 regression parameters.
 
 ``` r
-# define prior parameters of semi-conjugate prior
 B0.inv <- diag(rep(1, d), nrow = d)
 b0 <- coef(ols_subset)
 ```
@@ -1595,8 +1594,7 @@ for (m in seq_len(burnin + M)) {
     posterior <- cbind((1 - eta) * dnorm(y, Xbeta, sqrt(sigma2)),
                        eta * dnorm(y, Xbeta, sqrt(sigma2 / phi)))
     posterior <- posterior / rowSums(posterior)
-    S <- 1 + rbinom(nrow(posterior), prob = posterior[, 2],
-                    size = 1)
+    S <- 1 + rbinom(nrow(posterior), prob = posterior[, 2], size = 1)
 
     # re-weight
     w <- phi^(S - 1)
@@ -1677,8 +1675,7 @@ for (m in seq_len(burnin + M)) {
     posterior <- cbind((1 - eta) * dnorm(y, Xbeta, sqrt(sigma2)),
                        eta * dnorm(y, Xbeta, sqrt(sigma2 / phi)))
     posterior <- posterior / rowSums(posterior)
-    S <- 1 + rbinom(nrow(posterior), prob = posterior[, 2],
-                    size = 1)
+    S <- 1 + rbinom(nrow(posterior), prob = posterior[, 2], size = 1)
 
     # sample eta
     aN <- a0 + sum(S == 2)
