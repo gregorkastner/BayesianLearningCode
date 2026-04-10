@@ -1827,3 +1827,13 @@ for (m in 1:(burnin + M)) {
   }
 }
 ```
+
+```{r}
+par(mfrow = c(2, 2), mgp = c(1.5, .5, 0), mar = c(2.5, 2.5, 1, .5))
+ts.plot(mus, xlab = "Draws", ylab = expression(mu))
+ts.plot(sqrt(sigma2s), xlab = "Draws", ylab = expression(sigma))
+ts.plot(nus, xlab = "Draws", ylab = expression(nu),
+        main = paste0("Acceptance rate: ", round(100 * accepts / M), "%"))
+selecta <- sample.int(N, 1)
+ts.plot(ws[, selecta], xlab = "Draws", ylab = bquote(~omega[.(selecta)]))
+```
