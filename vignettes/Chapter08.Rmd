@@ -1752,8 +1752,10 @@ matrix is simply a vector of ones.
 ```{r}
 set.seed(1)
 
-# fix tuning parameter cnu
+# fix tuning parameter for MH, M, and burnin
 cnu <- 0.3
+M <- 5000
+burnin <- 1000
 
 # fix prior hyperparameters
 B0.inv <- 1
