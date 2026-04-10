@@ -1830,11 +1830,11 @@ for (m in 1:(burnin + M)) {
 }
 ```
 
-We visualize some trace plots to check for convergence.
+We visualize some results.
 
 ```{r}
 par(mfrow = c(2, 2), mgp = c(1.5, .5, 0), mar = c(2.5, 2.5, 1, .5))
-ts.plot(mus, xlab = "Iteration", ylab = expression(mu))
+ts.plot(mus, xlab = "Iteration", ylab = expression(mu), main = "Trace plot")
 ts.plot(sqrt(sigma2s), xlab = "Iteration", ylab = expression(sigma))
 ts.plot(nus, xlab = "Iteration", ylab = expression(nu))
 mtext(paste0("Acceptance rate: ", round(100 * accepts / M), "%"), line = -1.1)
