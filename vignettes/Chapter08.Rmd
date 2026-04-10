@@ -1760,9 +1760,9 @@ burnin <- 1000
 # fix prior hyperparameters
 B0.inv <- 1
 b0 <- 0
-c0 <- 1
-C0 <- 1
-lambda <- 1 / 100
+c0 <- 2.5
+C0 <- 1.5
+lambda <- 1 / 7
 
 # set up the design matrix
 X <- matrix(1, nrow = N, ncol = 1)
