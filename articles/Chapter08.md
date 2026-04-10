@@ -1759,7 +1759,7 @@ and 10, i.e., setting it to 7.
 nu <- 7
 ```
 
-We perform the Gibb sampling scheme with data augmentation as outlined
+We perform the Gibbs sampling scheme with data augmentation as outlined
 in Algorithm 8.3. We use the same prior specification for the regression
 parameters as used for the mixture distribution.
 
@@ -1822,3 +1822,128 @@ boxplot(ws, col = 2 * (1:ncol(ws) %in% index))
 ```
 
 ![](Chapter08_files/figure-html/unnamed-chunk-66-1.png)
+
+#### Example 8.16: CHF exchange rate data - Fitting a Student-$t$ with $\nu$ unknown
+
+We begin with loading the data.
+
+``` r
+data("exrates", package = "stochvol")
+y <- 100 * diff(log(exrates$USD / exrates$CHF))
+X <- 1
+N <- length(y)
+```
+
+Next we perform the Gibbs sampling scheme as above and include sampling
+the degrees of freedom parameter $\nu$ via a log random walk MH step.
+Note that we do not have any predictors in this case, so the design
+matrix is simply a vector of ones.
+
+``` r
+set.seed(1)
+
+# fix tuning parameter for MH, the number of draws M, and burn-in length
+cnu <- 0.3
+M <- 5000
+burnin <- 1000
+
+# fix prior hyperparameters
+B0.inv <- 1
+b0 <- 0
+c0 <- 2.5
+C0 <- 1.5
+lambda <- 1 / 7
+
+# set up the design matrix
+X <- matrix(1, nrow = N, ncol = 1)
+
+# allocate space for storing the draws
+nus <- mus <- sigma2s <- rep(NA_real_, M)
+ws <- matrix(NA_real_, nrow = M, ncol = N)
+
+# starting value for sigma2, log(nu), and w
+sigma2 <- var(y) / 2
+w <- rep(1, N)
+nu <- 10
+
+# pre-compute cN
+cN <- c0 + N / 2
+
+# log likelihood
+loglik <- function(y, X, beta, sigma2, nu) {
+  length(y) * (lgamma((nu + 1) / 2) - lgamma(nu / 2) - .5 * log(nu)) -
+  (nu + 1) / 2 * sum(log(1 + (y - X %*% beta)^2 / nu / sigma2))
+}
+
+accepts <- 0L
+for (m in 1:(burnin + M)) {
+  Xtilde <- sqrt(w) * X
+  ytilde <- sqrt(w) * y
+  wXX <- crossprod(Xtilde)
+  wXy <- crossprod(Xtilde, ytilde)
+
+  # sample beta from the full conditional (M-DA)
+  BN <- solve(B0.inv + wXX / sigma2)
+  bN <- BN %*% (B0.inv %*% b0 + wXy / sigma2)
+  beta <- t(mvtnorm::rmvnorm(1, mean = bN, sigma = BN))
+
+  # sample sigma^2 from its full conditional (S-DA)
+  eps <- ytilde - Xtilde %*% beta
+  CN <- C0 + crossprod(eps) / 2
+  sigma2 <- rinvgamma(1, cN, CN)
+
+  # sample nu (N-MH)
+  nuprop <- exp(rnorm(1, log(nu), cnu))
+  logR <- loglik(y, X, beta, sigma2, nuprop) -
+          loglik(y, X, beta, sigma2, nu) +
+          dexp(nuprop, lambda, log = TRUE) -
+          dexp(nu, lambda, log = TRUE) +
+          log(nuprop) -
+          log(nu)
+  
+  if (log(runif(1)) < logR) {
+    nu <- nuprop
+    if (m > burnin) accepts <- accepts + 1L
+  }
+  
+  # sample w (W-DA)
+  r <- eps^2 / (w * sigma2)
+  w <- rgamma(length(eps), (nu + 1) /2, (nu + r) / 2)
+
+  # store the results
+  if (m > burnin) {
+    mus[m - burnin] <- beta
+    sigma2s[m - burnin] <- sigma2
+    nus[m - burnin] <- nu
+    ws[m - burnin, ] <- w
+  }
+}
+```
+
+We visualize some results.
+
+``` r
+par(mfrow = c(2, 2), mgp = c(1.5, .5, 0), mar = c(2.5, 2.5, 1, .5))
+ts.plot(mus, xlab = "Iteration", ylab = expression(mu), main = "Trace plot")
+ts.plot(sqrt(sigma2s), xlab = "Iteration", ylab = expression(sigma))
+ts.plot(nus, xlab = "Iteration", ylab = expression(nu))
+mtext(paste0("Acceptance rate: ", round(100 * accepts / M), "%"), line = -1.1)
+selecta <- sample.int(N, 1)
+ts.plot(ws[, selecta], xlab = "Iteration", ylab = bquote(~omega[.(selecta)]))
+```
+
+![](Chapter08_files/figure-html/unnamed-chunk-69-1.png)
+
+``` r
+grid <- seq(0, 20, by = .1)
+hist(nus, breaks = 20, freq = FALSE, xlab = bquote(nu),
+     main = "Histogram")
+lines(grid, dexp(grid, lambda), col = 2, lty = 2)
+ts.plot(nus, xlab = "Iteration", ylab = expression(nu))
+title(paste0("Trace plot (AR: ", round(100 * accepts / M), "%)"))
+acf(nus)
+IF <- M / coda::effectiveSize(nus)
+title(paste0("Empirical ACF (IF: ", round(IF), ")"))
+```
+
+![](Chapter08_files/figure-html/unnamed-chunk-70-1.png)
