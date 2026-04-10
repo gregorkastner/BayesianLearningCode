@@ -1841,3 +1841,19 @@ mtext(paste0("Acceptance rate: ", round(100 * accepts / M), "%"), line = -1.1)
 selecta <- sample.int(N, 1)
 ts.plot(ws[, selecta], xlab = "Iteration", ylab = bquote(~omega[.(selecta)]))
 ```
+
+```{r, echo = -c(1:2)}
+if (pdfplots) {
+  pdf("8-3_4.pdf", width = 6, height = 3)
+}
+par(mfrow = c(1, 3), mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.5, .5, 0), lwd = 1.5)
+grid <- seq(0, 20, by = .1)
+hist(nus, breaks = 20, freq = FALSE, xlab = bquote(nu),
+     main = "Histogram")
+lines(grid, dexp(grid, lambda), col = 2, lty = 2)
+ts.plot(nus, xlab = "Iteration", ylab = expression(nu))
+title(paste0("Trace plot (AR: ", round(100 * accepts / M), "%)"))
+acf(nus)
+IF <- M / coda::effectiveSize(nus)
+title(paste0("Empirical ACF (IF: ", round(IF), ")"))
+```
