@@ -1666,7 +1666,7 @@ value between 4 and 10, i.e., setting it to 7.
 nu <- 7
 ```
 
-We perform the Gibb sampling scheme with data augmentation as outlined
+We perform the Gibbs sampling scheme with data augmentation as outlined
 in Algorithm 8.3. We use the same prior specification for the
 regression parameters as used for the mixture distribution.
 
