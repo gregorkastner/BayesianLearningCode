@@ -1744,3 +1744,86 @@ X <- 1
 N <- length(y)
 ```
 
+Next we perform the Gibbs sampling scheme as above and
+include sampling the degrees of freedom parameter $\nu$ via a log random walk
+MH step. Note that we do not have any predictors in this case, so the design
+matrix is simply a vector of ones.
+
+```{r}
+set.seed(1)
+
+# fix tuning parameter cnu
+cnu <- 0.3
+
+# fix prior hyperparameters
+B0.inv <- 1
+b0 <- 0
+c0 <- 1
+C0 <- 1
+lambda <- 1 / 100
+
+# set up the design matrix
+X <- matrix(1, nrow = N, ncol = 1)
+
+# allocate space for storing the draws
+nus <- mus <- sigma2s <- rep(NA_real_, M)
+ws <- matrix(NA_real_, nrow = M, ncol = N)
+
+# starting value for sigma2, log(nu), and w
+sigma2 <- var(y) / 2
+w <- rep(1, N)
+nu <- 10
+
+# pre-compute cN
+cN <- c0 + N / 2
+
+# log likelihood
+loglik <- function(y, X, beta, sigma2, nu) {
+  length(y) * (lgamma((nu + 1) / 2) - lgamma(nu / 2) - .5 * log(nu)) -
+  (nu + 1) / 2 * sum(log(1 + (y - X %*% beta)^2 / nu / sigma2))
+}
+
+accepts <- 0L
+for (m in 1:(burnin + M)) {
+  Xtilde <- sqrt(w) * X
+  ytilde <- sqrt(w) * y
+  wXX <- crossprod(Xtilde)
+  wXy <- crossprod(Xtilde, ytilde)
+
+  # sample beta from the full conditional (M-DA)
+  BN <- solve(B0.inv + wXX / sigma2)
+  bN <- BN %*% (B0.inv %*% b0 + wXy / sigma2)
+  beta <- t(mvtnorm::rmvnorm(1, mean = bN, sigma = BN))
+
+  # sample sigma^2 from its full conditional (S-DA)
+  eps <- ytilde - Xtilde %*% beta
+  CN <- C0 + crossprod(eps) / 2
+  sigma2 <- rinvgamma(1, cN, CN)
+
+  # sample nu (N-MH)
+  nuprop <- exp(rnorm(1, log(nu), cnu))
+  logR <- loglik(y, X, beta, sigma2, nuprop) -
+          loglik(y, X, beta, sigma2, nu) +
+          dexp(nuprop, lambda, log = TRUE) -
+          dexp(nu, lambda, log = TRUE) +
+          log(nuprop) -
+          log(nu)
+  
+  if (log(runif(1)) < logR) {
+    nu <- nuprop
+    if (m > burnin) accepts <- accepts + 1L
+  }
+  
+  # sample w (W-DA)
+  r <- eps^2 / (w * sigma2)
+  w <- rgamma(length(eps), (nu + 1) /2, (nu + r) / 2)
+
+  # store the results
+  if (m > burnin) {
+    mus[m - burnin] <- beta
+    sigma2s[m - burnin] <- sigma2
+    nus[m - burnin] <- nu
+    ws[m - burnin, ] <- w
+  }
+}
+```
