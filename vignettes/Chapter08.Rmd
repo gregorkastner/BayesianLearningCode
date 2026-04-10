@@ -1732,3 +1732,15 @@ lines(xnew, apply(preds_norm, 1, quantile, 0.025), lty = 3)
 lines(xnew, apply(preds_norm, 1, quantile, 0.975), lty = 3)
 boxplot(ws, col = 2 * (1:ncol(ws) %in% index))
 ```
+
+### Example 8.16: CHF exchange rate data - Fitting a Student-$t$ with $\nu$ unknown 
+
+We begin with loading the data.
+
+```{r}
+data("exrates", package = "stochvol")
+y <- 100 * diff(log(exrates$USD / exrates$CHF))
+X <- 1
+N <- length(y)
+```
+
