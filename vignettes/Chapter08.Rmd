@@ -1752,7 +1752,7 @@ matrix is simply a vector of ones.
 ```{r}
 set.seed(1)
 
-# fix tuning parameter for MH, M, and burnin
+# fix tuning parameter for MH, the number of draws M, and burn-in length
 cnu <- 0.3
 M <- 5000
 burnin <- 1000
