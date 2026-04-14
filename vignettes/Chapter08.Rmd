@@ -1937,7 +1937,7 @@ We can compute draws of the predicted values and the residuals.
 
 ```{r}
 ypreds <- tcrossprod(X, betas)
-resids <- as.numeric(y) - ypred
+resids <- as.numeric(y) - ypreds
 ```
 
 We proceed with visualizing the data and the posterior mean of the predicted
