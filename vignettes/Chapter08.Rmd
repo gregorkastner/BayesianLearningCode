@@ -1885,3 +1885,53 @@ X <- model.matrix(~ month + poly(tim, degree))
 head(X)
 d <- ncol(X)
 ```
+
+Before including an autoregressive parameter, we first fit a standard
+regression model, where we assume that the residuals are uncorrelated.
+
+```{r}
+y <- newcars
+# Define the burnin and the number of draws thereafter
+burnin <- 100
+M <- 1000
+
+# Define the prior parameters
+b0 <- rep(0, d)
+B0inv <- diag(0, d)
+c0 <- 0
+C0 <- 0
+
+# Pre-compute some quantities for the Gibbs sampler
+XX <- crossprod(X)
+Xy <- crossprod(X, y)
+cN <- c0 + length(y) / 2
+    
+# Allocate space to store the results
+betas <- matrix(NA_real_, nrow = M, ncol = d)
+colnames(betas) <- colnames(X)
+sigma2s <- rep(NA_real_,  M)
+
+# Set the starting values
+sigma2 <- var(y) / 2
+   
+for (m in 1:(burnin + M)) {
+  # Sample beta from its full conditional
+  BN <- solve(B0inv + XX / sigma2) 
+  bN <- BN %*% (B0inv %*% b0 + Xy / sigma2)
+  beta <- t(mvtnorm::rmvnorm(1, mean = bN, sigma = BN))
+ 
+  # Sample sigma^2 from its full conditional
+  eps <- y - X %*% beta
+  CN <- C0 + crossprod(eps) / 2
+  sigma2 <- rinvgamma(1, cN, CN)
+
+  # Store the results
+  if (m > burnin) {
+    betas[m - burnin, ] <- beta
+    sigma2s[m - burnin] <- sigma2
+  }
+}
+colMeans(betas)
+plot(y)
+points(tim, colMeans(ypred), type = "l", col = 2)
+```
