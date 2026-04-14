@@ -1960,5 +1960,56 @@ Apart from some outliers (the most prominent ones being related to the
 COVID-outbreak), we still see autocorrelation in the residuals. Thus, we move
 forward by including an autoregressive coefficient.
 
+```{r}
+# Define the prior parameters for phi (the other ones stay the same)
+phiMean <- 0
+phiPrec <- 0
 
+# Allocate space to store the results
+betas <- matrix(NA_real_, nrow = M, ncol = d)
+colnames(betas) <- colnames(X)
+sigma2s <- rep(NA_real_,  M)
+phis <- rep(NA_real_, M)
 
+# Set the starting values
+sigma2 <- var(y) / 2
+phi <- 0
+   
+for (m in 1:(burnin + M)) {
+  # Compute the transformed X and y
+  ytilde <- y[-1] - phi * y[-length(y)]
+  Xtilde <- X[-1, ] - phi * X[-nrow(X), ]
+  
+  # Sample beta from its full conditional
+  XX <- crossprod(Xtilde)
+  Xy <- crossprod(Xtilde, ytilde)
+  BN <- solve(B0inv + XX / sigma2) 
+  bN <- BN %*% (B0inv %*% b0 + Xy / sigma2)
+  beta <- t(mvtnorm::rmvnorm(1, mean = bN, sigma = BN))
+ 
+  # Compute the errors
+  u <- y - X %*% beta
+  
+  # Sample sigma^2 from its full conditional
+  eps <- u[-1] - phi * u[-length(u)]
+  cN <- c0 + length(eps) / 2
+  CN <- C0 + crossprod(eps) / 2
+  sigma2 <- rinvgamma(1, cN, CN)
+  
+  # Sample phi from its full conditional
+  XX <- sum(u[-length(u)]^2)
+  Xy <- sum(u[-length(u)] * u[-1])
+  BN <- 1 / (phiPrec + XX / sigma2)
+  bN <- BN * (phiPrec * phiMean + Xy / sigma2)
+  phi <- rnorm(1, bN, sqrt(BN))
+
+  # Store the results
+  if (m > burnin) {
+    betas[m - burnin, ] <- beta
+    sigma2s[m - burnin] <- sigma2
+    phis[m - burnin] <- phi
+  }
+}
+```
+
+We can again compute draws of the predicted values and the residuals.
