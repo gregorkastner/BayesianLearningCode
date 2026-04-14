@@ -19,6 +19,6 @@ you can do so by installing the development version of BayesianLearningCode
 from [GitHub](https://github.com/gregorkastner/BayesianLearningCode/) with:
 
 ``` r
-install.packages("devtools")
+# install.packages("devtools")
 devtools::install_github("gregorkastner/BayesianLearningCode")
 ```
