@@ -1864,14 +1864,24 @@ title(paste0("Empirical ACF (IF: ", round(IF), ")"))
 
 ## Section 8.3.4 Regression analysis with autocorrelated errors
 
-We begin by loading the data and visualize them as a time series plot.
+We begin by loading the data and visualizing them as a time series plot.
 
-```{r, echo = -c(1:2)}
-if (pdfplots) {
-  pdf("8-3_4.pdf", width = 6, height = 3)
-}
-par(mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.5, .5, 0), lwd = 1.5)
+```{r}
 data(newcars, package = "BayesianLearningCode")
 plot(newcars)
 ```
 
+Seasonal patterns are evident, as is a trend. To model these, we set up an
+appropriate design matrix. Leveraging the fact the the data is a `ts` object, we
+can do this very easily using `time` and `cycle`. 
+Note that `model.matrix` will, by default, use the first month
+(January) as a baseline and automatically include an intercept.
+
+```{r}
+degree <- 4
+tim <- time(newcars)
+month <- factor(cycle(tim))
+X <- model.matrix(~ month + poly(tim, degree))
+head(X)
+d <- ncol(X)
+```
