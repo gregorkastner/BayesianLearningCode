@@ -1861,3 +1861,17 @@ acf(nus)
 IF <- M / coda::effectiveSize(nus)
 title(paste0("Empirical ACF (IF: ", round(IF), ")"))
 ```
+
+## Section 8.3.4 Regression analysis with autocorrelated errors
+
+We begin by loading the data and visualize them as a time series plot.
+
+```{r, echo = -c(1:2)}
+if (pdfplots) {
+  pdf("8-3_4.pdf", width = 6, height = 3)
+}
+par(mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.5, .5, 0), lwd = 1.5)
+data(newcars, package = "BayesianLearningCode")
+plot(newcars)
+```
+
