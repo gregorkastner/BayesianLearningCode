@@ -1557,6 +1557,8 @@ lines(xnew, apply(pred_hetero, 1, quantile, 0.975), lty = 2)
 
 ![](Chapter08_files/figure-html/unnamed-chunk-54-1.png)
 
+### Section 8.3.2 Regression analysis with errors following a Gaussian mixture
+
 #### Example 8.14: Star cluster data - regression analysis with Gaussian two-component mixture errors
 
 We now assume that the indices of the giant stars are not known. We only
@@ -1748,6 +1750,8 @@ lines(xnew, apply(preds_mix_2, 1, quantile, 0.975), lty = 2)
 
 The plot indicates that all three modeling approaches result in a fit
 that is robust to the outlying observations.
+
+### Section 8.3.3 Regression analysis with Student-t errors
 
 #### Example 8.15: Star cluster data - Student-$t$ regression analysis
 
@@ -1947,3 +1951,176 @@ title(paste0("Empirical ACF (IF: ", round(IF), ")"))
 ```
 
 ![](Chapter08_files/figure-html/unnamed-chunk-70-1.png)
+
+### Section 8.3.4 Regression analysis with autocorrelated errors
+
+We begin by loading the data and visualizing them as a time series plot.
+
+``` r
+data(newcars, package = "BayesianLearningCode")
+plot(newcars)
+```
+
+![](Chapter08_files/figure-html/unnamed-chunk-71-1.png)
+
+Seasonal patterns are evident, as is a trend. To model these, we set up
+an appropriate design matrix. Leveraging the fact the the data is a `ts`
+object, we can do this very easily using `time` and `cycle`. Note that
+`model.matrix` will, by default, use the first month (January) as a
+baseline and automatically include an intercept.
+
+``` r
+degree <- 4
+tim <- time(newcars)
+month <- factor(cycle(tim))
+X <- model.matrix(~ month + poly(tim, degree))
+head(X)
+#>   (Intercept) month2 month3 month4 month5 month6 month7 month8 month9 month10
+#> 1           1      0      0      0      0      0      0      0      0       0
+#> 2           1      1      0      0      0      0      0      0      0       0
+#> 3           1      0      1      0      0      0      0      0      0       0
+#> 4           1      0      0      1      0      0      0      0      0       0
+#> 5           1      0      0      0      1      0      0      0      0       0
+#> 6           1      0      0      0      0      1      0      0      0       0
+#>   month11 month12 poly(tim, degree)1 poly(tim, degree)2 poly(tim, degree)3
+#> 1       0       0        -0.09758901          0.1251844         -0.1467072
+#> 2       0       0        -0.09696344          0.1227770         -0.1410647
+#> 3       0       0        -0.09633787          0.1203851         -0.1355128
+#> 4       0       0        -0.09571230          0.1180087         -0.1300510
+#> 5       0       0        -0.09508673          0.1156477         -0.1246789
+#> 6       0       0        -0.09446116          0.1133023         -0.1193956
+#>   poly(tim, degree)4
+#> 1          0.1642379
+#> 2          0.1537098
+#> 3          0.1434864
+#> 4          0.1335631
+#> 5          0.1239353
+#> 6          0.1145985
+d <- ncol(X)
+```
+
+Before including an autoregressive parameter, we first fit a standard
+regression model, where we assume that the residuals are uncorrelated.
+
+``` r
+y <- newcars
+# Define the burnin and the number of draws thereafter
+burnin <- 100
+M <- 1000
+
+# Define the prior parameters
+b0 <- rep(0, d)
+B0inv <- diag(0, d)
+c0 <- 0
+C0 <- 0
+
+# Pre-compute some quantities for the Gibbs sampler
+XX <- crossprod(X)
+Xy <- crossprod(X, y)
+cN <- c0 + length(y) / 2
+    
+# Allocate space to store the results
+betas <- matrix(NA_real_, nrow = M, ncol = d)
+colnames(betas) <- colnames(X)
+sigma2s <- rep(NA_real_,  M)
+
+# Set the starting values
+sigma2 <- var(y) / 2
+   
+for (m in 1:(burnin + M)) {
+  # Sample beta from its full conditional
+  BN <- solve(B0inv + XX / sigma2) 
+  bN <- BN %*% (B0inv %*% b0 + Xy / sigma2)
+  beta <- t(mvtnorm::rmvnorm(1, mean = bN, sigma = BN))
+ 
+  # Sample sigma^2 from its full conditional
+  eps <- y - X %*% beta
+  CN <- C0 + crossprod(eps) / 2
+  sigma2 <- rinvgamma(1, cN, CN)
+
+  # Store the results
+  if (m > burnin) {
+    betas[m - burnin, ] <- beta
+    sigma2s[m - burnin] <- sigma2
+  }
+}
+```
+
+We can compute draws of the predicted values and the residuals.
+
+``` r
+ypreds <- tcrossprod(X, betas)
+resids <- as.numeric(y) - ypreds
+```
+
+We proceed with visualizing the data and the posterior mean of the
+predicted values as well as the posterior mean of the residuals.
+
+``` r
+plot(y, ylab = "", main = "New car regristrations")
+points(tim, rowMeans(ypreds), col = 2, type = 'l')
+legend("topright", c("Data", "Posterior mean"), lty = 1, col = 1:2)
+plot(tim, rowMeans(resids), type = 'l', main = "Mean residuals", xlab = "Time",
+     ylab = "")
+abline(h = 0, lty = 3)
+```
+
+![](Chapter08_files/figure-html/unnamed-chunk-75-1.png)
+
+Apart from some outliers (the most prominent ones being related to the
+COVID-outbreak), we still see autocorrelation in the residuals. Thus, we
+move forward by including an autoregressive coefficient.
+
+``` r
+# Define the prior parameters for phi (the other ones stay the same)
+phiMean <- 0
+phiPrec <- 0
+
+# Allocate space to store the results
+betas <- matrix(NA_real_, nrow = M, ncol = d)
+colnames(betas) <- colnames(X)
+sigma2s <- rep(NA_real_,  M)
+phis <- rep(NA_real_, M)
+
+# Set the starting values
+sigma2 <- var(y) / 2
+phi <- 0
+   
+for (m in 1:(burnin + M)) {
+  # Compute the transformed X and y
+  ytilde <- y[-1] - phi * y[-length(y)]
+  Xtilde <- X[-1, ] - phi * X[-nrow(X), ]
+  
+  # Sample beta from its full conditional
+  XX <- crossprod(Xtilde)
+  Xy <- crossprod(Xtilde, ytilde)
+  BN <- solve(B0inv + XX / sigma2) 
+  bN <- BN %*% (B0inv %*% b0 + Xy / sigma2)
+  beta <- t(mvtnorm::rmvnorm(1, mean = bN, sigma = BN))
+ 
+  # Compute the errors
+  u <- y - X %*% beta
+  
+  # Sample sigma^2 from its full conditional
+  eps <- u[-1] - phi * u[-length(u)]
+  cN <- c0 + length(eps) / 2
+  CN <- C0 + crossprod(eps) / 2
+  sigma2 <- rinvgamma(1, cN, CN)
+  
+  # Sample phi from its full conditional
+  XX <- sum(u[-length(u)]^2)
+  Xy <- sum(u[-length(u)] * u[-1])
+  BN <- 1 / (phiPrec + XX / sigma2)
+  bN <- BN * (phiPrec * phiMean + Xy / sigma2)
+  phi <- rnorm(1, bN, sqrt(BN))
+
+  # Store the results
+  if (m > burnin) {
+    betas[m - burnin, ] <- beta
+    sigma2s[m - burnin] <- sigma2
+    phis[m - burnin] <- phi
+  }
+}
+```
+
+We can again compute draws of the predicted values and the residuals.

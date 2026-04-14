@@ -1884,6 +1884,11 @@ from the predictive distributions for new observations with
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">xnew</span>, <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">pred_hetero</span>, <span class="fl">1</span>, <span class="va">quantile</span>, <span class="fl">0.975</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <p><img src="Chapter08_files/figure-html/unnamed-chunk-54-1.png" class="r-plt" alt="" width="768"></p>
 </div>
+</div>
+<div class="section level3">
+<h3 id="section-8-3-2-regression-analysis-with-errors-following-a-gaussian-mixture">Section 8.3.2 Regression analysis with errors following a Gaussian
+mixture<a class="anchor" aria-label="anchor" href="#section-8-3-2-regression-analysis-with-errors-following-a-gaussian-mixture"></a>
+</h3>
 <div class="section level4">
 <h4 id="example-8-14-star-cluster-data---regression-analysis-with-gaussian-two-component-mixture-errors">Example 8.14: Star cluster data - regression analysis with Gaussian
 two-component mixture errors<a class="anchor" aria-label="anchor" href="#example-8-14-star-cluster-data---regression-analysis-with-gaussian-two-component-mixture-errors"></a>
@@ -2056,6 +2061,10 @@ two-component mixture where the component size is unknown.</p>
 <p>The plot indicates that all three modeling approaches result in a fit
 that is robust to the outlying observations.</p>
 </div>
+</div>
+<div class="section level3">
+<h3 id="section-8-3-3-regression-analysis-with-student-t-errors">Section 8.3.3 Regression analysis with Student-t errors<a class="anchor" aria-label="anchor" href="#section-8-3-3-regression-analysis-with-student-t-errors"></a>
+</h3>
 <div class="section level4">
 <h4 id="example-8-15-star-cluster-data---student-t-regression-analysis">Example 8.15: Star cluster data -
 Student-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
@@ -2245,6 +2254,164 @@ in this case, so the design matrix is simply a vector of ones.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/title.html" class="external-link">title</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Empirical ACF (IF: "</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">IF</span><span class="op">)</span>, <span class="st">")"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="Chapter08_files/figure-html/unnamed-chunk-70-1.png" class="r-plt" alt="" width="768"></p>
 </div>
+</div>
+<div class="section level3">
+<h3 id="section-8-3-4-regression-analysis-with-autocorrelated-errors">Section 8.3.4 Regression analysis with autocorrelated errors<a class="anchor" aria-label="anchor" href="#section-8-3-4-regression-analysis-with-autocorrelated-errors"></a>
+</h3>
+<p>We begin by loading the data and visualizing them as a time series
+plot.</p>
+<div class="sourceCode" id="cb78"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">newcars</span>, package <span class="op">=</span> <span class="st">"BayesianLearningCode"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">newcars</span><span class="op">)</span></span></code></pre></div>
+<p><img src="Chapter08_files/figure-html/unnamed-chunk-71-1.png" class="r-plt" alt="" width="768"></p>
+<p>Seasonal patterns are evident, as is a trend. To model these, we set
+up an appropriate design matrix. Leveraging the fact the the data is a
+<code>ts</code> object, we can do this very easily using
+<code>time</code> and <code>cycle</code>. Note that
+<code>model.matrix</code> will, by default, use the first month
+(January) as a baseline and automatically include an intercept.</p>
+<div class="sourceCode" id="cb79"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">degree</span> <span class="op">&lt;-</span> <span class="fl">4</span></span>
+<span><span class="va">tim</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/time.html" class="external-link">time</a></span><span class="op">(</span><span class="va">newcars</span><span class="op">)</span></span>
+<span><span class="va">month</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/time.html" class="external-link">cycle</a></span><span class="op">(</span><span class="va">tim</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/model.matrix.html" class="external-link">model.matrix</a></span><span class="op">(</span><span class="op">~</span> <span class="va">month</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/poly.html" class="external-link">poly</a></span><span class="op">(</span><span class="va">tim</span>, <span class="va">degree</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   (Intercept) month2 month3 month4 month5 month6 month7 month8 month9 month10</span></span>
+<span><span class="co">#&gt; 1           1      0      0      0      0      0      0      0      0       0</span></span>
+<span><span class="co">#&gt; 2           1      1      0      0      0      0      0      0      0       0</span></span>
+<span><span class="co">#&gt; 3           1      0      1      0      0      0      0      0      0       0</span></span>
+<span><span class="co">#&gt; 4           1      0      0      1      0      0      0      0      0       0</span></span>
+<span><span class="co">#&gt; 5           1      0      0      0      1      0      0      0      0       0</span></span>
+<span><span class="co">#&gt; 6           1      0      0      0      0      1      0      0      0       0</span></span>
+<span><span class="co">#&gt;   month11 month12 poly(tim, degree)1 poly(tim, degree)2 poly(tim, degree)3</span></span>
+<span><span class="co">#&gt; 1       0       0        -0.09758901          0.1251844         -0.1467072</span></span>
+<span><span class="co">#&gt; 2       0       0        -0.09696344          0.1227770         -0.1410647</span></span>
+<span><span class="co">#&gt; 3       0       0        -0.09633787          0.1203851         -0.1355128</span></span>
+<span><span class="co">#&gt; 4       0       0        -0.09571230          0.1180087         -0.1300510</span></span>
+<span><span class="co">#&gt; 5       0       0        -0.09508673          0.1156477         -0.1246789</span></span>
+<span><span class="co">#&gt; 6       0       0        -0.09446116          0.1133023         -0.1193956</span></span>
+<span><span class="co">#&gt;   poly(tim, degree)4</span></span>
+<span><span class="co">#&gt; 1          0.1642379</span></span>
+<span><span class="co">#&gt; 2          0.1537098</span></span>
+<span><span class="co">#&gt; 3          0.1434864</span></span>
+<span><span class="co">#&gt; 4          0.1335631</span></span>
+<span><span class="co">#&gt; 5          0.1239353</span></span>
+<span><span class="co">#&gt; 6          0.1145985</span></span>
+<span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span></span></code></pre></div>
+<p>Before including an autoregressive parameter, we first fit a standard
+regression model, where we assume that the residuals are
+uncorrelated.</p>
+<div class="sourceCode" id="cb80"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="va">newcars</span></span>
+<span><span class="co"># Define the burnin and the number of draws thereafter</span></span>
+<span><span class="va">burnin</span> <span class="op">&lt;-</span> <span class="fl">100</span></span>
+<span><span class="va">M</span> <span class="op">&lt;-</span> <span class="fl">1000</span></span>
+<span></span>
+<span><span class="co"># Define the prior parameters</span></span>
+<span><span class="va">b0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">d</span><span class="op">)</span></span>
+<span><span class="va">B0inv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">d</span><span class="op">)</span></span>
+<span><span class="va">c0</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
+<span><span class="va">C0</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
+<span></span>
+<span><span class="co"># Pre-compute some quantities for the Gibbs sampler</span></span>
+<span><span class="va">XX</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/crossprod.html" class="external-link">crossprod</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span></span>
+<span><span class="va">Xy</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/crossprod.html" class="external-link">crossprod</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">y</span><span class="op">)</span></span>
+<span><span class="va">cN</span> <span class="op">&lt;-</span> <span class="va">c0</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span></span>
+<span>    </span>
+<span><span class="co"># Allocate space to store the results</span></span>
+<span><span class="va">betas</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="cn">NA_real_</span>, nrow <span class="op">=</span> <span class="va">M</span>, ncol <span class="op">=</span> <span class="va">d</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">betas</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span></span>
+<span><span class="va">sigma2s</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA_real_</span>,  <span class="va">M</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Set the starting values</span></span>
+<span><span class="va">sigma2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">var</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span></span>
+<span>   </span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">m</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="op">(</span><span class="va">burnin</span> <span class="op">+</span> <span class="va">M</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="co"># Sample beta from its full conditional</span></span>
+<span>  <span class="va">BN</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/solve.html" class="external-link">solve</a></span><span class="op">(</span><span class="va">B0inv</span> <span class="op">+</span> <span class="va">XX</span> <span class="op">/</span> <span class="va">sigma2</span><span class="op">)</span> </span>
+<span>  <span class="va">bN</span> <span class="op">&lt;-</span> <span class="va">BN</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="op">(</span><span class="va">B0inv</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="va">b0</span> <span class="op">+</span> <span class="va">Xy</span> <span class="op">/</span> <span class="va">sigma2</span><span class="op">)</span></span>
+<span>  <span class="va">beta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu">mvtnorm</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/mvtnorm/man/Mvnorm.html" class="external-link">rmvnorm</a></span><span class="op">(</span><span class="fl">1</span>, mean <span class="op">=</span> <span class="va">bN</span>, sigma <span class="op">=</span> <span class="va">BN</span><span class="op">)</span><span class="op">)</span></span>
+<span> </span>
+<span>  <span class="co"># Sample sigma^2 from its full conditional</span></span>
+<span>  <span class="va">eps</span> <span class="op">&lt;-</span> <span class="va">y</span> <span class="op">-</span> <span class="va">X</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="va">beta</span></span>
+<span>  <span class="va">CN</span> <span class="op">&lt;-</span> <span class="va">C0</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/crossprod.html" class="external-link">crossprod</a></span><span class="op">(</span><span class="va">eps</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span></span>
+<span>  <span class="va">sigma2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvGammaDist.html">rinvgamma</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">cN</span>, <span class="va">CN</span><span class="op">)</span></span>
+<span></span>
+<span>  <span class="co"># Store the results</span></span>
+<span>  <span class="kw">if</span> <span class="op">(</span><span class="va">m</span> <span class="op">&gt;</span> <span class="va">burnin</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">betas</span><span class="op">[</span><span class="va">m</span> <span class="op">-</span> <span class="va">burnin</span>, <span class="op">]</span> <span class="op">&lt;-</span> <span class="va">beta</span></span>
+<span>    <span class="va">sigma2s</span><span class="op">[</span><span class="va">m</span> <span class="op">-</span> <span class="va">burnin</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">sigma2</span></span>
+<span>  <span class="op">}</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+<p>We can compute draws of the predicted values and the residuals.</p>
+<div class="sourceCode" id="cb81"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">ypreds</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/crossprod.html" class="external-link">tcrossprod</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">betas</span><span class="op">)</span></span>
+<span><span class="va">resids</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="op">-</span> <span class="va">ypreds</span></span></code></pre></div>
+<p>We proceed with visualizing the data and the posterior mean of the
+predicted values as well as the posterior mean of the residuals.</p>
+<div class="sourceCode" id="cb82"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">y</span>, ylab <span class="op">=</span> <span class="st">""</span>, main <span class="op">=</span> <span class="st">"New car regristrations"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">tim</span>, <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="va">ypreds</span><span class="op">)</span>, col <span class="op">=</span> <span class="fl">2</span>, type <span class="op">=</span> <span class="st">'l'</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topright"</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Data"</span>, <span class="st">"Posterior mean"</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fl">1</span>, col <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">tim</span>, <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="va">resids</span><span class="op">)</span>, type <span class="op">=</span> <span class="st">'l'</span>, main <span class="op">=</span> <span class="st">"Mean residuals"</span>, xlab <span class="op">=</span> <span class="st">"Time"</span>,</span>
+<span>     ylab <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>h <span class="op">=</span> <span class="fl">0</span>, lty <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
+<p><img src="Chapter08_files/figure-html/unnamed-chunk-75-1.png" class="r-plt" alt="" width="768"></p>
+<p>Apart from some outliers (the most prominent ones being related to
+the COVID-outbreak), we still see autocorrelation in the residuals.
+Thus, we move forward by including an autoregressive coefficient.</p>
+<div class="sourceCode" id="cb83"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Define the prior parameters for phi (the other ones stay the same)</span></span>
+<span><span class="va">phiMean</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
+<span><span class="va">phiPrec</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
+<span></span>
+<span><span class="co"># Allocate space to store the results</span></span>
+<span><span class="va">betas</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="cn">NA_real_</span>, nrow <span class="op">=</span> <span class="va">M</span>, ncol <span class="op">=</span> <span class="va">d</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">betas</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span></span>
+<span><span class="va">sigma2s</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA_real_</span>,  <span class="va">M</span><span class="op">)</span></span>
+<span><span class="va">phis</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA_real_</span>, <span class="va">M</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Set the starting values</span></span>
+<span><span class="va">sigma2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">var</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span></span>
+<span><span class="va">phi</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
+<span>   </span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">m</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="op">(</span><span class="va">burnin</span> <span class="op">+</span> <span class="va">M</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="co"># Compute the transformed X and y</span></span>
+<span>  <span class="va">ytilde</span> <span class="op">&lt;-</span> <span class="va">y</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span> <span class="op">-</span> <span class="va">phi</span> <span class="op">*</span> <span class="va">y</span><span class="op">[</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">]</span></span>
+<span>  <span class="va">Xtilde</span> <span class="op">&lt;-</span> <span class="va">X</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span>, <span class="op">]</span> <span class="op">-</span> <span class="va">phi</span> <span class="op">*</span> <span class="va">X</span><span class="op">[</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span>, <span class="op">]</span></span>
+<span>  </span>
+<span>  <span class="co"># Sample beta from its full conditional</span></span>
+<span>  <span class="va">XX</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/crossprod.html" class="external-link">crossprod</a></span><span class="op">(</span><span class="va">Xtilde</span><span class="op">)</span></span>
+<span>  <span class="va">Xy</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/crossprod.html" class="external-link">crossprod</a></span><span class="op">(</span><span class="va">Xtilde</span>, <span class="va">ytilde</span><span class="op">)</span></span>
+<span>  <span class="va">BN</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/solve.html" class="external-link">solve</a></span><span class="op">(</span><span class="va">B0inv</span> <span class="op">+</span> <span class="va">XX</span> <span class="op">/</span> <span class="va">sigma2</span><span class="op">)</span> </span>
+<span>  <span class="va">bN</span> <span class="op">&lt;-</span> <span class="va">BN</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="op">(</span><span class="va">B0inv</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="va">b0</span> <span class="op">+</span> <span class="va">Xy</span> <span class="op">/</span> <span class="va">sigma2</span><span class="op">)</span></span>
+<span>  <span class="va">beta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu">mvtnorm</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/mvtnorm/man/Mvnorm.html" class="external-link">rmvnorm</a></span><span class="op">(</span><span class="fl">1</span>, mean <span class="op">=</span> <span class="va">bN</span>, sigma <span class="op">=</span> <span class="va">BN</span><span class="op">)</span><span class="op">)</span></span>
+<span> </span>
+<span>  <span class="co"># Compute the errors</span></span>
+<span>  <span class="va">u</span> <span class="op">&lt;-</span> <span class="va">y</span> <span class="op">-</span> <span class="va">X</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="va">beta</span></span>
+<span>  </span>
+<span>  <span class="co"># Sample sigma^2 from its full conditional</span></span>
+<span>  <span class="va">eps</span> <span class="op">&lt;-</span> <span class="va">u</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span> <span class="op">-</span> <span class="va">phi</span> <span class="op">*</span> <span class="va">u</span><span class="op">[</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">u</span><span class="op">)</span><span class="op">]</span></span>
+<span>  <span class="va">cN</span> <span class="op">&lt;-</span> <span class="va">c0</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">eps</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span></span>
+<span>  <span class="va">CN</span> <span class="op">&lt;-</span> <span class="va">C0</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/crossprod.html" class="external-link">crossprod</a></span><span class="op">(</span><span class="va">eps</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span></span>
+<span>  <span class="va">sigma2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvGammaDist.html">rinvgamma</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">cN</span>, <span class="va">CN</span><span class="op">)</span></span>
+<span>  </span>
+<span>  <span class="co"># Sample phi from its full conditional</span></span>
+<span>  <span class="va">XX</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">u</span><span class="op">[</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">u</span><span class="op">)</span><span class="op">]</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span></span>
+<span>  <span class="va">Xy</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">u</span><span class="op">[</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">u</span><span class="op">)</span><span class="op">]</span> <span class="op">*</span> <span class="va">u</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></span>
+<span>  <span class="va">BN</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="op">/</span> <span class="op">(</span><span class="va">phiPrec</span> <span class="op">+</span> <span class="va">XX</span> <span class="op">/</span> <span class="va">sigma2</span><span class="op">)</span></span>
+<span>  <span class="va">bN</span> <span class="op">&lt;-</span> <span class="va">BN</span> <span class="op">*</span> <span class="op">(</span><span class="va">phiPrec</span> <span class="op">*</span> <span class="va">phiMean</span> <span class="op">+</span> <span class="va">Xy</span> <span class="op">/</span> <span class="va">sigma2</span><span class="op">)</span></span>
+<span>  <span class="va">phi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">bN</span>, <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">BN</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span>  <span class="co"># Store the results</span></span>
+<span>  <span class="kw">if</span> <span class="op">(</span><span class="va">m</span> <span class="op">&gt;</span> <span class="va">burnin</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">betas</span><span class="op">[</span><span class="va">m</span> <span class="op">-</span> <span class="va">burnin</span>, <span class="op">]</span> <span class="op">&lt;-</span> <span class="va">beta</span></span>
+<span>    <span class="va">sigma2s</span><span class="op">[</span><span class="va">m</span> <span class="op">-</span> <span class="va">burnin</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">sigma2</span></span>
+<span>    <span class="va">phis</span><span class="op">[</span><span class="va">m</span> <span class="op">-</span> <span class="va">burnin</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">phi</span></span>
+<span>  <span class="op">}</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+<p>We can again compute draws of the predicted values and the
+residuals.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
