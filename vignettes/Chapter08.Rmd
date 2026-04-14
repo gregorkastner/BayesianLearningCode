@@ -1935,3 +1935,33 @@ colMeans(betas)
 plot(y)
 points(tim, colMeans(ypred), type = "l", col = 2)
 ```
+
+We can compute draws of the predicted values and the residuals.
+
+```{r}
+ypreds <- tcrossprod(X, betas)
+resids <- as.numeric(y) - ypred
+```
+
+We proceed with visualizing the data and the posterior mean of the predicted
+values as well as the posterior mean of the residuals.
+
+```{r, echo = -c(1:2)}
+if (pdfplots) {
+  pdf("8-3_5.pdf", width = 6, height = 3)
+}
+par(mfrow = c(2, 1), mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.5, .5, 0), lwd = 1.5)
+plot(y, ylab = "", main = "New car regristrations")
+points(tim, rowMeans(ypreds), col = 2, type = 'l')
+legend("topright", c("Data", "Posterior mean"), lty = 1, col = 1:2)
+plot(tim, rowMeans(resids), type = 'l', main = "Mean residuals", xlab = "Time",
+     ylab = "")
+abline(h = 0, lty = 3)
+```
+
+Apart from some outliers (the most prominent ones being related to the
+COVID-outbreak), we still see autocorrelation in the residuals. Thus, we move
+forward by including an autoregressive coefficient.
+
+
+
