@@ -19,5 +19,3 @@ with:
 # install.packages("pak")
 pak::pak("gregorkastner/BayesianLearningCode")
 ```
-
-Note that this is typically only needed for advanced use cases.

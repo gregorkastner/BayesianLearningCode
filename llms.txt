@@ -20,8 +20,6 @@ with:
 pak::pak("gregorkastner/BayesianLearningCode")
 ```
 
-Note that this is typically only needed for advanced use cases.
-
 # Package index
 
 ## All functions
