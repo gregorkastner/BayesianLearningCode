@@ -10,11 +10,6 @@ version of the one provided by Lehrer and Xi (2017).
 
 ``` r
 library("BayesianLearningCode")
-#> 
-#> Attaching package: 'BayesianLearningCode'
-#> The following object is masked from 'package:datasets':
-#> 
-#>     cars
 data("movies", package = "BayesianLearningCode")
 ```
 

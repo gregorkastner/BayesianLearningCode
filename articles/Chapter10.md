@@ -477,9 +477,6 @@ library(BayesianLearningCode)
 #> The following object is masked _by_ '.GlobalEnv':
 #> 
 #>     labor
-#> The following object is masked from 'package:datasets':
-#> 
-#>     cars
 y <- 100 * diff(log(exrates$USD / exrates$CHF))
 
 c0R <- 1

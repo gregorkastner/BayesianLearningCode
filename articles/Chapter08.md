@@ -35,11 +35,6 @@ We now perform probit regression analysis for the labor market data.
 
 ``` r
 library("BayesianLearningCode")
-#> 
-#> Attaching package: 'BayesianLearningCode'
-#> The following object is masked from 'package:datasets':
-#> 
-#>     cars
 data("labor", package = "BayesianLearningCode")
 ```
 

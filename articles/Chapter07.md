@@ -38,11 +38,6 @@ standard regression model, using the tools developed in Chapter 6.
 
 ``` r
 library("BayesianLearningCode")
-#> 
-#> Attaching package: 'BayesianLearningCode'
-#> The following object is masked from 'package:datasets':
-#> 
-#>     cars
 library("mvtnorm")
 
 regression <- function(y, X, prior = "improper", b0 = 0, B0 = 1, c0 = 0.01,
