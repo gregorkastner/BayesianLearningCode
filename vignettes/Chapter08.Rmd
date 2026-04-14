@@ -1931,9 +1931,6 @@ for (m in 1:(burnin + M)) {
     sigma2s[m - burnin] <- sigma2
   }
 }
-colMeans(betas)
-plot(y)
-points(tim, colMeans(ypred), type = "l", col = 2)
 ```
 
 We can compute draws of the predicted values and the residuals.
@@ -1950,7 +1947,7 @@ values as well as the posterior mean of the residuals.
 if (pdfplots) {
   pdf("8-3_5.pdf", width = 6, height = 3)
 }
-par(mfrow = c(2, 1), mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.5, .5, 0), lwd = 1.5)
+par(mfrow = c(2, 1), mar = c(2.5, 1.5, 1.5, .5), mgp = c(1.5, .5, 0), lwd = 1.5)
 plot(y, ylab = "", main = "New car regristrations")
 points(tim, rowMeans(ypreds), col = 2, type = 'l')
 legend("topright", c("Data", "Posterior mean"), lty = 1, col = 1:2)
