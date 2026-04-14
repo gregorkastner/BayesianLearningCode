@@ -1466,6 +1466,8 @@ lines(xnew, apply(pred_hetero, 1, quantile, 0.025), lty = 2)
 lines(xnew, apply(pred_hetero, 1, quantile, 0.975), lty = 2)
 ```
 
+## Section 8.3.2 Regression analysis with errors following a Gaussian mixture
+
 ### Example 8.14: Star cluster data - regression analysis with Gaussian two-component mixture errors
 
 We now assume that the indices of the giant stars are not known. We
@@ -1656,6 +1658,8 @@ lines(xnew, apply(preds_mix_2, 1, quantile, 0.975), lty = 2)
 
 The plot indicates that all three modeling approaches result in a fit
 that is robust to the outlying observations.
+
+## Section 8.3.3 Regression analysis with Student-t errors
 
 ### Example 8.15: Star cluster data - Student-$t$ regression analysis
 
