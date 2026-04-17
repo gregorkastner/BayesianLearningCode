@@ -792,6 +792,8 @@ Now we re-analyze the road safety data allowing for unobserved
 heterogeneity. We first set up the two versions of the three-block
 MH-within-Gibbs sampler.
 
+
+
 Note that the negative binomial distribution in R is specified
 as
 $$
@@ -804,6 +806,9 @@ $$
 {\frac{\alpha/e \exp(- \mathbf{x}\boldsymbol{\beta})}{1+\alpha/e \exp(- \mathbf{x}\boldsymbol{\beta})}} = e \exp( \mathbf{x}\boldsymbol{\beta}),
 $$
 and we will use $\alpha$ and $\mu$ to specify the negative binomial distribution.
+
+
+
 
 Extra Functions for the sampling steps ?ß
 
@@ -834,12 +839,12 @@ negbin <- function(y, X, e, b0 = 0, B0 = 100, qmean, qvar, pri.alpha,
   for (m in seq_len(burnin + M)){
      # Step (a): Draw beta  
      beta.old <- beta
-     beta.proposed <- as.vector(mvtnorm::rmvnorm(1, mean = qmean, sigma = qvar))
+     beta.proposed <- as.vector(mvtnorm::rmvnorm(1, mean = qmean, sigma = qvar/alpha))
 
      # Compute log proposal density at proposed and old value
-     lq_proposed <- mvtnorm::dmvnorm(beta.proposed, mean = qmean, sigma = qvar, 
+     lq_proposed <- mvtnorm::dmvnorm(beta.proposed, mean = qmean, sigma =  qvar/alpha, 
                                      log = TRUE)
-     lq_old  <- mvtnorm::dmvnorm(beta.old, mean = qmean, sigma = qvar,
+     lq_old  <- mvtnorm::dmvnorm(beta.old, mean = qmean, sigma = qvar/alpha,
                                  log = TRUE)
             
      # Compute log prior of proposed and old value
@@ -1100,8 +1105,9 @@ if (pdfplots) {
 par(mfrow = c(1, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
 
 set.seed(123)
-res_check_abc <- negbin_check_abc(X, e, b0 = pri.beta$b0, B0 = pri.beta$B0, pri.alpha,
+res_check_abc <- negbin_check_abc(X, e, b0 = pri.beta$b0, B0 = pri.beta$B0, 
                                   qmean = parms.proposal$mean, qvar = parms.proposal$var,
+                                  pri.alpha,
                                   full.gibbs = TRUE, M = M)
 
 beta0.prior <- rnorm(M, mean = pri.beta$b0[1], sd = sqrt(pri.beta$B0[1]))
@@ -1265,8 +1271,9 @@ par(mfrow = c(1, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
 
 set.seed(123)
 # order (a)-(b)-(c)
-res_check_abc <- negbin_check_abc(X, e, b0 = pri.beta$b0, B0 = pri.beta$B0, pri.alpha,
+res_check_abc <- negbin_check_abc(X, e, b0 = pri.beta$b0, B0 = pri.beta$B0,
                                  qmean = parms.proposal$mean, qvar = parms.proposal$var,
+                                  pri.alpha,
                                  full.gibbs = FALSE, M = M)
 
 qqplot(beta0.prior, res_check_abc$beta.post[, 1], xlab = "Prior",
