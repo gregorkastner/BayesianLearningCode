@@ -910,12 +910,12 @@ negbin <- function(y, X, e, b0 = 0, B0 = 100, qmean, qvar, pri.alpha,
   for (m in seq_len(burnin + M)){
      # Step (a): Draw beta  
      beta.old <- beta
-     beta.proposed <- as.vector(mvtnorm::rmvnorm(1, mean = qmean, sigma = qvar))
+     beta.proposed <- as.vector(mvtnorm::rmvnorm(1, mean = qmean, sigma = qvar/alpha))
 
      # Compute log proposal density at proposed and old value
-     lq_proposed <- mvtnorm::dmvnorm(beta.proposed, mean = qmean, sigma = qvar, 
+     lq_proposed <- mvtnorm::dmvnorm(beta.proposed, mean = qmean, sigma =  qvar/alpha, 
                                      log = TRUE)
-     lq_old  <- mvtnorm::dmvnorm(beta.old, mean = qmean, sigma = qvar,
+     lq_old  <- mvtnorm::dmvnorm(beta.old, mean = qmean, sigma = qvar/alpha,
                                  log = TRUE)
             
      # Compute log prior of proposed and old value
@@ -1013,17 +1013,17 @@ res.negbin.full <- cbind(res.negbin.full, IF = IF.res1)
 knitr::kable(round(res.negbin.full, 3))
 ```
 
-|              |   2.5% | Posterior mean |  97.5% |     IF |
-|:-------------|-------:|---------------:|-------:|-------:|
-| intercept    | -8.361 |         -8.217 | -8.077 |  1.232 |
-| intervention | -0.571 |         -0.362 | -0.152 |  1.224 |
-| holiday      | -1.194 |         -0.792 | -0.426 |  2.211 |
-| alpha        |  6.526 |         12.292 | 21.164 | 73.778 |
+|              |   2.5% | Posterior mean |  97.5% |      IF |
+|:-------------|-------:|---------------:|-------:|--------:|
+| intercept    | -8.296 |         -8.213 | -8.122 | 226.962 |
+| intervention | -0.483 |         -0.365 | -0.231 | 230.719 |
+| holiday      | -0.983 |         -0.770 | -0.536 | 259.220 |
+| alpha        |  6.538 |         12.309 | 20.749 |  75.769 |
 
 ``` r
 
 c(mean(res1$acc.beta), mean(res1$acc.alpha))
-#> [1] 0.93478 0.70528
+#> [1] 0.15926 0.70312
 
 # Partially marginalized sampler               
 res2 <- negbin(y, X, e, qmean = parms.proposal$mean, qvar = parms.proposal$var,
@@ -1039,17 +1039,17 @@ res.negbin.partial<- cbind(res.negbin.partial, IF = IF.res2)
 knitr::kable(round(res.negbin.partial, 3))
 ```
 
-|              |   2.5% | Posterior mean |  97.5% |     IF |
-|:-------------|-------:|---------------:|-------:|-------:|
-| intercept    | -8.361 |         -8.217 | -8.078 |  1.224 |
-| intervention | -0.574 |         -0.361 | -0.153 |  1.202 |
-| holiday      | -1.186 |         -0.789 | -0.424 |  1.420 |
-| alpha        |  6.352 |         12.353 | 21.544 | 48.180 |
+|              |   2.5% | Posterior mean |  97.5% |       IF |
+|:-------------|-------:|---------------:|-------:|---------:|
+| intercept    | -8.296 |         -8.210 | -8.108 | 1151.660 |
+| intervention | -0.528 |         -0.361 | -0.222 | 1469.125 |
+| holiday      | -0.989 |         -0.849 | -0.551 |  828.536 |
+| alpha        |  6.660 |         12.507 | 21.782 |   40.803 |
 
 ``` r
 
 c(mean(res2$acc.beta), mean(res2$acc.alpha))
-#> [1] 0.93588 0.89602
+#> [1] 0.09606 0.89642
 ```
 
 Both samplers yield essentially the same estimation results, which is to
@@ -1194,8 +1194,9 @@ posterior.
 
 ``` r
 set.seed(123)
-res_check_abc <- negbin_check_abc(X, e, b0 = pri.beta$b0, B0 = pri.beta$B0, pri.alpha,
+res_check_abc <- negbin_check_abc(X, e, b0 = pri.beta$b0, B0 = pri.beta$B0, 
                                   qmean = parms.proposal$mean, qvar = parms.proposal$var,
+                                  pri.alpha,
                                   full.gibbs = TRUE, M = M)
 
 beta0.prior <- rnorm(M, mean = pri.beta$b0[1], sd = sqrt(pri.beta$B0[1]))
@@ -1354,8 +1355,9 @@ order (a)-(b)-(c)
 ``` r
 set.seed(123)
 # order (a)-(b)-(c)
-res_check_abc <- negbin_check_abc(X, e, b0 = pri.beta$b0, B0 = pri.beta$B0, pri.alpha,
+res_check_abc <- negbin_check_abc(X, e, b0 = pri.beta$b0, B0 = pri.beta$B0,
                                  qmean = parms.proposal$mean, qvar = parms.proposal$var,
+                                  pri.alpha,
                                  full.gibbs = FALSE, M = M)
 
 qqplot(beta0.prior, res_check_abc$beta.post[, 1], xlab = "Prior",

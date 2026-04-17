@@ -1199,12 +1199,12 @@ to specify the negative binomial distribution.</p>
 <span>  <span class="kw">for</span> <span class="op">(</span><span class="va">m</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">burnin</span> <span class="op">+</span> <span class="va">M</span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span>
 <span>     <span class="co"># Step (a): Draw beta  </span></span>
 <span>     <span class="va">beta.old</span> <span class="op">&lt;-</span> <span class="va">beta</span></span>
-<span>     <span class="va">beta.proposed</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/vector.html" class="external-link">as.vector</a></span><span class="op">(</span><span class="fu">mvtnorm</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/mvtnorm/man/Mvnorm.html" class="external-link">rmvnorm</a></span><span class="op">(</span><span class="fl">1</span>, mean <span class="op">=</span> <span class="va">qmean</span>, sigma <span class="op">=</span> <span class="va">qvar</span><span class="op">)</span><span class="op">)</span></span>
+<span>     <span class="va">beta.proposed</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/vector.html" class="external-link">as.vector</a></span><span class="op">(</span><span class="fu">mvtnorm</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/mvtnorm/man/Mvnorm.html" class="external-link">rmvnorm</a></span><span class="op">(</span><span class="fl">1</span>, mean <span class="op">=</span> <span class="va">qmean</span>, sigma <span class="op">=</span> <span class="va">qvar</span><span class="op">/</span><span class="va">alpha</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span>     <span class="co"># Compute log proposal density at proposed and old value</span></span>
-<span>     <span class="va">lq_proposed</span> <span class="op">&lt;-</span> <span class="fu">mvtnorm</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/mvtnorm/man/Mvnorm.html" class="external-link">dmvnorm</a></span><span class="op">(</span><span class="va">beta.proposed</span>, mean <span class="op">=</span> <span class="va">qmean</span>, sigma <span class="op">=</span> <span class="va">qvar</span>, </span>
+<span>     <span class="va">lq_proposed</span> <span class="op">&lt;-</span> <span class="fu">mvtnorm</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/mvtnorm/man/Mvnorm.html" class="external-link">dmvnorm</a></span><span class="op">(</span><span class="va">beta.proposed</span>, mean <span class="op">=</span> <span class="va">qmean</span>, sigma <span class="op">=</span>  <span class="va">qvar</span><span class="op">/</span><span class="va">alpha</span>, </span>
 <span>                                     log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span>     <span class="va">lq_old</span>  <span class="op">&lt;-</span> <span class="fu">mvtnorm</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/mvtnorm/man/Mvnorm.html" class="external-link">dmvnorm</a></span><span class="op">(</span><span class="va">beta.old</span>, mean <span class="op">=</span> <span class="va">qmean</span>, sigma <span class="op">=</span> <span class="va">qvar</span>,</span>
+<span>     <span class="va">lq_old</span>  <span class="op">&lt;-</span> <span class="fu">mvtnorm</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/mvtnorm/man/Mvnorm.html" class="external-link">dmvnorm</a></span><span class="op">(</span><span class="va">beta.old</span>, mean <span class="op">=</span> <span class="va">qmean</span>, sigma <span class="op">=</span> <span class="va">qvar</span><span class="op">/</span><span class="va">alpha</span>,</span>
 <span>                                 log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span>            </span>
 <span>     <span class="co"># Compute log prior of proposed and old value</span></span>
@@ -1314,38 +1314,38 @@ iterations after a burn-in of 1000.</p>
 <tbody>
 <tr class="odd">
 <td align="left">intercept</td>
-<td align="right">-8.361</td>
-<td align="right">-8.217</td>
-<td align="right">-8.077</td>
-<td align="right">1.232</td>
+<td align="right">-8.296</td>
+<td align="right">-8.213</td>
+<td align="right">-8.122</td>
+<td align="right">226.962</td>
 </tr>
 <tr class="even">
 <td align="left">intervention</td>
-<td align="right">-0.571</td>
-<td align="right">-0.362</td>
-<td align="right">-0.152</td>
-<td align="right">1.224</td>
+<td align="right">-0.483</td>
+<td align="right">-0.365</td>
+<td align="right">-0.231</td>
+<td align="right">230.719</td>
 </tr>
 <tr class="odd">
 <td align="left">holiday</td>
-<td align="right">-1.194</td>
-<td align="right">-0.792</td>
-<td align="right">-0.426</td>
-<td align="right">2.211</td>
+<td align="right">-0.983</td>
+<td align="right">-0.770</td>
+<td align="right">-0.536</td>
+<td align="right">259.220</td>
 </tr>
 <tr class="even">
 <td align="left">alpha</td>
-<td align="right">6.526</td>
-<td align="right">12.292</td>
-<td align="right">21.164</td>
-<td align="right">73.778</td>
+<td align="right">6.538</td>
+<td align="right">12.309</td>
+<td align="right">20.749</td>
+<td align="right">75.769</td>
 </tr>
 </tbody>
 </table>
 <div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">res1</span><span class="op">$</span><span class="va">acc.beta</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">res1</span><span class="op">$</span><span class="va">acc.alpha</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.93478 0.70528</span></span>
+<span><span class="co">#&gt; [1] 0.15926 0.70312</span></span>
 <span></span>
 <span><span class="co"># Partially marginalized sampler               </span></span>
 <span><span class="va">res2</span> <span class="op">&lt;-</span> <span class="fu">negbin</span><span class="op">(</span><span class="va">y</span>, <span class="va">X</span>, <span class="va">e</span>, qmean <span class="op">=</span> <span class="va">parms.proposal</span><span class="op">$</span><span class="va">mean</span>, qvar <span class="op">=</span> <span class="va">parms.proposal</span><span class="op">$</span><span class="va">var</span>,</span>
@@ -1370,38 +1370,38 @@ iterations after a burn-in of 1000.</p>
 <tbody>
 <tr class="odd">
 <td align="left">intercept</td>
-<td align="right">-8.361</td>
-<td align="right">-8.217</td>
-<td align="right">-8.078</td>
-<td align="right">1.224</td>
+<td align="right">-8.296</td>
+<td align="right">-8.210</td>
+<td align="right">-8.108</td>
+<td align="right">1151.660</td>
 </tr>
 <tr class="even">
 <td align="left">intervention</td>
-<td align="right">-0.574</td>
+<td align="right">-0.528</td>
 <td align="right">-0.361</td>
-<td align="right">-0.153</td>
-<td align="right">1.202</td>
+<td align="right">-0.222</td>
+<td align="right">1469.125</td>
 </tr>
 <tr class="odd">
 <td align="left">holiday</td>
-<td align="right">-1.186</td>
-<td align="right">-0.789</td>
-<td align="right">-0.424</td>
-<td align="right">1.420</td>
+<td align="right">-0.989</td>
+<td align="right">-0.849</td>
+<td align="right">-0.551</td>
+<td align="right">828.536</td>
 </tr>
 <tr class="even">
 <td align="left">alpha</td>
-<td align="right">6.352</td>
-<td align="right">12.353</td>
-<td align="right">21.544</td>
-<td align="right">48.180</td>
+<td align="right">6.660</td>
+<td align="right">12.507</td>
+<td align="right">21.782</td>
+<td align="right">40.803</td>
 </tr>
 </tbody>
 </table>
 <div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">res2</span><span class="op">$</span><span class="va">acc.beta</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">res2</span><span class="op">$</span><span class="va">acc.alpha</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.93588 0.89602</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 0.09606 0.89642</span></span></code></pre></div>
 <p>Both samplers yield essentially the same estimation results, which is
 to be expected, since both target the same posterior distribution. The
 overdispersion parameter
@@ -1544,8 +1544,9 @@ heterogeneity parameter via Q-Q plots of draws from the prior and the
 posterior.</p>
 <div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
-<span><span class="va">res_check_abc</span> <span class="op">&lt;-</span> <span class="fu">negbin_check_abc</span><span class="op">(</span><span class="va">X</span>, <span class="va">e</span>, b0 <span class="op">=</span> <span class="va">pri.beta</span><span class="op">$</span><span class="va">b0</span>, B0 <span class="op">=</span> <span class="va">pri.beta</span><span class="op">$</span><span class="va">B0</span>, <span class="va">pri.alpha</span>,</span>
+<span><span class="va">res_check_abc</span> <span class="op">&lt;-</span> <span class="fu">negbin_check_abc</span><span class="op">(</span><span class="va">X</span>, <span class="va">e</span>, b0 <span class="op">=</span> <span class="va">pri.beta</span><span class="op">$</span><span class="va">b0</span>, B0 <span class="op">=</span> <span class="va">pri.beta</span><span class="op">$</span><span class="va">B0</span>, </span>
 <span>                                  qmean <span class="op">=</span> <span class="va">parms.proposal</span><span class="op">$</span><span class="va">mean</span>, qvar <span class="op">=</span> <span class="va">parms.proposal</span><span class="op">$</span><span class="va">var</span>,</span>
+<span>                                  <span class="va">pri.alpha</span>,</span>
 <span>                                  full.gibbs <span class="op">=</span> <span class="cn">TRUE</span>, M <span class="op">=</span> <span class="va">M</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">beta0.prior</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">M</span>, mean <span class="op">=</span> <span class="va">pri.beta</span><span class="op">$</span><span class="va">b0</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, sd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">pri.beta</span><span class="op">$</span><span class="va">B0</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
@@ -1695,8 +1696,9 @@ order (a)-(b)-(c)</p>
 <div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
 <span><span class="co"># order (a)-(b)-(c)</span></span>
-<span><span class="va">res_check_abc</span> <span class="op">&lt;-</span> <span class="fu">negbin_check_abc</span><span class="op">(</span><span class="va">X</span>, <span class="va">e</span>, b0 <span class="op">=</span> <span class="va">pri.beta</span><span class="op">$</span><span class="va">b0</span>, B0 <span class="op">=</span> <span class="va">pri.beta</span><span class="op">$</span><span class="va">B0</span>, <span class="va">pri.alpha</span>,</span>
+<span><span class="va">res_check_abc</span> <span class="op">&lt;-</span> <span class="fu">negbin_check_abc</span><span class="op">(</span><span class="va">X</span>, <span class="va">e</span>, b0 <span class="op">=</span> <span class="va">pri.beta</span><span class="op">$</span><span class="va">b0</span>, B0 <span class="op">=</span> <span class="va">pri.beta</span><span class="op">$</span><span class="va">B0</span>,</span>
 <span>                                 qmean <span class="op">=</span> <span class="va">parms.proposal</span><span class="op">$</span><span class="va">mean</span>, qvar <span class="op">=</span> <span class="va">parms.proposal</span><span class="op">$</span><span class="va">var</span>,</span>
+<span>                                  <span class="va">pri.alpha</span>,</span>
 <span>                                 full.gibbs <span class="op">=</span> <span class="cn">FALSE</span>, M <span class="op">=</span> <span class="va">M</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/qqnorm.html" class="external-link">qqplot</a></span><span class="op">(</span><span class="va">beta0.prior</span>, <span class="va">res_check_abc</span><span class="op">$</span><span class="va">beta.post</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span>, xlab <span class="op">=</span> <span class="st">"Prior"</span>,</span>
