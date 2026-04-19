@@ -609,15 +609,15 @@ knitr::kable(round(res_probit.labor * pi / sqrt(3), 3))
 
 #### Example 8.8: Road safety data
 
-We fit two different Poisson regression models to the series of monthly
-deadly and seriously injured children aged 6-10 in Linz introduced in
-Example 2.1:
+We will fit two different Poisson regression models to the series of
+monthly deadly and seriously injured children aged 6-10 in Linz
+introduced in Example 2.1:
 
 1.  a small model with intercept, intervention effect and holiday dummy
     (activated in July/August);
 
 2.  a larger model with intercept, intervention effect, and a seasonal
-    dummy variables for all months except for December.
+    dummy variables for all months except December.
 
 The sampling performance for these two models is assessed to study how
 the acceptance rate deteriorates, when the dimension of regression
@@ -650,9 +650,7 @@ gen.proposal.poisson <- function(y, X, e, b0 = 0, B0 = 100, t.max = 20) {
   betas <- matrix(NA_real_, ncol = t.max, nrow = d)
   beta.new <- matrix(c(log(mean(y)), rep(0, d - 1)), nrow = d) 
   
-  b0 <- matrix(rep(b0, length.out = d), nrow = d) 
-  B0.inv <- diag(rep(1 / B0, length.out = d), nrow = d)
-
+  B0.inv=solve(B0)
   for (t in seq_len(t.max)) {
     beta.old <- beta.new
     
@@ -680,11 +678,12 @@ gen.proposal.poisson <- function(y, X, e, b0 = 0, B0 = 100, t.max = 20) {
 ```
 
 We use a rather flat normal independence prior
-$\mathcal{N}(\mathbf{0},100\mathbf{I})$ on the regression effects. First
-we determine the parameters of the proposal distribution.
+$\mathcal{N}(\mathbf{0},100\mathbf{I})$ on the regression effects and
+determine the parameters of the proposal distribution.
 
 ``` r
-parms.proposal <- gen.proposal.poisson(y, X, e, b0 = 0, B0 = 100)
+d=ncol(X)
+parms.proposal <- gen.proposal.poisson(y, X, e, b0 = rep(0,d), B0 =diag(100,d))
 parms.proposal
 #> $mean
 #>            rate
@@ -699,9 +698,8 @@ parms.proposal
 #> [3,] -0.003188927  0.0002195915  0.0364108173
 ```
 
-To set up the independence Metropolis-Hastings algorithm for the Poisson
-model, we first write a short program for the MH step to sample the
-regression effects.
+To implement the independence Metropolis-Hastings algorithm we write a
+short program for the MH step for sampling the regression effects.
 
 ``` r
 sample_beta<- function(y,X,e, b0, B0, qmean, qvar, beta.old){
@@ -740,11 +738,12 @@ sample_beta<- function(y,X,e, b0, B0, qmean, qvar, beta.old){
 }
 ```
 
-We use this program to sample from the posterior.
+Next we combine the determination of the proposal and the MH-sampling
+step in a program to sample from the posterior of a Poisson regression
+model.
 
 ``` r
-poisson <- function(y, X, e, b0 = 0, B0 = 100, qmean, qvar,
-                    burnin = 1000L, M = 10000L) {
+poisson <- function(y, X, e, b0 = 0, B0 = 100, burnin = 1000L, M = 10000L) {
   d <- ncol(X)
 
   b0 <- rep(b0, length.out = d)
@@ -753,6 +752,10 @@ poisson <- function(y, X, e, b0 = 0, B0 = 100, qmean, qvar,
   beta.post <- matrix(ncol = d, nrow = M)
   colnames(beta.post) <- colnames(X)
   acc <- numeric(length = M)
+  
+  parms.proposal<- gen.proposal.poisson(y, X, e, b0 , B0)
+  qmean <- parms.proposal$mean
+  qvar<-parms.proposal$var
   
   beta <- as.vector(mvtnorm::rmvnorm(1, mean = qmean, sigma = qvar))
   
@@ -774,8 +777,7 @@ We perform MCMC and report the results.
 
 ``` r
 set.seed(1234)
-res1 <- poisson(y, X, e, b0 = 0, B0 = 100,
-                qmean = parms.proposal$mean, qvar = parms.proposal$var)
+res1 <- poisson(y, X, e, b0 = 0, B0 = 100)
 
 res.poisson1 <- cbind(t(round(apply(res1$beta.post, 2, res.mcmc), 3)),
                       "exp(beta)" = round(exp(colMeans(res1$beta.post)), 5))
@@ -812,23 +814,14 @@ seas <- rbind(diag(1, 11), rep(0, 11))
 seas.dummies <- matrix(rep(t(seas), 16), ncol = 11, byrow = TRUE)
 colnames(seas.dummies) <- c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul",
                             "Aug", "Sep", "Oct", "Nov")
-X.large <- cbind(X[, -3],
-                 seas.dummies)
+X.large <- cbind(X[, -3], seas.dummies)
 ```
 
-We set the prior parameters and compute the parameters of the proposal
-distribution.
-
-``` r
-parms.proposal2 <- gen.proposal.poisson(y, X.large, e, b0 = 0, B0 = 100)
-```
-
-Next we fit the model.
+We set the prior parameters and fit the model.
 
 ``` r
 set.seed(1234)
-res2 <- poisson(y, X.large, e, b0 = 0, B0 = 100,
-                qmean = parms.proposal2$mean, qvar = parms.proposal2$var)
+res2 <- poisson(y, X.large, e, b0 = 0, B0 = 100)
 
 res.poisson2 <- cbind(t(round(apply(res2$beta.post, 2, res.mcmc), 3)),
                       "exp(beta)" = round(exp(colMeans(res2$beta.post)), 5))
@@ -880,7 +873,7 @@ parameters have to be estimated.
 #### Example 8.9: Road safety data
 
 Now we re-analyze the road safety data allowing for unobserved
-heterogeneity. We first set up the two versions of the three-block
+heterogeneity. We will first set up the two versions of the three-block
 MH-within-Gibbs sampler.
 
 Note that the negative binomial distribution in R is specified as
@@ -1222,7 +1215,7 @@ qqplot(alpha.prior,res_check_abc$alpha.post, xlab = "Prior",
 abline(a = 0, b = 1)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-42-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-41-1.png)
 
 We conclude that the sampler is correct.
 
@@ -1355,7 +1348,7 @@ qqplot(alpha.prior,res_check_cba$alpha.post, xlab = "Prior",
 abline(a = 0, b = 1)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-44-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-43-1.png)
 
 ### Example 8.11
 
@@ -1380,7 +1373,7 @@ qqplot(alpha.prior,res_check_abc$alpha.post, xlab = "Prior",
 abline(a = 0, b = 1)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-45-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-44-1.png)
 
 and then in the order (c)-(b)-(a)
 
@@ -1402,7 +1395,7 @@ qqplot(alpha.prior,res_check_cba$alpha.post, xlab = "Prior",
 abline(a = 0, b = 1)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-46-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-45-1.png)
 
 ## Section 8.3: Beyond i.i.d. Gaussian error distributions
 
@@ -1420,7 +1413,7 @@ plot(starsCYG, pch = 19, xlim = c(3, 5), ylim = c(3, 7),
      xlab = "log temperature", ylab = "log light intensity")
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-47-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-46-1.png)
 
 The four giant stars which can also be identified in the scatter plot
 have the following indices in the data set:
@@ -1472,7 +1465,7 @@ lines(xnew, preds_subset[, "lwr"], lty = 2)
 lines(xnew, preds_subset[, "upr"], lty = 2)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-50-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-49-1.png)
 
 #### Example 8.13: Star cluster data - heteroskedastic regression analysis with known outliers
 
@@ -1567,7 +1560,7 @@ lines(xnew, apply(pred_hetero, 1, quantile, 0.025), lty = 2)
 lines(xnew, apply(pred_hetero, 1, quantile, 0.975), lty = 2)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-55-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-54-1.png)
 
 ### Section 8.3.2 Regression analysis with errors following a Gaussian mixture
 
@@ -1652,7 +1645,7 @@ lines(xnew, apply(preds_mix_1, 1, quantile, 0.025), lty = 2)
 lines(xnew, apply(preds_mix_1, 1, quantile, 0.975), lty = 2)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-60-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-59-1.png)
 
 We now assume that the indices of the giant stars are not known. We only
 assume that a two-component mixture is used as weight distribution where
@@ -1732,7 +1725,7 @@ lines(xnew, apply(preds_mix_2, 1, quantile, 0.025), lty = 2)
 lines(xnew, apply(preds_mix_2, 1, quantile, 0.975), lty = 2)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-63-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-62-1.png)
 
 Finally, we visualize again the mean and the 95%-HPD region together
 with the data points for the three modeling approaches: (1) a
@@ -1758,7 +1751,7 @@ lines(xnew, apply(preds_mix_2, 1, quantile, 0.025), lty = 2)
 lines(xnew, apply(preds_mix_2, 1, quantile, 0.975), lty = 2)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-64-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-63-1.png)
 
 The plot indicates that all three modeling approaches result in a fit
 that is robust to the outlying observations.
@@ -1837,7 +1830,7 @@ lines(xnew, apply(preds_norm, 1, quantile, 0.975), lty = 3)
 boxplot(ws, col = 2 * (1:ncol(ws) %in% index))
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-67-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-66-1.png)
 
 #### Example 8.16: CHF exchange rate data - Fitting a Student-$t$ with $\nu$ unknown
 
@@ -1948,7 +1941,7 @@ selecta <- sample.int(N, 1)
 ts.plot(ws[, selecta], xlab = "Iteration", ylab = bquote(~omega[.(selecta)]))
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-70-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-69-1.png)
 
 ``` r
 grid <- seq(0, 20, by = .1)
@@ -1962,7 +1955,7 @@ IF <- M / coda::effectiveSize(nus)
 title(paste0("Empirical ACF (IF: ", round(IF), ")"))
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-71-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-70-1.png)
 
 ### Section 8.3.4 Regression analysis with autocorrelated errors
 
@@ -1973,7 +1966,7 @@ data(newcars, package = "BayesianLearningCode")
 plot(newcars)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-72-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-71-1.png)
 
 Seasonal patterns are evident, as is a trend. To model these, we set up
 an appropriate design matrix. Leveraging the fact the the data is a `ts`
@@ -2077,7 +2070,7 @@ plot(tim, rowMeans(resids), type = 'l', main = "Mean residuals", xlab = "Time",
 abline(h = 0, lty = 3)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-76-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-75-1.png)
 
 Apart from some outliers (the most prominent ones being related to the
 COVID-outbreak), we still see autocorrelation in the residuals. Thus, we
