@@ -699,8 +699,48 @@ parms.proposal
 #> [3,] -0.003188927  0.0002195915  0.0364108173
 ```
 
-Next we set up the independence Metropolis-Hastings algorithm to
-estimate the model parameters.
+To set up the independence Metropolis-Hastings algorithm for the Poisson
+model, we first write a short program for the MH step to sample the
+regression effects.
+
+``` r
+sample_beta<- function(y,X,e, b0, B0, qmean, qvar, beta.old){
+ 
+     beta.proposed <- as.vector(mvtnorm::rmvnorm(1, mean = qmean, sigma = qvar))
+     
+     # Compute log proposal density at proposed and old value
+     lq_proposed <- mvtnorm::dmvnorm(beta.proposed, mean = qmean, sigma = qvar,
+                                log = TRUE)
+     lq_old  <- mvtnorm::dmvnorm(beta.old, mean = qmean, sigma = qvar,
+                            log = TRUE)
+
+     # Compute log prior  of proposed and old value
+     lpri_proposed <- mvtnorm::dmvnorm(beta.proposed, mean = b0, sigma = B0, 
+                                       log = TRUE)
+     lpri_old  <- mvtnorm::dmvnorm(beta.old,  mean = b0, sigma = B0, 
+                                   log = TRUE)
+     # Compute log likelihood of proposed and old value
+     lh_proposed <- dpois(y, e * exp(X %*% beta.proposed), log = TRUE)
+     lh_old  <- dpois(y, e * exp(X %*% beta.old), log = TRUE)
+
+     maxlik <- max(lh_old, lh_proposed)
+     ll <- sum(lh_proposed - maxlik) - sum(lh_old - maxlik)
+    
+     # Compute acceptance probability and accept or not
+     log_acc <- min(0, ll + lpri_proposed - lpri_old + lq_old - lq_proposed)
+
+     if (log(runif(1)) < log_acc) {
+        beta <- beta.proposed
+        acc  <- 1
+     } else {
+        beta <- beta.old
+        acc  <- 0
+     }
+     return(res = list(beta=beta, acc=acc))
+}
+```
+
+We use this program to sample from the posterior.
 
 ``` r
 poisson <- function(y, X, e, b0 = 0, B0 = 100, qmean, qvar,
@@ -717,43 +757,13 @@ poisson <- function(y, X, e, b0 = 0, B0 = 100, qmean, qvar,
   beta <- as.vector(mvtnorm::rmvnorm(1, mean = qmean, sigma = qvar))
   
   for (m in seq_len(burnin + M)) {
-    beta.old <- beta
-    beta.proposed <- as.vector(mvtnorm::rmvnorm(1, mean = qmean, sigma = qvar))
-    
-    # Compute log proposal density at proposed and old value
-    lq_proposed <- mvtnorm::dmvnorm(beta.proposed, mean = qmean, sigma = qvar,
-                                    log = TRUE)
-    lq_old  <- mvtnorm::dmvnorm(beta.old, mean = qmean, sigma = qvar,
-                                log = TRUE)
-    
-    # Compute log prior of proposed and old value
-    lpri_proposed <- mvtnorm::dmvnorm(beta.proposed, mean = b0, sigma = B0,
-                                      log = TRUE)
-    lpri_old  <- mvtnorm::dmvnorm(beta.old, mean = b0, sigma = B0,
-                                  log = TRUE)
-    
-    # Compute log-likelihood of proposed and old value
-    lh_proposed <- dpois(y, e * exp(X %*% beta.proposed), log = TRUE)
-    lh_old  <- dpois(y, e * exp(X %*% beta.old), log = TRUE)
-    
-    maxlik <- max(lh_old, lh_proposed)
-    ll <- sum(lh_proposed - maxlik) - sum(lh_old - maxlik)
-    
-    # Compute acceptance probability and accept or not
-    log_acc <- min(0, ll + lpri_proposed - lpri_old + lq_old - lq_proposed)
-    
-    if (log(runif(1)) < log_acc) {
-      beta <- beta.proposed
-      accept <- 1
-    } else {
-      beta <- beta.old
-      accept <- 0
-    }
-
-    # Store the beta draws
+   beta.draw <- sample_beta(y,X,e, b0, B0, qmean, qvar,beta)
+   beta<- beta.draw$beta
+   
+   # Store the beta draws
     if (m > burnin) {
         beta.post[m - burnin, ] <- beta
-        acc[m - burnin] <- accept
+        acc[m - burnin] <- beta.draw $acc
     }
   }
   return(list(beta.post = beta.post, accept = mean(acc)))
@@ -1212,7 +1222,7 @@ qqplot(alpha.prior,res_check_abc$alpha.post, xlab = "Prior",
 abline(a = 0, b = 1)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-41-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-42-1.png)
 
 We conclude that the sampler is correct.
 
@@ -1345,7 +1355,7 @@ qqplot(alpha.prior,res_check_cba$alpha.post, xlab = "Prior",
 abline(a = 0, b = 1)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-43-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-44-1.png)
 
 ### Example 8.11
 
@@ -1370,7 +1380,7 @@ qqplot(alpha.prior,res_check_abc$alpha.post, xlab = "Prior",
 abline(a = 0, b = 1)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-44-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-45-1.png)
 
 and then in the order (c)-(b)-(a)
 
@@ -1392,7 +1402,7 @@ qqplot(alpha.prior,res_check_cba$alpha.post, xlab = "Prior",
 abline(a = 0, b = 1)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-45-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-46-1.png)
 
 ## Section 8.3: Beyond i.i.d. Gaussian error distributions
 
@@ -1410,7 +1420,7 @@ plot(starsCYG, pch = 19, xlim = c(3, 5), ylim = c(3, 7),
      xlab = "log temperature", ylab = "log light intensity")
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-46-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-47-1.png)
 
 The four giant stars which can also be identified in the scatter plot
 have the following indices in the data set:
@@ -1462,7 +1472,7 @@ lines(xnew, preds_subset[, "lwr"], lty = 2)
 lines(xnew, preds_subset[, "upr"], lty = 2)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-49-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-50-1.png)
 
 #### Example 8.13: Star cluster data - heteroskedastic regression analysis with known outliers
 
@@ -1557,7 +1567,7 @@ lines(xnew, apply(pred_hetero, 1, quantile, 0.025), lty = 2)
 lines(xnew, apply(pred_hetero, 1, quantile, 0.975), lty = 2)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-54-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-55-1.png)
 
 ### Section 8.3.2 Regression analysis with errors following a Gaussian mixture
 
@@ -1642,7 +1652,7 @@ lines(xnew, apply(preds_mix_1, 1, quantile, 0.025), lty = 2)
 lines(xnew, apply(preds_mix_1, 1, quantile, 0.975), lty = 2)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-59-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-60-1.png)
 
 We now assume that the indices of the giant stars are not known. We only
 assume that a two-component mixture is used as weight distribution where
@@ -1722,7 +1732,7 @@ lines(xnew, apply(preds_mix_2, 1, quantile, 0.025), lty = 2)
 lines(xnew, apply(preds_mix_2, 1, quantile, 0.975), lty = 2)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-62-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-63-1.png)
 
 Finally, we visualize again the mean and the 95%-HPD region together
 with the data points for the three modeling approaches: (1) a
@@ -1748,7 +1758,7 @@ lines(xnew, apply(preds_mix_2, 1, quantile, 0.025), lty = 2)
 lines(xnew, apply(preds_mix_2, 1, quantile, 0.975), lty = 2)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-63-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-64-1.png)
 
 The plot indicates that all three modeling approaches result in a fit
 that is robust to the outlying observations.
@@ -1827,7 +1837,7 @@ lines(xnew, apply(preds_norm, 1, quantile, 0.975), lty = 3)
 boxplot(ws, col = 2 * (1:ncol(ws) %in% index))
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-66-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-67-1.png)
 
 #### Example 8.16: CHF exchange rate data - Fitting a Student-$t$ with $\nu$ unknown
 
@@ -1938,7 +1948,7 @@ selecta <- sample.int(N, 1)
 ts.plot(ws[, selecta], xlab = "Iteration", ylab = bquote(~omega[.(selecta)]))
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-69-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-70-1.png)
 
 ``` r
 grid <- seq(0, 20, by = .1)
@@ -1952,7 +1962,7 @@ IF <- M / coda::effectiveSize(nus)
 title(paste0("Empirical ACF (IF: ", round(IF), ")"))
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-70-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-71-1.png)
 
 ### Section 8.3.4 Regression analysis with autocorrelated errors
 
@@ -1963,7 +1973,7 @@ data(newcars, package = "BayesianLearningCode")
 plot(newcars)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-71-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-72-1.png)
 
 Seasonal patterns are evident, as is a trend. To model these, we set up
 an appropriate design matrix. Leveraging the fact the the data is a `ts`
@@ -2067,7 +2077,7 @@ plot(tim, rowMeans(resids), type = 'l', main = "Mean residuals", xlab = "Time",
 abline(h = 0, lty = 3)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-75-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-76-1.png)
 
 Apart from some outliers (the most prominent ones being related to the
 COVID-outbreak), we still see autocorrelation in the residuals. Thus, we
