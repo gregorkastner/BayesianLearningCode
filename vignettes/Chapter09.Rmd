@@ -349,9 +349,8 @@ points(pk3, col = 3, cex = 1.5, pch = 16)
 # Section 9.4 Posterior Predictive Distributions in Regression Analysis
 
 ## Example 9.12: Road Safety Data; potential outcome analysis
-To predict the time series of children killed or seriously injured in Linz 
-use the functions defined for estimating a Poisson regression model.
-
+We are now interested in predicting the number of children who would have been killed or seriously injured without the legal intervention on October 1, 1994.
+To do so we reuse functions defined in Example 8.8.
 ```{r}
 gen.proposal.poisson <- function(y, X, e, b0 = 0, B0 = 100, t.max = 20) {
   N <- length(y)
@@ -451,7 +450,7 @@ poisson <- function(y, X, e, b0 = 0, B0 = 100, burnin = 1000L, M = 10000L) {
 }
 ```
 Our goal is to predict the number of killed or seriously injured children
-from October 1994  (i.e when the  legal intervention giving priority to pedestrians  became effective) using only data before that time point. Hence we estimate the model in Example 8.8. with an intercept and a holiday effect using only the information up to September 1993.
+from October 1994  (i.e when the  legal intervention giving priority to pedestrians  became effective) using only data before that time point. Hence we estimate the model in Example 8.8. with an intercept and a holiday effect using only the information up to September 1994.
 
 ```{r}
 data("accidents", package = "BayesianLearningCode")
@@ -461,7 +460,7 @@ e <- accidents[1:93, "children_exposure"]
 
 X <- cbind(intercept = rep(1, length(y)),
            holiday = c(rep(rep(c(0, 1, 0), c(6, 2, 4)),7), rep(0,6), rep(1,2),0))
-M=50000
+M=10000
 set.seed(1)
 res <- poisson(y, X, e, b0 = 0, B0 = 100,M=M)
 ```
@@ -482,7 +481,7 @@ pred<-matrix(rpois(M*t.pred, lambda), ncol=M, nrow=t.pred)
 
 ```
 
-We reuse a function to determine mean and quantiles of the draws.
+We reuse also the function to determine mean and quantiles of the draws.
 ```{r}
 res.mcmc <- function(x, lower = 0.025, upper = 0.975) {
   res <- c(quantile(x, lower), mean(x), quantile(x, upper))
@@ -510,9 +509,8 @@ abline(v=94, col="red")
 
 ```
 
-We see that the prediction interval is much too wide indicating that 
-an intervention effect is required.
-
+We see that the prediction intervals after the intervention are  much too wide which again indicates that there is an intervention effect. Note that whereas the risk 
+for a child to be killed or seriously injured in this model is constant the predicted mean number of killed and seriously injured children decreases from 1994 due to the decreasing number of exposed in that time period.  
 
 # Section 9.5: Bayesian Forecasting of Time Series
 
