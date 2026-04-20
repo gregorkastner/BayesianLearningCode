@@ -445,9 +445,9 @@ Analysis<a class="anchor" aria-label="anchor" href="#section-9-4-posterior-predi
 <div class="section level3">
 <h3 id="example-9-12-road-safety-data-potential-outcome-analysis">Example 9.12: Road Safety Data; potential outcome analysis<a class="anchor" aria-label="anchor" href="#example-9-12-road-safety-data-potential-outcome-analysis"></a>
 </h3>
-<p>To predict the time series of children killed or seriously injured in
-Linz use the functions defined for estimating a Poisson regression
-model.</p>
+<p>We are now interested in predicting the number of children who would
+have been killed or seriously injured without the legal intervention on
+October 1, 1994. To do so we reuse functions defined in Example 8.8.</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gen.proposal.poisson</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">y</span>, <span class="va">X</span>, <span class="va">e</span>, <span class="va">b0</span> <span class="op">=</span> <span class="fl">0</span>, <span class="va">B0</span> <span class="op">=</span> <span class="fl">100</span>, <span class="va">t.max</span> <span class="op">=</span> <span class="fl">20</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">N</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span></span>
@@ -550,7 +550,7 @@ children from October 1994 (i.e when the legal intervention giving
 priority to pedestrians became effective) using only data before that
 time point. Hence we estimate the model in Example 8.8. with an
 intercept and a holiday effect using only the information up to
-September 1993.</p>
+September 1994.</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"accidents"</span>, package <span class="op">=</span> <span class="st">"BayesianLearningCode"</span><span class="op">)</span></span>
 <span><span class="va">y</span> <span class="op">&lt;-</span> <span class="va">accidents</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">93</span>, <span class="st">"children_accidents"</span><span class="op">]</span></span>
@@ -559,7 +559,7 @@ September 1993.</p>
 <span></span>
 <span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span>intercept <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>           holiday <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">6</span>, <span class="fl">2</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span>,<span class="fl">7</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">6</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span>,<span class="fl">0</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">M</span><span class="op">=</span><span class="fl">50000</span></span>
+<span><span class="va">M</span><span class="op">=</span><span class="fl">10000</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/family.html" class="external-link">poisson</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">X</span>, <span class="va">e</span>, b0 <span class="op">=</span> <span class="fl">0</span>, B0 <span class="op">=</span> <span class="fl">100</span>,M<span class="op">=</span><span class="va">M</span><span class="op">)</span></span></code></pre></div>
 <p>We define the covariates for the time points from October 1994 on and
@@ -575,7 +575,8 @@ the time series.</p>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span>
 <span><span class="va">pred</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Poisson.html" class="external-link">rpois</a></span><span class="op">(</span><span class="va">M</span><span class="op">*</span><span class="va">t.pred</span>, <span class="va">lambda</span><span class="op">)</span>, ncol<span class="op">=</span><span class="va">M</span>, nrow<span class="op">=</span><span class="va">t.pred</span><span class="op">)</span></span></code></pre></div>
-<p>We reuse a function to determine mean and quantiles of the draws.</p>
+<p>We reuse also the function to determine mean and quantiles of the
+draws.</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">res.mcmc</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">lower</span> <span class="op">=</span> <span class="fl">0.025</span>, <span class="va">upper</span> <span class="op">=</span> <span class="fl">0.975</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">lower</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">upper</span><span class="op">)</span><span class="op">)</span></span>
@@ -594,8 +595,12 @@ prediction intervals.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/matplot.html" class="external-link">matplot</a></span><span class="op">(</span><span class="fl">94</span><span class="op">:</span><span class="fl">192</span>, <span class="va">pred.int</span>, col<span class="op">=</span><span class="st">"blue"</span>, type<span class="op">=</span><span class="st">"l"</span>,lty<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span>,lwd<span class="op">=</span><span class="fl">2</span>,add<span class="op">=</span><span class="cn">T</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>v<span class="op">=</span><span class="fl">94</span>, col<span class="op">=</span><span class="st">"red"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="Chapter09_files/figure-html/unnamed-chunk-25-1.png" class="r-plt" alt="" width="768"></p>
-<p>We see that the prediction interval is much too wide indicating that
-an intervention effect is required.</p>
+<p>We see that the prediction intervals after the intervention are much
+too wide which again indicates that there is an intervention effect.
+Note that whereas the risk for a child to be killed or seriously injured
+in this model is constant the predicted mean number of killed and
+seriously injured children decreases from 1994 due to the decreasing
+number of exposed in that time period.</p>
 </div>
 </div>
 <div class="section level2">
