@@ -9,7 +9,6 @@ logBF <- -7:7
 BF <- exp(logBF)
 PrM1 <- BF / (1 + BF)
 PrM2 <- 1 - PrM1
-#xtable::xtable(cbind(BF, logBF, PrM1, PrM2), digits = c(0, 3, 1, 3, 3))
 knitr::kable(cbind(BF, logBF, PrM1, PrM2))
 ```
 
@@ -31,16 +30,14 @@ knitr::kable(cbind(BF, logBF, PrM1, PrM2))
 |  403.4287935 |     6 | 0.9975274 | 0.0024726 |
 | 1096.6331584 |     7 | 0.9990889 | 0.0009111 |
 
-## Section 10.2: Bayesian Testing of Hypotheses
-
-### Example 10.5: Testing for zero mean in the CHF-USD log returns
+### Example 10.5: CHF exchange rate data - Testing the null hypothesis $\mu = 0$
 
 Before producing Figure 10.1, we begin with a concrete example. We load
 the data, compute the required parameters, and evaluate the two marginal
 likelihoods.
 
 ``` r
-data(exrates, package = "stochvol")
+data("exrates", package = "stochvol")
 y <- 100 * diff(log(exrates$USD / exrates$CHF))
 
 c0 <- 1
@@ -97,7 +94,9 @@ title("Log Bayes factor in favor of the zero-mean model")
 
 ![](Chapter10_files/figure-html/unnamed-chunk-5-1.png)
 
-### Example 10.6: Testing for heterogeneity of the no-income risk
+## Section 10.2: Bayesian Testing of Hypotheses
+
+### Example 10.6: Labor market data - Testing for heterogeneity of the no-income risk
 
 First, we re-load the data from Chapter 3.
 
@@ -164,7 +163,7 @@ knitr::kable(res <- cbind(logmarglikM1, logmarglikM2, logBF, PrM1, PrM2))
 |    -387.2933 |    -385.3980 | -1.895305 | 0.1306408 | 0.8693592 |
 |    -386.2587 |    -383.4054 | -2.853317 | 0.0545101 | 0.9454899 |
 
-### Example 10.7: Testing for heterogeneity of the mortality rate
+### Example 10.7: Stomach cancer data - Testing for heterogeneity of the mortality rate
 
 We proceed exactly as above, just with different data.
 
@@ -306,7 +305,7 @@ knitr::kable(round(rbind(PrM1, PrM2), 3))
 | PrM1 | 0.701 | 0.228 | 0.086 | 0.059 | 0.042 |
 | PrM2 | 0.299 | 0.772 | 0.914 | 0.941 | 0.958 |
 
-### Example 10.9: Testing normal versus t
+### Example 10.9: CHF exchange rate data - Testing normal versus Student t
 
 After loading the data, we define the degrees of freedom $\nu$ and the
 prior hyperparameters.
@@ -382,12 +381,12 @@ knitr::kable(cbind(logML1 = logmarglikM1, logML3 = logmarglikM3,
 |----------:|----------:|----:|----------:|----:|----:|
 | -3456.384 | -3305.694 |   0 | -150.6898 |   0 |   1 |
 
-### Example 10.10: Testing homogeneity against unobserved heterogeneity
+### Example 10.10: Eye tracking data - Testing homogeneity against unobserved heterogeneity
 
 We begin by loading the data and specifying the hyperparameters.
 
 ``` r
-data(eyetracking, package = "BayesianLearningCode")
+data("eyetracking", package = "BayesianLearningCode")
 y <- eyetracking$anomalies
 N <- length(y)
 
@@ -437,7 +436,7 @@ knitr::kable(matrix(logmarglikM2, nrow = length(a0_tmp), ncol = length(m0_tmp),
 | 1   | -316.77 | -241.38 | -245.87 | -276.12 | -324.87 |
 | 2   | -381.56 | -273.80 | -281.39 | -335.39 | -426.86 |
 
-### Example 10.11: Testing Poisson vs. negative binomial
+### Example 10.11: Eye tracking data - Testing Poisson vs. negative binomial
 
 In the negative binomial case, if $a_{0}$ is fixed and $b_{0}$ follows a
 beta prime prior, we have a closed-form expression for the marginal
@@ -468,10 +467,10 @@ knitr::kable(matrix(logmarglikM3, nrow = length(a0_tmp), ncol = length(m0_tmp),
 | 1   | -245.75 | -242.92 | -242.88 | -245.01 | -252.11 |
 | 2   | -278.03 | -275.68 | -275.62 | -277.48 | -284.21 |
 
-### Example 10.12: The Savage-Dickey density ratio for CHF/USD log returns
+### Example 10.12: CHF exchange rate data - Savage-Dickey density ratio
 
 ``` r
-library(BayesianLearningCode)
+library("BayesianLearningCode")
 #> 
 #> Attaching package: 'BayesianLearningCode'
 #> The following object is masked _by_ '.GlobalEnv':
@@ -558,7 +557,7 @@ legend("topright",
 
 ![](Chapter10_files/figure-html/unnamed-chunk-27-1.png)
 
-### Example 10.13: Savage-Dickey density ratio for the no-income-risk homogeneity test
+### Example 10.13: Labor market data - Savage-Dickey density ratio for the no-income-risk homogeneity test
 
 We only need to re-estimate the heterogeneity model which we use to
 simulate the prior and the posterior of the no-income-risk difference.
@@ -612,7 +611,7 @@ dprior <- 1
 #> [1] -1.657269
 ```
 
-### Example 10.14: Savage-Dickey density ratio for the mortality rate homogeneity test
+### Example 10.14: Stomach cancer data - Savage-Dickey density ratio for the mortality rate homogeneity test
 
 As above, with different data.
 
@@ -654,3 +653,16 @@ dprior <- 1
 (logSD <- log(dpost) - log(dprior))
 #> [1] 5.218816
 ```
+
+### Example 10.15: Road safety data - Lindley’s paradoxon
+
+``` r
+a0 <- c(0.01, 0.1, 0.5, 1:5)
+res <- rbind(gamma(a0))
+colnames(res) <- a0
+knitr::kable(res)
+```
+
+|     0.01 |      0.1 |      0.5 |   1 |   2 |   3 |   4 |   5 |
+|---------:|---------:|---------:|----:|----:|----:|----:|----:|
+| 99.43259 | 9.513508 | 1.772454 |   1 |   1 |   2 |   6 |  24 |

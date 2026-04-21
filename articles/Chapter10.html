@@ -83,7 +83,6 @@
 <span><span class="va">BF</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">logBF</span><span class="op">)</span></span>
 <span><span class="va">PrM1</span> <span class="op">&lt;-</span> <span class="va">BF</span> <span class="op">/</span> <span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="va">BF</span><span class="op">)</span></span>
 <span><span class="va">PrM2</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="op">-</span> <span class="va">PrM1</span></span>
-<span><span class="co">#xtable::xtable(cbind(BF, logBF, PrM1, PrM2), digits = c(0, 3, 1, 3, 3))</span></span>
 <span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">BF</span>, <span class="va">logBF</span>, <span class="va">PrM1</span>, <span class="va">PrM2</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
@@ -186,18 +185,15 @@
 </tbody>
 </table>
 </div>
-</div>
-<div class="section level2">
-<h2 id="section-10-2-bayesian-testing-of-hypotheses">Section 10.2: Bayesian Testing of Hypotheses<a class="anchor" aria-label="anchor" href="#section-10-2-bayesian-testing-of-hypotheses"></a>
-</h2>
 <div class="section level3">
-<h3 id="example-10-5-testing-for-zero-mean-in-the-chf-usd-log-returns">Example 10.5: Testing for zero mean in the CHF-USD log returns<a class="anchor" aria-label="anchor" href="#example-10-5-testing-for-zero-mean-in-the-chf-usd-log-returns"></a>
+<h3 id="example-10-5-chf-exchange-rate-data---testing-the-null-hypothesis-mu-0">Example 10.5: CHF exchange rate data - Testing the null hypothesis
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>μ</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\mu = 0</annotation></semantics></math><a class="anchor" aria-label="anchor" href="#example-10-5-chf-exchange-rate-data---testing-the-null-hypothesis-mu-0"></a>
 </h3>
 <p>Before producing Figure 10.1, we begin with a concrete example. We
 load the data, compute the required parameters, and evaluate the two
 marginal likelihoods.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">exrates</span>, package <span class="op">=</span> <span class="st">"stochvol"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"exrates"</span>, package <span class="op">=</span> <span class="st">"stochvol"</span><span class="op">)</span></span>
 <span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fl">100</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/diff.html" class="external-link">diff</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">exrates</span><span class="op">$</span><span class="va">USD</span> <span class="op">/</span> <span class="va">exrates</span><span class="op">$</span><span class="va">CHF</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">c0</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
@@ -246,8 +242,13 @@ factor with respect to prior hyperparameter choices.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/title.html" class="external-link">title</a></span><span class="op">(</span><span class="st">"Log Bayes factor in favor of the zero-mean model"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="Chapter10_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" alt="" width="768"></p>
 </div>
+</div>
+<div class="section level2">
+<h2 id="section-10-2-bayesian-testing-of-hypotheses">Section 10.2: Bayesian Testing of Hypotheses<a class="anchor" aria-label="anchor" href="#section-10-2-bayesian-testing-of-hypotheses"></a>
+</h2>
 <div class="section level3">
-<h3 id="example-10-6-testing-for-heterogeneity-of-the-no-income-risk">Example 10.6: Testing for heterogeneity of the no-income risk<a class="anchor" aria-label="anchor" href="#example-10-6-testing-for-heterogeneity-of-the-no-income-risk"></a>
+<h3 id="example-10-6-labor-market-data---testing-for-heterogeneity-of-the-no-income-risk">Example 10.6: Labor market data - Testing for heterogeneity of the
+no-income risk<a class="anchor" aria-label="anchor" href="#example-10-6-labor-market-data---testing-for-heterogeneity-of-the-no-income-risk"></a>
 </h3>
 <p>First, we re-load the data from Chapter 3.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
@@ -337,7 +338,8 @@ model.</p>
 </table>
 </div>
 <div class="section level3">
-<h3 id="example-10-7-testing-for-heterogeneity-of-the-mortality-rate">Example 10.7: Testing for heterogeneity of the mortality rate<a class="anchor" aria-label="anchor" href="#example-10-7-testing-for-heterogeneity-of-the-mortality-rate"></a>
+<h3 id="example-10-7-stomach-cancer-data---testing-for-heterogeneity-of-the-mortality-rate">Example 10.7: Stomach cancer data - Testing for heterogeneity of the
+mortality rate<a class="anchor" aria-label="anchor" href="#example-10-7-stomach-cancer-data---testing-for-heterogeneity-of-the-mortality-rate"></a>
 </h3>
 <p>We proceed exactly as above, just with different data.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
@@ -603,7 +605,8 @@ probabilities (under uniform prior probabilities).</p>
 </table>
 </div>
 <div class="section level3">
-<h3 id="example-10-9-testing-normal-versus-t">Example 10.9: Testing normal versus t<a class="anchor" aria-label="anchor" href="#example-10-9-testing-normal-versus-t"></a>
+<h3 id="example-10-9-chf-exchange-rate-data---testing-normal-versus-student-t">Example 10.9: CHF exchange rate data - Testing normal versus Student
+t<a class="anchor" aria-label="anchor" href="#example-10-9-chf-exchange-rate-data---testing-normal-versus-student-t"></a>
 </h3>
 <p>After loading the data, we define the degrees of freedom
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ν</mi><annotation encoding="application/x-tex">\nu</annotation></semantics></math>
@@ -683,12 +686,12 @@ probabilities (under equal prior model probabilities).</p>
 </table>
 </div>
 <div class="section level3">
-<h3 id="example-10-10-testing-homogeneity-against-unobserved-heterogeneity">Example 10.10: Testing homogeneity against unobserved
-heterogeneity<a class="anchor" aria-label="anchor" href="#example-10-10-testing-homogeneity-against-unobserved-heterogeneity"></a>
+<h3 id="example-10-10-eye-tracking-data---testing-homogeneity-against-unobserved-heterogeneity">Example 10.10: Eye tracking data - Testing homogeneity against
+unobserved heterogeneity<a class="anchor" aria-label="anchor" href="#example-10-10-eye-tracking-data---testing-homogeneity-against-unobserved-heterogeneity"></a>
 </h3>
 <p>We begin by loading the data and specifying the hyperparameters.</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">eyetracking</span>, package <span class="op">=</span> <span class="st">"BayesianLearningCode"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"eyetracking"</span>, package <span class="op">=</span> <span class="st">"BayesianLearningCode"</span><span class="op">)</span></span>
 <span><span class="va">y</span> <span class="op">&lt;-</span> <span class="va">eyetracking</span><span class="op">$</span><span class="va">anomalies</span></span>
 <span><span class="va">N</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span></span>
 <span></span>
@@ -807,7 +810,8 @@ heterogeneity<a class="anchor" aria-label="anchor" href="#example-10-10-testing-
 </table>
 </div>
 <div class="section level3">
-<h3 id="example-10-11-testing-poisson-vs--negative-binomial">Example 10.11: Testing Poisson vs. negative binomial<a class="anchor" aria-label="anchor" href="#example-10-11-testing-poisson-vs--negative-binomial"></a>
+<h3 id="example-10-11-eye-tracking-data---testing-poisson-vs--negative-binomial">Example 10.11: Eye tracking data - Testing Poisson vs. negative
+binomial<a class="anchor" aria-label="anchor" href="#example-10-11-eye-tracking-data---testing-poisson-vs--negative-binomial"></a>
 </h3>
 <p>In the negative binomial case, if
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>a</mi><mn>0</mn></msub><annotation encoding="application/x-tex">a_0</annotation></semantics></math>
@@ -877,11 +881,11 @@ marginal likelihood.</p>
 </table>
 </div>
 <div class="section level3">
-<h3 id="example-10-12-the-savage-dickey-density-ratio-for-chfusd-log-returns">Example 10.12: The Savage-Dickey density ratio for CHF/USD log
-returns<a class="anchor" aria-label="anchor" href="#example-10-12-the-savage-dickey-density-ratio-for-chfusd-log-returns"></a>
+<h3 id="example-10-12-chf-exchange-rate-data---savage-dickey-density-ratio">Example 10.12: CHF exchange rate data - Savage-Dickey density
+ratio<a class="anchor" aria-label="anchor" href="#example-10-12-chf-exchange-rate-data---savage-dickey-density-ratio"></a>
 </h3>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gregorkastner.github.io/BayesianLearningCode/">BayesianLearningCode</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://gregorkastner.github.io/BayesianLearningCode/">"BayesianLearningCode"</a></span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Attaching package: 'BayesianLearningCode'</span></span>
 <span><span class="co">#&gt; The following object is masked _by_ '.GlobalEnv':</span></span>
@@ -960,8 +964,8 @@ returns<a class="anchor" aria-label="anchor" href="#example-10-12-the-savage-dic
 <p><img src="Chapter10_files/figure-html/unnamed-chunk-27-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 <div class="section level3">
-<h3 id="example-10-13-savage-dickey-density-ratio-for-the-no-income-risk-homogeneity-test">Example 10.13: Savage-Dickey density ratio for the no-income-risk
-homogeneity test<a class="anchor" aria-label="anchor" href="#example-10-13-savage-dickey-density-ratio-for-the-no-income-risk-homogeneity-test"></a>
+<h3 id="example-10-13-labor-market-data---savage-dickey-density-ratio-for-the-no-income-risk-homogeneity-test">Example 10.13: Labor market data - Savage-Dickey density ratio for
+the no-income-risk homogeneity test<a class="anchor" aria-label="anchor" href="#example-10-13-labor-market-data---savage-dickey-density-ratio-for-the-no-income-risk-homogeneity-test"></a>
 </h3>
 <p>We only need to re-estimate the heterogeneity model which we use to
 simulate the prior and the posterior of the no-income-risk
@@ -1012,8 +1016,8 @@ approximation.</p>
 <span><span class="co">#&gt; [1] -1.657269</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="example-10-14-savage-dickey-density-ratio-for-the-mortality-rate-homogeneity-test">Example 10.14: Savage-Dickey density ratio for the mortality rate
-homogeneity test<a class="anchor" aria-label="anchor" href="#example-10-14-savage-dickey-density-ratio-for-the-mortality-rate-homogeneity-test"></a>
+<h3 id="example-10-14-stomach-cancer-data---savage-dickey-density-ratio-for-the-mortality-rate-homogeneity-test">Example 10.14: Stomach cancer data - Savage-Dickey density ratio for
+the mortality rate homogeneity test<a class="anchor" aria-label="anchor" href="#example-10-14-stomach-cancer-data---savage-dickey-density-ratio-for-the-mortality-rate-homogeneity-test"></a>
 </h3>
 <p>As above, with different data.</p>
 <div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
@@ -1050,6 +1054,37 @@ approximation.</p>
 <span><span class="va">dprior</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
 <span><span class="op">(</span><span class="va">logSD</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">dpost</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">dprior</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 5.218816</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="example-10-15-road-safety-data---lindleys-paradoxon">Example 10.15: Road safety data - Lindley’s paradoxon<a class="anchor" aria-label="anchor" href="#example-10-15-road-safety-data---lindleys-paradoxon"></a>
+</h3>
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">a0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.01</span>, <span class="fl">0.1</span>, <span class="fl">0.5</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span></span>
+<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Special.html" class="external-link">gamma</a></span><span class="op">(</span><span class="va">a0</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">a0</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="right">0.01</th>
+<th align="right">0.1</th>
+<th align="right">0.5</th>
+<th align="right">1</th>
+<th align="right">2</th>
+<th align="right">3</th>
+<th align="right">4</th>
+<th align="right">5</th>
+</tr></thead>
+<tbody><tr class="odd">
+<td align="right">99.43259</td>
+<td align="right">9.513508</td>
+<td align="right">1.772454</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">6</td>
+<td align="right">24</td>
+</tr></tbody>
+</table>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
