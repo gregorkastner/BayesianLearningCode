@@ -28,19 +28,17 @@ logBF <- -7:7
 BF <- exp(logBF)
 PrM1 <- BF / (1 + BF)
 PrM2 <- 1 - PrM1
-#xtable::xtable(cbind(BF, logBF, PrM1, PrM2), digits = c(0, 3, 1, 3, 3))
 knitr::kable(cbind(BF, logBF, PrM1, PrM2))
 ```
 
-# Section 10.2: Bayesian Testing of Hypotheses
-## Example 10.5: Testing for zero mean in the CHF-USD log returns
+## Example 10.5: CHF exchange rate data - Testing the null hypothesis $\mu = 0$
 
 Before producing Figure 10.1, we begin with a concrete example.
 We load the data, compute the required parameters, and evaluate the two 
 marginal likelihoods.
 
 ```{r}
-data(exrates, package = "stochvol")
+data("exrates", package = "stochvol")
 y <- 100 * diff(log(exrates$USD / exrates$CHF))
 
 c0 <- 1
@@ -93,8 +91,8 @@ legend("topright", paste0("IG(", c0, ",", C0, ")"), col = seq_along(c0),
 title("Log Bayes factor in favor of the zero-mean model")
 ```
 
-
-## Example 10.6: Testing for heterogeneity of the no-income risk
+# Section 10.2: Bayesian Testing of Hypotheses
+## Example 10.6: Labor market data - Testing for heterogeneity of the no-income risk
 
 First, we re-load the data from Chapter 3.
 
@@ -154,7 +152,7 @@ PrM1 <- 1 - PrM2
 knitr::kable(res <- cbind(logmarglikM1, logmarglikM2, logBF, PrM1, PrM2))
 ```
 
-## Example 10.7: Testing for heterogeneity of the mortality rate
+## Example 10.7: Stomach cancer data - Testing for heterogeneity of the mortality rate
 
 We proceed exactly as above, just with different data.
 
@@ -268,7 +266,7 @@ PrM1 <- 1 - PrM2
 knitr::kable(round(rbind(PrM1, PrM2), 3))
 ```
 
-## Example 10.9: Testing normal versus t
+## Example 10.9: CHF exchange rate data - Testing normal versus Student t
 
 After loading the data, we define the degrees of freedom $\nu$ and the prior
 hyperparameters.
@@ -335,12 +333,12 @@ knitr::kable(cbind(logML1 = logmarglikM1, logML3 = logmarglikM3,
                    BF = exp(logBF), logBF = logBF, Pr1 = PrM1, Pr3 = PrM3))
 ```
 
-## Example 10.10: Testing homogeneity against unobserved heterogeneity
+## Example 10.10: Eye tracking data - Testing homogeneity against unobserved heterogeneity
 
 We begin by loading the data and specifying the hyperparameters.
 
 ```{r}
-data(eyetracking, package = "BayesianLearningCode")
+data("eyetracking", package = "BayesianLearningCode")
 y <- eyetracking$anomalies
 N <- length(y)
 
@@ -373,7 +371,7 @@ knitr::kable(matrix(logmarglikM2, nrow = length(a0_tmp), ncol = length(m0_tmp),
              dimnames = list(a0 = a0_tmp, m0 = round(m0_tmp, 2))), digits = 2)
 ```
 
-## Example 10.11: Testing Poisson vs. negative binomial
+## Example 10.11: Eye tracking data - Testing Poisson vs. negative binomial
 
 In the negative binomial case, if $a_0$ is fixed and $b_0$ follows a beta prime
 prior, we have a closed-form expression for the marginal likelihood.
@@ -397,10 +395,10 @@ knitr::kable(matrix(logmarglikM3, nrow = length(a0_tmp), ncol = length(m0_tmp),
 ```
 
 
-## Example 10.12: The Savage-Dickey density ratio for CHF/USD log returns
+## Example 10.12: CHF exchange rate data - Savage-Dickey density ratio 
 
 ```{r}
-library(BayesianLearningCode)
+library("BayesianLearningCode")
 y <- 100 * diff(log(exrates$USD / exrates$CHF))
 
 c0R <- 1
@@ -467,7 +465,7 @@ legend("topright",
        col = rep(seq_along(N0), 2))
 ```
 
-## Example 10.13: Savage-Dickey density ratio for the no-income-risk homogeneity test
+## Example 10.13: Labor market data - Savage-Dickey density ratio for the no-income-risk homogeneity test
 
 We only need to re-estimate the heterogeneity model which we use to simulate
 the prior and the posterior of the no-income-risk difference.
@@ -522,7 +520,7 @@ dprior <- 1
 (logSD <- log(dpost) - log(dprior))
 ```
 
-## Example 10.14: Savage-Dickey density ratio for the mortality rate homogeneity test
+## Example 10.14: Stomach cancer data - Savage-Dickey density ratio for the mortality rate homogeneity test
 
 As above, with different data.
 
@@ -564,4 +562,12 @@ pos <- -d$x[x1] / (d$x[x2] - d$x[x1])
 dpost <- (1 - pos) * d$y[x1] + pos * d$y[x2]
 dprior <- 1
 (logSD <- log(dpost) - log(dprior))
+```
+## Example 10.15: Road safety data - Lindley's paradoxon
+
+```{r}
+a0 <- c(0.01, 0.1, 0.5, 1:5)
+res <- rbind(gamma(a0))
+colnames(res) <- a0
+knitr::kable(res)
 ```
