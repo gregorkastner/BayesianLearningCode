@@ -885,8 +885,6 @@ $$\mu = \alpha\frac{\frac{1}{1 + \alpha/e\exp( - \mathbf{x}{\mathbf{β}})}}{\fra
 and we will use $\alpha$ and $\mu$ to specify the negative binomial
 distribution.
 
-Extra Functions for the sampling steps ?ß
-
 ``` r
 negbin <- function(y, X, e, b0 = 0, B0 = 100, qmean, qvar, pri.alpha,
                    full.gibbs = FALSE, burnin = 1000L, M = 50000L) {
@@ -1073,7 +1071,7 @@ We extend the sampler in the scheme (a), (b), (c) by adding as a further
 step sampling the data from the prior.
 
 ``` r
-negbin_check_abc <- function(X,e, b0 = 0, B0 = 100, qmean, qvar, pri.alpha,
+negbin_check_abc <- function(X, e, b0 = 0, B0 = 100, qmean, qvar, pri.alpha,
                              full.gibbs = FALSE, burnin = 1000L, M = 50000L) {
   
   N <- nrow(X)
@@ -1222,7 +1220,7 @@ We conclude that the sampler is correct.
 We now change the order of the sampling steps to (c)-(b)-(a).
 
 ``` r
-negbin_check_cba <- function(X,e, b0 = 0, B0 = 100, qmean, qvar, pri.alpha,
+negbin_check_cba <- function(X, e, b0 = 0, B0 = 100, qmean, qvar, pri.alpha,
                              full.gibbs = FALSE, burnin = 1000L, M = 50000L) {
   
   N <- nrow(X)
@@ -1359,9 +1357,9 @@ order (a)-(b)-(c)
 set.seed(123)
 # order (a)-(b)-(c)
 res_check_abc <- negbin_check_abc(X, e, b0 = pri.beta$b0, B0 = pri.beta$B0,
-                                 qmean = parms.proposal$mean, qvar = parms.proposal$var,
+                                  qmean = parms.proposal$mean, qvar = parms.proposal$var,
                                   pri.alpha,
-                                 full.gibbs = FALSE, M = M)
+                                  full.gibbs = FALSE, M = M)
 
 qqplot(beta0.prior, res_check_abc$beta.post[, 1], xlab = "Prior",
        ylab = "Posterior", main = "Intercept")

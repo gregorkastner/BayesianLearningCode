@@ -1175,7 +1175,6 @@ is given as
 and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>μ</mi><annotation encoding="application/x-tex">\mu</annotation></semantics></math>
 to specify the negative binomial distribution.</p>
-<p>Extra Functions for the sampling steps ?ß</p>
 <div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">negbin</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">y</span>, <span class="va">X</span>, <span class="va">e</span>, <span class="va">b0</span> <span class="op">=</span> <span class="fl">0</span>, <span class="va">B0</span> <span class="op">=</span> <span class="fl">100</span>, <span class="va">qmean</span>, <span class="va">qvar</span>, <span class="va">pri.alpha</span>,</span>
 <span>                   <span class="va">full.gibbs</span> <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">burnin</span> <span class="op">=</span> <span class="fl">1000L</span>, <span class="va">M</span> <span class="op">=</span> <span class="fl">50000L</span><span class="op">)</span> <span class="op">{</span></span>
@@ -1429,7 +1428,7 @@ samper<a class="anchor" aria-label="anchor" href="#example-8-10-veryfying-the-co
 <p>We extend the sampler in the scheme (a), (b), (c) by adding as a
 further step sampling the data from the prior.</p>
 <div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">negbin_check_abc</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">X</span>,<span class="va">e</span>, <span class="va">b0</span> <span class="op">=</span> <span class="fl">0</span>, <span class="va">B0</span> <span class="op">=</span> <span class="fl">100</span>, <span class="va">qmean</span>, <span class="va">qvar</span>, <span class="va">pri.alpha</span>,</span>
+<code class="sourceCode R"><span><span class="va">negbin_check_abc</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">X</span>, <span class="va">e</span>, <span class="va">b0</span> <span class="op">=</span> <span class="fl">0</span>, <span class="va">B0</span> <span class="op">=</span> <span class="fl">100</span>, <span class="va">qmean</span>, <span class="va">qvar</span>, <span class="va">pri.alpha</span>,</span>
 <span>                             <span class="va">full.gibbs</span> <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">burnin</span> <span class="op">=</span> <span class="fl">1000L</span>, <span class="va">M</span> <span class="op">=</span> <span class="fl">50000L</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  </span>
 <span>  <span class="va">N</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span></span>
@@ -1567,7 +1566,7 @@ posterior.</p>
 <p>We conclude that the sampler is correct.</p>
 <p>We now change the order of the sampling steps to (c)-(b)-(a).</p>
 <div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">negbin_check_cba</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">X</span>,<span class="va">e</span>, <span class="va">b0</span> <span class="op">=</span> <span class="fl">0</span>, <span class="va">B0</span> <span class="op">=</span> <span class="fl">100</span>, <span class="va">qmean</span>, <span class="va">qvar</span>, <span class="va">pri.alpha</span>,</span>
+<code class="sourceCode R"><span><span class="va">negbin_check_cba</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">X</span>, <span class="va">e</span>, <span class="va">b0</span> <span class="op">=</span> <span class="fl">0</span>, <span class="va">B0</span> <span class="op">=</span> <span class="fl">100</span>, <span class="va">qmean</span>, <span class="va">qvar</span>, <span class="va">pri.alpha</span>,</span>
 <span>                             <span class="va">full.gibbs</span> <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">burnin</span> <span class="op">=</span> <span class="fl">1000L</span>, <span class="va">M</span> <span class="op">=</span> <span class="fl">50000L</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  </span>
 <span>  <span class="va">N</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span></span>
@@ -1700,9 +1699,9 @@ order (a)-(b)-(c)</p>
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
 <span><span class="co"># order (a)-(b)-(c)</span></span>
 <span><span class="va">res_check_abc</span> <span class="op">&lt;-</span> <span class="fu">negbin_check_abc</span><span class="op">(</span><span class="va">X</span>, <span class="va">e</span>, b0 <span class="op">=</span> <span class="va">pri.beta</span><span class="op">$</span><span class="va">b0</span>, B0 <span class="op">=</span> <span class="va">pri.beta</span><span class="op">$</span><span class="va">B0</span>,</span>
-<span>                                 qmean <span class="op">=</span> <span class="va">parms.proposal</span><span class="op">$</span><span class="va">mean</span>, qvar <span class="op">=</span> <span class="va">parms.proposal</span><span class="op">$</span><span class="va">var</span>,</span>
+<span>                                  qmean <span class="op">=</span> <span class="va">parms.proposal</span><span class="op">$</span><span class="va">mean</span>, qvar <span class="op">=</span> <span class="va">parms.proposal</span><span class="op">$</span><span class="va">var</span>,</span>
 <span>                                  <span class="va">pri.alpha</span>,</span>
-<span>                                 full.gibbs <span class="op">=</span> <span class="cn">FALSE</span>, M <span class="op">=</span> <span class="va">M</span><span class="op">)</span></span>
+<span>                                  full.gibbs <span class="op">=</span> <span class="cn">FALSE</span>, M <span class="op">=</span> <span class="va">M</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/qqnorm.html" class="external-link">qqplot</a></span><span class="op">(</span><span class="va">beta0.prior</span>, <span class="va">res_check_abc</span><span class="op">$</span><span class="va">beta.post</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span>, xlab <span class="op">=</span> <span class="st">"Prior"</span>,</span>
 <span>       ylab <span class="op">=</span> <span class="st">"Posterior"</span>, main <span class="op">=</span> <span class="st">"Intercept"</span><span class="op">)</span></span>
