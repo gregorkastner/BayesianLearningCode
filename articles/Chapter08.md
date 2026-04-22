@@ -717,6 +717,7 @@ sample_beta <- function(y, X, e, b0, B0, qmean, qvar, beta.old) {
                                        log = TRUE)
      lpri_old  <- mvtnorm::dmvnorm(beta.old,  mean = b0, sigma = B0, 
                                    log = TRUE)
+     
      # Compute log likelihood of proposed and old value
      lh_proposed <- dpois(y, e * exp(X %*% beta.proposed), log = TRUE)
      lh_old  <- dpois(y, e * exp(X %*% beta.old), log = TRUE)
@@ -725,9 +726,9 @@ sample_beta <- function(y, X, e, b0, B0, qmean, qvar, beta.old) {
      ll <- sum(lh_proposed - maxlik) - sum(lh_old - maxlik)
     
      # Compute acceptance probability and accept or not
-     log_acc <- min(0, ll + lpri_proposed - lpri_old + lq_old - lq_proposed)
+     lacc <- min(0,ll + lpri_proposed - lpri_old + lq_old - lq_proposed)
 
-     if (log(runif(1)) < log_acc) {
+     if (log(runif(1)) < lacc) {
         beta <- beta.proposed
         acc  <- 1
      } else {
@@ -885,104 +886,93 @@ $$\mu = \alpha\frac{\frac{1}{1 + \alpha/e\exp( - \mathbf{x}{\mathbf{β}})}}{\fra
 and we will use $\alpha$ and $\mu$ to specify the negative binomial
 distribution.
 
-``` r
-negbin <- function(y, X, e, b0 = 0, B0 = 100, qmean, qvar, pri.alpha,
-                   full.gibbs = FALSE, burnin = 1000L, M = 50000L) {
-  
-  N <- length(y)
-  d <- ncol(X)
-  
-  b0 <- rep(b0, length.out = d)
-  B0 <- diag(rep(B0, length.out = d), nrow = d)
+We first write a function to sample the parameter $\alpha$ for both, the
+full Gibbs sampler and the partially marginalised Gibbs sampler using a
+log random walk proposal.
 
-  beta.post <- matrix(ncol = d, nrow = M)
+``` r
+sample_alpha <- function(y, linpred,e, phi,  pri.alpha,alpha.old, 
+                       c.alpha,full.gibbs){
+ 
+    alpha.proposed <- exp(rnorm(1,log(alpha.old),c.alpha ))
+
+   if (full.gibbs) {
+      llik_alpha.proposed <- sum(dgamma(phi, shape = alpha.proposed,
+                                    rate = alpha.proposed, log = TRUE))
+      llik_alpha.old      <- sum(dgamma(phi, shape = alpha.old,
+                                    rate = alpha.old, log = TRUE))
+   } else {
+     llik_alpha.proposed <- sum(dnbinom(y, size = alpha.proposed,
+                                     mu = e * exp(linpred), log = TRUE))
+     llik_alpha.old      <- sum(dnbinom(y, size = alpha.old,
+                                     mu = e * exp(linpred), log = TRUE))
+   }
+
+    log_acc_alpha <- min (0, llik_alpha.proposed - llik_alpha.old +
+                          dgamma(alpha.proposed, shape = pri.alpha$shape,
+                                 rate = pri.alpha$rate, log = TRUE) -
+                          dgamma(alpha.old, shape = pri.alpha$shape,
+                                 rate = pri.alpha$rate, log = TRUE) +
+                         log(alpha.proposed) - log(alpha.old))
+
+   if (log(runif(1)) < log_acc_alpha) {
+      alpha <- alpha.proposed
+      acc <- 1
+    } else {
+     alpha <- alpha.old
+     acc <- 0
+    }
+    return(res=list(alpha=alpha, acc=acc))
+}
+```
+
+Then we combine the sampling steps for sampling $\beta$, $\alpha$ and
+$\phi$ in a gibbs sampler.
+
+``` r
+negbin<- function(y,X,e, b0,B0, pri.alpha,c.alpha,
+                  full.gibbs = TRUE, burnin = 1000L, M = 10000L){
+
+  N <- nrow(X)
+  d <- ncol(X)
+
+  beta.post  <- matrix(ncol = d, nrow = M)
   colnames(beta.post) <- colnames(X)
   acc.beta <- numeric(length = M)
-    
+
   alpha.post <- rep(NA_real_, M)
   acc.alpha <- rep(NA_real_, M)
-  c_alpha <- 0.1
-  
+
   # Set starting values
-  beta <- as.vector(mvtnorm::rmvnorm(1, mean = qmean, sigma = qvar))
-  alpha <- with(pri.alpha, shape / rate)
+  beta <- as.vector(mvtnorm::rmvnorm(1, mean = b0, sigma = B0))
+  alpha <- pri.alpha$shape/pri.alpha$rate
   phi <- rep(1, N)
   
-  for (m in seq_len(burnin + M)) {
-     # Step (a): Draw beta  
-     beta.old <- beta
-     beta.proposed <- as.vector(mvtnorm::rmvnorm(1, mean = qmean, sigma = qvar/alpha))
+  for (m in seq_len(burnin + M)){
 
-     # Compute log proposal density at proposed and old value
-     lq_proposed <- mvtnorm::dmvnorm(beta.proposed, mean = qmean, sigma =  qvar/alpha, 
-                                     log = TRUE)
-     lq_old  <- mvtnorm::dmvnorm(beta.old, mean = qmean, sigma = qvar/alpha,
-                                 log = TRUE)
-            
-     # Compute log prior of proposed and old value
-     lpri_proposed <- mvtnorm::dmvnorm(beta.proposed, mean = b0, sigma = B0, 
-                                       log = TRUE)
-     lpri_old  <- mvtnorm::dmvnorm(beta.old,  mean = b0, sigma = B0, log = TRUE)
+    # sample beta
+    parms.proposal <- gen.proposal.poisson(y, X, e*phi, b0, B0)
+    beta.draw<-sample_beta(y, X,e*phi, b0, B0,parms.proposal$mean, 
+                         parms.proposal$var,beta)
+  
+    beta<- beta.draw$beta
+    linpred <- X%*%beta
 
-     # Compute log likelihood of proposed and old value
-     lh_proposed <- dpois(y, e * exp(X %*% beta.proposed), log = TRUE)
-     lh_old  <- dpois(y, e * exp(X %*% beta.old), log = TRUE)
-    
-     maxlik <- max(lh_old, lh_proposed)
-     ll <- sum(lh_proposed - maxlik) - sum(lh_old - maxlik)
-    
-     # Compute acceptance probability and accept or not
-     log_acc <- min(0, ll + lpri_proposed - lpri_old + lq_old - lq_proposed)
+    # sample alpha
+    alpha.draw<-sample_alpha (y,linpred,e,phi,pri.alpha,alpha,
+                              c.alpha,full.gibbs)
+    alpha<- alpha.draw$alpha
 
-     if (log(runif(1)) < log_acc) {
-       beta <- beta.proposed
-       acc.b <- 1
-     } else {
-       beta <- beta.old
-       acc.b <- 0
-     }
-     linpred <- X %*% beta
-
-     # Step (b): Draw alpha
-     alpha.old <- alpha
-     alpha.proposed <- alpha.old * exp(c_alpha * rnorm(1))
-     
-     if (full.gibbs) {
-       llik_alpha.proposed <- sum(dgamma(phi, shape = alpha.proposed,
-                                         rate = alpha.proposed, log = TRUE))
-       llik_alpha.old      <- sum(dgamma(phi, shape = alpha.old,
-                                         rate = alpha.old, log = TRUE)) 
-     } else {
-       llik_alpha.proposed <- sum(dnbinom(y, size = alpha.proposed, 
-                                          mu = e * exp(linpred), log = TRUE))
-       llik_alpha.old      <- sum(dnbinom(y, size = alpha.old, 
-                                          mu = e * exp(linpred), log = TRUE))
-     }
-     log_acc_alpha <- llik_alpha.proposed - llik_alpha.old +
-         dgamma(alpha.proposed, shape = pri.alpha$shape,
-                rate = pri.alpha$rate, log = TRUE) -
-         dgamma(alpha.old, shape = pri.alpha$shape,
-                rate = pri.alpha$rate, log = TRUE) +
-         log(alpha.proposed) - log(alpha.old)
-
-     if (log(runif(1)) < log_acc_alpha) {
-       alpha <- alpha.proposed
-       acc.a <- 1
-     } else {
-       alpha <- alpha.old
-       acc.a <- 0
-     }
-   
-    # Step (c) : Draw phi from its full conditional
+    # sample phi
     phi <- rgamma(N, shape = alpha + y, rate = alpha + e * exp(linpred))
-    
+
     # Save the draws
     if (m > burnin) {
       beta.post[m - burnin, ] <- beta
-      acc.beta[m - burnin] <- acc.b
-        
+      acc.beta[m - burnin] <- beta.draw$acc
+
       alpha.post[m - burnin] <- alpha
-      acc.alpha[m - burnin] <- acc.a
+      acc.alpha[m - burnin] <- alpha.draw$acc
     }
   }
   return(res = list(beta.post = beta.post, acc.beta = acc.beta,
@@ -991,18 +981,23 @@ negbin <- function(y, X, e, b0 = 0, B0 = 100, qmean, qvar, pri.alpha,
 ```
 
 We use the same Normal prior as in the Poisson model for the regression
-effects $\mathbf{β}$ and a Gamma prior $\mathcal{G}(2,0.5)$ for $\alpha$
-and run both samplers for $M = 50,000$ iterations after a burn-in of
-1000.
+effects $\mathbf{β}$ and a Gamma prior $\mathcal{G}(2,0.5)$ for
+$\alpha$. We first run the full Gibbs sampler for $M = 50,000$
+iterations after a burn-in of 1000.
 
 ``` r
-set.seed(1234)
+d <- ncol(X)
+b0=rep(0,d)
+B0=diag(100,d)
+
 pri.alpha <- data.frame(shape = 2, rate = 0.5)
-M <- 50000L
+c.alpha=0.1
+
+M <- 10000L
 
 # Full Gibbs sampler
-res1 <- negbin(y, X, e, qmean = parms.proposal$mean, qvar = parms.proposal$var,
-               pri.alpha = pri.alpha, full.gibbs = TRUE, M = M)
+set.seed(1234)
+res1 <- negbin(y,X,e, b0,B0, pri.alpha,c.alpha, full.gibbs = TRUE, M=M )
 
 res.negbin.full <- rbind(t(apply(res1$beta.post, 2, res.mcmc)), 
                          alpha = res.mcmc(res1$alpha.post))
@@ -1014,21 +1009,25 @@ res.negbin.full <- cbind(res.negbin.full, IF = IF.res1)
 knitr::kable(round(res.negbin.full, 3))
 ```
 
-|              |   2.5% | Posterior mean |  97.5% |      IF |
-|:-------------|-------:|---------------:|-------:|--------:|
-| intercept    | -8.296 |         -8.213 | -8.122 | 226.962 |
-| intervention | -0.483 |         -0.365 | -0.231 | 230.719 |
-| holiday      | -0.983 |         -0.770 | -0.536 | 259.220 |
-| alpha        |  6.538 |         12.309 | 20.749 |  75.769 |
+|              |   2.5% | Posterior mean |  97.5% |     IF |
+|:-------------|-------:|---------------:|-------:|-------:|
+| intercept    | -8.375 |         -8.216 | -8.063 |  1.589 |
+| intervention | -0.586 |         -0.360 | -0.136 |  1.528 |
+| holiday      | -1.201 |         -0.789 | -0.404 |  1.459 |
+| alpha        |  6.771 |         12.279 | 21.058 | 74.623 |
 
 ``` r
 
 c(mean(res1$acc.beta), mean(res1$acc.alpha))
-#> [1] 0.15926 0.70312
+#> [1] 0.9382 0.7020
+```
 
+And then we run the partially marginalized Gibbs sampler under the same
+prior.
+
+``` r
 # Partially marginalized sampler               
-res2 <- negbin(y, X, e, qmean = parms.proposal$mean, qvar = parms.proposal$var,
-               pri.alpha = pri.alpha, full.gibbs = FALSE, M = M)
+res2 <- negbin(y,X,e, b0,B0, pri.alpha,c.alpha, full.gibbs = FALSE, M=M )
 
 res.negbin.partial <- rbind(t(apply(res2$beta.post, 2, res.mcmc)),
                             alpha = res.mcmc(res2$alpha.post))
@@ -1040,17 +1039,17 @@ res.negbin.partial <- cbind(res.negbin.partial, IF = IF.res2)
 knitr::kable(round(res.negbin.partial, 3))
 ```
 
-|              |   2.5% | Posterior mean |  97.5% |       IF |
-|:-------------|-------:|---------------:|-------:|---------:|
-| intercept    | -8.296 |         -8.210 | -8.108 | 1151.660 |
-| intervention | -0.528 |         -0.361 | -0.222 | 1469.125 |
-| holiday      | -0.989 |         -0.849 | -0.551 |  828.536 |
-| alpha        |  6.660 |         12.507 | 21.782 |   40.803 |
+|              |   2.5% | Posterior mean |  97.5% |     IF |
+|:-------------|-------:|---------------:|-------:|-------:|
+| intercept    | -8.378 |         -8.219 | -8.064 |  1.731 |
+| intervention | -0.587 |         -0.359 | -0.124 |  1.546 |
+| holiday      | -1.201 |         -0.785 | -0.411 |  1.512 |
+| alpha        |  6.199 |         12.440 | 21.788 | 48.220 |
 
 ``` r
 
 c(mean(res2$acc.beta), mean(res2$acc.alpha))
-#> [1] 0.09606 0.89642
+#> [1] 0.9387 0.8916
 ```
 
 Both samplers yield essentially the same estimation results, which is to
@@ -1071,136 +1070,75 @@ We extend the sampler in the scheme (a), (b), (c) by adding as a further
 step sampling the data from the prior.
 
 ``` r
-negbin_check_abc <- function(X, e, b0 = 0, B0 = 100, qmean, qvar, pri.alpha,
-                             full.gibbs = FALSE, burnin = 1000L, M = 50000L) {
+negbin_check_abc <- function(X,e, b0,B0, pri.alpha,c.alpha,
+                             full.gibbs = TRUE, burnin = 1000L, 
+                             M = 50000L){
   
   N <- nrow(X)
   d <- ncol(X)
-  
-  b0 <- rep(b0, length.out = d)
-  B0 <- diag(rep(B0, length.out = d), nrow = d)    
-  
+
   beta.post  <- matrix(ncol = d, nrow = M)
   colnames(beta.post) <- colnames(X)
   acc.beta <- numeric(length = M)
-  
+
   alpha.post <- rep(NA_real_, M)
   acc.alpha <- rep(NA_real_, M)
-  c_alpha <- 0.1
-  
+
   # Set starting values
-  phi <- rep(1, N)  
-  beta <- as.vector(mvtnorm::rmvnorm(1, mean = qmean, sigma = qvar))
+  beta <- as.vector(mvtnorm::rmvnorm(1, mean = b0, sigma = B0))
   alpha <- pri.alpha$shape/pri.alpha$rate
+  phi <- rgamma(N, shape = alpha , rate = alpha)
   
-  for (m in seq_len(burnin + M)) {
+  for (m in seq_len(burnin + M)){
+    
     # sample new data
-    y <- rnbinom(N, size = alpha, mu = e * exp(X %*% beta))
+    y <-  rpois(N, phi*e * exp(X%*%beta))
     
-    # Step (a): Draw beta  
-    beta.old <- beta
-    beta.proposed <- as.vector(mvtnorm::rmvnorm(1, mean = qmean, sigma = qvar))
-
-    # Compute log proposal density at proposed and old value
-    lq_proposed <- mvtnorm::dmvnorm(beta.proposed, mean = qmean, sigma = qvar, 
-                                    log = TRUE)
-    lq_old  <- mvtnorm::dmvnorm(beta.old, mean = qmean, sigma = qvar,
-                                log = TRUE)
-            
-    # Compute log prior  of proposed and old value
-    lpri_proposed <- mvtnorm::dmvnorm(beta.proposed, mean = b0, sigma = B0, 
-                                      log = TRUE)
-    lpri_old  <- mvtnorm::dmvnorm(beta.old,  mean = b0, sigma = B0, log = TRUE)
-      
-    # Compute log likelihood of proposed and old value
-    lh_proposed <- dpois(y, e * exp(X %*% beta.proposed), log = TRUE)
-    lh_old  <- dpois(y, e * exp(X %*% beta.old), log = TRUE)
+    # Step a
+    parms.proposal <- gen.proposal.poisson(y, X, e*phi, b0, B0)
+    beta.draw<-sample_beta(y, X,e*phi, b0, B0,parms.proposal$mean, 
+                          parms.proposal$var,beta)
+    beta<- beta.draw$beta
+    linpred <- X%*%beta
     
-    maxlik <- max(lh_old, lh_proposed)
-    ll <- sum(lh_proposed - maxlik) - sum(lh_old - maxlik)
+    # Step b
+    alpha.draw <- sample_alpha(y,linpred,e, phi, pri.alpha,
+                               alpha,c.alpha,full.gibbs)
+    alpha<- alpha.draw$alpha
     
-    # Compute acceptance probability and accept or not
-    log_acc <- min(0, ll + lpri_proposed - lpri_old + lq_old - lq_proposed)
-
-    if (log(runif(1)) < log_acc) {
-      beta <- beta.proposed
-      acc.b <- 1
-    } else {
-      beta <- beta.old
-      acc.b <- 0
-    }
-    linpred <- X %*% beta
-
-    # Step (b): Draw alpha
-    alpha.old <- alpha
-    alpha.proposed <- alpha.old * exp(c_alpha * rnorm(1))
-     
-    if (full.gibbs) {
-      llik_alpha.proposed <- sum(dgamma(phi, shape = alpha.proposed,
-                                        rate = alpha.proposed, log = TRUE))
-      llik_alpha.old      <- sum(dgamma(phi, shape = alpha.old,
-                                        rate = alpha.old, log = TRUE)) 
-    } else {
-      llik_alpha.proposed <- sum(dnbinom(y, size = alpha.proposed, 
-                                         mu = e * exp(linpred), log = TRUE))
-      llik_alpha.old      <- sum(dnbinom(y, size = alpha.old, 
-                                         mu = e * exp(linpred), log = TRUE))
-    }
-    log_acc_alpha <- llik_alpha.proposed - llik_alpha.old +
-        dgamma(alpha.proposed, shape = pri.alpha$shape,
-               rate = pri.alpha$rate, log = TRUE) -
-        dgamma(alpha.old, shape = pri.alpha$shape,
-               rate = pri.alpha$rate, log = TRUE) +
-        log(alpha.proposed) - log(alpha.old)
-
-    if (log(runif(1)) < log_acc_alpha) {
-      alpha <- alpha.proposed
-      acc.a <- 1
-    } else {
-      alpha <- alpha.old
-      acc.a <- 0
-    }
-   
-    # Step (c) : Draw phi from its full conditional
+    # Step c
     phi <- rgamma(N, shape = alpha + y, rate = alpha + e * exp(linpred))
-    
+   
     # Save the draws
     if (m > burnin) {
       beta.post[m - burnin, ] <- beta
-      acc.beta[m - burnin] <- acc.b
-        
+      acc.beta[m - burnin] <- beta.draw$acc
+
       alpha.post[m - burnin] <- alpha
-      acc.alpha[m - burnin] <- acc.a
+      acc.alpha[m - burnin] <- alpha.draw$acc
     }
   }
-  return(res = list(beta.post = beta.post, acc.beta = acc.beta,
-                    alpha.post = alpha.post, acc.alpha = acc.alpha))
+    return(res = list(beta.post = beta.post, acc.beta = acc.beta,
+                      alpha.post = alpha.post, acc.alpha = acc.alpha))
 }
 ```
 
-As the data are sampled from the prior distribution, we need a proper
-prior. Moreover as we draw the regression effects from a tailored Normal
-proposal, we avoid changing this proposal in each step and set the prior
-mean to the mean of this proposal and for the prior variance we use the
-diagonal elements of the proposal. We generate also draws from the prior
-distribution.
+We use a tighter prior for the regression effects.
 
 ``` r
-pri.beta <- list(b0 = parms.proposal$mean, B0 = diag(parms.proposal$var))
+B0=diag(1,d)
 ```
 
-We then run the sampler and investigate the draws of intercept and
+We run the sampler and investigate the draws of intercept and
 heterogeneity parameter via Q-Q plots of draws from the prior and the
 posterior.
 
 ``` r
 set.seed(123)
-res_check_abc <- negbin_check_abc(X, e, b0 = pri.beta$b0, B0 = pri.beta$B0, 
-                                  qmean = parms.proposal$mean, qvar = parms.proposal$var,
-                                  pri.alpha,
-                                  full.gibbs = TRUE, M = M)
+res_check_abc <- negbin_check_abc(X,e, b0,B0, pri.alpha,c.alpha,
+                             full.gibbs = TRUE, M = M)
 
-beta0.prior <- rnorm(M, mean = pri.beta$b0[1], sd = sqrt(pri.beta$B0[1]))
+beta0.prior <- rnorm(M, mean = b0[1], sd = sqrt(B0[1]))
 alpha.prior <- rgamma(M, shape = pri.alpha$shape, rate = pri.alpha$rate)
 
 qqplot(beta0.prior, res_check_abc$beta.post[, 1], xlab = "Prior",
@@ -1213,117 +1151,64 @@ qqplot(alpha.prior,res_check_abc$alpha.post, xlab = "Prior",
 abline(a = 0, b = 1)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-41-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-43-1.png)
 
 We conclude that the sampler is correct.
 
 We now change the order of the sampling steps to (c)-(b)-(a).
 
 ``` r
-negbin_check_cba <- function(X, e, b0 = 0, B0 = 100, qmean, qvar, pri.alpha,
-                             full.gibbs = FALSE, burnin = 1000L, M = 50000L) {
-  
+negbin_check_cba <- function(X,e, b0,B0,pri.alpha,c.alpha,
+                             full.gibbs = TRUE, burnin = 1000L,
+                             M = 50000L){
+
   N <- nrow(X)
   d <- ncol(X)
-  
-  b0 <- rep(b0, length.out = d)
-  B0 <- diag(rep(B0, length.out = d), nrow = d)
-    
+
   beta.post  <- matrix(ncol = d, nrow = M)
   colnames(beta.post) <- colnames(X)
   acc.beta <- numeric(length = M)
-  
+
   alpha.post <- rep(NA_real_, M)
   acc.alpha <- rep(NA_real_, M)
-  c_alpha <- 0.1
-  
+
   # Set starting values
-  phi <- rep(1, N)  
-  beta <- as.vector(mvtnorm::rmvnorm(1, mean = qmean, sigma = qvar))
+  beta <- as.vector(mvtnorm::rmvnorm(1, mean = b0, sigma = B0))
   alpha <- pri.alpha$shape/pri.alpha$rate
-  
-  for (m in seq_len(burnin + M)) {
+  phi <- rgamma(N, shape = alpha , rate = alpha)
+
+  for (m in seq_len(burnin + M)){
+
     # sample new data
-    linpred <- X %*% beta
-    y <- rnbinom(N, size = alpha, mu = e * exp(linpred))
-    
-    # Step (c) : Draw phi from its full conditional
+    linpred <- X%*%beta
+    y <-  rpois(N, phi*e * exp(linpred))
+
+    # Step c
     phi <- rgamma(N, shape = alpha + y, rate = alpha + e * exp(linpred))
-     
-    # Step (b): Draw alpha
-    alpha.old <- alpha
-    alpha.proposed <- alpha.old * exp(c_alpha * rnorm(1))
-     
-    if (full.gibbs) {
-      llik_alpha.proposed <- sum(dgamma(phi, shape = alpha.proposed,
-                                        rate = alpha.proposed, log = TRUE))
-      llik_alpha.old      <- sum(dgamma(phi, shape = alpha.old,
-                                        rate = alpha.old, log = TRUE)) 
-    } else {
-      llik_alpha.proposed <- sum(dnbinom(y, size = alpha.proposed, 
-                                         mu = e * exp(linpred), log = TRUE))
-      llik_alpha.old      <- sum(dnbinom(y, size = alpha.old, 
-                                         mu = e * exp(linpred), log = TRUE))
-    }
-    log_acc_alpha <- llik_alpha.proposed - llik_alpha.old +
-        dgamma(alpha.proposed, shape = pri.alpha$shape,
-               rate = pri.alpha$rate, log = TRUE) -
-        dgamma(alpha.old, shape = pri.alpha$shape,
-               rate = pri.alpha$rate, log = TRUE) +
-                       log(alpha.proposed) - log(alpha.old)
-
-    if (log(runif(1)) < log_acc_alpha) {
-      alpha <- alpha.proposed
-      acc.a <- 1
-    } else {
-      alpha <- alpha.old
-      acc.a <- 0
-    }
-   
-    # Step (a): Draw beta  
-    beta.old <- beta
-    beta.proposed <- as.vector(mvtnorm::rmvnorm(1, mean = qmean, sigma = qvar))
-
-    # Compute log proposal density at proposed and old value
-    lq_proposed <- mvtnorm::dmvnorm(beta.proposed, mean = qmean, sigma = qvar, 
-                                    log = TRUE)
-    lq_old  <- mvtnorm::dmvnorm(beta.old, mean = qmean, sigma = qvar,
-                                log = TRUE)
-            
-    # Compute log prior  of proposed and old value
-    lpri_proposed <- mvtnorm::dmvnorm(beta.proposed, mean = b0, sigma = B0, 
-                                      log = TRUE)
-    lpri_old  <- mvtnorm::dmvnorm(beta.old,  mean = b0, sigma = B0, log = TRUE)
-
-    # Compute log likelihood of proposed and old value
-    lh_proposed <- dpois(y, e * exp(X %*% beta.proposed), log = TRUE)
-    lh_old  <- dpois(y, e * exp(X %*% beta.old), log = TRUE)
     
-    maxlik <- max(lh_old, lh_proposed)
-    ll <- sum(lh_proposed - maxlik) - sum(lh_old - maxlik)
+    # Step b
+    alpha.draw <- sample_alpha(y,linpred,e, phi,pri.alpha,alpha,
+                               c.alpha,full.gibbs)
+    alpha<- alpha.draw$alpha
     
-    # Compute acceptance probability and accept or not
-    log_acc <- min(0, ll + lpri_proposed - lpri_old + lq_old - lq_proposed)
-
-    if (log(runif(1)) < log_acc) {
-      beta <- beta.proposed
-      acc.b <- 1
-    } else {
-      beta <- beta.old
-      acc.b <- 0
-    }
-     
+    # Step a
+    parms.proposal <- gen.proposal.poisson(y, X, e*phi, b0, B0)
+    beta.draw<-sample_beta(y, X,e*phi, b0, B0,parms.proposal$mean, 
+                          parms.proposal$var,beta)
+    beta<- beta.draw$beta
+    
     # Save the draws
     if (m > burnin) {
       beta.post[m - burnin, ] <- beta
-      acc.beta[m - burnin] <- acc.b
-        
+      acc.beta[m - burnin] <- beta.draw$acc
+
       alpha.post[m - burnin] <- alpha
-      acc.alpha[m - burnin] <- acc.a
+      acc.alpha[m - burnin] <- alpha.draw$acc
     }
+
   }
   return(res = list(beta.post = beta.post, acc.beta = acc.beta,
-                    alpha.post = alpha.post,acc.alpha = acc.alpha))
+                    alpha.post = alpha.post, acc.alpha = acc.alpha))
 }
 ```
 
@@ -1332,9 +1217,8 @@ intercept and the heterogeneity parameter.
 
 ``` r
 set.seed(123)
-res_check_cba <- negbin_check_cba(X, e, b0 = pri.beta$b0, B0 = pri.beta$B0, pri.alpha,
-                                  qmean = parms.proposal$mean, qvar = parms.proposal$var,
-                                  full.gibbs = TRUE, M = M)
+res_check_cba <- negbin_check_cba(X,e, b0,B0,pri.alpha,c.alpha,
+                                   full.gibbs = TRUE, M=M)
 
 qqplot(beta0.prior, res_check_cba$beta.post[, 1], xlab = "Prior",
        ylab = "Posterior", main = "Intercept")
@@ -1346,7 +1230,7 @@ qqplot(alpha.prior,res_check_cba$alpha.post, xlab = "Prior",
 abline(a = 0, b = 1)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-43-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-45-1.png)
 
 ### Example 8.11
 
@@ -1356,10 +1240,8 @@ order (a)-(b)-(c)
 ``` r
 set.seed(123)
 # order (a)-(b)-(c)
-res_check_abc <- negbin_check_abc(X, e, b0 = pri.beta$b0, B0 = pri.beta$B0,
-                                  qmean = parms.proposal$mean, qvar = parms.proposal$var,
-                                  pri.alpha,
-                                  full.gibbs = FALSE, M = M)
+res_check_abc <- negbin_check_abc(X,e, b0,B0,pri.alpha,c.alpha,
+                             full.gibbs = FALSE, M = M)
 
 qqplot(beta0.prior, res_check_abc$beta.post[, 1], xlab = "Prior",
        ylab = "Posterior", main = "Intercept")
@@ -1371,17 +1253,15 @@ qqplot(alpha.prior,res_check_abc$alpha.post, xlab = "Prior",
 abline(a = 0, b = 1)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-44-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-46-1.png)
 
 and then in the order (c)-(b)-(a)
 
 ``` r
-
 set.seed(123)
 # order (c)- (b)-(a)
-res_check_cba <- negbin_check_cba(X, e, b0 = pri.beta$b0, B0 = pri.beta$B0, pri.alpha,
-                                  qmean = parms.proposal$mean, qvar = parms.proposal$var,
-                                  full.gibbs = FALSE, M = M)
+res_check_cba <- negbin_check_cba(X,e, b0,B0,pri.alpha,c.alpha,
+                             full.gibbs = FALSE,M = M)
 
 qqplot(beta0.prior, res_check_cba$beta.post[, 1], xlab = "Prior",
        ylab = "Posterior", main = "Intercept")
@@ -1393,7 +1273,7 @@ qqplot(alpha.prior,res_check_cba$alpha.post, xlab = "Prior",
 abline(a = 0, b = 1)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-45-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-47-1.png)
 
 ## Section 8.3: Beyond i.i.d. Gaussian error distributions
 
@@ -1411,7 +1291,7 @@ plot(starsCYG, pch = 19, xlim = c(3, 5), ylim = c(3, 7),
      xlab = "log temperature", ylab = "log light intensity")
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-46-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-48-1.png)
 
 The four giant stars which can also be identified in the scatter plot
 have the following indices in the data set:
@@ -1463,7 +1343,7 @@ lines(xnew, preds_subset[, "lwr"], lty = 2)
 lines(xnew, preds_subset[, "upr"], lty = 2)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-49-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-51-1.png)
 
 #### Example 8.13: Star cluster data - heteroskedastic regression analysis with known outliers
 
@@ -1558,7 +1438,7 @@ lines(xnew, apply(pred_hetero, 1, quantile, 0.025), lty = 2)
 lines(xnew, apply(pred_hetero, 1, quantile, 0.975), lty = 2)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-54-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-56-1.png)
 
 ### Section 8.3.2 Regression analysis with errors following a Gaussian mixture
 
@@ -1643,7 +1523,7 @@ lines(xnew, apply(preds_mix_1, 1, quantile, 0.025), lty = 2)
 lines(xnew, apply(preds_mix_1, 1, quantile, 0.975), lty = 2)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-59-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-61-1.png)
 
 We now assume that the indices of the giant stars are not known. We only
 assume that a two-component mixture is used as weight distribution where
@@ -1723,7 +1603,7 @@ lines(xnew, apply(preds_mix_2, 1, quantile, 0.025), lty = 2)
 lines(xnew, apply(preds_mix_2, 1, quantile, 0.975), lty = 2)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-62-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-64-1.png)
 
 Finally, we visualize again the mean and the 95%-HPD region together
 with the data points for the three modeling approaches: (1) a
@@ -1749,7 +1629,7 @@ lines(xnew, apply(preds_mix_2, 1, quantile, 0.025), lty = 2)
 lines(xnew, apply(preds_mix_2, 1, quantile, 0.975), lty = 2)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-63-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-65-1.png)
 
 The plot indicates that all three modeling approaches result in a fit
 that is robust to the outlying observations.
@@ -1828,7 +1708,7 @@ lines(xnew, apply(preds_norm, 1, quantile, 0.975), lty = 3)
 boxplot(ws, col = 2 * (1:ncol(ws) %in% index))
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-66-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-68-1.png)
 
 #### Example 8.16: CHF exchange rate data - Fitting a Student-$t$ with $\nu$ unknown
 
@@ -1939,7 +1819,7 @@ selecta <- sample.int(N, 1)
 ts.plot(ws[, selecta], xlab = "Iteration", ylab = bquote(~omega[.(selecta)]))
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-69-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-71-1.png)
 
 ``` r
 grid <- seq(0, 20, by = .1)
@@ -1953,7 +1833,7 @@ IF <- M / coda::effectiveSize(nus)
 title(paste0("Empirical ACF (IF: ", round(IF), ")"))
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-70-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-72-1.png)
 
 ### Section 8.3.4 Regression analysis with autocorrelated errors
 
@@ -1964,7 +1844,7 @@ data("newcars", package = "BayesianLearningCode")
 plot(newcars)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-71-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-73-1.png)
 
 Seasonal patterns are evident, as is a trend. To model these, we set up
 an appropriate design matrix. Leveraging the fact the the data is a `ts`
@@ -2068,7 +1948,7 @@ plot(tim, rowMeans(resids), type = 'l', main = "Mean residuals", xlab = "Time",
 abline(h = 0, lty = 3)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-75-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-77-1.png)
 
 Apart from some outliers (the most prominent ones being related to the
 COVID-outbreak), we still see autocorrelation in the residuals. Thus, we
