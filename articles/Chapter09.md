@@ -27,8 +27,6 @@ abline(h = probs, lty = 3)
 mtext(probs, side = 2, at = probs, adj = c(0, 1), cex = .8, col = "dimgrey")
 ```
 
-![](Chapter09_files/figure-html/unnamed-chunk-3-1.png)
-
 ### Example 9.2: CHF exchange rate data - single predictions
 
 We load the data and then plot the pdf and cdf for the predictive
@@ -59,8 +57,6 @@ probs <- c(0.025, 0.975)
 abline(h = probs, lty = 3)
 mtext(probs, side = 2, at = probs, adj = c(0, 1), cex = .8, col = "dimgrey")
 ```
-
-![](Chapter09_files/figure-html/unnamed-chunk-4-1.png)
 
 We inspect the parameters of the Student-t distribution.
 
@@ -93,8 +89,6 @@ for (i in seq_along(Ns)) {
   lines(x, dstudt(x, location = bN, scale = scale, df = 2 * cN), lwd = 1.5)
 }
 ```
-
-![](Chapter09_files/figure-html/unnamed-chunk-6-1.png)
 
 ### Example 9.4: Road safety data - posterior predictive credible interval
 
@@ -222,8 +216,6 @@ abline(h = q_t, col = 2, lty = 2, lwd = 1.5)
 legend("topleft", c("Normal", "Student t"), lty = 1:2, col = c(4, 2), lwd = 1.5)
 ```
 
-![](Chapter09_files/figure-html/unnamed-chunk-14-1.png)
-
 ### Example 9.9: Road safety data - sampling-based prediction
 
 We use a sampling-based approach to obtain draws from the posterior
@@ -255,8 +247,6 @@ plot(as.table(cumsum(tab)), type = "h", xlab = "U", ylab = "")
 abline(h = probs, lty = 3)
 mtext(probs, side = 2, at = probs, adj = c(0, 1), cex = .8, col = "dimgrey")
 ```
-
-![](Chapter09_files/figure-html/unnamed-chunk-16-1.png)
 
 ### Example 9.11: Predicting the probability of future successes
 
@@ -322,8 +312,6 @@ boxplot(pk2, xlab = "k", range = 0, main = "Rao-Blackwellized",
 points(pk3, col = 3, cex = 1.5, pch = 16)
 ```
 
-![](Chapter09_files/figure-html/unnamed-chunk-20-1.png)
-
 ## Section 9.4 Posterior Predictive Distributions in Regression Analysis
 
 ### Example 9.12: Road Safety Data; potential outcome analysis
@@ -340,7 +328,7 @@ gen.proposal.poisson <- function(y, X, e, b0 = 0, B0 = 100, t.max = 20) {
   betas <- matrix(NA_real_, ncol = t.max, nrow = d)
   beta.new <- matrix(c(log(mean(y/e)), rep(0, d - 1)), nrow = d)
 
-  B0.inv=solve(B0)
+  B0.inv <- solve(B0)
   for (t in seq_len(t.max)) {
     beta.old <- beta.new
 
@@ -398,7 +386,7 @@ sample_beta<- function(y,X,e, b0, B0, qmean, qvar, beta.old){
     beta <- beta.old
     acc  <- 0
   }
-  return(res = list(beta=beta, acc=acc))
+  return(res = list(beta = beta, acc = acc))
 }
 
 poisson <- function(y, X, e, b0 = 0, B0 = 100, burnin = 1000L, M = 10000L) {
@@ -432,23 +420,23 @@ poisson <- function(y, X, e, b0 = 0, B0 = 100, burnin = 1000L, M = 10000L) {
 ```
 
 Our goal is to predict the number of killed or seriously injured
-children from October 1994 (i.e when the legal intervention giving
-priority to pedestrians became effective) using only data before that
-time point. Hence we estimate the model in Example 8.8. with an
+children from October 1994 onward (i.e., when the legal intervention
+giving priority to pedestrians became effective) using only data before
+that time point. Hence we estimate the model in Example 8.8. with an
 intercept and a holiday effect using only the information up to
 September 1994.
 
 ``` r
 data("accidents", package = "BayesianLearningCode")
-y <- accidents[1:93, "children_accidents"]
-t=length(y)
-e <- accidents[1:93, "children_exposure"]
+y <- window(accidents[, "children_accidents"], end = c(1994, 9))
+e <- window(accidents[, "children_exposure"],  end = c(1994, 9))
+t <- length(y)
 
 X <- cbind(intercept = rep(1, length(y)),
-           holiday = c(rep(rep(c(0, 1, 0), c(6, 2, 4)),7), rep(0,6), rep(1,2),0))
-M=10000
+           holiday = rep(rep(c(0, 1, 0), c(6, 2, 4)), length.out = t))
+M <- 10000
 set.seed(1)
-res <- poisson(y, X, e, b0 = 0, B0 = 100,M=M)
+res <- poisson(y, X, e, b0 = 0, B0 = 100, M = M)
 ```
 
 We define the covariates for the time points from October 1994 on and
@@ -456,15 +444,16 @@ use the draws from the posterior distribution to predict the values of
 the time series.
 
 ``` r
-X.pred <- cbind(intercept = rep(1, 99),
-                holiday = c( rep(0,3),rep(rep(c(0, 1, 0), c(6, 2, 4)),8)))
-e.pred <- accidents[94:192, "children_exposure"]
-t.pred=length(e.pred)
+e.pred <- window(accidents[, "children_exposure"], start = c(1994, 10))
+t.pred <- length(e.pred)
+X.pred <- cbind(intercept = rep(1, t.pred),
+                holiday = c(rep(0, 3), rep(rep(c(0, 1, 0), c(6, 2, 4)),
+                                           length.out = t.pred - 3)))
 
-lambda = matrix(e.pred, ncol=M, nrow=t.pred)*exp(X.pred%*%t(res$beta.post))
+lambda <- matrix(e.pred, ncol = M, nrow = t.pred) * exp(X.pred %*% t(res$beta.post))
 
 set.seed(2)
-pred<-matrix(rpois(M*t.pred, lambda), ncol=M, nrow=t.pred)
+pred <- matrix(rpois(M * t.pred, lambda), ncol = M, nrow = t.pred)
 ```
 
 We reuse also the function to determine mean and quantiles of the draws.
@@ -476,29 +465,27 @@ res.mcmc <- function(x, lower = 0.025, upper = 0.975) {
                   paste0(upper * 100, "%"))
   res
 }
-pred.int<-t(round(apply(pred, 1, res.mcmc), 3))
+pred.int <- t(round(apply(pred, 1, res.mcmc), 3))
 ```
 
 Then we plot the predictive mean together with the (equal-tailed) 95%
 prediction intervals.
 
 ``` r
-plot(1:192, accidents[,"children_accidents"], type="p" ,ylim=c(0,7),
-     xaxt="n",xlab="", ylab="",
-     main="Number of children killed or seriously injured")
-axis(1, at = seq(1, 192, by = 12), las=2, labels=1987:2002)
-matplot(94:192, pred.int, col="blue", type="l",lty=c(2,1,2),lwd=2,add=T)
-abline(v=94, col="red")
+plot(time(accidents), accidents[, "children_accidents"], type = "p", ylim = c(0, 7),
+     xlab = "", ylab = "",
+     main = "Number of children killed or seriously injured")
+matplot(as.vector(time(e.pred)), pred.int, col = "blue", type = "l",
+        lty = c(2, 1, 2), lwd = 2, add = TRUE)
+abline(v = 1994.75, col = "red")
 ```
-
-![](Chapter09_files/figure-html/unnamed-chunk-25-1.png)
 
 We see that the prediction intervals after the intervention are much too
 wide which again indicates that there is an intervention effect. Note
 that whereas the risk for a child to be killed or seriously injured in
 this model is constant the predicted mean number of killed and seriously
 injured children decreases from 1994 due to the decreasing number of
-exposed in that time period.
+exposures in that time period.
 
 ## Section 9.5: Bayesian Forecasting of Time Series
 
@@ -565,8 +552,6 @@ for (p in 2:4) {
 }
 ```
 
-![](Chapter09_files/figure-html/unnamed-chunk-28-1.png)
-
 ### Example 9.15: US GDP data - multi-step forecasting
 
 Now, we want to “sample the future” up to 12 steps ahead for $p = 2$.
@@ -628,8 +613,6 @@ for (i in 1:4) {
 }
 ```
 
-![](Chapter09_files/figure-html/unnamed-chunk-30-1.png)
-
 And now we plot the predictions.
 
 ``` r
@@ -649,8 +632,6 @@ polygon(pxs, c(quants["5%", 1], quants["95%", ], rev(quants["5%", ])),
         col = rgb(1, 0, 0, .2), border = NA)
 abline(h = 0, lty = 3)
 ```
-
-![](Chapter09_files/figure-html/unnamed-chunk-31-1.png)
 
 ### Example 9.16: US GDP data - forecasting non-linear functionals
 
@@ -693,5 +674,3 @@ polygon(pxs, c(quants["5%", 1], quants["95%", ], rev(quants["5%", ])),
         col = rgb(1, 0, 0, .2), border = NA)
 abline(h = 0, lty = 3)
 ```
-
-![](Chapter09_files/figure-html/unnamed-chunk-34-1.png)

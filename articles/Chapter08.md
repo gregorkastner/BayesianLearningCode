@@ -650,7 +650,7 @@ gen.proposal.poisson <- function(y, X, e, b0 = 0, B0 = 100, t.max = 20) {
   betas <- matrix(NA_real_, ncol = t.max, nrow = d)
   beta.new <- matrix(c(log(mean(y/e)), rep(0, d - 1)), nrow = d) 
   
-  B0.inv=solve(B0)
+  B0.inv <- solve(B0)
   for (t in seq_len(t.max)) {
     beta.old <- beta.new
     
