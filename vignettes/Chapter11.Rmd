@@ -62,7 +62,7 @@ N_hk <- Reduce("+", income_transitions)
 Ng_hk <- list(male = Reduce("+", income_transitions[!labor$female]),
               female = Reduce("+", income_transitions[labor$female]))
 gammas <- c(1, 4)
-K <- nrow(income_transitions_all)
+K <- nrow(N_hk)
 G <- length(Ng_hk)
 logmarglikMH <- logmarglikMG <- numeric(2)
 for (i in 1:2) {
