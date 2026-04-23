@@ -683,7 +683,8 @@ determine the parameters of the proposal distribution.
 
 ``` r
 d <- ncol(X)
-parms.proposal <- gen.proposal.poisson(y, X, e, b0 = rep(0, d), B0 = diag(100, d))
+parms.proposal <- gen.proposal.poisson(y, X, e, b0 = rep(0, d), 
+                                       B0 = diag(100, d))
 parms.proposal
 #> $mean
 #>            rate
@@ -891,10 +892,10 @@ full Gibbs sampler and the partially marginalised Gibbs sampler using a
 log random walk proposal.
 
 ``` r
-sample_alpha <- function(y, linpred,e, phi,  pri.alpha,alpha.old, 
-                       c.alpha,full.gibbs){
+sample_alpha <- function(y, linpred,e, phi, pri.alpha, alpha.old, 
+                       c.alpha, full.gibbs){
  
-    alpha.proposed <- exp(rnorm(1,log(alpha.old),c.alpha))
+   alpha.proposed <- exp(rnorm(1,log(alpha.old),c.alpha))
 
    if (full.gibbs) {
       llik_alpha.proposed <- sum(dgamma(phi, shape = alpha.proposed,
