@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
   fig.height = 6
 )
 knitr::opts_knit$set(global.par = TRUE)
-pdfplots <- TRUE # default: FALSE; set this to TRUE only if you like pdf figures
+pdfplots <- FALSE# default: FALSE; set this to TRUE only if you like pdf figures
 ```
 
 ```{r, include = FALSE}
@@ -985,11 +985,12 @@ negbin_check_abc <- function(X,e, b0,B0, pri.alpha,c.alpha,
   beta <- as.vector(mvtnorm::rmvnorm(1, mean = b0, sigma = B0))
   alpha <- pri.alpha$shape/pri.alpha$rate
   phi <- rgamma(N, shape = alpha , rate = alpha)
+  linpred=X%*%beta
   
   for (m in seq_len(burnin + M)){
     
     # sample new data
-    y <-rnbinom(N, alpha, e* exp(X%*%beta))  
+    y <-rnbinom(N, alpha, mu=e* exp(linpred))  
     #rpois(N, phi*e * exp(X%*%beta))
     
     # Step a
@@ -1021,11 +1022,19 @@ negbin_check_abc <- function(X,e, b0,B0, pri.alpha,c.alpha,
 }
 ```
 
-We use a tighter prior for the regression effects ans sample N=200 observations.
+We use a tighter prior for the regression effects and a sample size of  N=200 observations.
 
 ```{r}
-B0=diag(1,d)
-N=2000
+N <- 200
+X <- cbind(rep(1,N), rnorm(N), rnorm(N))
+e <- rep(1,N)
+d <- ncol(X)
+
+b0 <- rep(0,d)
+B0 <- diag(0.25,d)
+
+pri.alpha <- data.frame(shape = 4, rate =2)
+
 ```
 
 We  run the sampler and investigate the draws of intercept and heterogeneity
@@ -1037,7 +1046,7 @@ if (pdfplots) {
 }
 par(mfrow = c(1, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
 
-set.seed(123)
+set.seed(1234)
 res_check_abc <- negbin_check_abc(X,e, b0,B0, pri.alpha,c.alpha,
                              full.gibbs = TRUE, M = M)
 
@@ -1050,7 +1059,7 @@ abline(a = 0, b = 1)
 
 qqplot(alpha.prior,res_check_abc$alpha.post, xlab = "Prior",
        ylab = "Posterior", main = "Heterogeneity parameter", 
-       xlim = c(0, 30), ylim = c(0, 30))
+       xlim = c(0, 12), ylim = c(0, 12))
 abline(a = 0, b = 1)
 ```
 
@@ -1082,7 +1091,7 @@ negbin_check_cba <- function(X,e, b0,B0,pri.alpha,c.alpha,
 
     # sample new data
     linpred <- X%*%beta
-    y <- rnbinom(N, alpha, e* exp(X%*%beta))  
+    y <- rnbinom(N, alpha, mu=e* exp(X%*%beta))  
       #rpois(N, phi*e * exp(linpred))
 
     # Step c
@@ -1107,7 +1116,6 @@ negbin_check_cba <- function(X,e, b0,B0,pri.alpha,c.alpha,
       alpha.post[m - burnin] <- alpha
       acc.alpha[m - burnin] <- alpha.draw$acc
     }
-
   }
   return(res = list(beta.post = beta.post, acc.beta = acc.beta,
                     alpha.post = alpha.post, acc.alpha = acc.alpha))
@@ -1123,7 +1131,7 @@ if (pdfplots) {
 }
 par(mfrow = c(1, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
 
-set.seed(123)
+set.seed(1234)
 res_check_cba <- negbin_check_cba(X,e, b0,B0,pri.alpha,c.alpha,
                                    full.gibbs = TRUE, M=M)
 
@@ -1133,7 +1141,7 @@ abline(a = 0, b = 1)
 
 qqplot(alpha.prior,res_check_cba$alpha.post, xlab = "Prior",
        ylab = "Posterior", main =  "Heterogeneity parameter",
-       xlim = c(0, 30), ylim = c(0, 30))
+       xlim = c(0, 12), ylim = c(0, 12))
 abline(a = 0, b = 1)
 ```
 
@@ -1147,7 +1155,7 @@ if (pdfplots) {
 }
 par(mfrow = c(1, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
 
-set.seed(123)
+set.seed(1234)
 # order (a)-(b)-(c)
 res_check_abc <- negbin_check_abc(X,e, b0,B0,pri.alpha,c.alpha,
                              full.gibbs = FALSE, M = M)
@@ -1158,7 +1166,7 @@ abline(a = 0, b = 1)
 
 qqplot(alpha.prior,res_check_abc$alpha.post, xlab = "Prior", 
        ylab = "Posterior", main  = "Heterogeneity parameter", 
-       xlim = c(0, 30), ylim = c(0, 30))
+       xlim = c(0, 12), ylim = c(0, 12))
 abline(a = 0, b = 1)
 ```
 
@@ -1170,7 +1178,7 @@ if (pdfplots) {
 }
 par(mfrow = c(1, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
 
-set.seed(123)
+set.seed(1234)
 # order (c)- (b)-(a)
 res_check_cba <- negbin_check_cba(X,e, b0,B0,pri.alpha,c.alpha,
                              full.gibbs = FALSE,M = M)
@@ -1181,7 +1189,7 @@ abline(a = 0, b = 1)
 
 qqplot(alpha.prior,res_check_cba$alpha.post, xlab = "Prior", 
        ylab = "Posterior", main = "Heterogeneity parameter",
-       xlim = c(0, 30), ylim = c(0, 30))
+       xlim = c(0, 12), ylim = c(0, 12))
 abline(a = 0, b = 1)
 ```
 
