@@ -894,7 +894,7 @@ log random walk proposal.
 sample_alpha <- function(y, linpred,e, phi,  pri.alpha,alpha.old, 
                        c.alpha,full.gibbs){
  
-    alpha.proposed <- exp(rnorm(1,log(alpha.old),c.alpha ))
+    alpha.proposed <- exp(rnorm(1,log(alpha.old),c.alpha))
 
    if (full.gibbs) {
       llik_alpha.proposed <- sum(dgamma(phi, shape = alpha.proposed,
@@ -982,7 +982,7 @@ negbin<- function(y,X,e, b0,B0, pri.alpha,c.alpha,
 
 We use the same Normal prior as in the Poisson model for the regression
 effects $\mathbf{β}$ and a Gamma prior $\mathcal{G}(2,0.5)$ for
-$\alpha$. We first run the full Gibbs sampler for $M = 50,000$
+$\alpha$. We first run the full Gibbs sampler for $M = 10,000$
 iterations after a burn-in of 1000.
 
 ``` r
@@ -993,7 +993,7 @@ B0=diag(100,d)
 pri.alpha <- data.frame(shape = 2, rate = 0.5)
 c.alpha=0.1
 
-M <- 10000L
+M <- 50000L
 
 # Full Gibbs sampler
 set.seed(1234)
@@ -1011,15 +1011,15 @@ knitr::kable(round(res.negbin.full, 3))
 
 |              |   2.5% | Posterior mean |  97.5% |     IF |
 |:-------------|-------:|---------------:|-------:|-------:|
-| intercept    | -8.375 |         -8.216 | -8.063 |  1.589 |
-| intervention | -0.586 |         -0.360 | -0.136 |  1.528 |
-| holiday      | -1.201 |         -0.789 | -0.404 |  1.459 |
-| alpha        |  6.771 |         12.279 | 21.058 | 74.623 |
+| intercept    | -8.374 |         -8.216 | -8.062 |  1.636 |
+| intervention | -0.588 |         -0.361 | -0.136 |  1.549 |
+| holiday      | -1.194 |         -0.788 | -0.405 |  1.632 |
+| alpha        |  6.483 |         12.339 | 21.300 | 78.701 |
 
 ``` r
 
 c(mean(res1$acc.beta), mean(res1$acc.alpha))
-#> [1] 0.9382 0.7020
+#> [1] 0.93906 0.70274
 ```
 
 And then we run the partially marginalized Gibbs sampler under the same
@@ -1041,15 +1041,15 @@ knitr::kable(round(res.negbin.partial, 3))
 
 |              |   2.5% | Posterior mean |  97.5% |     IF |
 |:-------------|-------:|---------------:|-------:|-------:|
-| intercept    | -8.378 |         -8.219 | -8.064 |  1.731 |
-| intervention | -0.587 |         -0.359 | -0.124 |  1.546 |
-| holiday      | -1.201 |         -0.785 | -0.411 |  1.512 |
-| alpha        |  6.199 |         12.440 | 21.788 | 48.220 |
+| intercept    | -8.371 |         -8.216 | -8.062 |  1.673 |
+| intervention | -0.590 |         -0.362 | -0.135 |  1.603 |
+| holiday      | -1.196 |         -0.787 | -0.405 |  1.662 |
+| alpha        |  6.515 |         12.396 | 21.665 | 49.408 |
 
 ``` r
 
 c(mean(res2$acc.beta), mean(res2$acc.alpha))
-#> [1] 0.9387 0.8916
+#> [1] 0.93778 0.89772
 ```
 
 Both samplers yield essentially the same estimation results, which is to
@@ -1088,11 +1088,13 @@ negbin_check_abc <- function(X,e, b0,B0, pri.alpha,c.alpha,
   beta <- as.vector(mvtnorm::rmvnorm(1, mean = b0, sigma = B0))
   alpha <- pri.alpha$shape/pri.alpha$rate
   phi <- rgamma(N, shape = alpha , rate = alpha)
+  linpred=X%*%beta
   
   for (m in seq_len(burnin + M)){
     
     # sample new data
-    y <-  rpois(N, phi*e * exp(X%*%beta))
+    y <-rnbinom(N, alpha, mu=e* exp(linpred))  
+    #rpois(N, phi*e * exp(X%*%beta))
     
     # Step a
     parms.proposal <- gen.proposal.poisson(y, X, e*phi, b0, B0)
@@ -1123,10 +1125,19 @@ negbin_check_abc <- function(X,e, b0,B0, pri.alpha,c.alpha,
 }
 ```
 
-We use a tighter prior for the regression effects.
+We use a tighter prior for the regression effects and a sample size of
+N=200 observations.
 
 ``` r
-B0=diag(1,d)
+N <- 200
+X <- cbind(rep(1,N), rnorm(N), rnorm(N))
+e <- rep(1,N)
+d <- ncol(X)
+
+b0 <- rep(0,d)
+B0 <- diag(0.25,d)
+
+pri.alpha <- data.frame(shape = 4, rate =2)
 ```
 
 We run the sampler and investigate the draws of intercept and
@@ -1134,7 +1145,7 @@ heterogeneity parameter via Q-Q plots of draws from the prior and the
 posterior.
 
 ``` r
-set.seed(123)
+set.seed(1234)
 res_check_abc <- negbin_check_abc(X,e, b0,B0, pri.alpha,c.alpha,
                              full.gibbs = TRUE, M = M)
 
@@ -1147,7 +1158,7 @@ abline(a = 0, b = 1)
 
 qqplot(alpha.prior,res_check_abc$alpha.post, xlab = "Prior",
        ylab = "Posterior", main = "Heterogeneity parameter", 
-       xlim = c(0, 30), ylim = c(0, 30))
+       xlim = c(0, 12), ylim = c(0, 12))
 abline(a = 0, b = 1)
 ```
 
@@ -1181,7 +1192,8 @@ negbin_check_cba <- function(X,e, b0,B0,pri.alpha,c.alpha,
 
     # sample new data
     linpred <- X%*%beta
-    y <-  rpois(N, phi*e * exp(linpred))
+    y <- rnbinom(N, alpha, mu=e* exp(X%*%beta))  
+      #rpois(N, phi*e * exp(linpred))
 
     # Step c
     phi <- rgamma(N, shape = alpha + y, rate = alpha + e * exp(linpred))
@@ -1205,7 +1217,6 @@ negbin_check_cba <- function(X,e, b0,B0,pri.alpha,c.alpha,
       alpha.post[m - burnin] <- alpha
       acc.alpha[m - burnin] <- alpha.draw$acc
     }
-
   }
   return(res = list(beta.post = beta.post, acc.beta = acc.beta,
                     alpha.post = alpha.post, acc.alpha = acc.alpha))
@@ -1216,7 +1227,7 @@ We run the sampler under this scheme and show the Q-Q plots for the
 intercept and the heterogeneity parameter.
 
 ``` r
-set.seed(123)
+set.seed(1234)
 res_check_cba <- negbin_check_cba(X,e, b0,B0,pri.alpha,c.alpha,
                                    full.gibbs = TRUE, M=M)
 
@@ -1226,7 +1237,7 @@ abline(a = 0, b = 1)
 
 qqplot(alpha.prior,res_check_cba$alpha.post, xlab = "Prior",
        ylab = "Posterior", main =  "Heterogeneity parameter",
-       xlim = c(0, 30), ylim = c(0, 30))
+       xlim = c(0, 12), ylim = c(0, 12))
 abline(a = 0, b = 1)
 ```
 
@@ -1238,7 +1249,7 @@ We now analyze the partial marginalized Gibbs sampler, first in the
 order (a)-(b)-(c)
 
 ``` r
-set.seed(123)
+set.seed(1234)
 # order (a)-(b)-(c)
 res_check_abc <- negbin_check_abc(X,e, b0,B0,pri.alpha,c.alpha,
                              full.gibbs = FALSE, M = M)
@@ -1249,7 +1260,7 @@ abline(a = 0, b = 1)
 
 qqplot(alpha.prior,res_check_abc$alpha.post, xlab = "Prior", 
        ylab = "Posterior", main  = "Heterogeneity parameter", 
-       xlim = c(0, 30), ylim = c(0, 30))
+       xlim = c(0, 12), ylim = c(0, 12))
 abline(a = 0, b = 1)
 ```
 
@@ -1258,7 +1269,7 @@ abline(a = 0, b = 1)
 and then in the order (c)-(b)-(a)
 
 ``` r
-set.seed(123)
+set.seed(1234)
 # order (c)- (b)-(a)
 res_check_cba <- negbin_check_cba(X,e, b0,B0,pri.alpha,c.alpha,
                              full.gibbs = FALSE,M = M)
@@ -1269,7 +1280,7 @@ abline(a = 0, b = 1)
 
 qqplot(alpha.prior,res_check_cba$alpha.post, xlab = "Prior", 
        ylab = "Posterior", main = "Heterogeneity parameter",
-       xlim = c(0, 30), ylim = c(0, 30))
+       xlim = c(0, 12), ylim = c(0, 12))
 abline(a = 0, b = 1)
 ```
 
