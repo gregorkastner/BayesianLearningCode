@@ -814,7 +814,7 @@ We first write a function to sample  the parameter $\alpha$ for both, the full
 Gibbs sampler and the partially marginalised Gibbs sampler using a log random walk proposal.
 
 ```{r}
-sample_alpha <- function(y, linpred,e, phi, pri.alpha, alpha.old, 
+sample_alpha <- function(y, mu, phi, pri.alpha, alpha.old, 
                        c.alpha, full.gibbs){
  
    alpha.proposed <- exp(rnorm(1,log(alpha.old),c.alpha))
@@ -826,9 +826,9 @@ sample_alpha <- function(y, linpred,e, phi, pri.alpha, alpha.old,
                                     rate = alpha.old, log = TRUE))
    } else {
      llik_alpha.proposed <- sum(dnbinom(y, size = alpha.proposed,
-                                     mu = e * exp(linpred), log = TRUE))
+                                     mu = mu, log = TRUE))
      llik_alpha.old      <- sum(dnbinom(y, size = alpha.old,
-                                     mu = e * exp(linpred), log = TRUE))
+                                     mu = mu, log = TRUE))
    }
 
     log_acc_alpha <- min (0, llik_alpha.proposed - llik_alpha.old +
@@ -838,7 +838,7 @@ sample_alpha <- function(y, linpred,e, phi, pri.alpha, alpha.old,
                                  rate = pri.alpha$rate, log = TRUE) +
                          log(alpha.proposed) - log(alpha.old))
 
-   if (log(runif(1)) < log_acc_alpha) {
+   if (log(runif(1)) < min(0,log_acc_alpha)) {
       alpha <- alpha.proposed
       acc <- 1
     } else {
@@ -869,7 +869,7 @@ negbin<- function(y,X,e, b0,B0, pri.alpha,c.alpha,
   # Set starting values
   beta <- as.vector(mvtnorm::rmvnorm(1, mean = b0, sigma = B0))
   alpha <- pri.alpha$shape/pri.alpha$rate
-  phi <- rep(1, N)
+  phi <- rgamma(N, shape = alpha , rate = alpha)
   
   for (m in seq_len(burnin + M)){
 
@@ -882,7 +882,7 @@ negbin<- function(y,X,e, b0,B0, pri.alpha,c.alpha,
     linpred <- X%*%beta
 
     # sample alpha
-    alpha.draw<-sample_alpha (y,linpred,e,phi,pri.alpha,alpha,
+    alpha.draw<-sample_alpha (y,mu=e*exp(linpred),phi,pri.alpha,alpha,
                               c.alpha,full.gibbs)
     alpha<- alpha.draw$alpha
 
@@ -1002,7 +1002,7 @@ negbin_check_abc <- function(X,e, b0,B0, pri.alpha,c.alpha,
     linpred <- X%*%beta
     
     # Step b
-    alpha.draw <- sample_alpha(y,linpred,e, phi, pri.alpha,
+    alpha.draw <- sample_alpha(y,e*exp(linpred), phi, pri.alpha,
                                alpha,c.alpha,full.gibbs)
     alpha<- alpha.draw$alpha
     
@@ -1099,7 +1099,7 @@ negbin_check_cba <- function(X,e, b0,B0,pri.alpha,c.alpha,
     phi <- rgamma(N, shape = alpha + y, rate = alpha + e * exp(linpred))
     
     # Step b
-    alpha.draw <- sample_alpha(y,linpred,e, phi,pri.alpha,alpha,
+    alpha.draw <- sample_alpha(y,e*exp(linpred), phi,pri.alpha,alpha,
                                c.alpha,full.gibbs)
     alpha<- alpha.draw$alpha
     
