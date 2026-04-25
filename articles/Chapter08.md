@@ -45,9 +45,9 @@ female (binary), age18 (quantitative, centered at 18 years), wcollar
 an 18 year old male blue collar worker who was employed in 1997.
 
 ``` r
-y.unemp <- labor$income_1998 == "zero"
-N.unemp <- length(y.unemp)  # number of observations 
-X.unemp <- with(labor, cbind(intercept = rep(1, N.unemp),
+y_unemp <- labor$income_1998 == "zero"
+N_unemp <- length(y_unemp)  # number of observations 
+X_unemp <- with(labor, cbind(intercept = rep(1, N_unemp),
                              female = female,
                              age18 = 1998 - birthyear - 18,
                              wcollar = wcollar_1997,
@@ -111,7 +111,7 @@ independence prior and estimate the model parameters.
 ``` r
 set.seed(1234)
 M <- 20000
-betas <- probit(y.unemp, X.unemp, b0 = 0, B0 = 1000L, burnin = 1000, M = M)
+betas <- probit(y_unemp, X_unemp, b0 = 0, B0 = 1000L, burnin = 1000, M = M)
 ```
 
 To compute summary statistics from the posterior we use the following
@@ -130,8 +130,8 @@ We show posterior means and equal-tailed 95% credible intervals of the
 regression effects.
 
 ``` r
-res_probit.labor <- t(apply(betas, 2, res.mcmc))
-knitr::kable(round(res_probit.labor, 3))
+res_probit_labor <- t(apply(betas, 2, res.mcmc))
+knitr::kable(round(res_probit_labor, 3))
 ```
 
 |           |   2.5% | Posterior mean |  97.5% |
@@ -147,7 +147,7 @@ person, i.e., a 18 year old male blue collar worker who was employed in
 1997, using the posterior mean estimate of the intercept.
 
 ``` r
-(p_unemploy_base_probit <- round(pnorm(res_probit.labor[1, 2]), 4))
+(p_unemploy_base_probit <- round(pnorm(res_probit_labor[1, 2]), 4))
 #> [1] 0.0241
 ```
 
@@ -280,12 +280,12 @@ we observe only successes and for $x = 0$ only failures.
 ``` r
 N <- 500
 ns <- 250
-x.sep <- rep(c(0, 1), c(ns, N - ns))
+x_sep <- rep(c(0, 1), c(ns, N - ns))
 y <- rep(c(0, 1), c(ns, N - ns))
 
-table(x.sep, y)
+table(x_sep, y)
 #>      y
-#> x.sep   0   1
+#> x_sep   0   1
 #>     0 250   0
 #>     1   0 250
 ```
@@ -301,26 +301,26 @@ autocorrelations are close to 1 even at lag 40.
 
 ``` r
 set.seed(1234)
-X.sep <- cbind(rep(1, N), x.sep)
-betas.sep <- probit(y, X.sep, b0 = 0, B0 = 10000, burnin = 1000, M = M)
+X_sep <- cbind(rep(1, N), x_sep)
+betas_sep <- probit(y, X_sep, b0 = 0, B0 = 10000, burnin = 1000, M = M)
 
 labels <- expression(beta[0], beta[1])
-plot(betas.sep[, 1], type = "l", xlab = "Draws after burn-in", ylab = labels[1])
-acf(betas.sep[, 1], ylab = "empirical ACF")
+plot(betas_sep[, 1], type = "l", xlab = "Draws after burn-in", ylab = labels[1])
+acf(betas_sep[, 1], ylab = "empirical ACF")
 
-plot(betas.sep[, 2], type = "l", xlab = "Draws after burn-in", ylab = labels[2])
-acf(betas.sep[, 2], ylab = "empirical ACF")
+plot(betas_sep[, 2], type = "l", xlab = "Draws after burn-in", ylab = labels[2])
+acf(betas_sep[, 2], ylab = "empirical ACF")
 ```
 
 ![](Chapter08_files/figure-html/unnamed-chunk-17-1.png)
 
 ``` r
 
-(ESS.sep <- coda::effectiveSize(betas.sep))
-#>             x.sep 
+(ESS_sep <- coda::effectiveSize(betas_sep))
+#>             x_sep 
 #> 8.375523 8.269881
-(IF.sep <- M/ESS.sep)
-#>             x.sep 
+(IF_sep <- M/ESS_sep)
+#>             x_sep 
 #> 2387.911 2418.415
 ```
 
@@ -335,10 +335,10 @@ failures. Hence for $x = 0$ always a failure is observed, whereas for
 $x = 1$ both successes and failures occur.
 
 ``` r
-x.qus1 <- rep(c(0, 1), c(ns-100, N - ns+100))
-table(x.qus1, y)
+x_qus1 <- rep(c(0, 1), c(ns-100, N - ns+100))
+table(x_qus1, y)
 #>       y
-#> x.qus1   0   1
+#> x_qus1   0   1
 #>      0 150   0
 #>      1 100 250
 ```
@@ -348,25 +348,25 @@ Gibbs sampling.
 
 ``` r
 set.seed(1234)
-X.qus1 <- cbind(rep(1, N), x.qus1)
-betas.qus1 <- probit(y, X.qus1, b0 = 0, B0 = 10000, burnin = 1000, M = M)
+X_qus1 <- cbind(rep(1, N), x_qus1)
+betas_qus1 <- probit(y, X_qus1, b0 = 0, B0 = 10000, burnin = 1000, M = M)
 
-plot(betas.qus1[, 1], type = "l", xlab = "Draws after burn-in", ylab = labels[1])
-acf(betas.qus1[, 1], ylab = "empirical ACF")
+plot(betas_qus1[, 1], type = "l", xlab = "Draws after burn-in", ylab = labels[1])
+acf(betas_qus1[, 1], ylab = "empirical ACF")
 
-plot(betas.qus1[, 2], type = "l", xlab = "Draws after burn-in", ylab = labels[2])
-acf(betas.qus1[, 2], ylab = "empirical ACF")
+plot(betas_qus1[, 2], type = "l", xlab = "Draws after burn-in", ylab = labels[2])
+acf(betas_qus1[, 2], ylab = "empirical ACF")
 ```
 
 ![](Chapter08_files/figure-html/unnamed-chunk-19-1.png)
 
 ``` r
 
-(ESS.qus1 <- coda::effectiveSize(betas.qus1))
-#>            x.qus1 
+(ESS_qus1 <- coda::effectiveSize(betas_qus1))
+#>            x_qus1 
 #> 8.529486 8.683472
-(IF.qus1 <- M/ESS.qus1)
-#>            x.qus1 
+(IF_qus1 <- M/ESS_qus1)
+#>            x_qus1 
 #> 2344.807 2303.226
 ```
 
@@ -377,33 +377,33 @@ We now change the setting so that $x$ takes values of $0$ not only for
 failures but also for some successes, whereas $x = 1$ for all successes.
 
 ``` r
-x.qus2 <- rep(c(0, 1), c(ns+100, N - ns-100))
-table(x.qus2, y)
+x_qus2 <- rep(c(0, 1), c(ns+100, N - ns-100))
+table(x_qus2, y)
 #>       y
-#> x.qus2   0   1
+#> x_qus2   0   1
 #>      0 250 100
 #>      1   0 150
 
 set.seed(1234)
-X.qus2 <- cbind(rep(1, N), x.qus2)
-betas.qus2 <- probit(y, X.qus2, b0 = 0, B0 = 10000, burnin = 1000, M = M)
+X_qus2 <- cbind(rep(1, N), x_qus2)
+betas_qus2 <- probit(y, X_qus2, b0 = 0, B0 = 10000, burnin = 1000, M = M)
 
-plot(betas.qus2[, 1], type = "l", xlab = "Draws after burn-in", ylab = labels[1])
-acf(betas.qus2[, 1], ylab = "empirical ACF")
+plot(betas_qus2[, 1], type = "l", xlab = "Draws after burn-in", ylab = labels[1])
+acf(betas_qus2[, 1], ylab = "empirical ACF")
 
-plot(betas.qus2[, 2], type = "l", xlab = "Draws after burn-in", ylab = labels[2])
-acf(betas.qus2[, 2], ylab = "empirical ACF")
+plot(betas_qus2[, 2], type = "l", xlab = "Draws after burn-in", ylab = labels[2])
+acf(betas_qus2[, 2], ylab = "empirical ACF")
 ```
 
 ![](Chapter08_files/figure-html/unnamed-chunk-20-1.png)
 
 ``` r
 
-(ESS.qus2 <- coda::effectiveSize(betas.qus2))
-#>                  x.qus2 
+(ESS_qus2 <- coda::effectiveSize(betas_qus2))
+#>                  x_qus2 
 #> 7748.599768    6.283738
-(IF.qus2 <- M/ESS.qus2)
-#>                  x.qus2 
+(IF_qus2 <- M/ESS_qus2)
+#>                  x_qus2 
 #>    2.581112 3182.818740
 ```
 
@@ -433,18 +433,18 @@ by a factor of 10000.
 
 ``` r
 set.seed(1234)
-betas.sep1 <- probit(y, X.sep, b0 = 0, B0 = 1, burnin = 1000, M = M)
+betas_sep1 <- probit(y, X_sep, b0 = 0, B0 = 1, burnin = 1000, M = M)
 
 # compare results to the less informative prior
-res_betas.sep <- t(apply(betas.sep, 2, res.mcmc))
-rownames(res_betas.sep) <- c("Intercept", "X")
+res_betas_sep <- t(apply(betas_sep, 2, res.mcmc))
+rownames(res_betas_sep) <- c("Intercept", "X")
 
-ESS.sep <- coda::effectiveSize(betas.sep)
-IF.sep <- M/ESS.sep
-res.sep <- round(cbind(res_betas.sep, ESS.sep, IF.sep), 2)
-colnames(res.sep)[4:5] <- c("Estimated ESS", "Estimated IF")
+ESS_sep <- coda::effectiveSize(betas_sep)
+IF_sep <- M/ESS_sep
+res_sep <- round(cbind(res_betas_sep, ESS_sep, IF_sep), 2)
+colnames(res_sep)[4:5] <- c("Estimated ESS", "Estimated IF")
 
-knitr:: kable(res.sep)
+knitr:: kable(res_sep)
 ```
 
 |           |   2.5% | Posterior mean | 97.5% | Estimated ESS | Estimated IF |
@@ -454,15 +454,15 @@ knitr:: kable(res.sep)
 
 ``` r
 
-res_betas.sep1 <- t(apply(betas.sep1, 2, res.mcmc))
-rownames(res_betas.sep1) <- c("Intercept", "X")
+res_betas_sep1 <- t(apply(betas_sep1, 2, res.mcmc))
+rownames(res_betas_sep1) <- c("Intercept", "X")
 
-ESS.sep1 <- coda::effectiveSize(betas.sep1)
-IF.sep1 <- M/ESS.sep1
-res.sep1 <- round(cbind(res_betas.sep1, ESS.sep1, IF.sep1), 2)
-colnames(res.sep1)[4:5] <- c("Estimated ESS", "Estimated IF")
+ESS_sep1 <- coda::effectiveSize(betas_sep1)
+IF_sep1 <- M/ESS_sep1
+res_sep1 <- round(cbind(res_betas_sep1, ESS_sep1, IF_sep1), 2)
+colnames(res_sep1)[4:5] <- c("Estimated ESS", "Estimated IF")
 
-knitr:: kable(res.sep1)
+knitr:: kable(res_sep1)
 ```
 
 |           |  2.5% | Posterior mean | 97.5% | Estimated ESS | Estimated IF |
@@ -474,11 +474,11 @@ We see that the tighter prior shrinks the estimates to zero, estimated
 ESSs are higher and estimated IFs are lower.
 
 ``` r
-plot(betas.sep1[, 1], type = "l", xlab = "Draws after burn-in", ylab = labels[1])
-acf(betas.sep1[, 1], ylab = "empirical ACF")
+plot(betas_sep1[, 1], type = "l", xlab = "Draws after burn-in", ylab = labels[1])
+acf(betas_sep1[, 1], ylab = "empirical ACF")
 
-plot(betas.sep1[, 2], type = "l", xlab = "Draws after burn-in", ylab = labels[2])
-acf(betas.sep1[, 2], ylab = "empirical ACF")
+plot(betas_sep1[, 2], type = "l", xlab = "Draws after burn-in", ylab = labels[2])
+acf(betas_sep1[, 2], ylab = "empirical ACF")
 ```
 
 ![](Chapter08_files/figure-html/unnamed-chunk-22-1.png)
@@ -550,10 +550,10 @@ risk of unemployment for a baseline person using the fitted logit model.
 
 ``` r
 set.seed(1234)
-betas_logit <- logit(y.unemp, X.unemp, b0 = 0, B0 = 10000)
+betas_logit <- logit(y_unemp, X_unemp, b0 = 0, B0 = 10000)
 
-res_logit.labor <- t(apply(betas_logit, 2, res.mcmc))
-knitr::kable(round(res_logit.labor, 3))
+res_logit_labor <- t(apply(betas_logit, 2, res.mcmc))
+knitr::kable(round(res_logit_labor, 3))
 ```
 
 |           |   2.5% | Posterior mean |  97.5% |
@@ -566,7 +566,7 @@ knitr::kable(round(res_logit.labor, 3))
 
 ``` r
 
-(p_unemploy_base_logit <- round(plogis(res_logit.labor[1, 2]), 4))
+(p_unemploy_base_logit <- round(plogis(res_logit_labor[1, 2]), 4))
 #> [1] 0.0247
 ```
 
@@ -592,7 +592,7 @@ $\pi/\sqrt{3}$ we can compare them to the estimates of the logit model
 and we see that there is not much difference.
 
 ``` r
-knitr::kable(round(res_probit.labor * pi / sqrt(3), 3))
+knitr::kable(round(res_probit_labor * pi / sqrt(3), 3))
 ```
 
 |           |   2.5% | Posterior mean |  97.5% |
@@ -643,27 +643,27 @@ To compute the parameters of the normal proposal density, we use the
 Newton-Raphson estimator described in Section 8.2.1.
 
 ``` r
-gen.proposal.poisson <- function(y, X, e, b0 = 0, B0 = 100, t.max = 20) {
+gen_proposal_poisson <- function(y, X, e, b0 = 0, B0 = 100, t.max = 20) {
   N <- length(y)
   d <- ncol(X)
   
   betas <- matrix(NA_real_, ncol = t.max, nrow = d)
-  beta.new <- matrix(c(log(mean(y/e)), rep(0, d - 1)), nrow = d) 
+  beta_new <- matrix(c(log(mean(y/e)), rep(0, d - 1)), nrow = d) 
   
   B0.inv <- solve(B0)
   for (t in seq_len(t.max)) {
-    beta.old <- beta.new
+    beta_old <- beta_new
     
-    rate <- e * exp(X %*% beta.old)
-    score <- t(crossprod(y - rate, X) - t(beta.old - b0) %*% B0.inv)
+    rate <- e * exp(X %*% beta_old)
+    score <- t(crossprod(y - rate, X) - t(beta_old - b0) %*% B0.inv)
 
     H <- -B0.inv
     for (i in seq_len(N)) {
       H <- H - rate[i] * tcrossprod(X[i, ])
     }
-    beta.new <- beta.old - solve(H, score)
+    beta_new <- beta_old - solve(H, score)
   }
-  qmean <- beta.new
+  qmean <- beta_new
   
   # Determine the variance matrix  
   rate <- e * exp(X %*% qmean)
@@ -672,7 +672,7 @@ gen.proposal.poisson <- function(y, X, e, b0 = 0, B0 = 100, t.max = 20) {
      H <- H - rate[i] * tcrossprod(X[i, ])
   }
   qvar <- -solve(H)
-  return(parms.proposal = list(mean = qmean,
+  return(parms_proposal = list(mean = qmean,
                                var = qvar))
 }
 ```
@@ -683,9 +683,9 @@ determine the parameters of the proposal distribution.
 
 ``` r
 d <- ncol(X)
-parms.proposal <- gen.proposal.poisson(y, X, e, b0 = rep(0, d), 
+parms_proposal <- gen_proposal_poisson(y, X, e, b0 = rep(0, d), 
                                        B0 = diag(100, d))
-parms.proposal
+parms_proposal
 #> $mean
 #>            rate
 #> [1,] -8.2140876
@@ -703,25 +703,25 @@ To implement the independence Metropolis-Hastings algorithm we write a
 short program for the MH step for sampling the regression effects.
 
 ``` r
-sample_beta <- function(y, X, e, b0, B0, qmean, qvar, beta.old) {
+sample_beta <- function(y, X, e, b0, B0, qmean, qvar, beta_old) {
  
-     beta.proposed <- as.vector(mvtnorm::rmvnorm(1, mean = qmean, sigma = qvar))
+     beta_proposed <- as.vector(mvtnorm::rmvnorm(1, mean = qmean, sigma = qvar))
      
      # Compute log proposal density at proposed and old value
-     lq_proposed <- mvtnorm::dmvnorm(beta.proposed, mean = qmean, sigma = qvar,
+     lq_proposed <- mvtnorm::dmvnorm(beta_proposed, mean = qmean, sigma = qvar,
                                 log = TRUE)
-     lq_old  <- mvtnorm::dmvnorm(beta.old, mean = qmean, sigma = qvar,
+     lq_old  <- mvtnorm::dmvnorm(beta_old, mean = qmean, sigma = qvar,
                             log = TRUE)
 
      # Compute log prior  of proposed and old value
-     lpri_proposed <- mvtnorm::dmvnorm(beta.proposed, mean = b0, sigma = B0, 
+     lpri_proposed <- mvtnorm::dmvnorm(beta_proposed, mean = b0, sigma = B0, 
                                        log = TRUE)
-     lpri_old  <- mvtnorm::dmvnorm(beta.old,  mean = b0, sigma = B0, 
+     lpri_old  <- mvtnorm::dmvnorm(beta_old,  mean = b0, sigma = B0, 
                                    log = TRUE)
      
      # Compute log likelihood of proposed and old value
-     lh_proposed <- dpois(y, e * exp(X %*% beta.proposed), log = TRUE)
-     lh_old  <- dpois(y, e * exp(X %*% beta.old), log = TRUE)
+     lh_proposed <- dpois(y, e * exp(X %*% beta_proposed), log = TRUE)
+     lh_old  <- dpois(y, e * exp(X %*% beta_old), log = TRUE)
 
      maxlik <- max(lh_old, lh_proposed)
      ll <- sum(lh_proposed - maxlik) - sum(lh_old - maxlik)
@@ -730,10 +730,10 @@ sample_beta <- function(y, X, e, b0, B0, qmean, qvar, beta.old) {
      lacc <- min(0,ll + lpri_proposed - lpri_old + lq_old - lq_proposed)
 
      if (log(runif(1)) < lacc) {
-        beta <- beta.proposed
+        beta <- beta_proposed
         acc  <- 1
      } else {
-        beta <- beta.old
+        beta <- beta_old
         acc  <- 0
      }
      return(res = list(beta = beta, acc = acc))
@@ -751,27 +751,27 @@ poisson <- function(y, X, e, b0 = 0, B0 = 100, burnin = 1000L, M = 10000L) {
   b0 <- rep(b0, length.out = d)
   B0 <- diag(rep(B0, length.out = d), nrow = d)
 
-  beta.post <- matrix(ncol = d, nrow = M)
-  colnames(beta.post) <- colnames(X)
+  beta_post <- matrix(ncol = d, nrow = M)
+  colnames(beta_post) <- colnames(X)
   acc <- numeric(length = M)
   
-  parms.proposal <- gen.proposal.poisson(y, X, e, b0 , B0)
-  qmean <- parms.proposal$mean
-  qvar <- parms.proposal$var
+  parms_proposal <- gen_proposal_poisson(y, X, e, b0 , B0)
+  qmean <- parms_proposal$mean
+  qvar <- parms_proposal$var
   
   beta <- as.vector(mvtnorm::rmvnorm(1, mean = qmean, sigma = qvar))
   
   for (m in seq_len(burnin + M)) {
-    beta.draw <- sample_beta(y, X, e, b0, B0, qmean, qvar, beta)
-    beta <- beta.draw$beta
+    beta_draw <- sample_beta(y, X, e, b0, B0, qmean, qvar, beta)
+    beta <- beta_draw$beta
    
     # Store the beta draws
     if (m > burnin) {
-      beta.post[m - burnin, ] <- beta
-      acc[m - burnin] <- beta.draw$acc
+      beta_post[m - burnin, ] <- beta
+      acc[m - burnin] <- beta_draw$acc
     }
   }
-  return(list(beta.post = beta.post, accept = mean(acc)))
+  return(list(beta_post = beta_post, accept = mean(acc)))
 }
 ```
 
@@ -781,9 +781,9 @@ We perform MCMC and report the results.
 set.seed(1234)
 res1 <- poisson(y, X, e, b0 = 0, B0 = 100)
 
-res.poisson1 <- cbind(t(round(apply(res1$beta.post, 2, res.mcmc), 3)),
-                      "exp(beta)" = round(exp(colMeans(res1$beta.post)), 5))
-knitr::kable(res.poisson1)
+res_poisson1 <- cbind(t(round(apply(res1$beta_post, 2, res.mcmc), 3)),
+                      "exp(beta)" = round(exp(colMeans(res1$beta_post)), 5))
+knitr::kable(res_poisson1)
 ```
 
 |              |   2.5% | Posterior mean |  97.5% | exp(beta) |
@@ -796,7 +796,7 @@ We see that the risk for a child to be killed or seriously injured is
 lower during holiday months as well as after the intervention.
 
 ``` r
-(base_risk <- res.poisson1[1, "exp(beta)"]*10^4)
+(base_risk <- res_poisson1[1, "exp(beta)"]*10^4)
 #> [1] 2.7
 res1$accept
 #> [1] 0.9349
@@ -813,21 +813,21 @@ the intercept models the risk in December before the intervention.
 
 ``` r
 seas <- rbind(diag(1, 11), rep(0, 11)) 
-seas.dummies <- matrix(rep(t(seas), 16), ncol = 11, byrow = TRUE)
-colnames(seas.dummies) <- c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul",
+seas_dummies <- matrix(rep(t(seas), 16), ncol = 11, byrow = TRUE)
+colnames(seas_dummies) <- c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul",
                             "Aug", "Sep", "Oct", "Nov")
-X.large <- cbind(X[, -3], seas.dummies)
+X_large <- cbind(X[, -3], seas_dummies)
 ```
 
 We set the prior parameters and fit the model.
 
 ``` r
 set.seed(1234)
-res2 <- poisson(y, X.large, e, b0 = 0, B0 = 100)
+res2 <- poisson(y, X_large, e, b0 = 0, B0 = 100)
 
-res.poisson2 <- cbind(t(round(apply(res2$beta.post, 2, res.mcmc), 3)),
-                      "exp(beta)" = round(exp(colMeans(res2$beta.post)), 5))
-knitr::kable(res.poisson2)
+res_poisson2 <- cbind(t(round(apply(res2$beta_post, 2, res.mcmc), 3)),
+                      "exp(beta)" = round(exp(colMeans(res2$beta_post)), 5))
+knitr::kable(res_poisson2)
 ```
 
 |              |   2.5% | Posterior mean |  97.5% | exp(beta) |
@@ -848,7 +848,7 @@ knitr::kable(res.poisson2)
 
 ``` r
 
-(base_risk <- res.poisson2[1, "exp(beta)"]*10^4)
+(base_risk <- res_poisson2[1, "exp(beta)"]*10^4)
 #> [1] 2.8
 ```
 
@@ -892,35 +892,35 @@ full Gibbs sampler and the partially marginalised Gibbs sampler using a
 log random walk proposal.
 
 ``` r
-sample_alpha <- function(y, linpred,e, phi, pri.alpha, alpha.old, 
-                       c.alpha, full.gibbs){
+sample_alpha <- function(y, mu, phi, pri_alpha, alpha_old, 
+                       c_alpha, full_gibbs){
  
-   alpha.proposed <- exp(rnorm(1,log(alpha.old),c.alpha))
+   alpha_proposed <- exp(rnorm(1,log(alpha_old),c_alpha))
 
-   if (full.gibbs) {
-      llik_alpha.proposed <- sum(dgamma(phi, shape = alpha.proposed,
-                                    rate = alpha.proposed, log = TRUE))
-      llik_alpha.old      <- sum(dgamma(phi, shape = alpha.old,
-                                    rate = alpha.old, log = TRUE))
+   if (full_gibbs) {
+      llik_alpha_proposed <- sum(dgamma(phi, shape = alpha_proposed,
+                                    rate = alpha_proposed, log = TRUE))
+      llik_alpha_old      <- sum(dgamma(phi, shape = alpha_old,
+                                    rate = alpha_old, log = TRUE))
    } else {
-     llik_alpha.proposed <- sum(dnbinom(y, size = alpha.proposed,
-                                     mu = e * exp(linpred), log = TRUE))
-     llik_alpha.old      <- sum(dnbinom(y, size = alpha.old,
-                                     mu = e * exp(linpred), log = TRUE))
+     llik_alpha_proposed <- sum(dnbinom(y, size = alpha_proposed,
+                                     mu = mu, log = TRUE))
+     llik_alpha_old      <- sum(dnbinom(y, size = alpha_old,
+                                     mu = mu, log = TRUE))
    }
 
-    log_acc_alpha <- min (0, llik_alpha.proposed - llik_alpha.old +
-                          dgamma(alpha.proposed, shape = pri.alpha$shape,
-                                 rate = pri.alpha$rate, log = TRUE) -
-                          dgamma(alpha.old, shape = pri.alpha$shape,
-                                 rate = pri.alpha$rate, log = TRUE) +
-                         log(alpha.proposed) - log(alpha.old))
+    log_acc_alpha <- min (0, llik_alpha_proposed - llik_alpha_old +
+                          dgamma(alpha_proposed, shape = pri_alpha$shape,
+                                 rate = pri_alpha$rate, log = TRUE) -
+                          dgamma(alpha_old, shape = pri_alpha$shape,
+                                 rate = pri_alpha$rate, log = TRUE) +
+                         log(alpha_proposed) - log(alpha_old))
 
-   if (log(runif(1)) < log_acc_alpha) {
-      alpha <- alpha.proposed
+   if (log(runif(1)) < min(0,log_acc_alpha)) {
+      alpha <- alpha_proposed
       acc <- 1
     } else {
-     alpha <- alpha.old
+     alpha <- alpha_old
      acc <- 0
     }
     return(res=list(alpha=alpha, acc=acc))
@@ -931,53 +931,53 @@ Then we combine the sampling steps for sampling $\beta$, $\alpha$ and
 $\phi$ in a gibbs sampler.
 
 ``` r
-negbin<- function(y,X,e, b0,B0, pri.alpha,c.alpha,
-                  full.gibbs = TRUE, burnin = 1000L, M = 10000L){
+negbin<- function(y,X,e, b0,B0, pri_alpha,c_alpha,
+                  full_gibbs = TRUE, burnin = 1000L, M = 10000L){
 
   N <- nrow(X)
   d <- ncol(X)
 
-  beta.post  <- matrix(ncol = d, nrow = M)
-  colnames(beta.post) <- colnames(X)
-  acc.beta <- numeric(length = M)
+  beta_post  <- matrix(ncol = d, nrow = M)
+  colnames(beta_post) <- colnames(X)
+  acc_beta <- numeric(length = M)
 
-  alpha.post <- rep(NA_real_, M)
-  acc.alpha <- rep(NA_real_, M)
+  alpha_post <- rep(NA_real_, M)
+  acc_alpha <- rep(NA_real_, M)
 
   # Set starting values
   beta <- as.vector(mvtnorm::rmvnorm(1, mean = b0, sigma = B0))
-  alpha <- pri.alpha$shape/pri.alpha$rate
-  phi <- rep(1, N)
+  alpha <- pri_alpha$shape/pri_alpha$rate
+  phi <- rgamma(N, shape = alpha , rate = alpha)
   
   for (m in seq_len(burnin + M)){
 
     # sample beta
-    parms.proposal <- gen.proposal.poisson(y, X, e*phi, b0, B0)
-    beta.draw<-sample_beta(y, X,e*phi, b0, B0,parms.proposal$mean, 
-                         parms.proposal$var,beta)
+    parms_proposal <- gen_proposal_poisson(y, X, e*phi, b0, B0)
+    beta_draw<-sample_beta(y, X,e*phi, b0, B0,parms_proposal$mean, 
+                         parms_proposal$var,beta)
   
-    beta<- beta.draw$beta
+    beta<- beta_draw$beta
     linpred <- X%*%beta
 
     # sample alpha
-    alpha.draw<-sample_alpha (y,linpred,e,phi,pri.alpha,alpha,
-                              c.alpha,full.gibbs)
-    alpha<- alpha.draw$alpha
+    alpha_draw<-sample_alpha(y,mu=e*exp(linpred),phi,pri_alpha,
+                             alpha, c_alpha,full_gibbs)
+    alpha<- alpha_draw$alpha
 
     # sample phi
     phi <- rgamma(N, shape = alpha + y, rate = alpha + e * exp(linpred))
 
     # Save the draws
     if (m > burnin) {
-      beta.post[m - burnin, ] <- beta
-      acc.beta[m - burnin] <- beta.draw$acc
+      beta_post[m - burnin, ] <- beta
+      acc_beta[m - burnin] <- beta_draw$acc
 
-      alpha.post[m - burnin] <- alpha
-      acc.alpha[m - burnin] <- alpha.draw$acc
+      alpha_post[m - burnin] <- alpha
+      acc_alpha[m - burnin] <- alpha_draw$acc
     }
   }
-  return(res = list(beta.post = beta.post, acc.beta = acc.beta,
-                    alpha.post = alpha.post, acc.alpha = acc.alpha))
+  return(res = list(beta_post = beta_post, acc_beta = acc_beta,
+                    alpha_post = alpha_post, acc_alpha = acc_alpha))
 }
 ```
 
@@ -991,36 +991,36 @@ d <- ncol(X)
 b0=rep(0,d)
 B0=diag(100,d)
 
-pri.alpha <- data.frame(shape = 2, rate = 0.5)
-c.alpha=0.1
+pri_alpha <- data.frame(shape = 2, rate = 0.5)
+c_alpha=0.1
 
 M <- 50000L
 
 # Full Gibbs sampler
 set.seed(1234)
-res1 <- negbin(y,X,e, b0,B0, pri.alpha,c.alpha, full.gibbs = TRUE, M=M )
+res1 <- negbin(y,X,e, b0,B0, pri_alpha,c_alpha, full_gibbs = TRUE, M=M )
 
-res.negbin.full <- rbind(t(apply(res1$beta.post, 2, res.mcmc)), 
-                         alpha = res.mcmc(res1$alpha.post))
+res_negbin_full <- rbind(t(apply(res1$beta_post, 2, res.mcmc)), 
+                         alpha = res.mcmc(res1$alpha_post))
 
-ESS.beta1 <- coda::effectiveSize(res1$beta.post)
-ESS.alpha1 <- coda::effectiveSize(res1$alpha.post)
-IF.res1 <- M / c(ESS.beta1, ESS.alpha1)
-res.negbin.full <- cbind(res.negbin.full, IF = IF.res1)
-knitr::kable(round(res.negbin.full, 3))
+ESS_beta1 <- coda::effectiveSize(res1$beta_post)
+ESS_alpha1 <- coda::effectiveSize(res1$alpha_post)
+IF_res1 <- M / c(ESS_beta1, ESS_alpha1)
+res_negbin_full <- cbind(res_negbin_full, IF = IF_res1)
+knitr::kable(round(res_negbin_full, 3))
 ```
 
 |              |   2.5% | Posterior mean |  97.5% |     IF |
 |:-------------|-------:|---------------:|-------:|-------:|
-| intercept    | -8.374 |         -8.216 | -8.062 |  1.636 |
-| intervention | -0.588 |         -0.361 | -0.136 |  1.549 |
-| holiday      | -1.194 |         -0.788 | -0.405 |  1.632 |
-| alpha        |  6.483 |         12.339 | 21.300 | 78.701 |
+| intercept    | -8.376 |         -8.216 | -8.061 |  1.674 |
+| intervention | -0.590 |         -0.361 | -0.131 |  1.565 |
+| holiday      | -1.198 |         -0.785 | -0.401 |  1.644 |
+| alpha        |  6.561 |         12.538 | 21.973 | 82.969 |
 
 ``` r
 
-c(mean(res1$acc.beta), mean(res1$acc.alpha))
-#> [1] 0.93906 0.70274
+c(mean(res1$acc_beta), mean(res1$acc_alpha))
+#> [1] 0.93886 0.70024
 ```
 
 And then we run the partially marginalized Gibbs sampler under the same
@@ -1028,29 +1028,29 @@ prior.
 
 ``` r
 # Partially marginalized sampler               
-res2 <- negbin(y,X,e, b0,B0, pri.alpha,c.alpha, full.gibbs = FALSE, M=M )
+res2 <- negbin(y,X,e, b0,B0, pri_alpha,c_alpha, full_gibbs = FALSE, M=M )
 
-res.negbin.partial <- rbind(t(apply(res2$beta.post, 2, res.mcmc)),
-                            alpha = res.mcmc(res2$alpha.post))
+res_negbin_partial <- rbind(t(apply(res2$beta_post, 2, res.mcmc)),
+                            alpha = res.mcmc(res2$alpha_post))
 
-ESS.beta2 <- coda::effectiveSize(res2$beta.post)
-ESS.alpha2 <- coda::effectiveSize(res2$alpha.post)
-IF.res2 <- M / c(ESS.beta2, ESS.alpha2)
-res.negbin.partial <- cbind(res.negbin.partial, IF = IF.res2)
-knitr::kable(round(res.negbin.partial, 3))
+ESS_beta2 <- coda::effectiveSize(res2$beta_post)
+ESS_alpha2 <- coda::effectiveSize(res2$alpha_post)
+IF_res2 <- M / c(ESS_beta2, ESS_alpha2)
+res_negbin_partial <- cbind(res_negbin_partial, IF = IF_res2)
+knitr::kable(round(res_negbin_partial, 3))
 ```
 
 |              |   2.5% | Posterior mean |  97.5% |     IF |
 |:-------------|-------:|---------------:|-------:|-------:|
-| intercept    | -8.371 |         -8.216 | -8.062 |  1.673 |
-| intervention | -0.590 |         -0.362 | -0.135 |  1.603 |
-| holiday      | -1.196 |         -0.787 | -0.405 |  1.662 |
-| alpha        |  6.515 |         12.396 | 21.665 | 49.408 |
+| intercept    | -8.372 |         -8.215 | -8.059 |  1.664 |
+| intervention | -0.594 |         -0.364 | -0.137 |  1.622 |
+| holiday      | -1.195 |         -0.787 | -0.403 |  1.557 |
+| alpha        |  6.562 |         12.349 | 21.386 | 44.900 |
 
 ``` r
 
-c(mean(res2$acc.beta), mean(res2$acc.alpha))
-#> [1] 0.93778 0.89772
+c(mean(res2$acc_beta), mean(res2$acc_alpha))
+#> [1] 0.93868 0.89880
 ```
 
 Both samplers yield essentially the same estimation results, which is to
@@ -1071,23 +1071,23 @@ We extend the sampler in the scheme (a), (b), (c) by adding as a further
 step sampling the data from the prior.
 
 ``` r
-negbin_check_abc <- function(X,e, b0,B0, pri.alpha,c.alpha,
-                             full.gibbs = TRUE, burnin = 1000L, 
+negbin_check_abc <- function(X,e, b0,B0, pri_alpha,c_alpha,
+                             full_gibbs = TRUE, burnin = 1000L, 
                              M = 50000L){
   
   N <- nrow(X)
   d <- ncol(X)
 
-  beta.post  <- matrix(ncol = d, nrow = M)
-  colnames(beta.post) <- colnames(X)
-  acc.beta <- numeric(length = M)
+  beta_post  <- matrix(ncol = d, nrow = M)
+  colnames(beta_post) <- colnames(X)
+  acc_beta <- numeric(length = M)
 
-  alpha.post <- rep(NA_real_, M)
-  acc.alpha <- rep(NA_real_, M)
+  alpha_post <- rep(NA_real_, M)
+  acc_alpha <- rep(NA_real_, M)
 
   # Set starting values
   beta <- as.vector(mvtnorm::rmvnorm(1, mean = b0, sigma = B0))
-  alpha <- pri.alpha$shape/pri.alpha$rate
+  alpha <- pri_alpha$shape/pri_alpha$rate
   phi <- rgamma(N, shape = alpha , rate = alpha)
   linpred=X%*%beta
   
@@ -1098,31 +1098,31 @@ negbin_check_abc <- function(X,e, b0,B0, pri.alpha,c.alpha,
     #rpois(N, phi*e * exp(X%*%beta))
     
     # Step a
-    parms.proposal <- gen.proposal.poisson(y, X, e*phi, b0, B0)
-    beta.draw<-sample_beta(y, X,e*phi, b0, B0,parms.proposal$mean, 
-                          parms.proposal$var,beta)
-    beta<- beta.draw$beta
+    parms_proposal <- gen_proposal_poisson(y, X, e*phi, b0, B0)
+    beta_draw<-sample_beta(y, X,e*phi, b0, B0,parms_proposal$mean, 
+                          parms_proposal$var,beta)
+    beta<- beta_draw$beta
     linpred <- X%*%beta
     
     # Step b
-    alpha.draw <- sample_alpha(y,linpred,e, phi, pri.alpha,
-                               alpha,c.alpha,full.gibbs)
-    alpha<- alpha.draw$alpha
+    alpha_draw <- sample_alpha(y,e*exp(linpred), phi, pri_alpha,
+                               alpha,c_alpha,full_gibbs)
+    alpha<- alpha_draw$alpha
     
     # Step c
     phi <- rgamma(N, shape = alpha + y, rate = alpha + e * exp(linpred))
    
     # Save the draws
     if (m > burnin) {
-      beta.post[m - burnin, ] <- beta
-      acc.beta[m - burnin] <- beta.draw$acc
+      beta_post[m - burnin, ] <- beta
+      acc_beta[m - burnin] <- beta_draw$acc
 
-      alpha.post[m - burnin] <- alpha
-      acc.alpha[m - burnin] <- alpha.draw$acc
+      alpha_post[m - burnin] <- alpha
+      acc_alpha[m - burnin] <- alpha_draw$acc
     }
   }
-    return(res = list(beta.post = beta.post, acc.beta = acc.beta,
-                      alpha.post = alpha.post, acc.alpha = acc.alpha))
+    return(res = list(beta_post = beta_post, acc_beta = acc_beta,
+                      alpha_post = alpha_post, acc_alpha = acc_alpha))
 }
 ```
 
@@ -1130,15 +1130,15 @@ We use a tighter prior for the regression effects and a sample size of
 N=200 observations.
 
 ``` r
-N <- 200
+N <- 100
 X <- cbind(rep(1,N), rnorm(N), rnorm(N))
 e <- rep(1,N)
 d <- ncol(X)
 
 b0 <- rep(0,d)
-B0 <- diag(0.25,d)
+B0 <- diag(0.1,d)
 
-pri.alpha <- data.frame(shape = 4, rate =2)
+pri_alpha <- data.frame(shape = 4, rate =2)
 ```
 
 We run the sampler and investigate the draws of intercept and
@@ -1147,17 +1147,17 @@ posterior.
 
 ``` r
 set.seed(1234)
-res_check_abc <- negbin_check_abc(X,e, b0,B0, pri.alpha,c.alpha,
-                             full.gibbs = TRUE, M = M)
+res_check_abc <- negbin_check_abc(X,e, b0,B0, pri_alpha,c_alpha,
+                             full_gibbs = TRUE, M = M)
 
-beta0.prior <- rnorm(M, mean = b0[1], sd = sqrt(B0[1]))
-alpha.prior <- rgamma(M, shape = pri.alpha$shape, rate = pri.alpha$rate)
+beta0_prior <- rnorm(M, mean = b0[1], sd = sqrt(B0[1]))
+alpha_prior <- rgamma(M, shape = pri_alpha$shape, rate = pri_alpha$rate)
 
-qqplot(beta0.prior, res_check_abc$beta.post[, 1], xlab = "Prior",
+qqplot(beta0_prior, res_check_abc$beta_post[seq(from=1, to=M,by=50), 1], xlab = "Prior",
        ylab = "Posterior", main = "Intercept")
 abline(a = 0, b = 1)
 
-qqplot(alpha.prior,res_check_abc$alpha.post, xlab = "Prior",
+qqplot(alpha_prior,res_check_abc$alpha_post, xlab = "Prior",
        ylab = "Posterior", main = "Heterogeneity parameter", 
        xlim = c(0, 12), ylim = c(0, 12))
 abline(a = 0, b = 1)
@@ -1170,23 +1170,23 @@ We conclude that the sampler is correct.
 We now change the order of the sampling steps to (c)-(b)-(a).
 
 ``` r
-negbin_check_cba <- function(X,e, b0,B0,pri.alpha,c.alpha,
-                             full.gibbs = TRUE, burnin = 1000L,
+negbin_check_cba <- function(X,e, b0,B0,pri_alpha,c_alpha,
+                             full_gibbs = TRUE, burnin = 1000L,
                              M = 50000L){
 
   N <- nrow(X)
   d <- ncol(X)
 
-  beta.post  <- matrix(ncol = d, nrow = M)
-  colnames(beta.post) <- colnames(X)
-  acc.beta <- numeric(length = M)
+  beta_post  <- matrix(ncol = d, nrow = M)
+  colnames(beta_post) <- colnames(X)
+  acc_beta <- numeric(length = M)
 
-  alpha.post <- rep(NA_real_, M)
-  acc.alpha <- rep(NA_real_, M)
+  alpha_post <- rep(NA_real_, M)
+  acc_alpha <- rep(NA_real_, M)
 
   # Set starting values
   beta <- as.vector(mvtnorm::rmvnorm(1, mean = b0, sigma = B0))
-  alpha <- pri.alpha$shape/pri.alpha$rate
+  alpha <- pri_alpha$shape/pri_alpha$rate
   phi <- rgamma(N, shape = alpha , rate = alpha)
 
   for (m in seq_len(burnin + M)){
@@ -1200,27 +1200,27 @@ negbin_check_cba <- function(X,e, b0,B0,pri.alpha,c.alpha,
     phi <- rgamma(N, shape = alpha + y, rate = alpha + e * exp(linpred))
     
     # Step b
-    alpha.draw <- sample_alpha(y,linpred,e, phi,pri.alpha,alpha,
-                               c.alpha,full.gibbs)
-    alpha<- alpha.draw$alpha
+    alpha_draw <- sample_alpha(y,e*exp(linpred), phi,pri_alpha,alpha,
+                               c_alpha,full_gibbs)
+    alpha<- alpha_draw$alpha
     
     # Step a
-    parms.proposal <- gen.proposal.poisson(y, X, e*phi, b0, B0)
-    beta.draw<-sample_beta(y, X,e*phi, b0, B0,parms.proposal$mean, 
-                          parms.proposal$var,beta)
-    beta<- beta.draw$beta
+    parms_proposal <- gen_proposal_poisson(y, X, e*phi, b0, B0)
+    beta_draw<-sample_beta(y, X,e*phi, b0, B0,parms_proposal$mean, 
+                          parms_proposal$var,beta)
+    beta<- beta_draw$beta
     
     # Save the draws
     if (m > burnin) {
-      beta.post[m - burnin, ] <- beta
-      acc.beta[m - burnin] <- beta.draw$acc
+      beta_post[m - burnin, ] <- beta
+      acc_beta[m - burnin] <- beta_draw$acc
 
-      alpha.post[m - burnin] <- alpha
-      acc.alpha[m - burnin] <- alpha.draw$acc
+      alpha_post[m - burnin] <- alpha
+      acc_alpha[m - burnin] <- alpha_draw$acc
     }
   }
-  return(res = list(beta.post = beta.post, acc.beta = acc.beta,
-                    alpha.post = alpha.post, acc.alpha = acc.alpha))
+  return(res = list(beta_post = beta_post, acc_beta = acc_beta,
+                    alpha_post = alpha_post, acc_alpha = acc_alpha))
 }
 ```
 
@@ -1229,14 +1229,14 @@ intercept and the heterogeneity parameter.
 
 ``` r
 set.seed(1234)
-res_check_cba <- negbin_check_cba(X,e, b0,B0,pri.alpha,c.alpha,
-                                   full.gibbs = TRUE, M=M)
+res_check_cba <- negbin_check_cba(X,e, b0,B0,pri_alpha,c_alpha,
+                                   full_gibbs = TRUE, M=M)
 
-qqplot(beta0.prior, res_check_cba$beta.post[, 1], xlab = "Prior",
+qqplot(beta0_prior, res_check_cba$beta_post[, 1], xlab = "Prior",
        ylab = "Posterior", main = "Intercept")
 abline(a = 0, b = 1)
 
-qqplot(alpha.prior,res_check_cba$alpha.post, xlab = "Prior",
+qqplot(alpha_prior,res_check_cba$alpha_post, xlab = "Prior",
        ylab = "Posterior", main =  "Heterogeneity parameter",
        xlim = c(0, 12), ylim = c(0, 12))
 abline(a = 0, b = 1)
@@ -1252,14 +1252,14 @@ order (a)-(b)-(c)
 ``` r
 set.seed(1234)
 # order (a)-(b)-(c)
-res_check_abc <- negbin_check_abc(X,e, b0,B0,pri.alpha,c.alpha,
-                             full.gibbs = FALSE, M = M)
+res_check_abc <- negbin_check_abc(X,e, b0,B0,pri_alpha,c_alpha,
+                             full_gibbs = FALSE, M = M)
 
-qqplot(beta0.prior, res_check_abc$beta.post[, 1], xlab = "Prior",
+qqplot(beta0_prior, res_check_abc$beta_post[, 1], xlab = "Prior",
        ylab = "Posterior", main = "Intercept")
 abline(a = 0, b = 1)
 
-qqplot(alpha.prior,res_check_abc$alpha.post, xlab = "Prior", 
+qqplot(alpha_prior,res_check_abc$alpha_post, xlab = "Prior", 
        ylab = "Posterior", main  = "Heterogeneity parameter", 
        xlim = c(0, 12), ylim = c(0, 12))
 abline(a = 0, b = 1)
@@ -1272,14 +1272,14 @@ and then in the order (c)-(b)-(a)
 ``` r
 set.seed(1234)
 # order (c)- (b)-(a)
-res_check_cba <- negbin_check_cba(X,e, b0,B0,pri.alpha,c.alpha,
-                             full.gibbs = FALSE,M = M)
+res_check_cba <- negbin_check_cba(X,e, b0,B0,pri_alpha,c_alpha,
+                             full_gibbs = FALSE,M = M)
 
-qqplot(beta0.prior, res_check_cba$beta.post[, 1], xlab = "Prior",
+qqplot(beta0_prior, res_check_cba$beta_post[, 1], xlab = "Prior",
        ylab = "Posterior", main = "Intercept")
 abline(a = 0, b = 1)
 
-qqplot(alpha.prior,res_check_cba$alpha.post, xlab = "Prior", 
+qqplot(alpha_prior,res_check_cba$alpha_post, xlab = "Prior", 
        ylab = "Posterior", main = "Heterogeneity parameter",
        xlim = c(0, 12), ylim = c(0, 12))
 abline(a = 0, b = 1)
