@@ -1026,13 +1026,14 @@ negbin_check_abc <- function(X,e, b0,B0, pri_alpha,c_alpha,
 We use a tighter prior for the regression effects and a sample size of  N=200 observations.
 
 ```{r}
-N <- 100
-X <- cbind(rep(1,N), rnorm(N), rnorm(N))
-e <- rep(1,N)
-d <- ncol(X)
+M=10^5
+N=50
+X=cbind(rep(1,N), rnorm(N), rnorm(N))
+e=rep(1,N)
 
+d=ncol(X)
 b0 <- rep(0,d)
-B0 <- diag(0.1,d)
+B0=diag(0.1,d)
 
 pri_alpha <- data.frame(shape = 4, rate =2)
 
@@ -1054,7 +1055,7 @@ res_check_abc <- negbin_check_abc(X,e, b0,B0, pri_alpha,c_alpha,
 beta0_prior <- rnorm(M, mean = b0[1], sd = sqrt(B0[1]))
 alpha_prior <- rgamma(M, shape = pri_alpha$shape, rate = pri_alpha$rate)
 
-qqplot(beta0_prior, res_check_abc$beta_post[seq(from=1, to=M,by=50), 1], xlab = "Prior",
+qqplot(beta0_prior, res_check_abc$beta_post[, 1], xlab = "Prior",
        ylab = "Posterior", main = "Intercept")
 abline(a = 0, b = 1)
 
