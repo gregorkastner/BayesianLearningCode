@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
   fig.height = 6
 )
 knitr::opts_knit$set(global.par = TRUE)
-pdfplots <- TRUE# default: FALSE; set this to TRUE only if you like pdf figures
+pdfplots <- FALSE# default: FALSE; set this to TRUE only if you like pdf figures
 ```
 
 ```{r, include = FALSE}
@@ -1066,7 +1066,7 @@ qqplot(alpha_prior,res_check_abc$alpha_post, xlab = "Prior",
 abline(a = 0, b = 1)
 ```
 
-We conclude that the sampler is correct-NOT YET CORRECT!
+We conclude that the sampler is correct - NOT  CORRECT!
 
 We now change the order of the sampling steps to (c)-(b)-(a).
 
@@ -1148,6 +1148,7 @@ abline(a = 0, b = 1)
 ```
 
 SEEMS OK.
+
 ## Example 8.11
 
 We now analyze the partial marginalized Gibbs sampler, first in the order (a)-(b)-(c) 
