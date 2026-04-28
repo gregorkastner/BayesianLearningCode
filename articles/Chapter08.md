@@ -27,8 +27,6 @@ polygon(c(dens$x[dens$x >= 0], 0), c(dens$y[dens$x >= 0], 0),
         col = "red", border = NA)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-3-1.png)
-
 #### Example 8.1: Labor market data
 
 We now perform probit regression analysis for the labor market data.
@@ -166,8 +164,6 @@ for (j in seq_len(ncol(betas))) {
 }
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-11-1.png)
-
 A plot of the autocorrelation of the draws shows that although there is
 some autocorrelation, it vanishes after a few lags.
 
@@ -178,8 +174,6 @@ for (j in seq_len(ncol(betas))) {
     title(colnames(betas)[j])
 }
 ```
-
-![](Chapter08_files/figure-html/unnamed-chunk-12-1.png)
 
 We also determine the estimated effective sample sizes (ESSs) to assess
 the efficiency of the sampler.
@@ -245,11 +239,6 @@ acf(betas1, ylab = "empirical ACF")
 plot(betas2, type = "l", main = "N=500, 1 success", xlab = "Draws after burnin",
      ylab = labels)
 acf(betas2, ylab = "empirical ACF")
-```
-
-![](Chapter08_files/figure-html/unnamed-chunk-15-1.png)
-
-``` r
 
 (ESS2 <- coda::effectiveSize(betas2))
 #>     var1 
@@ -310,11 +299,6 @@ acf(betas_sep[, 1], ylab = "empirical ACF")
 
 plot(betas_sep[, 2], type = "l", xlab = "Draws after burn-in", ylab = labels[2])
 acf(betas_sep[, 2], ylab = "empirical ACF")
-```
-
-![](Chapter08_files/figure-html/unnamed-chunk-17-1.png)
-
-``` r
 
 (ESS_sep <- coda::effectiveSize(betas_sep))
 #>             x_sep 
@@ -356,11 +340,6 @@ acf(betas_qus1[, 1], ylab = "empirical ACF")
 
 plot(betas_qus1[, 2], type = "l", xlab = "Draws after burn-in", ylab = labels[2])
 acf(betas_qus1[, 2], ylab = "empirical ACF")
-```
-
-![](Chapter08_files/figure-html/unnamed-chunk-19-1.png)
-
-``` r
 
 (ESS_qus1 <- coda::effectiveSize(betas_qus1))
 #>            x_qus1 
@@ -393,11 +372,6 @@ acf(betas_qus2[, 1], ylab = "empirical ACF")
 
 plot(betas_qus2[, 2], type = "l", xlab = "Draws after burn-in", ylab = labels[2])
 acf(betas_qus2[, 2], ylab = "empirical ACF")
-```
-
-![](Chapter08_files/figure-html/unnamed-chunk-20-1.png)
-
-``` r
 
 (ESS_qus2 <- coda::effectiveSize(betas_qus2))
 #>                  x_qus2 
@@ -480,8 +454,6 @@ acf(betas_sep1[, 1], ylab = "empirical ACF")
 plot(betas_sep1[, 2], type = "l", xlab = "Draws after burn-in", ylab = labels[2])
 acf(betas_sep1[, 2], ylab = "empirical ACF")
 ```
-
-![](Chapter08_files/figure-html/unnamed-chunk-22-1.png)
 
 Correspondingly the autocorrelation of the draws are much lower under
 the tighter prior.
@@ -1089,16 +1061,17 @@ negbin_check_abc <- function(X,e, b0,B0, pri_alpha,c_alpha,
   beta <- as.vector(mvtnorm::rmvnorm(1, mean = b0, sigma = B0))
   alpha <- pri_alpha$shape/pri_alpha$rate
   phi <- rgamma(N, shape = alpha , rate = alpha)
-  linpred=X%*%beta
+  
+  linpred <- X%*%beta
   
   for (m in seq_len(burnin + M)){
     
     # sample new data
     y <-rnbinom(N, alpha, mu=e* exp(linpred))  
-    #rpois(N, phi*e * exp(X%*%beta))
     
     # Step a
     parms_proposal <- gen_proposal_poisson(y, X, e*phi, b0, B0)
+   
     beta_draw<-sample_beta(y, X,e*phi, b0, B0,parms_proposal$mean, 
                           parms_proposal$var,beta)
     beta<- beta_draw$beta
@@ -1111,7 +1084,7 @@ negbin_check_abc <- function(X,e, b0,B0, pri_alpha,c_alpha,
     
     # Step c
     phi <- rgamma(N, shape = alpha + y, rate = alpha + e * exp(linpred))
-   
+    
     # Save the draws
     if (m > burnin) {
       beta_post[m - burnin, ] <- beta
@@ -1126,8 +1099,8 @@ negbin_check_abc <- function(X,e, b0,B0, pri_alpha,c_alpha,
 }
 ```
 
-We use a tighter prior for the regression effects and a sample size of
-N=200 observations.
+We use a tighter priors for the model parameters and a sample size of
+N=50 observations.
 
 ``` r
 M=10^5
@@ -1140,6 +1113,7 @@ b0 <- rep(0,d)
 B0=diag(0.1,d)
 
 pri_alpha <- data.frame(shape = 4, rate =2)
+c_alpha=0.2
 ```
 
 We run the sampler and investigate the draws of intercept and
@@ -1164,9 +1138,7 @@ qqplot(alpha_prior,res_check_abc$alpha_post, xlab = "Prior",
 abline(a = 0, b = 1)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-43-1.png)
-
-We conclude that the sampler is correct.
+We conclude that the sampler is correct-NOT YET CORRECT!
 
 We now change the order of the sampling steps to (c)-(b)-(a).
 
@@ -1195,8 +1167,7 @@ negbin_check_cba <- function(X,e, b0,B0,pri_alpha,c_alpha,
     # sample new data
     linpred <- X%*%beta
     y <- rnbinom(N, alpha, mu=e* exp(X%*%beta))  
-      #rpois(N, phi*e * exp(linpred))
-
+    
     # Step c
     phi <- rgamma(N, shape = alpha + y, rate = alpha + e * exp(linpred))
     
@@ -1243,9 +1214,7 @@ qqplot(alpha_prior,res_check_cba$alpha_post, xlab = "Prior",
 abline(a = 0, b = 1)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-45-1.png)
-
-### Example 8.11
+SEEMS OK. \## Example 8.11
 
 We now analyze the partial marginalized Gibbs sampler, first in the
 order (a)-(b)-(c)
@@ -1266,7 +1235,7 @@ qqplot(alpha_prior,res_check_abc$alpha_post, xlab = "Prior",
 abline(a = 0, b = 1)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-46-1.png)
+SAME PROBLEM AS FULL SAMPLER!
 
 and then in the order (c)-(b)-(a)
 
@@ -1285,8 +1254,6 @@ qqplot(alpha_prior,res_check_cba$alpha_post, xlab = "Prior",
        xlim = c(0, 12), ylim = c(0, 12))
 abline(a = 0, b = 1)
 ```
-
-![](Chapter08_files/figure-html/unnamed-chunk-47-1.png)
 
 ## Section 8.3: Beyond i.i.d. Gaussian error distributions
 
@@ -1355,8 +1322,6 @@ lines(xnew, preds_subset[, "fit"])
 lines(xnew, preds_subset[, "lwr"], lty = 2)
 lines(xnew, preds_subset[, "upr"], lty = 2)
 ```
-
-![](Chapter08_files/figure-html/unnamed-chunk-51-1.png)
 
 #### Example 8.13: Star cluster data - heteroskedastic regression analysis with known outliers
 
@@ -1642,8 +1607,6 @@ lines(xnew, apply(preds_mix_2, 1, quantile, 0.025), lty = 2)
 lines(xnew, apply(preds_mix_2, 1, quantile, 0.975), lty = 2)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-65-1.png)
-
 The plot indicates that all three modeling approaches result in a fit
 that is robust to the outlying observations.
 
@@ -1720,8 +1683,6 @@ lines(xnew, apply(preds_norm, 1, quantile, 0.025), lty = 3)
 lines(xnew, apply(preds_norm, 1, quantile, 0.975), lty = 3)
 boxplot(ws, col = 2 * (1:ncol(ws) %in% index))
 ```
-
-![](Chapter08_files/figure-html/unnamed-chunk-68-1.png)
 
 #### Example 8.16: CHF exchange rate data - Fitting a Student-$t$ with $\nu$ unknown
 
@@ -1846,8 +1807,6 @@ IF <- M / coda::effectiveSize(nus)
 title(paste0("Empirical ACF (IF: ", round(IF), ")"))
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-72-1.png)
-
 ### Section 8.3.4 Regression analysis with autocorrelated errors
 
 We begin by loading the data and visualizing them as a time series plot.
@@ -1960,8 +1919,6 @@ plot(tim, rowMeans(resids), type = 'l', main = "Mean residuals", xlab = "Time",
      ylab = "")
 abline(h = 0, lty = 3)
 ```
-
-![](Chapter08_files/figure-html/unnamed-chunk-77-1.png)
 
 Apart from some outliers (the most prominent ones being related to the
 COVID-outbreak), we still see autocorrelation in the residuals. Thus, we
