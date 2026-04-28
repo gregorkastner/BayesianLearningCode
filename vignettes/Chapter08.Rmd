@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
   fig.height = 6
 )
 knitr::opts_knit$set(global.par = TRUE)
-pdfplots <- FALSE# default: FALSE; set this to TRUE only if you like pdf figures
+pdfplots <- TRUE# default: FALSE; set this to TRUE only if you like pdf figures
 ```
 
 ```{r, include = FALSE}
@@ -986,16 +986,17 @@ negbin_check_abc <- function(X,e, b0,B0, pri_alpha,c_alpha,
   beta <- as.vector(mvtnorm::rmvnorm(1, mean = b0, sigma = B0))
   alpha <- pri_alpha$shape/pri_alpha$rate
   phi <- rgamma(N, shape = alpha , rate = alpha)
-  linpred=X%*%beta
+  
+  linpred <- X%*%beta
   
   for (m in seq_len(burnin + M)){
     
     # sample new data
     y <-rnbinom(N, alpha, mu=e* exp(linpred))  
-    #rpois(N, phi*e * exp(X%*%beta))
     
     # Step a
     parms_proposal <- gen_proposal_poisson(y, X, e*phi, b0, B0)
+   
     beta_draw<-sample_beta(y, X,e*phi, b0, B0,parms_proposal$mean, 
                           parms_proposal$var,beta)
     beta<- beta_draw$beta
@@ -1008,7 +1009,7 @@ negbin_check_abc <- function(X,e, b0,B0, pri_alpha,c_alpha,
     
     # Step c
     phi <- rgamma(N, shape = alpha + y, rate = alpha + e * exp(linpred))
-   
+    
     # Save the draws
     if (m > burnin) {
       beta_post[m - burnin, ] <- beta
@@ -1023,7 +1024,7 @@ negbin_check_abc <- function(X,e, b0,B0, pri_alpha,c_alpha,
 }
 ```
 
-We use a tighter prior for the regression effects and a sample size of  N=200 observations.
+We use a tighter priors for the model parameters and a sample size of  N=50 observations.
 
 ```{r}
 M=10^5
@@ -1036,7 +1037,7 @@ b0 <- rep(0,d)
 B0=diag(0.1,d)
 
 pri_alpha <- data.frame(shape = 4, rate =2)
-
+c_alpha=0.2
 ```
 
 We  run the sampler and investigate the draws of intercept and heterogeneity
@@ -1065,7 +1066,7 @@ qqplot(alpha_prior,res_check_abc$alpha_post, xlab = "Prior",
 abline(a = 0, b = 1)
 ```
 
-We conclude that the sampler is correct.
+We conclude that the sampler is correct-NOT YET CORRECT!
 
 We now change the order of the sampling steps to (c)-(b)-(a).
 
@@ -1094,8 +1095,7 @@ negbin_check_cba <- function(X,e, b0,B0,pri_alpha,c_alpha,
     # sample new data
     linpred <- X%*%beta
     y <- rnbinom(N, alpha, mu=e* exp(X%*%beta))  
-      #rpois(N, phi*e * exp(linpred))
-
+    
     # Step c
     phi <- rgamma(N, shape = alpha + y, rate = alpha + e * exp(linpred))
     
@@ -1147,6 +1147,7 @@ qqplot(alpha_prior,res_check_cba$alpha_post, xlab = "Prior",
 abline(a = 0, b = 1)
 ```
 
+SEEMS OK.
 ## Example 8.11
 
 We now analyze the partial marginalized Gibbs sampler, first in the order (a)-(b)-(c) 
@@ -1171,6 +1172,7 @@ qqplot(alpha_prior,res_check_abc$alpha_post, xlab = "Prior",
        xlim = c(0, 12), ylim = c(0, 12))
 abline(a = 0, b = 1)
 ```
+SAME PROBLEM AS FULL SAMPLER!
 
 and then in the order (c)-(b)-(a)
 
