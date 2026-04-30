@@ -9,6 +9,7 @@ the respective counts into the expression for the posterior density and
 visualize it accordingly.
 
 ``` r
+
 trueprop <- c(0, .1, .5)
 N <- c(100, 400)
 theta <- seq(0, 1, .001)
@@ -27,10 +28,11 @@ for (p in trueprop) {
 
 ### Calibrating the Beta prior
 
-Let $m_{0} = \frac{a_{0}}{a_{0} + b_{0}}$ denote the prior mean and
-$N_{0} = a_{0} + b_{0}$ the strength of the prior information.
+Let $`m_0 = \frac{a_0}{a_0 + b_0}`$ denote the prior mean and
+$`N_0 = a_0 + b_0`$ the strength of the prior information.
 
 ``` r
+
 m0 <- c(.5, .1, .2, .2)
 N0 <- c(2, 2, 2, 1)
 a <- N0 * m0
@@ -65,6 +67,7 @@ density (HPD) intervals. Note that R is (generally) vectorized, so we
 can compute the equal-tailed intervals without using a loop.
 
 ``` r
+
 m0 <- 0.05
 N0 <- 40
 a <- N0 * m0
@@ -98,6 +101,7 @@ for (i in seq_along(aN)) {
 Now we visualize our findings.
 
 ``` r
+
 left <- cbind(leftET, leftHPD)
 right <- cbind(rightET, rightHPD)
 
@@ -147,6 +151,7 @@ We now proceed to computing credible intervals for the synthetic
 example.
 
 ``` r
+
 Ns <- rep(N, each = length(trueprop))
 SNs <- Ns * rep(trueprop, length(N))
 
@@ -176,6 +181,7 @@ res <- cbind(leftET, rightET, leftHPD, rightHPD)
 All the desired intervals are now stored and can be displayed.
 
 ``` r
+
 knitr::kable(round(res, 4))
 ```
 
@@ -188,6 +194,7 @@ knitr::kable(round(res, 4))
 We can also compare their lengths.
 
 ``` r
+
 res <- cbind(lengthET = rightET - leftET, lengthHPD = rightHPD - leftHPD)
 knitr::kable(round(res, 4))
 ```
@@ -201,10 +208,11 @@ knitr::kable(round(res, 4))
 ### Figure 3.3: One-sided hypothesis testing
 
 We now move forward to assessing visualizing the posterior probability
-of $\vartheta$ (the proportion of defective items) being less than
-$1/20 = 0.05$ for $N = 100$ and $S_{N} \in \{ 1,3,6,10\}$.
+of $`\vartheta`$ (the proportion of defective items) being less than
+$`1/20 = 0.05`$ for $`N = 100`$ and $`S_N \in \{1,3,6,10\}`$.
 
 ``` r
+
 theta <- seq(0, .15, .001)
 N <- 100
 SN <- c(1, 3, 6, 10)
@@ -230,6 +238,7 @@ We load the dataset from the package and extract the data needed for the
 anlaysis:
 
 ``` r
+
 data("labor", package = "BayesianLearningCode")
 labor <- subset(labor,
                 income_1997 != "zero" & female,
@@ -243,6 +252,7 @@ Cross-tabuling being unemployed (i.e., having no income) and being a
 white collar work gives:
 
 ``` r
+
 table(labor)
 #>           wcollar
 #> unemployed FALSE TRUE
@@ -257,6 +267,7 @@ white- and blue-collar workers.
 The four relevant data summaries are given by:
 
 ``` r
+
 (N1 <- with(labor, sum(wcollar)))
 #> [1] 693
 (S_N1 <- with(labor, sum(wcollar & unemployed)))
@@ -271,6 +282,7 @@ Under a uniform prior, the parameters of the posterior distribution are
 given by:
 
 ``` r
+
 aN1 <- 1 + S_N1
 bN1 <- 1 + N1 - S_N1
 aN2 <- 1 + S_N2
@@ -280,18 +292,19 @@ bN2 <- 1 + N2 - S_N2
 The posterior expectations are given by
 
 ``` r
+
 aN1 / (aN1 + bN1)
 #> [1] 0.08633094
 aN2 / (aN2 + bN2)
 #> [1] 0.1458333
 ```
 
-We visualize the joint posterior of
-$\left( \vartheta_{1},\vartheta_{2} \right)$ using a contour plot as
-well as a density estimate of the difference
-$\vartheta_{1} - \vartheta_{2}$.
+We visualize the joint posterior of $`(\vartheta_1, \vartheta_2)`$ using
+a contour plot as well as a density estimate of the difference
+$`\vartheta_1 - \vartheta_2`$.
 
 ``` r
+
 if (pdfplots) {
   pdf("3-2_1.pdf", width = 8, height = 5)
   par(mgp = c(1, .5, 0), mar = c(2.2, 1.5, 2, .2), lwd = 2)
@@ -335,6 +348,7 @@ plot(density(postdraws$diff),
 ![](Chapter03_files/figure-html/unnamed-chunk-16-1.png)
 
 ``` r
+
 if (pdfplots) {
   pdf("3-2_1.pdf", width = 8, height = 5)
   par(mgp = c(1, .5, 0), mar = c(2.2, 1.5, 2, .2), lwd = 2)
@@ -361,6 +375,7 @@ string into individual words. Finally, we remove potential empty words
 and display the resulting frequencies.
 
 ``` r
+
 string <- "You can fool some of the people all of the time,
 and all of the people some of the time,
 but you can not fool all of the people all of the time."
@@ -384,6 +399,7 @@ million occurrences
 (cf. <https://www.eapfoundation.com/vocab/general/bnccoca/>).
 
 ``` r
+
 data("words", package = "BayesianLearningCode")
 head(words)
 #>       word frequency
@@ -400,6 +416,7 @@ those with a question mark for all other words. This leaves us with 51
 possible outcomes (our *universe*).
 
 ``` r
+
 top50 <- tail(words[order(words$frequency),], 50)
 universe <- c("?", sort(top50$word))
 freq <- c(10^8 - sum(top50$frequency), top50$frequency[order(top50$word)])
@@ -417,6 +434,7 @@ included in our universe (here, only *fool* and *people*) and replace
 these with a question mark.
 
 ``` r
+
 dat[!(dat %in% universe)] <- "?"
 knitr::kable(t(table(dat)))
 ```
@@ -430,13 +448,16 @@ knitr::kable(t(table(dat)))
 Under a uniform prior (i.e., all 51 elements of our universe receive one
 pseudo-count), the posterior mean for each word occurrence probability
 is given by
-$$E\left( \eta_{k}|\mathbf{y} \right) = \frac{1 + N_{k}}{51 + N},\quad k = 1,\ldots,51,$$
-where $N_{k}$ stands for the number of data occurrences of the $k$th
-word in the universe, and $N$ is the sum of all $N_{k}$s. This can be
+``` math
+E(\eta_k|\boldsymbol{y}) = \frac{1+N_k}{ 51 + N}, \quad k=1,\ldots,51,
+```
+where $`N_k`$ stands for the number of data occurrences of the $`k`$th
+word in the universe, and $`N`$ is the sum of all $`N_k`$s. This can be
 very easily implemented by merging the universe and the data, and simply
 counting the resulting frequencies.
 
 ``` r
+
 merged <- c(universe, dat)
 counts <- table(merged) - 1L
 post_uniform_unnormalized <- 1 + counts
@@ -449,12 +470,15 @@ Note that the above strategy implicitly assumes that we have exactly 51
 pseudo-observations. To render the prior less influential, we can
 rescale it to, e.g., 1 pseudo-observation. Then, the posterior
 expectation is
-$$E\left( \eta_{k}|\mathbf{y} \right) = \frac{1/51 + N_{k}}{1 + N},\quad k = 1,\ldots,51.$$
+``` math
+E(\eta_k|\boldsymbol{y}) = \frac{1/51+N_k}{1 + N}, \quad k=1,\ldots,51.
+```
 To compute this expectation we simply add counts and the new
 pseudo-counts
-$\gamma_{0,1}, = \gamma_{0,2} = \ldots = \gamma_{0,K} = 1/K$.
+$`\gamma_{0,1}, = \gamma_{0,2} = \dots = \gamma_{0,K} = 1/K`$.
 
 ``` r
+
 K <- length(universe)
 N0 <- 1
 gamma0 <- rep(N0 / K, length(universe))
@@ -466,6 +490,7 @@ post_lessinformative <-
 Alternatively, we could use a loop.
 
 ``` r
+
 post_lessinformative_unnormalized2 <- rep(NA_real_, length(universe))
 for (i in seq_along(universe)) {
   Nk <- sum(dat == universe[i])
@@ -479,6 +504,7 @@ The results must be numerically equivalent, and we can verify this
 easily.
 
 ``` r
+
 all(abs(post_lessinformative - post_lessinformative2) < 1e-10)
 #> [1] TRUE
 ```
@@ -486,6 +512,7 @@ all(abs(post_lessinformative - post_lessinformative2) < 1e-10)
 Summing up what we have so far.
 
 ``` r
+
 dirichlet_sd <- function(gamma) {
   mean <- gamma / sum(gamma)
   sd <- sqrt((mean * (1 - mean)) / (sum(gamma) + 1))
@@ -506,30 +533,31 @@ res <- rbind(resfull[!unseen,], UNSEEN = resfull[which(unseen)[1],])
 knitr::kable(t(round(res, 4)))
 ```
 
-|                                |      ? |    all |    and |    but |    can |    not |     of |   some |    the |   time |    you | UNSEEN |
-|:-------------------------------|-------:|-------:|-------:|-------:|-------:|-------:|-------:|-------:|-------:|-------:|-------:|-------:|
-| prior_mean                     | 0.0196 | 0.0196 | 0.0196 | 0.0196 | 0.0196 | 0.0196 | 0.0196 | 0.0196 | 0.0196 | 0.0196 | 0.0196 | 0.0196 |
-| prior_sd_uniform               | 0.0192 | 0.0192 | 0.0192 | 0.0192 | 0.0192 | 0.0192 | 0.0192 | 0.0192 | 0.0192 | 0.0192 | 0.0192 | 0.0192 |
-| prior_sd_lessinformative       | 0.0980 | 0.0980 | 0.0980 | 0.0980 | 0.0980 | 0.0980 | 0.0980 | 0.0980 | 0.0980 | 0.0980 | 0.0980 | 0.0980 |
-| rel_freq                       | 0.1515 | 0.1212 | 0.0303 | 0.0303 | 0.0606 | 0.0303 | 0.1818 | 0.0606 | 0.1818 | 0.0909 | 0.0606 | 0.0000 |
-| posterior_mean_uniform         | 0.0714 | 0.0595 | 0.0238 | 0.0238 | 0.0357 | 0.0238 | 0.0833 | 0.0357 | 0.0833 | 0.0476 | 0.0357 | 0.0119 |
-| posterior_sd_uniform           | 0.1821 | 0.1673 | 0.1078 | 0.1078 | 0.1312 | 0.1078 | 0.1954 | 0.1312 | 0.1954 | 0.1506 | 0.1312 | 0.0767 |
+|  | ? | all | and | but | can | not | of | some | the | time | you | UNSEEN |
+|:---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| prior_mean | 0.0196 | 0.0196 | 0.0196 | 0.0196 | 0.0196 | 0.0196 | 0.0196 | 0.0196 | 0.0196 | 0.0196 | 0.0196 | 0.0196 |
+| prior_sd_uniform | 0.0192 | 0.0192 | 0.0192 | 0.0192 | 0.0192 | 0.0192 | 0.0192 | 0.0192 | 0.0192 | 0.0192 | 0.0192 | 0.0192 |
+| prior_sd_lessinformative | 0.0980 | 0.0980 | 0.0980 | 0.0980 | 0.0980 | 0.0980 | 0.0980 | 0.0980 | 0.0980 | 0.0980 | 0.0980 | 0.0980 |
+| rel_freq | 0.1515 | 0.1212 | 0.0303 | 0.0303 | 0.0606 | 0.0303 | 0.1818 | 0.0606 | 0.1818 | 0.0909 | 0.0606 | 0.0000 |
+| posterior_mean_uniform | 0.0714 | 0.0595 | 0.0238 | 0.0238 | 0.0357 | 0.0238 | 0.0833 | 0.0357 | 0.0833 | 0.0476 | 0.0357 | 0.0119 |
+| posterior_sd_uniform | 0.1821 | 0.1673 | 0.1078 | 0.1078 | 0.1312 | 0.1078 | 0.1954 | 0.1312 | 0.1954 | 0.1506 | 0.1312 | 0.0767 |
 | posterior_mean_lessinformative | 0.1476 | 0.1182 | 0.0300 | 0.0300 | 0.0594 | 0.0300 | 0.1770 | 0.0594 | 0.1770 | 0.0888 | 0.0594 | 0.0006 |
-| posterior_sd_lessinformative   | 0.2508 | 0.2283 | 0.1206 | 0.1206 | 0.1671 | 0.1206 | 0.2699 | 0.1671 | 0.2699 | 0.2012 | 0.1671 | 0.0170 |
+| posterior_sd_lessinformative | 0.2508 | 0.2283 | 0.1206 | 0.1206 | 0.1671 | 0.1206 | 0.2699 | 0.1671 | 0.2699 | 0.2012 | 0.1671 | 0.0170 |
 
 #### Computing the posterior under an informed prior
 
 One might consider using yet another prior (which we label *informed*).
 For instance, we might want to fix the total number of pseudo-counts
-$N_{0}$ to, say, one fifth of the number of observations $N$ (this
+$`N_0`$ to, say, one fifth of the number of observations $`N`$ (this
 implies a data to prior ratio of 5 to 1). Each word in the universe is
 then weighted according to its frequency of appearance in the English
 language. Remember that the prior probability for a word outside of the
-top 50 English words is $10^{8}$ (the total number of words in the
+top 50 English words is $`10^8`$ (the total number of words in the
 corpus) minus the sum of the top 50 counts. To compute the posterior, we
 can again add the actual counts and the new pseudo-counts.
 
 ``` r
+
 N <- length(dat)
 N0 <- N/5
 gamma0 <- N0 * freq / 10^8
@@ -541,9 +569,10 @@ post_informed <- post_informed_unnormalized / sum(post_informed_unnormalized)
 Alternatively, we might want to prefer heavier shrinkage with respect to
 the base rate (here, the overall word distribution in the English
 language). This can simply be accomplished by increasing the total
-number of pseudo-counts $N_{0}$.
+number of pseudo-counts $`N_0`$.
 
 ``` r
+
 N0 <- 5*N
 gamma0 <- N0 * freq / 10^8
 
@@ -558,6 +587,7 @@ probabilities of each word via green triangles and the observed relative
 frequencies via red circles. Sorting is done via frequency counts.
 
 ``` r
+
 ord <- order(counts, decreasing = TRUE)
 midpts <- barplot(post_uniform[ord], las = 2,
                   ylim = c(0, max(counts/N, post_uniform)))

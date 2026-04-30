@@ -11,6 +11,7 @@ COVID pandemic, we restrict our analysis to the time before its
 outbreak.
 
 ``` r
+
 data("gdp", package = "BayesianLearningCode")
 dat <- gdp[1:which(names(gdp) == "2019-10-01")]
 ```
@@ -18,6 +19,7 @@ dat <- gdp[1:which(names(gdp) == "2019-10-01")]
 Next, we compute the log returns.
 
 ``` r
+
 logret <- log(dat[-1]) - log(dat[-length(dat)])
 logret <- ts(logret, start = c(1947, 2), end = c(2019, 4),
              frequency = 4)
@@ -26,6 +28,7 @@ logret <- ts(logret, start = c(1947, 2), end = c(2019, 4),
 Now we can plot the data and its empirical autocorrelation function.
 
 ``` r
+
 ts.plot(logret, main = "U.S. GDP log returns")
 acf(logret, lag = 8, main = "")
 title("Empirical autocorrelation function")
@@ -37,6 +40,7 @@ Before we move on, we define a function yielding posterior draws under a
 standard regression model, using the tools developed in Chapter 6.
 
 ``` r
+
 library("BayesianLearningCode")
 library("mvtnorm")
 
@@ -130,9 +134,10 @@ Now we are ready to reproduce the results in the book.
 ### Example 7.1: AR modeling of the U.S. GDP data
 
 We begin by writing a function that sets up the design matrix for an
-AR($p$) model.
+AR($`p`$) model.
 
 ``` r
+
 ARdesignmatrix <- function(dat, p = 1) {
   d <- p + 1
   N <- length(dat) - p
@@ -149,6 +154,7 @@ ARdesignmatrix <- function(dat, p = 1) {
 We obtain draws for four AR models under the improper prior.
 
 ``` r
+
 set.seed(42)
 res <- vector("list", 4)
 for (p in 1:4) {
@@ -164,6 +170,7 @@ Now we plot the draws for the leading coefficient, i.e., the coefficient
 corresponding to the highest lag in each of the models.
 
 ``` r
+
 for (p in 1:4) {
   hist(res[[p]]$betas[, p + 1], freq = FALSE, main = bquote(AR(.(p))),
        xlab = bquote(phi[.(p)]), ylab = "", breaks = seq(-.75, .75, .02))
@@ -176,6 +183,7 @@ for (p in 1:4) {
 Next, we fit an AR(3) model with different priors.
 
 ``` r
+
 y <- tail(logret, -3)
 Xy <- ARdesignmatrix(logret, 3)
 
@@ -204,6 +212,7 @@ We now visualize the posterior of the model parameters under all those
 priors.
 
 ``` r
+
 for (i in 1:5) {
   if (i <= 4) {
     if (i == 1) name <- bquote(zeta) else name <- bquote(phi[.(i - 1)])
@@ -243,12 +252,13 @@ for (i in 1:5) {
 
 ### Section 7.2.2: Exploring stationarity during post-processing
 
-We reuse the AR($p$) models under the improper prior from above to
-explore stationarity for $p = 1,2,3$.
+We reuse the AR($`p`$) models under the improper prior from above to
+explore stationarity for $`p = 1, 2, 3`$.
 
 ### Figure 7.4: Checking stationarity conditions for the GDP data
 
 ``` r
+
 hist(res[[1]]$betas[, 2], breaks = 20, freq = FALSE, main = "AR(1)",
      xlab = bquote(phi), ylab = "")
 
@@ -273,6 +283,7 @@ symbols(0, 0, 1, add = TRUE, fg = 2, inches = FALSE)
 We now move towards analyzing the Euro area inflation data.
 
 ``` r
+
 data("inflation", package = "BayesianLearningCode")
 inflation <- ts(inflation, start = c(1997, 2), end = c(2025, 6),
                 frequency = 12)
@@ -283,6 +294,7 @@ First, we plot the data and its empirical autocorrelation function.
 ### Figure 7.5: Euro area inflation data
 
 ``` r
+
 ts.plot(inflation, main = "Euro area inflation")
 acf(inflation, main = "")
 title("Empirical autocorrelation function")
@@ -290,10 +302,11 @@ title("Empirical autocorrelation function")
 
 ![](Chapter07_files/figure-html/unnamed-chunk-13-1.png)
 
-We fit AR($p$) models under the improper prior to explore stationarity
-for $p = 1,2,3$.
+We fit AR($`p`$) models under the improper prior to explore stationarity
+for $`p = 1, 2, 3`$.
 
 ``` r
+
 res2 <- vector("list", 3)
 for (p in 1:3) {
   y <- tail(inflation, -p)
@@ -305,6 +318,7 @@ for (p in 1:3) {
 ### Figure 7.6: Checking stationarity conditions for the Euro area inflation data
 
 ``` r
+
 ar1draws <- res2[[1]]$betas[, 2]
 ar2draws <- res2[[2]]$betas[, 2:3]
 ar3draws <- res2[[3]]$betas[, 2:4]
@@ -334,6 +348,7 @@ To assess the probability of nonstationarity, we can simply count the
 draws outside of the stationarity region.
 
 ``` r
+
 nonstationary <- matrix(NA, nrow(ar3draws), 3,
                         dimnames = list(NULL, order = 1:3))
 nonstationary[, 1] <- abs(ar1draws) > 1
@@ -353,16 +368,18 @@ for our sampler, we require the missing time points to be far enough
 apart. This restriction is not substantial, though.)
 
 ``` r
+
 missing <- seq(10, 100, by = 10)
 yaug <- logret
 yaug[missing] <- NA_real_
 ```
 
 To set up the Gibbs sampler, we need starting values for
-$\mathbf{y}_{\text{miss}}$. Here, we interpolate linearly (take the
+$`\mathbf y_\text{miss}`$. Here, we interpolate linearly (take the
 average of the adjacent values).
 
 ``` r
+
 ymiss <- (logret[missing + 1] + logret[missing - 1]) / 2
 names(ymiss) <- names(logret)[missing]
 ```
@@ -370,6 +387,7 @@ names(ymiss) <- names(logret)[missing]
 For simplicity, we employ our improper prior and sample iteratively.
 
 ``` r
+
 ndraws <- 10000
 nburn <- 1000
 ind <- missing - 2
@@ -421,6 +439,7 @@ for (m in seq_len(ndraws + nburn)) {
 Let us briefly check some trace plots and ACFs of the draws.
 
 ``` r
+
 par(mfrow = c(5, 2))
 ts.plot(betas[, 1])
 acf(betas[, 1])
@@ -442,6 +461,7 @@ We move on to visualizing the observed and the missing values (black
 lines), alongside the unobservable true values (red circles).
 
 ``` r
+
 yaug[missing] <- NA
 
 where <- seq(max(missing) - 13, max(missing) + 3)
@@ -469,6 +489,7 @@ We start by estimating a model where all equations containing missing
 data are simply dropped.
 
 ``` r
+
 Xy <- ARdesignmatrix(yaug, 2)
 y <- tail(yaug, -2)
 containsNA <- apply(is.na(cbind(y, Xy)), 1, any)
@@ -480,6 +501,7 @@ res_drop <- regression(yred, Xyred, prior = "improper")
 Now we can plot.
 
 ``` r
+
 for (i in 1:4) {
   if (i <= 3) {
     if (i == 1) name <- bquote(zeta) else name <- bquote(phi[.(i - 1)])
@@ -510,6 +532,7 @@ for (i in 1:4) {
 First, we fit an AR(0), i.e., an intercept-only, model, to the GDP data.
 
 ``` r
+
 Xy <- ARdesignmatrix(logret, 0) # Fill the N x 1 design matrix with 1s
 res0 <- regression(logret, Xy, prior = "improper")
 ```
@@ -517,6 +540,7 @@ res0 <- regression(logret, Xy, prior = "improper")
 We now create Figure 7.9 via simple transformations.
 
 ``` r
+
 mu <- sigma2 <- matrix(NA_real_, ndraws, 3, dimnames = list(NULL, order = 0:2))
 
 mu[, "0"] <- res0$betas[, 1]
@@ -555,6 +579,7 @@ legend("topright", paste0("p = ", 0:2), col = 1:3, lty = 1:3)
 We continue by fitting an AR(0) model to the inflation data.
 
 ``` r
+
 Xy <- ARdesignmatrix(inflation, 0) # Fill the N x 1 design matrix with 1s
 res20 <- regression(inflation, Xy, prior = "improper")
 ```
@@ -564,6 +589,7 @@ our fitted AR models, we need to remove nonstationary draws. Apart from
 that, we proceed as above.
 
 ``` r
+
 mu <- sigma2 <- list()
 
 mu[["0"]] <- res20$betas[, 1]
@@ -601,15 +627,18 @@ legend("topright", paste0("p = ", 0:2), col = 1:3, lty = 1:3)
 ![](Chapter07_files/figure-html/unnamed-chunk-27-1.png)
 
 We now move on to imposing stationarity through employing a
-non-conjugate transformed beta prior on $\phi$, i.e.,
-$$(\phi + 1)/2 \sim \mathcal{B}\left( a^{\phi},b^{\phi} \right),$$ and
-employ a 4-step sampler to obtain posterior draws. In addition, we
-assume that $y_{0}$ is unknown and a priori follows the stationary
+non-conjugate transformed beta prior on $`\phi`$, i.e.,
+``` math
+(\phi + 1) / 2 \sim \mathcal{B}\left(a^\phi, b^\phi\right),
+```
+and employ a 4-step sampler to obtain posterior draws. In addition, we
+assume that $`y_0`$ is unknown and a priori follows the stationary
 distribution of the AR(1) process.
 
 We start by defining the density function of the rescaled beta.
 
 ``` r
+
 dbetarescaled <- function(x, a, b, log = FALSE) {
   tmp <- dbeta((x + 1) / 2, a, b, log = TRUE) - log(2)
   if (log) tmp else exp(tmp)
@@ -617,9 +646,10 @@ dbetarescaled <- function(x, a, b, log = FALSE) {
 ```
 
 We need to specify the hyperparameters and define the left hand side
-variable $y$ as well as the design matrix.
+variable $`y`$ as well as the design matrix.
 
 ``` r
+
 # Specify the hyperparameters
 c0 <- 0
 C0 <- 0
@@ -638,6 +668,7 @@ X[, 2] <- c(NA_real_, y[-length(y)])
 Now we are ready to sample!
 
 ``` r
+
 # Allocate some space for the posterior draws and initialize the parameters:
 y0s <- sigma2s <- zetas <- phis <- rep(NA_real_, ndraws)
 zeta <- 0
@@ -694,6 +725,7 @@ naccepts1 <- naccepts
 We repeat the exercise with a more informative beta prior.
 
 ``` r
+
 aphi <- 10
 bphi <- 10
 
@@ -750,12 +782,13 @@ stationary2 <- data.frame(zeta = zetas, phi = phis, sigma2 = sigma2s, y0 = y0s)
 naccepts2 <- naccepts
 ```
 
-To conclude, we compare the posteriors of $\phi$ under the improper
+To conclude, we compare the posteriors of $`\phi`$ under the improper
 prior, the posterior obtained after post-processing draws to obtain
 stationarity, and the posterior under the stationary-enforcing shifted
 beta priors.
 
 ``` r
+
 mybreaks <- seq(floor(100 * min(stationary1$phi, stationary2$phi)) / 100,
                 ceiling(100 * max(ar1draws)) / 100,
                 by = .0025)
@@ -785,6 +818,7 @@ Let us investigate traceplots and empirical autocorrelation functions of
 the posterior draws under the informative stationarity-inducing prior.
 
 ``` r
+
 par(mfrow = c(4, 2), mar = c(2.5, 2.8, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
 for (i in seq_along(stationary2)) {
   plot.ts(stationary2[i], xlab = "Draws after burn-in", ylab = labels[i])
@@ -800,6 +834,7 @@ We now compute an estimate of the effective sample size (ESS) and the
 inefficiency factor (IF) use the coda package.
 
 ``` r
+
 library("coda")
 ess1 <- effectiveSize(data.frame(zeta = res2[[1]]$betas[, 1],
                                  phi = res2[[1]]$betas[, 2],
@@ -824,6 +859,7 @@ knitr::kable(round(ess))
 | betapriorinformative |  634 |   338 |   6211 | 10000 |
 
 ``` r
+
 knitr::kable(round(ndraws / ess, 2))
 ```
 
@@ -839,19 +875,19 @@ resulting from an auxiliary moment-matched prior in Step (d).
 
 Note: Currently, three methods are implemented:
 
-1.  Ignore the part coming from $y_{0}$ and only moment-match the
+1.  Ignore the part coming from $`y_0`$ and only moment-match the
     shifted beta prior. This is currently described in the manuscript
     (auxprior = analytical1)
 
-2.  Use a part coming from the determinant of the density of $y_{0}$,
-    resulting in a shifted
-    $\mathcal{B}\left( a^{\phi} + 0.5,b^{\phi} + 0.5 \right)$ (auxprior
-    = analytical2)
+2.  Use a part coming from the determinant of the density of $`y_0`$,
+    resulting in a shifted $`\mathcal{B}(a^\phi + 0.5, b^\phi + 0.5)`$
+    (auxprior = analytical2)
 
 3.  Numerically approximate mode and curvature of the distribution at
     every iteration (auxprior = numerical)
 
 ``` r
+
 auxprior <- "analytical1"
 
 if (auxprior == "analytical1") {
@@ -951,6 +987,7 @@ of the draws. In addition, we check the percentage of accepted draws in
 MH-step (d).
 
 ``` r
+
 par(mfrow = c(4, 2), mar = c(2.5, 2.8, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
 for (i in seq_along(stationary3)) {
   plot.ts(stationary3[i], xlab = "Draws after burn-in", ylab = labels[i])
@@ -965,9 +1002,11 @@ for (i in seq_along(stationary3)) {
 We now compare the draws from the two samplers; they should yield draws
 from the same distribution, irrespective of the acceptance rate and thus
 the mixing of the Markov chain. We graphically check this by comparing
-histograms and quantiles of draws from the marginal posterior of $\phi$.
+histograms and quantiles of draws from the marginal posterior of
+$`\phi`$.
 
 ``` r
+
 mybreaks <- seq(min(stationary2$phi, stationary3$phi),
                 max(stationary2$phi, stationary3$phi),
                 length.out = 30)
@@ -991,6 +1030,7 @@ To conclude, we compute ESSs and IFs for the sampler utilizing the
 optimized MH step.
 
 ``` r
+
 ess1 <- effectiveSize(stationary2)
 ess2 <- effectiveSize(stationary3)
 ess <- rbind(`Sampler 1` = ess1, `Sampler 2` = ess2)
@@ -1003,6 +1043,7 @@ knitr::kable(round(ess))
 | Sampler 2 |  966 | 504 |   7172 | 10000 |
 
 ``` r
+
 knitr::kable(round(ndraws / ess, 2))
 ```
 
@@ -1020,6 +1061,7 @@ the data and visualize it as well as its empirical ACF. We do the same
 for the absolute returns.
 
 ``` r
+
 data("exrates", package = "stochvol")
 dat <- exrates$USD / exrates$CHF
 ret <- diff(dat)
@@ -1038,6 +1080,7 @@ at (first order) stationarity of the returns. To check more formally, we
 fit AR(p) models to both.
 
 ``` r
+
 ardat <- arret <- list()
 for (p in 1:4) {
   y <- tail(dat, -p)
@@ -1052,6 +1095,7 @@ for (p in 1:4) {
 Now we can graphically investigate stationarity as above.
 
 ``` r
+
 draws <- list(ardat[[2]]$betas[, 2:3], arret[[2]]$betas[, 2:3])
 eigenvalues <- matrix(NA_complex_, nrow(draws[[1]]), ncol(draws[[1]]))
 mains <- c("AR(2) on the raw series", "AR(2) on the returns")
@@ -1075,9 +1119,10 @@ for (i in seq_along(draws)) {
 
 To explore whether the nonstationarity of the raw series could be caused
 by a unit root, we investigate the posterior of
-$1 - \phi_{1} - \ldots - \phi_{p}$ for $p = 1,\ldots,4$.
+$`1 - \phi_1 - \dots - \phi_p`$ for $`p = 1, \dots, 4`$.
 
 ``` r
+
 toplot <- matrix(NA_real_, ndraws, 4)
 for (p in 1:4)
   toplot[, p] <- rowSums(ardat[[p]]$betas[, 2:(p + 1), drop = FALSE]) - 1
@@ -1094,6 +1139,7 @@ for (p in 1:4) {
 We do the same for the inflation data.
 
 ``` r
+
 ardat <- arret <- list()
 for (p in 1:4) {
   y <- tail(inflation, -p)
@@ -1103,6 +1149,7 @@ for (p in 1:4) {
 ```
 
 ``` r
+
 for (p in 1:4)
   toplot[, p] <- rowSums(ardat[[p]]$betas[, 2:(p + 1), drop = FALSE]) - 1
 for (p in 1:4) {
@@ -1118,12 +1165,12 @@ for (p in 1:4) {
 ### Section 7.3.2: Bayesian Learning of an MA(1) Model
 
 We now implement the MCMC sampler for fitting an MA(1) model, where we
-treat the latent state
-$\epsilon_{0} \sim \mathcal{N}\left( 0,\sigma^{2} \right)$ as unknown.
-For the innovation variance, we assume an inverse gamma prior, and
-$\theta$ is assumed to be a priori uniform on $\lbrack - 1,1\rbrack$.
+treat the latent state $`\epsilon_0 \sim \mathcal{N}(0, \sigma^2)`$ as
+unknown. For the innovation variance, we assume an inverse gamma prior,
+and $`\theta`$ is assumed to be a priori uniform on $`[-1,1]`$.
 
 ``` r
+
 # Specify prior hyperparameters
 c0 <- C0 <- 0.01
 
@@ -1181,6 +1228,7 @@ for (i in seq_along(cthetas)) {
 Now we plot traceplots and ACFs.
 
 ``` r
+
 for (i in seq_along(cthetas)) {
   ts.plot(thetas[, i], ylim = range(thetas), ylab = expression(theta),
           xlab = "Iterations")
@@ -1197,6 +1245,7 @@ We repeat the exercise above, but now use a truncated Gaussian proposal
 for the random walk MH algorithm.
 
 ``` r
+
 # standard deviation for random walk MH proposal
 cthetas2 <- cthetas
 
@@ -1258,6 +1307,7 @@ for (i in seq_along(cthetas2)) {
 We again plot traceplots and ACFs.
 
 ``` r
+
 for (i in seq_along(cthetas2)) {
   ts.plot(thetas2[, i], ylim = range(thetas2), ylab = expression(theta),
           xlab = "Iterations")
@@ -1271,9 +1321,10 @@ for (i in seq_along(cthetas2)) {
 ![](Chapter07_files/figure-html/unnamed-chunk-48-1.png)
 
 We repeat the exercise above once more, but now use a random walk
-proposal on $\log(1 + \theta) - \log(1 - \theta)$.
+proposal on $`\log(1 + \theta) - \log(1 - \theta)`$.
 
 ``` r
+
 # Define the transformation and its inverse
 trans <- function(theta) log(1 + theta) - log(1 - theta)
 invtrans <- function(thetatrans) (exp(thetatrans) - 1) / (exp(thetatrans) + 1)
@@ -1334,6 +1385,7 @@ for (i in seq_along(cthetas3)) {
 We again plot traceplots and ACFs.
 
 ``` r
+
 for (i in seq_along(cthetas3)) {
   ts.plot(thetas3[, i], ylim = range(thetas3), ylab = expression(theta),
           xlab = "Iterations")
@@ -1349,6 +1401,7 @@ for (i in seq_along(cthetas3)) {
 Let’s also check some QQ plots for equivalence.
 
 ``` r
+
 abline(c(0, 1), col = 2)
 qqplot(thetas[, 2], thetas3[, 2])
 abline(c(0, 1), col = 2)
@@ -1360,6 +1413,7 @@ Now, we compare acceptance rates and inefficiency factors for all 9
 samplers.
 
 ``` r
+
 accepts <- matrix(c(naccepts, naccepts2, naccepts3) / ndraws,
                   nrow = length(naccepts), ncol = 3, byrow = TRUE)
 ESS <- matrix(coda::effectiveSize(cbind(thetas, thetas2, thetas3)),
@@ -1378,6 +1432,7 @@ knitr::kable(round(accepts, 2))
 | transformed RW | 0.94 |   0.52 | 0.07 |
 
 ``` r
+
 knitr::kable(round(IF, 1))
 ```
 
@@ -1395,6 +1450,7 @@ We load the data and only consider workers from the birth cohort
 1946-1960.
 
 ``` r
+
 data("labor", package = "BayesianLearningCode")
 labor <- subset(labor, birthyear >= 1946 & birthyear <= 1960)
 nrow(labor)
@@ -1404,6 +1460,7 @@ nrow(labor)
 We extract the columns about the income over time:
 
 ``` r
+
 income <- labor[, grepl("^income", colnames(labor))]
 income <- sapply(income, as.integer)
 colnames(income) <- gsub("income_", "", colnames(income))
@@ -1414,6 +1471,7 @@ persistence of belonging to a certain wage class is obvious for any
 specific person.
 
 ``` r
+
 set.seed(1)
 index <- sample(nrow(income), 3)
 for (i in index) {
@@ -1429,9 +1487,10 @@ for (i in index) {
 
 We transform the data to obtain for each worker the matrix which
 contains the number of transitions from one class to the other, i.e.,
-the matrix with values $N_{i,hk}$.
+the matrix with values $`N_{i,hk}`$.
 
 ``` r
+
 getTransitions <- function(x, classes) {
     transitions <- matrix(0, length(classes), length(classes))
     for (i in seq_len(length(x) - 1)) {
@@ -1449,6 +1508,7 @@ Based on the transition matrices, the total transitions between the wage
 categories for female and male workers can be obtained.
 
 ``` r
+
 N_female <- Reduce("+", income_transitions[labor$female])
 N_male <- Reduce("+", income_transitions[!labor$female])
 knitr::kable(N_female)
@@ -1464,6 +1524,7 @@ knitr::kable(N_female)
 | 5   |   24 |    1 |    0 |   3 |  22 | 446 |
 
 ``` r
+
 knitr::kable(N_male)
 ```
 
@@ -1479,6 +1540,7 @@ knitr::kable(N_male)
 We obtain posterior mean estimates based on a uniform prior.
 
 ``` r
+
 mean_xi_female <- (1 + N_female) / rowSums(1 + N_female)
 mean_xi_male <- (1 + N_male) / rowSums(1 + N_male)
 knitr::kable(mean_xi_female, digits = 3)
@@ -1494,6 +1556,7 @@ knitr::kable(mean_xi_female, digits = 3)
 | 5   | 0.050 | 0.004 | 0.002 | 0.008 | 0.046 | 0.890 |
 
 ``` r
+
 knitr::kable(mean_xi_male, digits = 3)
 ```
 
@@ -1509,6 +1572,7 @@ knitr::kable(mean_xi_male, digits = 3)
 We also visualize the posterior mean estimates for women and men.
 
 ``` r
+
 corrplot::corrplot(mean_xi_female, method = "square", is.corr = FALSE,
                    col = 1, cl.pos = "n")
 corrplot::corrplot(mean_xi_male, method = "square", is.corr = FALSE,
@@ -1518,9 +1582,10 @@ corrplot::corrplot(mean_xi_male, method = "square", is.corr = FALSE,
 ![](Chapter07_files/figure-html/unnamed-chunk-59-1.png)
 
 We compare the posterior densities of various transition probabilities
-$\xi_{g,hk}$ for women and men.
+$`\xi_{g,hk}`$ for women and men.
 
 ``` r
+
 plot(c(0.52, 0.95), c(0, 100), type = "n", xlab = "", ylab = "",
      main = "Posterior of persistence probabilities")
 pers_female <- cbind(diag(1 + N_female),
@@ -1563,12 +1628,13 @@ legend("topright", col = 1, lty = 1:2,
 
 We assume that both men and women start out in the labor market with the
 same wage distribution, where 70% start in wage category 1 and 30% in
-wage category 2, i.e., ${\mathbf{η}}_{0} = (0,0.7,0.3,0,0,0)$. We
-compare the evolution of the estimated wage distribution
-${\widehat{\mathbf{η}}}_{g,t}$ over the first ten years for females and
+wage category 2, i.e., $`\mathbf{\eta}_0 = (0, 0.7, 0.3, 0, 0,
+0)`$. We compare the evolution of the estimated wage distribution
+$`\hat{\mathbf{\eta}}_{g,t}`$ over the first ten years for females and
 males.
 
 ``` r
+
 eta_0 <- c(0, 0.7, 0.3, 0, 0, 0)
 eta_hat_male_t <- eta_hat_female_t <-
     matrix(NA_real_, nrow = 6, ncol = 11,
@@ -1584,11 +1650,12 @@ barplot(eta_hat_male_t, main = "Men", xlab = "Year", ylab = "Wage groups")
 
 ![](Chapter07_files/figure-html/unnamed-chunk-61-1.png)
 
-We inspect the posterior distributions of $\eta_{t,2}$ for wage category
-2 (left-hand side) versus $\eta_{t,5}$ for wage category 5 (right-hand
-side) in year $t = 10$ for females and males.
+We inspect the posterior distributions of $`\eta_{t,2}`$ for wage
+category 2 (left-hand side) versus $`\eta_{t,5}`$ for wage category 5
+(right-hand side) in year $`t = 10`$ for females and males.
 
 ``` r
+
 M <- 1000
 xi_female <- replicate(M, apply(1 + N_female, 1,
                                 function(alpha) rdirichlet(1, alpha)))

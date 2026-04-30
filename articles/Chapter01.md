@@ -4,35 +4,39 @@
 
 ### Example 1.3 and 1.4: Classifying categorical observations into two states
 
-We have two firms, a reliable firm $A$ with $Pr(A) = 0.7$ and a less
-reliable firm $A^{C}$ with $Pr\left( A^{C} \right) = 1 - 0.7 = 0.3$.
+We have two firms, a reliable firm $`A`$ with $`Pr(A) = 0.7`$ and a less
+reliable firm $`A^C`$ with $`Pr(A^C) = 1 - 0.7 = 0.3`$.
 
 ``` r
+
 PrA <- 0.7
 PrAC <- 1 - PrA
 ```
 
 The failure rate, i.e., the probability of a faulty item, is 0.01 for
-the reliable firm $A$ and 0.05 for the less reliable firm $A^{C}$.
+the reliable firm $`A`$ and 0.05 for the less reliable firm $`A^C`$.
 
 ``` r
+
 PrFA <- 0.01
 PrFAC <- 0.05
 ```
 
-Assume that we observe any number of failures $y$ between 0 and 6 (from
-$N = 100$ observations in total), but we don’t know whether the items
-are from company $A$ or $A^{C}$.
+Assume that we observe any number of failures $`y`$ between 0 and 6
+(from $`N = 100`$ observations in total), but we don’t know whether the
+items are from company $`A`$ or $`A^C`$.
 
 ``` r
+
 N <- 100
 y <- 0:6
 ```
 
 We can now compute the probability of dealing with items from company
-$A$ by using Bayes’ theorem.
+$`A`$ by using Bayes’ theorem.
 
 ``` r
+
 theta1_y_unnormalized <- PrFA ^ y * (1 - PrFA) ^ (N - y) * PrA
 theta0_y_unnormalized <- PrFAC ^ y * (1 - PrFAC) ^ (N - y) * PrAC
 normalizer <- theta1_y_unnormalized + theta0_y_unnormalized
@@ -49,14 +53,14 @@ knitr::kable(round(res, 3))
 | less reliable company | 0.007 | 0.035 | 0.158 | 0.495 | 0.836 | 0.964 | 0.993 |
 
 Note that, of course, the probabilities of dealing with items from
-company $A$ and $A^{C}$ are complementary (i.e., sum to one).
+company $`A`$ and $`A^C`$ are complementary (i.e., sum to one).
 
 Assuming we do not have any prior information about the probability of
-occurrence of company $A$, we could simply set
-$Pr(A) = Pr\left( A^{C} \right) = 0.5$ and recompute the posterior
-probabilities.
+occurrence of company $`A`$, we could simply set
+$`Pr(A) = Pr(A^C) = 0.5`$ and recompute the posterior probabilities.
 
 ``` r
+
 PrA <- 0.5
 PrAC <- 1 - PrA
 
@@ -78,25 +82,35 @@ knitr::kable(round(res, 3))
 
 ### Example 1.5: Classifying continuous observations into two states
 
-We have a Bernoulli random variable $\vartheta$ with prior probability
-$$Pr(\vartheta) = 0.55,$$ and we know for the females that
-$$y|\vartheta_{1} \sim Exp(\lambda),$$ and for the males that
-$$y|\vartheta_{0} \sim G(\alpha,\beta),$$ where $\lambda = 1/2.2$,
-$\alpha = 5$, and $\beta = 5/5.5$.
+We have a Bernoulli random variable $`\vartheta`$ with prior probability
+``` math
+Pr(\vartheta) = 0.55,
+```
+and we know for the females that
+``` math
+y|\vartheta_1 \sim Exp(\lambda),
+```
+and for the males that
+``` math
+y|\vartheta_0 \sim G(\alpha, \beta),
+```
+where $`\lambda = 1/2.2`$, $`\alpha = 5`$, and $`\beta = 5/5.5`$.
 
 ``` r
+
 Prtheta = 0.55
 lambda = 1/2.2
 alpha = 5
 beta = 5/5.5
 ```
 
-We now plot the conditional densities for $y \in \lbrack 0,10\rbrack$.
-Then, we compute the non-normalized posteriors for
-$y \in \{ 1,2,3,6,8\}$, mark those in the plot, and add lines to
-visualize the non-normalized posteriors.
+We now plot the conditional densities for $`y \in [0,10]`$. Then, we
+compute the non-normalized posteriors for $`y \in \{1, 2, 3, 6, 8\}`$,
+mark those in the plot, and add lines to visualize the non-normalized
+posteriors.
 
 ``` r
+
 y_all <- seq(0, 10, 0.2)
 plot(y_all, dexp(y_all, lambda), type = "l", xlab = "Distance", ylab = "",
       main = "Conditional densities and non-normalized posteriors")
@@ -131,6 +145,7 @@ ratio of the heights of the vertically corresponding points in the
 graph.
 
 ``` r
+
 normalizer <- theta1_y_unnormalized + theta0_y_unnormalized
 theta1_y <- theta1_y_unnormalized / normalizer
 theta0_y <- theta0_y_unnormalized / normalizer
@@ -144,10 +159,11 @@ knitr::kable(round(res, 3))
 | female | 0.971 | 0.769 | 0.509 | 0.202 | 0.166 |
 | male   | 0.029 | 0.231 | 0.491 | 0.798 | 0.834 |
 
-We also plot the posterior probabilities for distance values $y$ ranging
-from 0 to 10 in steps of 0.2 in a stacked barplot.
+We also plot the posterior probabilities for distance values $`y`$
+ranging from 0 to 10 in steps of 0.2 in a stacked barplot.
 
 ``` r
+
 normalizer <- theta1_y_all_unnormalized + theta0_y_all_unnormalized
 theta1_y_all <- theta1_y_all_unnormalized / normalizer
 theta0_y_all <- theta0_y_all_unnormalized / normalizer

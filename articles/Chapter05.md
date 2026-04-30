@@ -9,6 +9,7 @@ as *sequential updating* or *on-line learning*) via the Beta-Bernoulli
 model from earlier.
 
 ``` r
+
 set.seed(42)
 
 a0 <- 1
@@ -44,6 +45,7 @@ CHF/USD exchange rate as a normal distribution with unknown mean and
 variance.
 
 ``` r
+
 library("BayesianLearningCode")
 posteriorjoint <- function(mu, sigma2, ybar, s2, N) {
   dnorm(mu, ybar, sqrt(sigma2 / N)) *
@@ -54,6 +56,7 @@ posteriorjoint <- function(mu, sigma2, ybar, s2, N) {
 First, we read in the data once more.
 
 ``` r
+
 data("exrates", package = "stochvol")
 y <- 100 * diff(log(exrates$USD / exrates$CHF))
 N <- length(y)
@@ -62,19 +65,21 @@ s2 <- var(y) * (N - 1) / N
 ```
 
 Now, we simulate from the posterior by Monte Carlo, i.e., we draw many
-times from the marginal posterior $\sigma^{2}|\mathbf{y}$, and then,
-conditioning on these draws, from $\mu|\sigma^{2},\mathbf{y}$.
+times from the marginal posterior $`\sigma^2|\mathbf{y}`$, and then,
+conditioning on these draws, from $`\mu|\sigma^2,\mathbf{y}`$.
 
 ``` r
+
 ndraws <- 100000
 sigma2draws <- rinvgamma(ndraws, (N - 1) / 2, N * s2 / 2)
 mudraws <- rnorm(ndraws, ybar, sqrt(sigma2draws / N))
 draws <- data.frame(mu = mudraws, sigma2 = sigma2draws)
 ```
 
-Next, we need to fix $\alpha$.
+Next, we need to fix $`\alpha`$.
 
 ``` r
+
 alpha <- c(.01, .05, .1)
 ```
 
@@ -82,6 +87,7 @@ To approximate the bivariate HPD regions for our posterior, we obtain
 the functional values and keep the top 99, 95, 90 percent, respectively.
 
 ``` r
+
 densjoint <- posteriorjoint(draws$mu, draws$sigma2, ybar, s2, N)
 HPDdrawsjoint <- vector("list", length(alpha))
 for (i in seq_along(alpha)) {
@@ -97,6 +103,7 @@ on the two axes, yielding the corresponding univariate regions
 (intervals) from the corresponding marginals.
 
 ``` r
+
 toplot <- sample.int(nrow(draws), 1000)
 plot(draws[toplot,], pch = 16, col = rgb(0, 0, 0, .3), cex = 2,
      xlab = expression(mu), ylab = expression(sigma^2))
@@ -157,10 +164,13 @@ for (i in seq_along(alpha)) {
 
 We again revisit the CHF-USD exchange rate data from the previous
 chapter. We assumed that
-$$y_{i} \sim t_{7}\left( 0,\sigma^{2} \right),$$ and implemented an
-unnormalized version of $\sigma^{2}|\mathbf{y}$.
+``` math
+y_i \sim t_7(0, \sigma^2),
+```
+and implemented an unnormalized version of $`\sigma^2|\mathbf{y}`$.
 
 ``` r
+
 post_unnormalized_nonvec <- function(sigma2, y, nu, log = FALSE) {
   logdens <- -length(y) / 2 * log(sigma2) -
     (nu + 1) / 2 * sum(log(1 + y^2 / (nu * sigma2))) - log(sigma2)
@@ -175,10 +185,11 @@ pdf_u <- pdf_u / max(pdf_u)
 cdf <- cumsum(pdf_u) / sum(pdf_u)
 ```
 
-To compute the normalizing constant $C$, we again use the trapezoid
+To compute the normalizing constant $`C`$, we again use the trapezoid
 rule. In addition, we compute the posterior expectation.
 
 ``` r
+
 resolution <- 100
 grid <- seq(0.25, 0.45, length.out = resolution + 1)
 integrand <- post_unnormalized(grid, y = y, nu = nu)
@@ -194,6 +205,7 @@ converges to the posterior expectation. First, we obtain posterior
 draws, as in the previous chapter.
 
 ``` r
+
 Mtotal <- 10000
 unifdraws <- runif(Mtotal, 0, cdf[length(cdf)])
 leftind <- findInterval(unifdraws, cdf)
@@ -206,6 +218,7 @@ sigma2draws <- sigma2[leftind] + distprop *
 Now, we visualize batches of these draws.
 
 ``` r
+
 for (M in c(100, 1000, 10000)) {
   hist(sigma2draws[seq_len(M)], probability = TRUE, xlab = expression(sigma^2),
        ylab = "", main = paste0("M = ", M),
@@ -235,6 +248,7 @@ To reproduce this figure, we again re-use the theory from Chapter 3 (the
 Beta-Bernoulli model).
 
 ``` r
+
 set.seed(2)
 thetatrue <- c(0.02, 0.25)
 N <- c(25, 100, 400)
@@ -269,6 +283,7 @@ for (i in seq_along(N)) {
 As above, just with higher sample size.
 
 ``` r
+
 bigN <- 1000000
 SbigN <- rbinom(2, bigN, thetatrue)
 
@@ -299,6 +314,7 @@ We now want to approximate the log posteriors via quadratic polynomials
 and visualize these.
 
 ``` r
+
 for (i in seq_along(N)) {
   for (j in seq_along(thetatrue)) {
     aN <- SN[i,j] + 1
@@ -334,9 +350,10 @@ for (i in seq_along(N)) {
 ### Table 5.1: Point estimates
 
 We now compute various point estimates under several settings. Note that
-we use the same number of 1s ($S_{N}$) as before.
+we use the same number of 1s ($`S_N`$) as before.
 
 ``` r
+
 options(knitr.kable.NA = "")
 a0 <- c(1, 2)
 b0 <- c(1, 4)
@@ -376,6 +393,7 @@ knitr::kable(round(res, 3))
 We now compute frequentist and Bayesian CIs.
 
 ``` r
+
 # Confidence intervals
 leftconf <- thetaML - qnorm(.975) * sqrt(thetaML * (1 - thetaML) / set$N[1:6])
 rightconf <- thetaML + qnorm(.975) * sqrt(thetaML * (1 - thetaML) / set$N[1:6])
@@ -414,6 +432,7 @@ many data sets for each of the parameter configurations and check how
 often the intervals contain the true parameter.
 
 ``` r
+
 alpha <- 0.05
 nrep <- 10000
 resolution <- 1000
@@ -478,15 +497,18 @@ knitr::kable(round(res, 2))
 
 ### Example 5.11: Coverage probabilities under the Poisson-Gamma model
 
-As above, but for data from a $\mathcal{P}(5)$-distribution. We estimate
-the mean from $N = 24$ data points and construct CIs. Recall that the
-posterior under a flat prior is
-$$\mu|\mathbf{y} \sim \mathcal{G}\left( N\bar{y} + 1,N \right),$$
+As above, but for data from a $`\mathcal{P}(5)`$-distribution. We
+estimate the mean from $`N = 24`$ data points and construct CIs. Recall
+that the posterior under a flat prior is
+``` math
+\mu|\mathbf{y} \sim \mathcal G(N\bar y + 1, N),
+```
 
 We start by simulating the data and computing sample means and sample
 variances.
 
 ``` r
+
 mutrue <- 5
 N <- 24
 dat <- matrix(rpois(N * nrep, mutrue), nrep, N)
@@ -498,6 +520,7 @@ Next, we compute asymptotic intervals based on sample means and sample
 variances.
 
 ``` r
+
 leftconf1 <- means - qnorm(1 - alpha / 2) * sqrt(means / N)
 rightconf1 <- means + qnorm(1 - alpha / 2) * sqrt(means / N)
 inconf1 <- leftconf1 <= mutrue & mutrue <= rightconf1
@@ -511,6 +534,7 @@ For the Bayesian variants, we compute the equal-tailed and the HPD
 intervals.
 
 ``` r
+
 leftequal <- qgamma(alpha / 2, N * means + 1, N)
 rightequal <- qgamma(1 - alpha / 2, N * means + 1, N)
 inequal <- leftequal <= mutrue & mutrue <= rightequal
@@ -526,6 +550,7 @@ inHPD <- leftHPD <= mutrue & mutrue <= rightHPD
 Finally, we compile and print the results.
 
 ``` r
+
 res <- cbind(asy_mean_coverage = mean(inconf1),
              asy_var_coverage = mean(inconf2),
              equal_coverage = mean(inequal),
@@ -546,6 +571,7 @@ We revisit the accidents and the eye tracking data sets and compute
 means and variances.
 
 ``` r
+
 data("accidents", package = "BayesianLearningCode")
 data("eyetracking", package = "BayesianLearningCode")
 y1 <- accidents[, c("seniors_accidents", "children_accidents")]
@@ -558,6 +584,7 @@ vars <- c(apply(y1, 2, var), var(y2))
 The asymptotic and the Bayesian intervals can be computed as above.
 
 ``` r
+
 # asymptotic intervals based on sample means
 lconf1 <- means - qnorm(1 - alpha / 2) * sqrt(means / N)
 rconf1 <- means + qnorm(1 - alpha / 2) * sqrt(means / N)
@@ -598,6 +625,7 @@ native `dbeta` to return the improper kernel if both parameters are 0
 (and resort to the original `dbeta` otherwise).
 
 ``` r
+
 dbetamod <- function(x, a, b) {
   if (a == 0 && b == 0) {
     x^-1 * (1 - x)^-1
@@ -608,10 +636,13 @@ dbetamod <- function(x, a, b) {
 ```
 
 Next, we define the density function of
-$$\eta = logit(\vartheta) = \log\left( \frac{\vartheta}{1 - \vartheta} \right)$$
+``` math
+\eta = logit(\vartheta) = \log\left(\frac{\vartheta}{1-\vartheta}\right)
+```
 by using the law of transformation of densities.
 
 ``` r
+
 deta <- function(eta, a, b)
   dbetamod(exp(eta) / (1 + exp(eta)), a, b) * exp(eta) / (1 + exp(eta))^2
 ```
@@ -619,6 +650,7 @@ deta <- function(eta, a, b)
 Now we can plot.
 
 ``` r
+
 theta <- seq(0, 1, length.out = 200)
 eta <- seq(-10, 10, length.out = 200)
 plot(theta, dbetamod(theta, 1, 1), type = "l", ylab = "",

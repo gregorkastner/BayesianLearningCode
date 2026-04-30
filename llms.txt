@@ -16,6 +16,7 @@ from [GitHub](https://github.com/gregorkastner/BayesianLearningCode/)
 with:
 
 ``` r
+
 # install.packages("pak")
 pak::pak("gregorkastner/BayesianLearningCode")
 ```

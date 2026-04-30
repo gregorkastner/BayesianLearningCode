@@ -5,6 +5,7 @@
 ### Table 10.1: (Log) Bayes factor and model probabilities
 
 ``` r
+
 logBF <- -7:7
 BF <- exp(logBF)
 PrM1 <- BF / (1 + BF)
@@ -30,13 +31,14 @@ knitr::kable(cbind(BF, logBF, PrM1, PrM2))
 |  403.4287935 |     6 | 0.9975274 | 0.0024726 |
 | 1096.6331584 |     7 | 0.9990889 | 0.0009111 |
 
-### Example 10.5: CHF exchange rate data - Testing the null hypothesis $\mu = 0$
+### Example 10.5: CHF exchange rate data - Testing the null hypothesis $`\mu = 0`$
 
 Before producing Figure 10.1, we begin with a concrete example. We load
 the data, compute the required parameters, and evaluate the two marginal
 likelihoods.
 
 ``` r
+
 data("exrates", package = "stochvol")
 y <- 100 * diff(log(exrates$USD / exrates$CHF))
 
@@ -62,6 +64,7 @@ The “direct” formula for the log Bayes factor is even simpler, and we
 can check whether we get the same answer.
 
 ``` r
+
 (logBF <- 0.5 * (log(N0 + N) - log(N0)) + cN * (log(CN_M2) - log(CN_M1)))
 #> [1] 8.86553606 7.71424355 6.56295141 5.41166293 4.26041101 3.10952463 1.96228321
 #> [8] 0.85048010 0.01501194
@@ -73,6 +76,7 @@ Now we are ready to investigate the sensitivity of the log Bayes factor
 with respect to prior hyperparameter choices.
 
 ``` r
+
 c0 <- c(-1, 0, 0.001, 1, 100)
 C0 <- c(0, 0, 0.001, 1, 100)
 N0 <- 10^seq(1, 10, by = 0.1)
@@ -101,6 +105,7 @@ title("Log Bayes factor in favor of the zero-mean model")
 First, we re-load the data from Chapter 3.
 
 ``` r
+
 data("labor", package = "BayesianLearningCode")
 labor <- subset(labor,
                 income_1997 != "zero" & female,
@@ -113,6 +118,7 @@ labor <- with(labor,
 Next, we compute the marginal likelihoods for the homogeneity model.
 
 ``` r
+
 N <- length(labor$unemployed)
 SN <- sum(labor$unemployed)
 hN <- SN / N
@@ -129,6 +135,7 @@ logmarglikM1 <- lbeta(aN, bN) - lbeta(a0, b0)
 And for the heterogeneity model.
 
 ``` r
+
 N1 <- with(labor, sum(wcollar))
 SN1 <- with(labor, sum(wcollar & unemployed))
 N2 <- with(labor, sum(!wcollar))
@@ -149,6 +156,7 @@ logmarglikM2 <- lbeta(aN1, bN1) + lbeta(aN2, bN2) -
 We can now compute the model probabilities and the log BFs.
 
 ``` r
+
 logBF <- logmarglikM1 - logmarglikM2
 PrM2 <- 0.5 / (0.5 + 0.5 * exp(logBF))
 PrM1 <- 1 - PrM2
@@ -168,6 +176,7 @@ knitr::kable(res <- cbind(logmarglikM1, logmarglikM2, logBF, PrM1, PrM2))
 We proceed exactly as above, just with different data.
 
 ``` r
+
 N1  <- 1668 # number at risk in City A
 SN1 <- 2    # cancer deaths in City A
 N2  <- 583  # number at risk in City B
@@ -177,6 +186,7 @@ SN2 <- 1    # cancer deaths in City B
 We again begin with the homogeneity model.
 
 ``` r
+
 N <- N1 + N2
 SN <- SN1 + SN2
 hN <- SN / N
@@ -193,6 +203,7 @@ logmarglikM1 <- lbeta(aN, bN) - lbeta(a0, b0)
 Followed by the heterogeneity model.
 
 ``` r
+
 a01 <- a02 <- a0
 b01 <- b02 <- b0
 
@@ -208,6 +219,7 @@ logmarglikM2 <- lbeta(aN1, bN1) + lbeta(aN2, bN2) -
 We can now compute the model probabilities and the log BFs.
 
 ``` r
+
 logBF <- logmarglikM1 - logmarglikM2
 PrM2 <- 0.5 / (0.5 + 0.5 * exp(logBF))
 PrM1 <- 1 - PrM2
@@ -227,6 +239,7 @@ knitr::kable(res <- cbind(logmarglikM1, logmarglikM2, logBF, PrM1, PrM2))
 We load the data.
 
 ``` r
+
 data("accidents", package = "BayesianLearningCode")
 ```
 
@@ -234,6 +247,7 @@ We define the priors hyperparameters and compute the log marginal
 likelihood for the exchangable model.
 
 ``` r
+
 y <- accidents[, "children_accidents"]
 a0_tmp <- c(0.01, 0.1, 0.5, 1, 2)
 m0_tmp <- c(1, mean(y), 5, 7, 10)
@@ -261,6 +275,7 @@ knitr::kable(round(logmarglikM1, 2))
 And now the same for the model with structural break.
 
 ``` r
+
 accidents1 <- window(accidents, end = c(1994, 9))
 accidents2 <- window(accidents, start = c(1994, 10))
 
@@ -294,6 +309,7 @@ We can now compute log Bayes factors and corresponding model
 probabilities (under uniform prior probabilities).
 
 ``` r
+
 logBF <- logmarglikM1[, 2] - logmarglikM2[, 2]
 PrM2 <- 0.5 / (0.5 + 0.5 * exp(logBF))
 PrM1 <- 1 - PrM2
@@ -307,10 +323,11 @@ knitr::kable(round(rbind(PrM1, PrM2), 3))
 
 ### Example 10.9: CHF exchange rate data - Testing normal versus Student t
 
-After loading the data, we define the degrees of freedom $\nu$ and the
+After loading the data, we define the degrees of freedom $`\nu`$ and the
 prior hyperparameters.
 
 ``` r
+
 y <- 100 * diff(log(exrates$USD / exrates$CHF))
 N <- length(y)
 nu <- 7
@@ -323,6 +340,7 @@ We now compute log marginal likelihoods. This is straightforward for the
 normal model.
 
 ``` r
+
 c1N <- c10 + N / 2
 C1N <- C10 + sum(y^2) / 2
 
@@ -330,11 +348,12 @@ logmarglikM1 <- lgamma(c1N) + c10 * log(C10) -
    lgamma(c10) - c1N * log(C1N) - 0.5 * N * log(2 * pi)
 ```
 
-For the Student $t$ model, we need, e.g., numerical integration. Note
+For the Student $`t`$ model, we need, e.g., numerical integration. Note
 that we apply the “log-sum-exp” trick here to normalize the integrand so
 that its maximum is 1.
 
 ``` r
+
 integrand_nonvec <- function(sigma2, y, c0, C0, nu, const = 0, log = FALSE) {
   N <- length(y)
   logint <- -(N/2 + c0 + 1) * log(sigma2) -
@@ -356,6 +375,7 @@ plot(grid, tmp, type = 'l')
 ![](Chapter10_files/figure-html/unnamed-chunk-20-1.png)
 
 ``` r
+
 logarea <- log(sum(diff(grid) * .5 * (head(tmp, -1) + tail(tmp, -1)))) - const
 
 logmarglikM3 <- c30 * log(C30) +
@@ -370,6 +390,7 @@ We can now compute log Bayes factors and corresponding model
 probabilities (under equal prior model probabilities).
 
 ``` r
+
 logBF <- logmarglikM1 - logmarglikM3
 PrM3 <- 0.5 / (0.5 + 0.5 * exp(logBF))
 PrM1 <- 1 - PrM3
@@ -386,6 +407,7 @@ knitr::kable(cbind(logML1 = logmarglikM1, logML3 = logmarglikM3,
 We begin by loading the data and specifying the hyperparameters.
 
 ``` r
+
 data("eyetracking", package = "BayesianLearningCode")
 y <- eyetracking$anomalies
 N <- length(y)
@@ -401,6 +423,7 @@ b0 <- a0 / m0
 Now we can compute and print the log marginal likelihoods.
 
 ``` r
+
 logmarglikM1 <- a0 * log(b0) + lgamma(a0 + sum(y)) -
                 lgamma(a0) - (a0 + sum(y)) * log(b0 + N) -
                 sum(lgamma(y + 1))
@@ -425,6 +448,7 @@ knitr::kable(matrix(logmarglikM1, nrow = length(a0_tmp), ncol = length(m0_tmp),
 
 ``` r
 
+
 knitr::kable(matrix(logmarglikM2, nrow = length(a0_tmp), ncol = length(m0_tmp),
              dimnames = list(a0 = a0_tmp, m0 = round(m0_tmp, 2))), digits = 2)
 ```
@@ -438,11 +462,12 @@ knitr::kable(matrix(logmarglikM2, nrow = length(a0_tmp), ncol = length(m0_tmp),
 
 ### Example 10.11: Eye tracking data - Testing Poisson vs. negative binomial
 
-In the negative binomial case, if $a_{0}$ is fixed and $b_{0}$ follows a
+In the negative binomial case, if $`a_0`$ is fixed and $`b_0`$ follows a
 beta prime prior, we have a closed-form expression for the marginal
 likelihood.
 
 ``` r
+
 alpha_b0 <- rep(6, length(a0))
 beta_b0 <- (alpha_b0 - 1) * m0 / a0
 sdb0 <- sqrt(alpha_b0 * (alpha_b0 + beta_b0 - 1) /
@@ -470,6 +495,7 @@ knitr::kable(matrix(logmarglikM3, nrow = length(a0_tmp), ncol = length(m0_tmp),
 ### Example 10.12: CHF exchange rate data - Savage-Dickey density ratio
 
 ``` r
+
 library("BayesianLearningCode")
 #> 
 #> Attaching package: 'BayesianLearningCode'
@@ -507,6 +533,7 @@ plot(N0s, logSD, type = "l", log = "x")
 Let us double-check this:
 
 ``` r
+
 CN_M1 <- C0 + sum(y^2) / 2
 
 logmarglikM1 <- lgamma(cNR) + c0R * log(C0) -
@@ -529,6 +556,7 @@ all.equal(logSD, logBF)
 Here is a visualization.
 
 ``` r
+
 mus <- seq(-.01, .02, 0.0001)
 plot(NULL, xlim = range(mus), log = "", xlab = expression(mu), ylab = "",
      ylim = range(dstudt(mus,
@@ -563,6 +591,7 @@ We only need to re-estimate the heterogeneity model which we use to
 simulate the prior and the posterior of the no-income-risk difference.
 
 ``` r
+
 set.seed(42)
 M <- 10000000
 
@@ -598,6 +627,7 @@ We can approximate the Bayes factor through the estimated Savage-Dickey
 density ratio. Note, though, that this can be a very poor approximation.
 
 ``` r
+
 # Evaluate as close a possible to zero (with linear interpolation)
 x1 <- sum(d$x < 0) # Find largest x below 0
 x2 <- x1 + 1L      # Find smallest x above 0
@@ -616,6 +646,7 @@ dprior <- 1
 As above, with different data.
 
 ``` r
+
 N1  <- 1668 # number at risk in City A
 SN1 <- 2    # cancer deaths in City A
 N2  <- 583  # number at risk in City B
@@ -645,6 +676,7 @@ We can approximate the Bayes factor through the estimated Savage-Dickey
 density ratio. Note, though, that this can be a very poor approximation.
 
 ``` r
+
 x1 <- sum(d$x < 0) # Find largest x below 0
 x2 <- x1 + 1L      # Find smallest x above 0
 pos <- -d$x[x1] / (d$x[x2] - d$x[x1])
@@ -657,6 +689,7 @@ dprior <- 1
 ### Example 10.15: Road safety data - Lindley’s paradoxon
 
 ``` r
+
 a0 <- c(0.01, 0.1, 0.5, 1:5)
 res <- rbind(gamma(a0))
 colnames(res) <- a0

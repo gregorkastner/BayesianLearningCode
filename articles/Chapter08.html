@@ -390,7 +390,7 @@ only failures.</p>
 <span><span class="co">#&gt;     0 250   0</span></span>
 <span><span class="co">#&gt;     1   0 250</span></span></code></pre></div>
 <p>We estimate the model parameters
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝛃</mi><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>β</mi><mn>0</mn></msub><mo>,</mo><msub><mi>β</mi><mn>1</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mi>′</mi></mrow><annotation encoding="application/x-tex">\boldsymbol{\beta}= (\beta_0,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝛃</mi><mo>=</mo><mo stretchy="false" form="prefix">(</mo><msub><mi>β</mi><mn>0</mn></msub><mo>,</mo><msub><mi>β</mi><mn>1</mn></msub><msup><mo stretchy="false" form="postfix">)</mo><mo>′</mo></msup></mrow><annotation encoding="application/x-tex">\boldsymbol{\beta}= (\beta_0,
 \beta_1)'</annotation></semantics></math> under the Normal prior
 with mean
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>𝟎</mn><annotation encoding="application/x-tex">\mathbf{0}</annotation></semantics></math>
@@ -521,13 +521,13 @@ prior<a class="anchor" aria-label="anchor" href="#example-8-6-complete-separatio
 </h2>
 <p>We now analyze the data of example 8.4. under the more informative
 prior
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝒩</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>𝟎</mn><mo>,</mo><mi>𝐈</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathcal{N}(\mathbf{0}, \mathbf{I})</annotation></semantics></math>.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝒩</mi><mo stretchy="false" form="prefix">(</mo><mn>𝟎</mn><mo>,</mo><mi>𝐈</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mathcal{N}(\mathbf{0}, \mathbf{I})</annotation></semantics></math>.
 This prior distribution encodes the prior believe that
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mn>0</mn></msub><annotation encoding="application/x-tex">\beta_0</annotation></semantics></math>
 and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mn>1</mn></msub><annotation encoding="application/x-tex">\beta_1</annotation></semantics></math>
 are in the interval
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mo>−</mo><mn>1.96</mn><mo>,</mo><mn>1.96</mn><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(-1.96, 1.96)</annotation></semantics></math>$
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>−</mi><mn>1.96</mn><mo>,</mo><mn>1.96</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(-1.96, 1.96)</annotation></semantics></math>$
 with probability $0.95. We compare the estimation results to those from
 example 8.4, where the prior variance was larger by a factor of
 10000.</p>
@@ -871,7 +871,7 @@ Newton-Raphson estimator described in Section 8.2.1.</p>
 <span>                               var <span class="op">=</span> <span class="va">qvar</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>We use a rather flat normal independence prior
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝒩</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>𝟎</mn><mo>,</mo><mn>100</mn><mi>𝐈</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathcal{N}(\mathbf{0}, 100 \mathbf{I})</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝒩</mi><mo stretchy="false" form="prefix">(</mo><mn>𝟎</mn><mo>,</mo><mn>100</mn><mi>𝐈</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mathcal{N}(\mathbf{0}, 100 \mathbf{I})</annotation></semantics></math>
 on the regression effects and determine the parameters of the proposal
 distribution.</p>
 <div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
@@ -1161,16 +1161,16 @@ parameters have to be estimated.</p>
 heterogeneity. We will first set up the two versions of the three-block
 MH-within-Gibbs sampler.</p>
 <p>Note that the negative binomial distribution in R is specified as
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>y</mi><mo stretchy="false" form="prefix">|</mo><mi>α</mi><mo>,</mo><mi>p</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><mfrac linethickness="0"><mrow><mi>α</mi><mo>−</mo><mn>1</mn><mo>+</mo><mi>y</mi></mrow><mrow><mi>α</mi><mo>−</mo><mn>1</mn></mrow></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><msup><mi>p</mi><mi>α</mi></msup><msup><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>p</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>y</mi></msup></mrow><annotation encoding="application/x-tex">
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mo stretchy="false" form="prefix">|</mo><mi>α</mi><mo>,</mo><mi>p</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><mfrac linethickness="0"><mrow><mi>α</mi><mo>−</mo><mn>1</mn><mo>+</mo><mi>y</mi></mrow><mrow><mi>α</mi><mo>−</mo><mn>1</mn></mrow></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><msup><mi>p</mi><mi>α</mi></msup><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>p</mi><msup><mo stretchy="false" form="postfix">)</mo><mi>y</mi></msup></mrow><annotation encoding="application/x-tex">
 p(y|\alpha, p)={\alpha-1+y \choose \alpha-1} p^\alpha (1-p)^y
 </annotation></semantics></math> or alternatively by the parameters
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>α</mi><annotation encoding="application/x-tex">\alpha</annotation></semantics></math>
 and its expected value
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>μ</mi><mo>=</mo><mi>α</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>p</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>/</mi><mi>p</mi><mi>.</mi></mrow><annotation encoding="application/x-tex">\mu=\alpha (1-p)/p.</annotation></semantics></math>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>μ</mi><mo>=</mo><mi>α</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>p</mi><mo stretchy="false" form="postfix">)</mo><mi>/</mi><mi>p</mi><mi>.</mi></mrow><annotation encoding="application/x-tex">\mu=\alpha (1-p)/p.</annotation></semantics></math>
 The expected value of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>y</mi><mo stretchy="false" form="prefix">|</mo><mi>α</mi><mo>,</mo><mi>β</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">p(y|\alpha, \beta)</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mo stretchy="false" form="prefix">|</mo><mi>α</mi><mo>,</mo><mi>β</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">p(y|\alpha, \beta)</annotation></semantics></math>
 is given as
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>μ</mi><mo>=</mo><mi>α</mi><mfrac><mfrac><mn>1</mn><mrow><mn>1</mn><mo>+</mo><mi>α</mi><mi>/</mi><mi>e</mi><mo>exp</mo><mrow><mo stretchy="true" form="prefix">(</mo><mo>−</mo><mi>𝐱</mi><mi>𝛃</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow></mfrac><mfrac><mrow><mi>α</mi><mi>/</mi><mi>e</mi><mo>exp</mo><mrow><mo stretchy="true" form="prefix">(</mo><mo>−</mo><mi>𝐱</mi><mi>𝛃</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mrow><mn>1</mn><mo>+</mo><mi>α</mi><mi>/</mi><mi>e</mi><mo>exp</mo><mrow><mo stretchy="true" form="prefix">(</mo><mo>−</mo><mi>𝐱</mi><mi>𝛃</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow></mfrac></mfrac><mo>=</mo><mi>e</mi><mo>exp</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>𝐱</mi><mi>𝛃</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo></mrow><annotation encoding="application/x-tex">
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>μ</mi><mo>=</mo><mi>α</mi><mfrac><mfrac><mn>1</mn><mrow><mn>1</mn><mo>+</mo><mi>α</mi><mi>/</mi><mi>e</mi><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>−</mi><mi>𝐱</mi><mi>𝛃</mi><mo stretchy="false" form="postfix">)</mo></mrow></mfrac><mfrac><mrow><mi>α</mi><mi>/</mi><mi>e</mi><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>−</mi><mi>𝐱</mi><mi>𝛃</mi><mo stretchy="false" form="postfix">)</mo></mrow><mrow><mn>1</mn><mo>+</mo><mi>α</mi><mi>/</mi><mi>e</mi><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>−</mi><mi>𝐱</mi><mi>𝛃</mi><mo stretchy="false" form="postfix">)</mo></mrow></mfrac></mfrac><mo>=</mo><mi>e</mi><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>𝐱</mi><mi>𝛃</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo></mrow><annotation encoding="application/x-tex">
 \mu=\alpha \frac{\frac{1}{1+\alpha/e \exp(- \mathbf{x}\boldsymbol{\beta})}}
 {\frac{\alpha/e \exp(- \mathbf{x}\boldsymbol{\beta})}{1+\alpha/e \exp(- \mathbf{x}\boldsymbol{\beta})}} = e \exp( \mathbf{x}\boldsymbol{\beta}),
 </annotation></semantics></math> and we will use
@@ -1275,7 +1275,7 @@ in a gibbs sampler.</p>
 regression effects
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝛃</mi><annotation encoding="application/x-tex">\boldsymbol{\beta}</annotation></semantics></math>
 and a Gamma prior
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝒢</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>2</mn><mo>,</mo><mn>0.5</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathcal{G}(2 , 0.5)</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝒢</mi><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo>,</mo><mn>0.5</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mathcal{G}(2 , 0.5)</annotation></semantics></math>
 for
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>α</mi><annotation encoding="application/x-tex">\alpha</annotation></semantics></math>.
 We first run the full Gibbs sampler for
@@ -1650,10 +1650,10 @@ have the following indices in the data set:</p>
 <code class="sourceCode R"><span><span class="va">index</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">11</span>, <span class="fl">20</span>, <span class="fl">30</span>, <span class="fl">34</span><span class="op">)</span></span></code></pre></div>
 <p>We fit a standard Bayesian regression analysis under the improper
 prior
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>β</mi><mn>0</mn></msub><mo>,</mo><msub><mi>β</mi><mn>1</mn></msub><mo>,</mo><msup><mi>σ</mi><mn>2</mn></msup><mo stretchy="true" form="postfix">)</mo></mrow><mo>∝</mo><mn>1</mn><mi>/</mi><msup><mi>σ</mi><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">p(\beta_0, \beta_1, \sigma^2) \propto 1 / \sigma^2</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>β</mi><mn>0</mn></msub><mo>,</mo><msub><mi>β</mi><mn>1</mn></msub><mo>,</mo><msup><mi>σ</mi><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo><mo>∝</mo><mn>1</mn><mi>/</mi><msup><mi>σ</mi><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">p(\beta_0, \beta_1, \sigma^2) \propto 1 / \sigma^2</annotation></semantics></math>
 and determine the mean and pointwise 95%-HPD regions of the posterior
 predictive distribution
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>y</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">|</mo><msub><mi>x</mi><mi>i</mi></msub><mo>=</mo><mi>x</mi><mo>,</mo><mi>𝐲</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">p(y_i |x_i = x, \mathbf{y})</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>y</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">|</mo><msub><mi>x</mi><mi>i</mi></msub><mo>=</mo><mi>x</mi><mo>,</mo><mi>𝐲</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">p(y_i |x_i = x, \mathbf{y})</annotation></semantics></math>
 using (a) the full data set and (b) the data set where the observations
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>y</mi><mn>11</mn></msub><annotation encoding="application/x-tex">y_{11}</annotation></semantics></math>,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>y</mi><mn>20</mn></msub><annotation encoding="application/x-tex">y_{20}</annotation></semantics></math>,

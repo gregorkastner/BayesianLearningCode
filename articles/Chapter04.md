@@ -10,6 +10,7 @@ interested in the percentage log returns of the the Swiss franc (CHF)
 against the US dollar (USD).
 
 ``` r
+
 data("exrates", package = "stochvol")
 y <- 100 * diff(log(exrates$USD / exrates$CHF))
 N <- length(y)
@@ -23,14 +24,24 @@ ts.plot(y, main = "Time series plot", ylab = "CHF/USD percentage log returns",
 
 ### Example 4.2: A first posterior
 
-For a first joint inference on $\mu$ and $\sigma^{2}$, we assume a
+For a first joint inference on $`\mu`$ and $`\sigma^2`$, we assume a
 Gaussian likelihood,
-$$p\left( \mathbf{y}|\mu,\sigma^{2} \right) = \prod\limits_{i = 1}^{N}p\left( y_{i}|\mu,\sigma^{2} \right) = \left( \frac{1}{2\pi\sigma^{2}} \right)^{N/2}\exp\left( - \frac{1}{\sigma^{2}}\sum\limits_{i = 1}^{N}\frac{\left( y_{i} - \mu \right)^{2}}{2} \right).$$
+``` math
+p(\mathbf y|\mu,\sigma^2) = \prod_{i=1}^N p(y_i|\mu, \sigma^2)=
+   \left(\frac{1}{2 \pi \sigma^2}\right)^{N/2}  \exp
+\left( - \frac{1}{\sigma^2} \sum_{i=1}^{N} \frac{(y_i-\mu)^2}{2} \right).
+```
 
 In addition, we assume the improper prior
-$$p\left( \mu,\sigma^{2} \right) \propto \frac{1}{\sigma^{2}},$$
+``` math
+p(\mu, \sigma^2) \propto \frac{1}{\sigma^2},
+```
 yielding the posterior
-$$p\left( \mu,\sigma^{2}|\mathbf{y} \right) = f_{N}\left( \mu;\bar{y},\frac{\sigma^{2}}{N} \right)f_{\mathcal{G}^{- 1}}\left( \sigma^{2};\frac{N - 1}{2},\frac{Ns_{y}^{2}}{2} \right).$$
+``` math
+p(\mu,\sigma^2|\mathbf y) =
+f_N\left(\mu;\bar{y},\frac{\sigma^2}{N}\right)
+f_{\mathcal{G}^{-1}}\left(\sigma^2;\frac{N-1}{2},\frac{N s_y^2}{2}\right).
+```
 Before being able to visualize the posterior, we need to do a little bit
 of preparation work. As base R does not ship the density function of the
 inverse gamma distribution, we define it ourselves using the
@@ -40,6 +51,7 @@ drawing inverse gamma variates amounts to drawing gamma variates and
 taking their reciprocal.
 
 ``` r
+
 dinvgamma <- function(x, a, b, log = FALSE) {
   logdens <- dgamma(1/x, a, b, log = TRUE) - 2 * log(x)
   if (log) logdens else exp(logdens)
@@ -63,6 +75,7 @@ Gaussian distribution is parameterized in terms of mean and *standard
 deviation* (not mean and variance).
 
 ``` r
+
 posterior <- function(mu, sigma2, ybar, s2, N) {
   dnorm(mu, ybar, sqrt(sigma2 / N)) *
     dinvgamma(sigma2, (N - 1) / 2, N * s2 / 2)
@@ -72,6 +85,7 @@ posterior <- function(mu, sigma2, ybar, s2, N) {
 Now we can visualize.
 
 ``` r
+
 mu <- seq(-.25, .25, length.out = 30)
 sigma2 <- seq(.4, .7, length.out = 30)
 
@@ -116,11 +130,12 @@ for (n in c(50, 100, 200, 500, 1000, N)) {
 
 We now want to visualize the univariate marginals of the bivariate
 posterior. Again, we need to do some preparations, as R does not
-natively cater for the generalized Student-$t$ distribution. So we first
-define its (cumulative) density and quantile functions via the original
-Student-$t$ distribution.
+natively cater for the generalized Student-$`t`$ distribution. So we
+first define its (cumulative) density and quantile functions via the
+original Student-$`t`$ distribution.
 
 ``` r
+
 dstudt <- function(x, location = 0, scale = 1, df, log = FALSE) {
   logdens <- dt((x - location) / scale, df = df, log = TRUE) - log(scale)
   if (log) logdens else exp(logdens)
@@ -142,6 +157,7 @@ rstudt <- function(n, location = 0, scale = 1, df) {
 Now we visualize the marginals and some quantiles thereof.
 
 ``` r
+
 location <- mean(y)
 scale <- sqrt(var(y) / N)
 df <- N - 1
@@ -205,9 +221,10 @@ mtext(probs, side = 2, at = probs, cex = .5, adj = c(0, .5, 1))
 ![](Chapter04_files/figure-html/unnamed-chunk-8-1.png)
 
 Posterior expectation and the equal-tailed 95% Bayesian CI of
-$\sigma^{2}|\mathbf{y}$ are easily computed.
+$`\sigma^2|\mathbf{y}`$ are easily computed.
 
 ``` r
+
 round(CN / (cN - 1), 3)
 #> [1] 0.528
 round(qinvgamma(c(.025, .975), cN, CN), 4)
@@ -217,6 +234,7 @@ round(qinvgamma(c(.025, .975), cN, CN), 4)
 To find the HPD we can use a grid search.
 
 ``` r
+
 resolution <- 10000
 grid <- seq(0, 1, length.out = resolution + 1)
 dist <- 0.95 * resolution
@@ -228,16 +246,17 @@ round(HPD, 4)
 #> [1] 0.5025 0.5548
 ```
 
-### Example 4.4: Fitting a Student-$t$ distribution with known mean and known degrees of freedom
+### Example 4.4: Fitting a Student-$`t`$ distribution with known mean and known degrees of freedom
 
 We first define `post_nonnormalized_nonvec`, a function evaluating the
-non-normalized posterior density of $\sigma^{2}$. This function is not
-vectorized in its first argument, $\sigma^{2}$. Rather, it expects a
+non-normalized posterior density of $`\sigma^2`$. This function is not
+vectorized in its first argument, $`\sigma^2`$. Rather, it expects a
 scalar `sigma2` and a data vector `y`. We can, however, vectorize it
 using `Vectorize` (this is not the fasted of all methods in R, but will
 do just fine for our use-case).
 
 ``` r
+
 post_nonnormalized_nonvec <- function(sigma2, y, nu, log = FALSE) {
   logdens <- -length(y) / 2 * log(sigma2) -
     (nu + 1) / 2 * sum(log(1 + y^2 / (nu * sigma2))) - log(sigma2)
@@ -253,6 +272,7 @@ cumulative distribution function, we simply divide by the highest (last)
 value to achieve normalization.
 
 ``` r
+
 nu <- 7
 sigma2 <- seq(0.25, 0.45, length.out = 3000)
 pdf_u <- post_nonnormalized(sigma2, y = y, nu = nu)
@@ -272,10 +292,11 @@ abline(h = c(0, cdf_u[length(cdf_u)]), lty = 3)
 
 ![](Chapter04_files/figure-html/unnamed-chunk-12-1.png)
 
-To determine the normalizing constant $C$, we can perform numerical
+To determine the normalizing constant $`C`$, we can perform numerical
 integration via the trapezoid rule.
 
 ``` r
+
 resolution <- 100
 grid <- seq(0.25, 0.45, length.out = resolution + 1)
 integrand <- post_nonnormalized(grid, y = y, nu = nu)
@@ -286,6 +307,7 @@ Now we can numerically approximate the posterior expectation and
 standard deviation, again using the trapezoid rule.
 
 ``` r
+
 integrand2 <- grid * integrand
 e <- sum(diff(grid) * .5 * (head(integrand2, -1) + tail(integrand2, -1))) / C
 round(e, 3)
@@ -302,15 +324,15 @@ round(sqrt(v), 3)
 
 To learn about the distribution of a certain low quantile, the
 Value-at-Risk (VaR), we can generate draws from it. For the Gaussian
-model with mean zero and
-$p\left( \sigma^{2} \right) \propto \sigma^{- 2}$, we simulate from
-$\mathcal{G}^{- 1}\left( N/2,\sum y_{i}^{2}/2 \right)$ and then,
+model with mean zero and $`p(\sigma^2) \propto \sigma^{-2}`$, we
+simulate from $`\mathcal{G}^{-1}(N/2, \sum{y_i^2}/2)`$ and then,
 conditionally on these draws, compute the quantiles of interest from
-$\mathcal{N}\left( 0,\sigma^{2} \right)$. Note, again, that R’s
-vectorization ability comes in handy. Here, in particular, *rnorm* can
-handle the so-called *varying parameter case*.
+$`\mathcal{N}(0, \sigma^2)`$. Note, again, that R’s vectorization
+ability comes in handy. Here, in particular, *rnorm* can handle the
+so-called *varying parameter case*.
 
 ``` r
+
 set.seed(2)
 alpha <- 0.005
 ndraws <- 100000
@@ -318,13 +340,14 @@ sigma2draws <- rinvgamma(ndraws, N / 2, sum(y^2) / 2)
 qnormdraws <- qnorm(alpha, 0, sqrt(sigma2draws))
 ```
 
-For the Student-$t$ model, we can use inverse transform sampling. First,
-we draw uniformly from the interval spanned by 0 and the maximum of the
-non-normalized cumulative posterior. Then, for each draw, we find the
-interval of our pointwise cdf approximation of the posterior, and
+For the Student-$`t`$ model, we can use inverse transform sampling.
+First, we draw uniformly from the interval spanned by 0 and the maximum
+of the non-normalized cumulative posterior. Then, for each draw, we find
+the interval of our pointwise cdf approximation of the posterior, and
 interpolate linearly between the interval boundaries.
 
 ``` r
+
 unifdraws <- runif(ndraws, 0, cdf_u[length(cdf_u)])
 leftind <- findInterval(unifdraws, cdf_u)
 rightind <- leftind + 1L
@@ -336,6 +359,7 @@ sigma2draws <- sigma2[leftind] + distprop *
 Let us do a quick graphical check whether the draws and our pdf align.
 
 ``` r
+
 myhist <- hist(sigma2draws, breaks = 100, xlab = expression(sigma^2),
                ylab = "", main = "Histogram of draws and non-normalized pdf")
 lines(sigma2, max(myhist$counts) / max(pdf_u) * pdf_u, col = 2)
@@ -346,6 +370,7 @@ lines(sigma2, max(myhist$counts) / max(pdf_u) * pdf_u, col = 2)
 Now, we can draw from the quantile distribution and plot these draws.
 
 ``` r
+
 qtdraws <- sqrt(sigma2draws) * qt(alpha, df = nu)
 minmax <- range(qnormdraws, qtdraws, quantile(y, alpha))
 mybreaks <- seq(minmax[1] - .01 * diff(minmax),
@@ -368,6 +393,7 @@ points(quantile(y, alpha), 0, col = 2, pch = 16, cex = 1.5)
 To conclude, let us compute point and interval estimates for our VaR.
 
 ``` r
+
 round(mean(qtdraws), 3)
 #> [1] -2.083
 round(quantile(qtdraws, c(.025, .975)), 3)

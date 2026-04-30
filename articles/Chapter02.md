@@ -7,6 +7,7 @@
 Let us first take a look at the data.
 
 ``` r
+
 data("accidents", package = "BayesianLearningCode")
 summary(accidents)
 #>  children_accidents children_exposure seniors_accidents seniors_exposure
@@ -28,6 +29,7 @@ mtext("Time", side = 1, line = 1.5, at = 1995.6)
 
 ``` r
 
+
 plot(accidents[, c("seniors_accidents", "seniors_exposure")],
      mar = c(0, 0, 0, 0), oma = c(3, 3, 1.5, .1),
      main = "", xlab = "", ylab = "", ann = FALSE)
@@ -41,11 +43,14 @@ mtext("Time", side = 1, line = 1.5, at = 1995.6)
 ### Example 2.3: Posterior inference for the Road Safety Data (flat prior)
 
 The posterior under a flat prior is
-$$\mu|\mathbf{y} \sim \mathcal{G}\left( N\bar{y} + 1,N \right),$$ which
-we visualize for the seniors, along with the 0.025-, the 0.5-, and the
-0.975-quantile.
+``` math
+\mu|\mathbf{y} \sim \mathcal G(N\bar y + 1, N),
+```
+which we visualize for the seniors, along with the 0.025-, the 0.5-, and
+the 0.975-quantile.
 
 ``` r
+
 y <- accidents[, "seniors_accidents"]
 aN <- sum(y) + 1
 bN <- length(y)
@@ -82,11 +87,12 @@ for (i in seq_along(probs)) {
 
 ### Example 2.4: Posterior inference for the Road Safety Data (gamma prior)
 
-We choose several values for $m_{0}$ and $a_{0}$. Note that, formally,
-choosing $m_{0} = \infty$ and $a_{0} = 1$ gives the improper prior from
+We choose several values for $`m_0`$ and $`a_0`$. Note that, formally,
+choosing $`m_0 = \infty`$ and $`a_0 = 1`$ gives the improper prior from
 above.
 
 ``` r
+
 m0 <- c(Inf, mean(y), mean(y), mean(y), 0.5, 3, 10)
 a0 <- c(1, 0.5, 2, 10, 3, 3, 3)
 plot(mu, dgamma(mu, a0[1] + sum(y), a0[1]/m0[1] + length(y)), type = "l",
@@ -111,6 +117,7 @@ legend("topright", legend = c(paste0("m0 = ", m0[5:7]), "improper"),
 ![](Chapter02_files/figure-html/unnamed-chunk-5-1.png)
 
 ``` r
+
 b0 <- a0 / m0
 aN <- a0 + sum(y)
 bN <- b0 + length(y)
@@ -136,16 +143,19 @@ knitr::kable(round(res, 3))
 
 ### Example 2.8: Including exposures for the Road Safety Data
 
-We now include the exposure at time $i$, $e_{i}$, to estimate the
-monthly risk $\lambda$ of children to be killed or seriously injured via
-the following likelihood assumption:
+We now include the exposure at time $`i`$, $`e_i`$, to estimate the
+monthly risk $`\lambda`$ of children to be killed or seriously injured
+via the following likelihood assumption:
 
-$$y_{i} \sim \mathcal{P}\left( \lambda e_{i} \right),\quad i = 1,\ldots,N.$$
+``` math
+y_i \sim \mathcal P(\lambda e_i), \quad i = 1,\dots,N.
+```
 Note that we still assume that the data is independently (but not
 identically!) distributed. We proceed by computing and visualizing the
 posterior for different prior hyperparameter choices.
 
 ``` r
+
 y <- accidents[, "children_accidents"]
 exp <- accidents[, "children_exposure"]
 lambdahat <- mean(y)/mean(exp)
@@ -172,6 +182,7 @@ For all our data-driven priors, we get the same posterior mean. The
 credible intervals differ slightly.
 
 ``` r
+
 postmean <- aN/bN
 leftpostquant <- qgamma(.025, aN, bN)
 rightpostquant <- qgamma(.975, aN, bN)
@@ -188,11 +199,12 @@ res
 ### Example 2.9: Including a structural break for the Road Safety Data
 
 We now continue with a Poisson model with a (known) structural break at
-$i = 94$ (that is, in October 1994). Because the data is stored as a
+$`i = 94`$ (that is, in October 1994). Because the data is stored as a
 time series (ts) object, we can use the window function to conveniently
 extract the two time frames.
 
 ``` r
+
 accidents1 <- window(accidents, end = c(1994, 9))
 accidents2 <- window(accidents, start = c(1994, 10))
 
@@ -241,6 +253,7 @@ We now proceed with simple Monte Carlo approximation of (nonlinear)
 functionals of the posterior.
 
 ``` r
+
 set.seed(1)
 
 nsamp <- 2000

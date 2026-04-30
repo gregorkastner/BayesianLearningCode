@@ -8,15 +8,17 @@ We load the data and reduce the observations to workers from the birth
 cohort 1946-1960.
 
 ``` r
+
 data("labor", package = "BayesianLearningCode")
 labor <- subset(labor, birthyear >= 1946 & birthyear <= 1960)
 ```
 
 We extract the income columns and transform the data to obtain for each
 worker the matrix which contains the number of transitions from one
-class to the other, i.e., the matrix with values $N_{i,hk}$.
+class to the other, i.e., the matrix with values $`N_{i,hk}`$.
 
 ``` r
+
 income <- labor[, grepl("^income", colnames(labor))]
 income <- sapply(income, as.integer)
 colnames(income) <- gsub("income_", "", colnames(income))
@@ -37,6 +39,7 @@ We determine the marginal likelihood of the first-order Markov chain
 model assuming homogeneity and grouping by gender.
 
 ``` r
+
 N_hk <- Reduce("+", income_transitions)
 Ng_hk <- list(male = Reduce("+", income_transitions[!labor$female]),
               female = Reduce("+", income_transitions[labor$female]))
@@ -60,6 +63,7 @@ for (i in 1:2) {
 We also calculate the log BF and summarize results.
 
 ``` r
+
 res <- rbind(MH = c(logmarglikMH, NA, NA),
              MG = c(logmarglikMG, logmarglikMG - logmarglikMH))
 colnames(res) <- c("gamma = 1", "gamma = 4",
@@ -78,6 +82,7 @@ We continue to compare restricted models to the grouped model. We first
 calculate the log BFs for the restricted models.
 
 ``` r
+
 logBF_R1G <- logBF_R2G <- numeric(2)
 for (i in 1:2) {
     gamma <- gammas[i]
@@ -100,6 +105,7 @@ the log marginal likelihoods of the grouped models and the log BFs. We
 then also summarize the results.
 
 ``` r
+
 logmarglikR1 <- logmarglikMG + logBF_R1G
 logmarglikR2 <- logmarglikMG + logBF_R2G
 res <- rbind(MR1 = c(logmarglikR1, logBF_R1G),

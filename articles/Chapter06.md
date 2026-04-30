@@ -9,6 +9,7 @@ Bayesian analysis of a regression model. The data set is a preprocessed
 version of the one provided by Lehrer and Xi (2017).
 
 ``` r
+
 library("BayesianLearningCode")
 data("movies", package = "BayesianLearningCode")
 ```
@@ -31,6 +32,7 @@ at the opening weekend (in Mio.\$) of a film with average budget and
 forecast to be screened on an average number of screens in the theaters.
 
 ``` r
+
 y <- movies[, "OpenBoxOffice"]
 covs <- c("Budget", "Screens")
 covs.cen <- scale(movies[, covs], scale = FALSE) # center the covariates
@@ -43,9 +45,10 @@ d <- dim(X)[2] # number of regression effects
 
 We then define a function to compute the parameters of the posterior
 distribution of the regression effects under the improper prior
-$p\left( \beta,\sigma^{2} \right) \propto \frac{1}{\sigma^{2}}$.
+$`p(\beta, \sigma^2) \propto \frac{1}{\sigma^2}`$.
 
 ``` r
+
 regression_improper <- function(y, X) {
   
    BN <- solve(crossprod(X))
@@ -66,6 +69,7 @@ The following table reports the posterior means together with their
 equal-tailed 95% credible intervals.
 
 ``` r
+
 reg.improp <- regression_improper(y, X)
 
 beta.hat <- reg.improp$beta.hat
@@ -98,6 +102,7 @@ univariate and bivariate marginal posterior distributions of the
 covariate effects.
 
 ``` r
+
 lim <- round(3*post.sd, 2)
 layout(matrix(c(0, 1, 3, 2, 0, 4), nrow = 2), widths = c(2, 3, 1),
        heights = c(1, 3), respect = TRUE)
@@ -139,6 +144,7 @@ For completeness we finally report also the posterior mean of the error
 variance and its equal-tailed 95% credible interval.
 
 ``` r
+
 sigma2.hat <- reg.improp$CN /(cN-1)
 knitr::kable(round(cbind(qinvgamma(0.025, a = cN, b = reg.improp$CN),
                          sigma2.hat,
@@ -157,6 +163,7 @@ weekend. We compute the predicted box office sales for a film with an
 average number of *Screens* for a range of values for *Budget*.
 
 ``` r
+
 X_new <- cbind(Intercept = 1,
                Budget = -30:60,
                Screens = 0)
@@ -168,6 +175,7 @@ The following plot shows the point predictions together with the 50% and
 80% prediction intervals.
 
 ``` r
+
 budget <- X_new[, "Budget"] + mean(movies[, "Budget"])
 plot(budget, ypred, type = "l", lwd = 2, ylim = c(-20, 60),
      xlab = "Budget", ylab = "Predicted box office sales")
@@ -190,6 +198,7 @@ We also compare the point predictions to the observed box office sales
 for the movies contained in the data set.
 
 ``` r
+
 y.pred <- X %*% beta.hat
 plot(y, y.pred, xlim = c(-20, 160), ylim = c(-20, 160), 
      xlab = "observed sales", ylab = "predicted sales")
@@ -206,6 +215,7 @@ We can take into account that box office sales are always positive by
 fitting a linear regression model on the log transformed sales.
 
 ``` r
+
 log.y <- log(movies[, "OpenBoxOffice"])
 reg.lny <- regression_improper(log.y, X)
 
@@ -224,6 +234,7 @@ average number of *Screens* for a range of values for *Budget* derived
 from this model.
 
 ``` r
+
 plot(budget, exp(lny.pred), type = "l", ylim = c(-20, 60), col = "blue",
      xlab = "Budget", ylab = "Predicted box office sales", lwd = 2)
 
@@ -250,6 +261,7 @@ Next, we compare the point predictions from both models to the observed
 box office sales.
 
 ``` r
+
 plot(y, y.pred, xlim = c(-20, 160), ylim = c(-20, 160),
      xlab = "Observed sales", ylab = "Predicted sales")
 points(y, exp(X %*% reg.lny$beta.hat), col = "blue", pch = 16)
@@ -272,6 +284,7 @@ we first define a function that yields the parameters of the posterior
 distribution.
 
 ``` r
+
 regression_conjugate <- function(y, X, b0 = 0, B0 = 10, c0 = 0.01, C0 = 0.01) {
   d <- ncol(X)
   if (length(b0) == 1L)
@@ -301,18 +314,20 @@ regression_conjugate <- function(y, X, b0 = 0, B0 = 10, c0 = 0.01, C0 = 0.01) {
 
 #### Example 6.4: Movie data - Analysis under conjugate prior
 
-We specify a normal prior with mean zero and
-$\mathbf{B}_{0} = \lambda^{2}\mathbf{I}$ with $\lambda^{2} = 10$ on the
-regression effects and an inverse Gamma prior with $c_{0} = 2.5$ and
-$C_{0} = 1.5$ on $\sigma^{2}$. With this choice of the prior parameters
-$c_{0}$ and $C_{0}$ the prior is rather uninformative but guarantees
-existence of the posterior variance.
+We specify a normal prior with mean zero and $`\mathbf{B}_0=\lambda^2
+\mathbf{I}`$ with $`\lambda ^2=10`$ on the regression effects and an
+inverse Gamma prior with $`c_0=2.5`$ and $`C_0=1.5`$ on $`\sigma^2`$.
+With this choice of the prior parameters $`c_0`$ and $`C_0`$ the prior
+is rather uninformative but guarantees existence of the posterior
+variance.
 
-We perform a regression analysis on the box office sales $y$ and report
-the posterior mean of the regression effects together with the 2.5% and
-97.5% quantiles of the posterior distribution in the following table.
+We perform a regression analysis on the box office sales $`y`$ and
+report the posterior mean of the regression effects together with the
+2.5% and 97.5% quantiles of the posterior distribution in the following
+table.
 
 ``` r
+
 res_conj1 <- regression_conjugate(y, X, b0 = 0, B0 = 10, c0 = 2.5, C0 = 1.5)
 post.sd.conj1 <- sqrt(diag((res_conj1$CN / res_conj1$cN) * res_conj1$BN))
 
@@ -330,10 +345,11 @@ knitr::kable(round(cbind(
 | Screens   |        1.099 |          1.719 |         2.339 |
 
 To illustrate the effects of a tighter prior on the regression effects,
-we also compute the posterior distributions for $\lambda^{2} = 1$ and
-$\lambda^{2} = 0.1$.
+we also compute the posterior distributions for $`\lambda^2=1`$ and
+$`\lambda^2=0.1`$.
 
 ``` r
+
 res_conj2 <- regression_conjugate(y, X, b0 = 0, B0 = 1, c0 = 2.5, C0 = 1.5)
 post.sd.conj2 <- sqrt(diag((res_conj2$CN / res_conj2$cN) * res_conj2$BN))
 
@@ -345,6 +361,7 @@ We plot the marginal posteriors together with those under the improper
 prior.
 
 ``` r
+
 par(mfrow = c(1, 3))
 for (i in seq_len(nrow(beta.hat))) {
    curve(dt((x - beta.hat[i]) / post.sd[i], df = 2 * cN),
@@ -377,14 +394,15 @@ for (i in seq_len(nrow(beta.hat))) {
 
 ![](Chapter06_files/figure-html/unnamed-chunk-18-1.png) There is little
 difference to the improper prior for the effects of *Budget* and
-*Screens*, however the intercept is shrunk to zero for $\lambda^{2} = 1$
-and even more for $\lambda^{2} = 0.1$.
+*Screens*, however the intercept is shrunk to zero for $`\lambda^2=1`$
+and even more for $`\lambda^2=0.1`$.
 
 To illustrate the effect of the prior we compute the weight matrix
-$\textbf{𝐖}$ for the conjugate prior with mean $\textbf{𝟎}$ and
-covariance matrix $\lambda^{2}\textbf{𝐈}$ for $\lambda^{2} = 0.1$.
+$`\textbf{W}`$ for the conjugate prior with mean $`\textbf{0}`$ and
+covariance matrix $`\lambda^2 \textbf{I}`$ for $`\lambda^2=0.1`$.
 
 ``` r
+
 W <- res_conj3$BN %*% solve(diag(rep(0.1, d)))
 round(W, 5)
 #>              [,1]     [,2]     [,3]
@@ -405,6 +423,7 @@ First, we set up the Gibbs sampler to estimate the parameters of the
 regression model under a semi-conjugate prior.
 
 ``` r
+
 reg_semiconj <- function(y, X, b0 = 0, B0 = 10000, c0 = 2.5, C0 = 1.5,
                          burnin = 1000L, M = M, start.sigma2) {
    d <- dim(X)[2] 
@@ -456,6 +475,7 @@ innovation variance, once from a very large and once from a very small
 value.
 
 ``` r
+
 set.seed(421)
 M <- 1000L # number of draws after burn-in
 post.draws1 <- reg_semiconj(y, X, b0 = 0, B0 = 10000, c0 = 2.5, C0 = 1.5,
@@ -467,6 +487,7 @@ post.draws2 <- reg_semiconj(y, X, b0 = 0, B0 = 10000, c0 = 2.5, C0 = 1.5,
 From the trace plots we see that the sampler converges very quickly.
 
 ``` r
+
 for (i in seq_len(ncol(post.draws1$betas))) {
    plot(post.draws1$betas[, i], type = "l", xlab = "Draws", ylab = "",
         main = colnames(post.draws1$betas)[i])
@@ -488,12 +509,14 @@ there is only one film with MPAA rating “G”, we merge the two ratings
 “G” and “PG” into one category which we define as our baseline.
 
 ``` r
+
 movies["PG"] <- NULL
 ```
 
 We center all covariates at zero and define the regressor matrix.
 
 ``` r
+
 covs <- c("Comedy", "Thriller", "PG13", "R", "Budget", "Weeks", "Screens", 
           "S-4-6", "S-1-3", "Vol-4-6", "Vol-1-3")
 covs.cen <- scale(movies[, covs], scale = FALSE)
@@ -508,6 +531,7 @@ p <- d - 1 # number of regression effects without intercept
 Next, we define the prior parameters and run the sampler.
 
 ``` r
+
 set.seed(421)
 M <- 20000L # number of draws after burn-in
 post.draws <- reg_semiconj(y, X, b0 = 0, B0 = 10000, c0 = 2.5, C0 = 1.5,
@@ -518,6 +542,7 @@ To summarize the results nicely, we determine the posterior means and
 compute equal-tailed 95% credible intervals for the regression effects.
 
 ``` r
+
 res.mcmc <- function(x, lower = 0.025, upper = 0.975){
   res <- c(quantile(x, lower), mean(x), quantile(x, upper))
   names(res) <- c(paste0(lower * 100, "%"), "Posterior mean", 
@@ -550,6 +575,7 @@ knitr::kable(round(res_beta.sc, 3))
 We do the same for the error variances.
 
 ``` r
+
 sigma2.sc <- post.draws$sigma2s
 res_sigma2.sc <- res.mcmc(sigma2.sc)
 
@@ -568,6 +594,7 @@ The different signs of the effects of *Vol-4-6* and *Vol-1-3* deserve
 some further comment. The two covariates are highly correlated.
 
 ``` r
+
 cor(X[, "Vol-4-6"], X[, "Vol-1-3"])
 #> [1] 0.84403
 
@@ -583,6 +610,7 @@ predict the change in box office sales for a film where the twitter
 volume scores are 1 unit higher in weeks 4-6 as well as weeks 1-3.
 
 ``` r
+
 round(sum(res_beta.sc[c("Vol-4-6", "Vol-1-3"), "Posterior mean"]), 
       digits = 3)
 #> [1] 5.629
@@ -594,6 +622,7 @@ A comparison of the normal and the horseshoe prior shows that the latter
 has much more mass close to zero and fatter tails.
 
 ``` r
+
 beta <- seq(from = -4, to = 4, by = 0.01)
 
 # Horseshoe prior
@@ -615,6 +644,7 @@ We set up the Gibbs sampler of the regression model with a proper normal
 prior on the intercept and horseshoe priors on the covariate effects.
 
 ``` r
+
 reg_hs <- function(y, X,  b0 = 0, B0 = 10000, c0 = 2.5, C0 = 1.5,
                    burnin = 1000L, M) {
    d <- dim(X)[2]
@@ -682,6 +712,7 @@ on intercept and error variance as in the semi-conjugate prior, but a
 horseshoe prior on the covariate effects.
 
 ``` r
+
 set.seed(421)
 post.draws.hs <- reg_hs(y, X, M = M)
 ```
@@ -690,6 +721,7 @@ Again, we show the posterior mean estimates of the regression effects
 together with their equal-tailed 95% credible intervals in a table.
 
 ``` r
+
 beta.hs <- post.draws.hs$betas
 res_beta.hs <- t(apply(beta.hs, 2, res.mcmc))
 rownames(res_beta.hs) <- colnames(X)
@@ -722,6 +754,7 @@ However, the estimation results on the error variance are very similar
 to those under the semi-conjugate prior.
 
 ``` r
+
 sigma2.hs <- post.draws.hs$sigma2s
 res_sigma2.hs <- res.mcmc(sigma2.hs)
 names(res_sigma2.hs) <- colnames(res_beta.hs) 
@@ -741,6 +774,7 @@ distributions are symmetric under the semi-conjugate prior, this is not
 the case under the horseshoe prior.
 
 ``` r
+
 for (i in seq_len(d)) {
   br <- seq(min(beta.sc[, i], beta.hs[, i]), max(beta.sc[, i], beta.hs[, i]),
             length.out = 100)
@@ -755,6 +789,7 @@ For illustration purposes, we overlay four selected marginal posteriors
 in order to illustrate the shrinkage effect.
 
 ``` r
+
 par(mfrow = c(2, 2))
 selection <- c("Screens", "Weeks", "S-1-3", "Thriller")
 for (i in selection) {
@@ -777,6 +812,7 @@ above, the plots on the left are obtained under the semi-conjugate
 prior, those on the right under the horseshoe prior.
 
 ``` r
+
 par(mfrow = c(6, 2))
 for (i in seq_len(d)) {
   plot(beta.sc[, i], type = "l", xlab = "", ylab = "",
@@ -796,6 +832,7 @@ identify “significant” effects via clear bimodality or even a gap around
 zero – hence the name.
 
 ``` r
+
 tau2.hs <- post.draws.hs$tau2s
 alpha <- 0.05
 truncate <- function(x, alpha) x[x <= quantile(x, 1 - alpha)] 
@@ -808,6 +845,7 @@ On the left, we see the posteriors of the regression effects posteriors,
 on the right, we visualize the gap plot.
 
 ``` r
+
 par(mfrow = c(12, 2))
 for (i in seq_len(ncol(beta.hs))) {
   breaks <- seq(min(beta.hs[, i]), max(beta.hs[, i]), length.out = 100)
@@ -834,6 +872,7 @@ intercept and the error variance, the draws are very close to the
 identity line and hence we can conclude that the sampler has converged.
 
 ``` r
+
 post.draws.hs2 <- reg_hs(y, X, M = M)
 
 par(mfrow = c(1, 2),mar = c(2.0, 2.0, 2.0, .1), mgp = c(1, .2, 0))
@@ -859,6 +898,7 @@ all covariates except genre *Comedy* (B) or *Thriller* (C) and finally a
 film of genre *Thriller* with MPAA rating PG13 (D).
 
 ``` r
+
 nf <- 4
 X_new <- cbind(rep(1, nf), matrix(0, nrow = nf, ncol = p))
 colnames(X_new) <- colnames(X)
@@ -887,6 +927,7 @@ distribution, together with vertical bars indicating the point-wise
 equal-tailed 95% predictive interval.
 
 ``` r
+
 matplot(x = t(matrix(1:nf, ncol = 3, nrow = nf)),
         y = pred.int.sc, col = "blue", type = "l", pch = 16, lty = 1,
         ylim = c(0, 40), xlim = c(0.5, nf+0.5),
@@ -914,6 +955,7 @@ prior on a regression coefficient for various choices of the
 hyperparameters.
 
 ``` r
+
 # Thanks to Peter Knaus for providing the code
 # Marginal densities for Triple Gamma, Horseshoe, Double Gamma, and LASSO
 
@@ -987,6 +1029,7 @@ The shrinkage profiles of these priors are visualized in the following
 plot.
 
 ``` r
+
 # Thanks again to Peter Knaus for providing the code
 # Some functions that return shrinkage profiles
 # Shrinkage profile for triple gamma
@@ -1033,6 +1076,7 @@ legend(x = 1.05, y = 3,
 #### Example 6.11: A hierarchical Bayesian lasso prior
 
 ``` r
+
 beta2 <- beta1 <- seq(from = -2, to = 2, by = 0.01)
 f <- function(x1, x2) {
    exp(log(a+1) + log(a) + a*log(a) - (a+2)*log(a+abs(x1)+abs(x2)))

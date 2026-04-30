@@ -376,7 +376,7 @@ are given by:</p>
 <span><span class="va">aN2</span> <span class="op">/</span> <span class="op">(</span><span class="va">aN2</span> <span class="op">+</span> <span class="va">bN2</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 0.1458333</span></span></code></pre></div>
 <p>We visualize the joint posterior of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>ϑ</mi><mn>1</mn></msub><mo>,</mo><msub><mi>ϑ</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\vartheta_1, \vartheta_2)</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>ϑ</mi><mn>1</mn></msub><mo>,</mo><msub><mi>ϑ</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\vartheta_1, \vartheta_2)</annotation></semantics></math>
 using a contour plot as well as a density estimate of the difference
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>ϑ</mi><mn>1</mn></msub><mo>−</mo><msub><mi>ϑ</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">\vartheta_1 - \vartheta_2</annotation></semantics></math>.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
@@ -554,7 +554,7 @@ and replace these with a question mark.</p>
 <p>Under a uniform prior (i.e., all 51 elements of our universe receive
 one pseudo-count), the posterior mean for each word occurrence
 probability is given by
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>η</mi><mi>k</mi></msub><mo stretchy="false" form="prefix">|</mo><mi>𝐲</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mfrac><mrow><mn>1</mn><mo>+</mo><msub><mi>N</mi><mi>k</mi></msub></mrow><mrow><mn>51</mn><mo>+</mo><mi>N</mi></mrow></mfrac><mo>,</mo><mspace width="1.0em"></mspace><mi>k</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><mn>51</mn><mo>,</mo></mrow><annotation encoding="application/x-tex">
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>η</mi><mi>k</mi></msub><mo stretchy="false" form="prefix">|</mo><mi>𝐲</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mrow><mn>1</mn><mo>+</mo><msub><mi>N</mi><mi>k</mi></msub></mrow><mrow><mn>51</mn><mo>+</mo><mi>N</mi></mrow></mfrac><mo>,</mo><mspace width="1.0em"></mspace><mi>k</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><mn>51</mn><mo>,</mo></mrow><annotation encoding="application/x-tex">
 E(\eta_k|\boldsymbol{y}) = \frac{1+N_k}{ 51 + N}, \quad k=1,\ldots,51,
 </annotation></semantics></math> where
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>N</mi><mi>k</mi></msub><annotation encoding="application/x-tex">N_k</annotation></semantics></math>
@@ -580,7 +580,7 @@ prior<a class="anchor" aria-label="anchor" href="#computing-the-posterior-under-
 51 pseudo-observations. To render the prior less influential, we can
 rescale it to, e.g., 1 pseudo-observation. Then, the posterior
 expectation is
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>η</mi><mi>k</mi></msub><mo stretchy="false" form="prefix">|</mo><mi>𝐲</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mfrac><mrow><mn>1</mn><mi>/</mi><mn>51</mn><mo>+</mo><msub><mi>N</mi><mi>k</mi></msub></mrow><mrow><mn>1</mn><mo>+</mo><mi>N</mi></mrow></mfrac><mo>,</mo><mspace width="1.0em"></mspace><mi>k</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><mn>51</mn><mi>.</mi></mrow><annotation encoding="application/x-tex">
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>η</mi><mi>k</mi></msub><mo stretchy="false" form="prefix">|</mo><mi>𝐲</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mrow><mn>1</mn><mi>/</mi><mn>51</mn><mo>+</mo><msub><mi>N</mi><mi>k</mi></msub></mrow><mrow><mn>1</mn><mo>+</mo><mi>N</mi></mrow></mfrac><mo>,</mo><mspace width="1.0em"></mspace><mi>k</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><mn>51</mn><mi>.</mi></mrow><annotation encoding="application/x-tex">
 E(\eta_k|\boldsymbol{y}) = \frac{1/51+N_k}{1 + N}, \quad k=1,\ldots,51.
 </annotation></semantics></math> To compute this expectation we simply
 add counts and the new pseudo-counts

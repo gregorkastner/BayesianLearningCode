@@ -7,9 +7,12 @@
 We load the data and extract the observations for the senior people in
 Linz. We then plot the pdf and cdf for the predictive distribution which
 corresponds under the flat prior to
-$$y_{f}|\mathbf{y} \sim \mathcal{N}B\left( N\bar{y} + 1,N \right).$$
+``` math
+y_f|\mathbf{y} \sim \mathcal NB(N\bar y + 1, N).
+```
 
 ``` r
+
 data("accidents", package = "BayesianLearningCode")
 y <- accidents[, "seniors_accidents"]
 (aN <- sum(y) + 1)
@@ -31,9 +34,12 @@ mtext(probs, side = 2, at = probs, adj = c(0, 1), cex = .8, col = "dimgrey")
 
 We load the data and then plot the pdf and cdf for the predictive
 distribution which corresponds under the improper prior to
-$$y_{f}|\mathbf{y} \sim {\mathcal{t}}_{2c_{N}}\left( \bar{y},\frac{Ns_{y}^{2}}{N - 1}\left( 1 + \frac{1}{N} \right) \right).$$
+``` math
+y_f|\mathbf{y} \sim \mathcal t_{2c_N}\left(\bar y, \frac{N s_y^2}{N-1}\left(1 + \frac{1}{N}\right)\right).
+```
 
 ``` r
+
 library("BayesianLearningCode")
 data("exrates", package = "stochvol")
 y <- 100 * diff(log(exrates$USD / exrates$CHF))
@@ -61,6 +67,7 @@ mtext(probs, side = 2, at = probs, adj = c(0, 1), cex = .8, col = "dimgrey")
 We inspect the parameters of the Student-t distribution.
 
 ``` r
+
 round(c(mu = bN, sigma2 = scale^2, df = 2 * cN), digits = 3)
 #>       mu   sigma2       df 
 #>    0.018    0.528 3138.000
@@ -70,9 +77,10 @@ round(c(mu = bN, sigma2 = scale^2, df = 2 * cN), digits = 3)
 
 To compare with a method that ignores parameter uncertainty, we now plot
 the posterior predictive alongside the “classical” forecasting
-distribution for varying $N$.
+distribution for varying $`N`$.
 
 ``` r
+
 Ns <- c(5, 10, 30, N)
 
 for (i in seq_along(Ns)) {
@@ -96,6 +104,7 @@ We verify that a 95% posterior predictive interval is given by \[1, 9\]
 using the cdf and compute the effective coverage.
 
 ``` r
+
 pnbinom(9, size = aN, mu = mu) - pnbinom(0, size = aN, mu = mu)
 #> [1] 0.9522248
 ```
@@ -106,6 +115,7 @@ We determine the 95% posterior predictive interval using the quantile
 function.
 
 ``` r
+
 round(qstudt(probs, location = bN, scale = scale, df = 2 * cN), digits = 3)
 #> [1] -1.408  1.443
 ```
@@ -114,6 +124,7 @@ We now work out the effective coverage of the naive interval which
 ignores parameter uncertainty.
 
 ``` r
+
 coverage <- rep(NA_real_, length(Ns))
 names(coverage) <- Ns
 for (i in seq_along(Ns)) {
@@ -135,22 +146,24 @@ knitr::kable(t(round(coverage, 4)))
 ### Example 9.8: CHF exchange rate data - sampling-based prediction
 
 We proceed exactly as in Chapter 4. For the Gaussian distribution, the
-posterior of $\sigma^{2}$ is inverse gamma, and we can easily generate
+posterior of $`\sigma^2`$ is inverse gamma, and we can easily generate
 iid draws.
 
 ``` r
+
 set.seed(2)
 ndraws <- 10000
 sigma2draws_normal <- rinvgamma(ndraws, N / 2, sum(y^2) / 2)
 ```
 
-For the Student-$t$ model, we can use inverse transform sampling. First,
-we draw uniformly from the interval spanned by 0 and the maximum of the
-non-normalized cumulative posterior. Then, for each draw, we find the
-interval of our pointwise cdf approximation of the posterior, and
+For the Student-$`t`$ model, we can use inverse transform sampling.
+First, we draw uniformly from the interval spanned by 0 and the maximum
+of the non-normalized cumulative posterior. Then, for each draw, we find
+the interval of our pointwise cdf approximation of the posterior, and
 interpolate linearly between the interval boundaries.
 
 ``` r
+
 # We need the nonnormalized cumulative posterior distribution
 post_nonnormalized_nonvec <- function(sigma2, y, nu, log = FALSE) {
   logdens <- -length(y) / 2 * log(sigma2) -
@@ -178,6 +191,7 @@ sigma2draws_t <- sigma2[leftind] + distprop *
 Next, we simulate draws from the posterior predictive.
 
 ``` r
+
 yf_normal <- rnorm(ndraws, 0, sqrt(sigma2draws_normal))
 yf_t <- rstudt(ndraws, 0, sqrt(sigma2draws_t), 7)
 ```
@@ -185,6 +199,7 @@ yf_t <- rstudt(ndraws, 0, sqrt(sigma2draws_t), 7)
 Now we can compute their empirical quantiles, and those of the data.
 
 ``` r
+
 quants <- c(0.01, 0.05, 0.25, 0.4, 0.5, 0.6, 0.75, 0.95, 0.99)
 q_normal <- quantile(yf_normal, quants)
 q_t <- quantile(yf_t, quants)
@@ -203,6 +218,7 @@ knitr::kable(round(t(cbind("Data" = q_y, "Student t" = q_t,
 We conclude by visualizing the data and the predictive distributions.
 
 ``` r
+
 minmax <- ceiling(10 * max(abs(y))) / 10
 grid <- seq(-minmax, minmax, length.out = 50)
 hist(y, freq = FALSE, breaks = grid, border = NA,
@@ -220,12 +236,12 @@ legend("topleft", c("Normal", "Student t"), lty = 1:2, col = c(4, 2), lwd = 1.5)
 
 We use a sampling-based approach to obtain draws from the posterior
 predictive by first drawing from the posterior
-$\mu|{\mathbb{y}} \sim \mathcal{G}\left( a_{N},b_{N} \right)$. Then,
-using these draws as mean parameters for the Poisson likelihood, we draw
-12 times each to obtain yearly predictions. Of these, we take the
-maxima.
+$`\mu|\mathbb{y} \sim \mathcal{G}(a_N, b_N)`$. Then, using these draws
+as mean parameters for the Poisson likelihood, we draw 12 times each to
+obtain yearly predictions. Of these, we take the maxima.
 
 ``` r
+
 set.seed(1)
 y <- accidents[, "seniors_accidents"]
 aN <- sum(y) + 1
@@ -242,6 +258,7 @@ quantile(Us, probs)
 Now we visualize.
 
 ``` r
+
 plot(tab <- proportions(table(Us)), xlab = "U", ylab = "")
 plot(as.table(cumsum(tab)), type = "h", xlab = "U", ylab = "")
 abline(h = probs, lty = 3)
@@ -254,6 +271,7 @@ We illustrate the variance of the purely sampling-based estimator versus
 the Rao-Blackwellized version by running several experiments.
 
 ``` r
+
 set.seed(42)
 
 a0 <- 1
@@ -289,6 +307,7 @@ To compute the exact probabilities, we need the density function of the
 beta-binomial distribution (which is not part of base R).
 
 ``` r
+
 dbetabinom <- function(x, n, a, b, log = FALSE) {
   logdens <- lchoose(n, x) + lbeta(x + a, n - x + b) - lbeta(a, b)
   if (log) logdens else exp(logdens)
@@ -298,12 +317,14 @@ dbetabinom <- function(x, n, a, b, log = FALSE) {
 Now we can easily evaluate the probabilities.
 
 ``` r
+
 pk3 <- dbetabinom(0:H, H, aN, bN)
 ```
 
 To conclude, we visualize.
 
 ``` r
+
 boxplot(pk1, xlab = "k", range = 0, main = "Purely sampling-based")
 points(pk3, col = 3, cex = 1.5, pch = 16)
 
@@ -321,6 +342,7 @@ have been killed or seriously injured without the legal intervention on
 October 1, 1994. To do so we reuse functions defined in Example 8.8.
 
 ``` r
+
 gen.proposal.poisson <- function(y, X, e, b0 = 0, B0 = 100, t.max = 20) {
   N <- length(y)
   d <- ncol(X)
@@ -427,6 +449,7 @@ intercept and a holiday effect using only the information up to
 September 1994.
 
 ``` r
+
 data("accidents", package = "BayesianLearningCode")
 y <- window(accidents[, "children_accidents"], end = c(1994, 9))
 e <- window(accidents[, "children_exposure"],  end = c(1994, 9))
@@ -444,6 +467,7 @@ use the draws from the posterior distribution to predict the values of
 the time series.
 
 ``` r
+
 e.pred <- window(accidents[, "children_exposure"], start = c(1994, 10))
 t.pred <- length(e.pred)
 X.pred <- cbind(intercept = rep(1, t.pred),
@@ -459,6 +483,7 @@ pred <- matrix(rpois(M * t.pred, lambda), ncol = M, nrow = t.pred)
 We reuse also the function to determine mean and quantiles of the draws.
 
 ``` r
+
 res.mcmc <- function(x, lower = 0.025, upper = 0.975) {
   res <- c(quantile(x, lower), mean(x), quantile(x, upper))
   names(res) <- c(paste0(lower * 100, "%"), "Posterior mean",
@@ -472,6 +497,7 @@ Then we plot the predictive mean together with the (equal-tailed) 95%
 prediction intervals.
 
 ``` r
+
 plot(time(accidents), accidents[, "children_accidents"], type = "p", ylim = c(0, 7),
      xlab = "", ylab = "",
      main = "Number of children killed or seriously injured")
@@ -495,6 +521,7 @@ For creating the design matrix for an AR model, we re-use the function
 from Chapter 7.
 
 ``` r
+
 ARdesignmatrix <- function(dat, p = 1) {
   d <- p + 1
   N <- length(dat) - p
@@ -508,10 +535,11 @@ ARdesignmatrix <- function(dat, p = 1) {
 }
 ```
 
-We compute the one-step-ahead posterior predictive for various AR($p$)
+We compute the one-step-ahead posterior predictive for various AR($`p`$)
 models under the improper prior.
 
 ``` r
+
 data("gdp", package = "BayesianLearningCode")
 dat <- gdp[1:which(names(gdp) == "2019-10-01")]
 logret <- diff(log(dat))
@@ -541,6 +569,7 @@ for (p in 1:4) {
 And we visualize.
 
 ``` r
+
 grid <- seq(min(means - 4 * scales), max(means + 4 * scales), length.out = 100)
 plot(grid, dstudt(grid, means[1], scales[1], dfs[1]), type = "l",
      ylab = "", xlab = "Quarterly U.S. GDP growth", lwd = 1.5)
@@ -554,9 +583,10 @@ for (p in 2:4) {
 
 ### Example 9.15: US GDP data - multi-step forecasting
 
-Now, we want to “sample the future” up to 12 steps ahead for $p = 2$.
+Now, we want to “sample the future” up to 12 steps ahead for $`p = 2`$.
 
 ``` r
+
 M <- 10000
 set.seed(1)
 y <- tail(logret, -2)
@@ -596,6 +626,7 @@ for (h in 3:8) {
 And we visualize. First, we plot four randomly selected paths.
 
 ``` r
+
 horizon <- 8
 ats <- seq(1, 3 * horizon)
 past <- as.numeric(substring(gsub("-.*", "", tail(names(y), 2 * horizon)), 3))
@@ -616,6 +647,7 @@ for (i in 1:4) {
 And now we plot the predictions.
 
 ``` r
+
 par(mfrow = c(1, 1))
 plot(tail(y, 2 * horizon), type = "l", xlim = c(1, 3 * horizon), lwd = 1.5,
      ylim = range(quants), ylab = "U.S. GDP growth", xlab = "Quarter",
@@ -639,6 +671,7 @@ Let us compute the probability of seeing negative growth rates a least
 once in eight quarters. Not that this is highly nonlinear.
 
 ``` r
+
 mins <- apply(yfs, 1, min)
 (mean(mins < 0))
 #> [1] 0.394
@@ -651,12 +684,14 @@ the level, which, given our simulation-based approach, is easy to
 compute.
 
 ``` r
+
 gdpfs <- tail(gdp, 1) * exp(apply(yfs, 1, cumsum))
 ```
 
 We visualize.
 
 ``` r
+
 par(mfrow = c(1, 1))
 plot(tail(gdp, 2 * horizon), type = "l", xlim = c(1, 3 * horizon),
      ylim = range(quants, tail(gdp, 2 * horizon)), ylab = "U.S. GDP",

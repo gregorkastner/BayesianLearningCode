@@ -625,7 +625,7 @@ from that, we proceed as above.</p>
 non-conjugate transformed beta prior on
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϕ</mi><annotation encoding="application/x-tex">\phi</annotation></semantics></math>,
 i.e.,
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>ϕ</mi><mo>+</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><mi>/</mi><mn>2</mn><mo>∼</mo><mi>ℬ</mi><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>a</mi><mi>ϕ</mi></msup><mo>,</mo><msup><mi>b</mi><mi>ϕ</mi></msup><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo></mrow><annotation encoding="application/x-tex">
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>ϕ</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mi>/</mi><mn>2</mn><mo>∼</mo><mi>ℬ</mi><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>a</mi><mi>ϕ</mi></msup><mo>,</mo><msup><mi>b</mi><mi>ϕ</mi></msup><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo></mrow><annotation encoding="application/x-tex">
 (\phi + 1) / 2 \sim \mathcal{B}\left(a^\phi, b^\phi\right),
 </annotation></semantics></math> and employ a 4-step sampler to obtain
 posterior draws. In addition, we assume that
@@ -916,7 +916,7 @@ described in the manuscript (auxprior = analytical1)</p></li>
 <li><p>Use a part coming from the determinant of the density of
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>y</mi><mn>0</mn></msub><annotation encoding="application/x-tex">y_0</annotation></semantics></math>,
 resulting in a shifted
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ℬ</mi><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>a</mi><mi>ϕ</mi></msup><mo>+</mo><mn>0.5</mn><mo>,</mo><msup><mi>b</mi><mi>ϕ</mi></msup><mo>+</mo><mn>0.5</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathcal{B}(a^\phi + 0.5, b^\phi + 0.5)</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ℬ</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>a</mi><mi>ϕ</mi></msup><mo>+</mo><mn>0.5</mn><mo>,</mo><msup><mi>b</mi><mi>ϕ</mi></msup><mo>+</mo><mn>0.5</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mathcal{B}(a^\phi + 0.5, b^\phi + 0.5)</annotation></semantics></math>
 (auxprior = analytical2)</p></li>
 <li><p>Numerically approximate mode and curvature of the distribution at
 every iteration (auxprior = numerical)</p></li>
@@ -1203,12 +1203,12 @@ for
 </h3>
 <p>We now implement the MCMC sampler for fitting an MA(1) model, where
 we treat the latent state
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>ϵ</mi><mn>0</mn></msub><mo>∼</mo><mi>𝒩</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><msup><mi>σ</mi><mn>2</mn></msup><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\epsilon_0 \sim \mathcal{N}(0, \sigma^2)</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>ϵ</mi><mn>0</mn></msub><mo>∼</mo><mi>𝒩</mi><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><msup><mi>σ</mi><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\epsilon_0 \sim \mathcal{N}(0, \sigma^2)</annotation></semantics></math>
 as unknown. For the innovation variance, we assume an inverse gamma
 prior, and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>
 is assumed to be a priori uniform on
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">[</mo><mo>−</mo><mn>1</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[-1,1]</annotation></semantics></math>.</p>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mi>−</mi><mn>1</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[-1,1]</annotation></semantics></math>.</p>
 <div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Specify prior hyperparameters</span></span>
 <span><span class="va">c0</span> <span class="op">&lt;-</span> <span class="va">C0</span> <span class="op">&lt;-</span> <span class="fl">0.01</span></span>
@@ -1345,7 +1345,7 @@ proposal for the random walk MH algorithm.</p>
 <p><img src="Chapter07_files/figure-html/unnamed-chunk-48-1.png" class="r-plt" alt="" width="768"></p>
 <p>We repeat the exercise above once more, but now use a random walk
 proposal on
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>log</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>+</mo><mi>θ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mo>log</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>θ</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\log(1 + \theta) - \log(1 - \theta)</annotation></semantics></math>.</p>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\log(1 + \theta) - \log(1 - \theta)</annotation></semantics></math>.</p>
 <div class="sourceCode" id="cb50"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Define the transformation and its inverse</span></span>
 <span><span class="va">trans</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">theta</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="va">theta</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">theta</span><span class="op">)</span></span>
@@ -1880,7 +1880,7 @@ for women and men.</p>
 <p>We assume that both men and women start out in the labor market with
 the same wage distribution, where 70% start in wage category 1 and 30%
 in wage category 2, i.e.,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>𝛈</mi><mn>0</mn></msub><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>0.7</mn><mo>,</mo><mn>0.3</mn><mo>,</mo><mn>0</mn><mo>,</mo><mn>0</mn><mo>,</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathbf{\eta}_0 = (0, 0.7, 0.3, 0, 0,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>𝛈</mi><mn>0</mn></msub><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>0.7</mn><mo>,</mo><mn>0.3</mn><mo>,</mo><mn>0</mn><mo>,</mo><mn>0</mn><mo>,</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mathbf{\eta}_0 = (0, 0.7, 0.3, 0, 0,
 0)</annotation></semantics></math>. We compare the evolution of the
 estimated wage distribution
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mover><mi>𝛈</mi><mo accent="true">̂</mo></mover><mrow><mi>g</mi><mo>,</mo><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">\hat{\mathbf{\eta}}_{g,t}</annotation></semantics></math>

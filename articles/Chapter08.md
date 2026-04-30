@@ -7,9 +7,10 @@
 #### Figure 8.1: Latent utility and outcome in the probit model
 
 We start by visualizing a latent utility for a linear predictor
-$\mathbf{x}{\mathbf{β}}$ with a value of 1.
+$`\mathbf{x}\boldsymbol{\beta}`$ with a value of 1.
 
 ``` r
+
 curve(dnorm(x, mean = 1), from = -3, to = 5, col = "blue", 
       xlab = expression(z[i]), ylab = "")
 abline(v = 0, col = "red")
@@ -34,6 +35,7 @@ polygon(c(dens$x[dens$x >= 0], 0), c(dens$y[dens$x >= 0], 0),
 We now perform probit regression analysis for the labor market data.
 
 ``` r
+
 library("BayesianLearningCode")
 data("labor", package = "BayesianLearningCode")
 ```
@@ -45,6 +47,7 @@ female (binary), age18 (quantitative, centered at 18 years), wcollar
 an 18 year old male blue collar worker who was employed in 1997.
 
 ``` r
+
 y_unemp <- labor$income_1998 == "zero"
 N_unemp <- length(y_unemp)  # number of observations 
 X_unemp <- with(labor, cbind(intercept = rep(1, N_unemp),
@@ -61,6 +64,7 @@ Gibbs sampling. We define a function yielding posterior draws using the
 algorithm detailed in Section 8.1.1.
 
 ``` r
+
 probit <- function(y, X, b0 = 0, B0 = 10000,
                    burnin = 1000L, M = 20000L) {
   N <- length(y)
@@ -109,6 +113,7 @@ We specify the prior on the regression effects as a rather flat normal
 independence prior and estimate the model parameters.
 
 ``` r
+
 set.seed(1234)
 M <- 20000
 betas <- probit(y_unemp, X_unemp, b0 = 0, B0 = 1000L, burnin = 1000, M = M)
@@ -118,6 +123,7 @@ To compute summary statistics from the posterior we use the following
 function.
 
 ``` r
+
 res.mcmc <- function(x, lower = 0.025, upper = 0.975) {
   res <- c(quantile(x, lower), mean(x), quantile(x, upper))
   names(res) <- c(paste0(lower * 100, "%"), "Posterior mean", 
@@ -130,6 +136,7 @@ We show posterior means and equal-tailed 95% credible intervals of the
 regression effects.
 
 ``` r
+
 res_probit_labor <- t(apply(betas, 2, res.mcmc))
 knitr::kable(round(res_probit_labor, 3))
 ```
@@ -147,6 +154,7 @@ person, i.e., a 18 year old male blue collar worker who was employed in
 1997, using the posterior mean estimate of the intercept.
 
 ``` r
+
 (p_unemploy_base_probit <- round(pnorm(res_probit_labor[1, 2]), 4))
 #> [1] 0.0241
 ```
@@ -160,6 +168,7 @@ Next, we visualize the estimated posterior distributions for the
 regression effects by histograms.
 
 ``` r
+
 for (j in seq_len(ncol(betas))) {
   hist(betas[, j], freq = FALSE, main = "", xlab = colnames(betas)[j], 
        ylab = "")
@@ -172,6 +181,7 @@ A plot of the autocorrelation of the draws shows that although there is
 some autocorrelation, it vanishes after a few lags.
 
 ``` r
+
 for (j in seq_len(ncol(betas))) {
     acf(betas[, j], main = "", xlab = "Lag",
         ylab = "empirical ACF")
@@ -185,6 +195,7 @@ We also determine the estimated effective sample sizes (ESSs) to assess
 the efficiency of the sampler.
 
 ``` r
+
 ESS <- coda::effectiveSize(betas)
 IF <- M / ESS
 res_eff <- cbind(ESS = round(ESS, digits = 1),
@@ -210,10 +221,11 @@ successes.
 
 #### Example 8.3: Imbalanced data
 
-To illustrate this issue, we use data where in $N = 500$ trials only 1
+To illustrate this issue, we use data where in $`N = 500`$ trials only 1
 failure or only 1 success is observed.
 
 ``` r
+
 set.seed(1234)
 
 N <- 500
@@ -230,6 +242,7 @@ In both cases the empirical autocorrelation of the draws decreases very
 slowly and remains high even for a lag of 40.
 
 ``` r
+
 labels <- expression(beta[0])
 plot(betas1, type = "l", main = "N=500, 1 failure", xlab = "Draws after burnin",
      ylab = labels)
@@ -250,6 +263,7 @@ acf(betas2, ylab = "empirical ACF")
 ![](Chapter08_files/figure-html/unnamed-chunk-15-1.png)
 
 ``` r
+
 
 (ESS2 <- coda::effectiveSize(betas2))
 #>     var1 
@@ -273,11 +287,12 @@ can be predicted perfectly.
 #### Example 8.4: Complete separation
 
 To illustrate the effect of complete separation on the estimates, we
-generate $N = 500$ observations where half of them are successes and the
-other half are failures. We add a binary predictor $x$ where for $x = 1$
-we observe only successes and for $x = 0$ only failures.
+generate $`N = 500`$ observations where half of them are successes and
+the other half are failures. We add a binary predictor $`x`$ where for
+$`x = 1`$ we observe only successes and for $`x = 0`$ only failures.
 
 ``` r
+
 N <- 500
 ns <- 250
 x_sep <- rep(c(0, 1), c(ns, N - ns))
@@ -290,16 +305,16 @@ table(x_sep, y)
 #>     1   0 250
 ```
 
-We estimate the model parameters
-${\mathbf{β}} = \left( \beta_{0},\beta_{1} \right)\prime$ under the
-Normal prior with mean $\mathbf{0}$ and variance matrix
-$10000\mathbf{I}$ and run the sampler for $M = 20000$ iterations after a
-burn-in of 1000.
+We estimate the model parameters $`\boldsymbol{\beta}= (\beta_0,
+\beta_1)'`$ under the Normal prior with mean $`\mathbf{0}`$ and variance
+matrix $`10000\mathbf{I}`$ and run the sampler for $`M=20000`$
+iterations after a burn-in of 1000.
 
 From the plot of the empirical ACF of the draws we see that
 autocorrelations are close to 1 even at lag 40.
 
 ``` r
+
 set.seed(1234)
 X_sep <- cbind(rep(1, N), x_sep)
 betas_sep <- probit(y, X_sep, b0 = 0, B0 = 10000, burnin = 1000, M = M)
@@ -316,6 +331,7 @@ acf(betas_sep[, 2], ylab = "empirical ACF")
 
 ``` r
 
+
 (ESS_sep <- coda::effectiveSize(betas_sep))
 #>             x_sep 
 #> 8.375523 8.269881
@@ -330,11 +346,12 @@ resulting in estimated IFs of about 2400.
 #### Example 8.5: Quasi-complete separation
 
 To illustrate quasi-separation we use the same responses as in Example
-8.4, but now set $x = 1$ for all successes and additionally for 100
-failures. Hence for $x = 0$ always a failure is observed, whereas for
-$x = 1$ both successes and failures occur.
+8.4, but now set $`x=1`$ for all successes and additionally for 100
+failures. Hence for $`x=0`$ always a failure is observed, whereas for
+$`x=1`$ both successes and failures occur.
 
 ``` r
+
 x_qus1 <- rep(c(0, 1), c(ns-100, N - ns+100))
 table(x_qus1, y)
 #>       y
@@ -347,6 +364,7 @@ We again estimate the regression effects using data augmentation and
 Gibbs sampling.
 
 ``` r
+
 set.seed(1234)
 X_qus1 <- cbind(rep(1, N), x_qus1)
 betas_qus1 <- probit(y, X_qus1, b0 = 0, B0 = 10000, burnin = 1000, M = M)
@@ -362,6 +380,7 @@ acf(betas_qus1[, 2], ylab = "empirical ACF")
 
 ``` r
 
+
 (ESS_qus1 <- coda::effectiveSize(betas_qus1))
 #>            x_qus1 
 #> 8.529486 8.683472
@@ -373,10 +392,12 @@ acf(betas_qus1[, 2], ylab = "empirical ACF")
 Again autocorrelations are very high for both the intercept as well as
 the covariate effect resulting in high estimated IFs of about 2320.
 
-We now change the setting so that $x$ takes values of $0$ not only for
-failures but also for some successes, whereas $x = 1$ for all successes.
+We now change the setting so that $`x`$ takes values of $`0`$ not only
+for failures but also for some successes, whereas $`x=1`$ for all
+successes.
 
 ``` r
+
 x_qus2 <- rep(c(0, 1), c(ns+100, N - ns-100))
 table(x_qus2, y)
 #>       y
@@ -398,6 +419,7 @@ acf(betas_qus2[, 2], ylab = "empirical ACF")
 ![](Chapter08_files/figure-html/unnamed-chunk-20-1.png)
 
 ``` r
+
 
 (ESS_qus2 <- coda::effectiveSize(betas_qus2))
 #>                  x_qus2 
@@ -425,13 +447,14 @@ zero.
 ## Example 8.6: Complete separation: analysis under an informative prior
 
 We now analyze the data of example 8.4. under the more informative prior
-$\mathcal{N}(\mathbf{0},\mathbf{I})$. This prior distribution encodes
-the prior believe that $\beta_{0}$ and $\beta_{1}$ are in the interval
-$( - 1.96,1.96)$\$ with probability \$0.95. We compare the estimation
+$`\mathcal{N}(\mathbf{0}, \mathbf{I})`$. This prior distribution encodes
+the prior believe that $`\beta_0`$ and $`\beta_1`$ are in the interval
+$`(-1.96, 1.96)`$\$ with probability \$0.95. We compare the estimation
 results to those from example 8.4, where the prior variance was larger
 by a factor of 10000.
 
 ``` r
+
 set.seed(1234)
 betas_sep1 <- probit(y, X_sep, b0 = 0, B0 = 1, burnin = 1000, M = M)
 
@@ -454,6 +477,7 @@ knitr:: kable(res_sep)
 
 ``` r
 
+
 res_betas_sep1 <- t(apply(betas_sep1, 2, res.mcmc))
 rownames(res_betas_sep1) <- c("Intercept", "X")
 
@@ -474,6 +498,7 @@ We see that the tighter prior shrinks the estimates to zero, estimated
 ESSs are higher and estimated IFs are lower.
 
 ``` r
+
 plot(betas_sep1[, 1], type = "l", xlab = "Draws after burn-in", ylab = labels[1])
 acf(betas_sep1[, 1], ylab = "empirical ACF")
 
@@ -494,6 +519,7 @@ We now estimate a logistic regression model for the labor market data
 using the two-block Polya-Gamma sampler.
 
 ``` r
+
 logit <- function(y, X, b0 = 0, B0 = 10000,
                   burnin = 1000L, M = 5000L) {
     
@@ -543,12 +569,13 @@ logit <- function(y, X, b0 = 0, B0 = 10000,
 }
 ```
 
-We again use the Normal prior with mean $\mathbf{0}$ and covariance
-matrix $10000\mathbf{I}$ on the regression effects and estimate the
+We again use the Normal prior with mean $`\mathbf{0}`$ and covariance
+matrix $`10000 \mathbf{I}`$ on the regression effects and estimate the
 model. We summarize the posterior effect estimates and determine the
 risk of unemployment for a baseline person using the fitted logit model.
 
 ``` r
+
 set.seed(1234)
 betas_logit <- logit(y_unemp, X_unemp, b0 = 0, B0 = 10000)
 
@@ -566,6 +593,7 @@ knitr::kable(round(res_logit_labor, 3))
 
 ``` r
 
+
 (p_unemploy_base_logit <- round(plogis(res_logit_labor[1, 2]), 4))
 #> [1] 0.0247
 ```
@@ -580,7 +608,7 @@ While the signs of the covariate effects can be interpreted in the same
 way for the probit and the logit model, their numerical value will
 differ due to the different scale of the link function.
 
-As the logistic distribution has a variance of $\pi^{2}/3$ compared to 1
+As the logistic distribution has a variance of $`\pi^2/3`$ compared to 1
 for the standard Normal distribution, the regression effects in the
 logit model are absolutely larger than those in the probit model.
 However any probability computed from the two models will be very close,
@@ -588,10 +616,11 @@ e.g., the estimated probability to be unemployed for a baseline person
 is 0.0241 in the probit model (compared to 0.0247 in the logit model).
 
 By multiplying the estimated coefficients in the probit model by
-$\pi/\sqrt{3}$ we can compare them to the estimates of the logit model
+$`\pi/\sqrt{3}`$ we can compare them to the estimates of the logit model
 and we see that there is not much difference.
 
 ``` r
+
 knitr::kable(round(res_probit_labor * pi / sqrt(3), 3))
 ```
 
@@ -621,11 +650,12 @@ introduced in Example 2.1:
 
 The sampling performance for these two models is assessed to study how
 the acceptance rate deteriorates, when the dimension of regression
-effects $d$ increases.
+effects $`d`$ increases.
 
 We load the data and extract the observations for children in Linz.
 
 ``` r
+
 data("accidents", package = "BayesianLearningCode")
 y <- accidents[, "children_accidents"]
 e <- accidents[, "children_exposure"]
@@ -634,6 +664,7 @@ e <- accidents[, "children_exposure"]
 Then we define the regressor matrix for Model 1.
 
 ``` r
+
 X <- cbind(intercept = rep(1, length(y)),
            intervention = rep(c(0, 1), c(7 * 12 + 9, 8 * 12 + 3)),
            holiday = rep(rep(c(0, 1, 0), c(6, 2, 4)), 16))
@@ -643,6 +674,7 @@ To compute the parameters of the normal proposal density, we use the
 Newton-Raphson estimator described in Section 8.2.1.
 
 ``` r
+
 gen_proposal_poisson <- function(y, X, e, b0 = 0, B0 = 100, t.max = 20) {
   N <- length(y)
   d <- ncol(X)
@@ -678,10 +710,11 @@ gen_proposal_poisson <- function(y, X, e, b0 = 0, B0 = 100, t.max = 20) {
 ```
 
 We use a rather flat normal independence prior
-$\mathcal{N}(\mathbf{0},100\mathbf{I})$ on the regression effects and
-determine the parameters of the proposal distribution.
+$`\mathcal{N}(\mathbf{0}, 100 \mathbf{I})`$ on the regression effects
+and determine the parameters of the proposal distribution.
 
 ``` r
+
 d <- ncol(X)
 parms_proposal <- gen_proposal_poisson(y, X, e, b0 = rep(0, d), 
                                        B0 = diag(100, d))
@@ -703,6 +736,7 @@ To implement the independence Metropolis-Hastings algorithm we write a
 short program for the MH step for sampling the regression effects.
 
 ``` r
+
 sample_beta <- function(y, X, e, b0, B0, qmean, qvar, beta_old) {
  
      beta_proposed <- as.vector(mvtnorm::rmvnorm(1, mean = qmean, sigma = qvar))
@@ -745,6 +779,7 @@ step in a program to sample from the posterior of a Poisson regression
 model.
 
 ``` r
+
 poisson <- function(y, X, e, b0 = 0, B0 = 100, burnin = 1000L, M = 10000L) {
   d <- ncol(X)
 
@@ -778,6 +813,7 @@ poisson <- function(y, X, e, b0 = 0, B0 = 100, burnin = 1000L, M = 10000L) {
 We perform MCMC and report the results.
 
 ``` r
+
 set.seed(1234)
 res1 <- poisson(y, X, e, b0 = 0, B0 = 100)
 
@@ -796,6 +832,7 @@ We see that the risk for a child to be killed or seriously injured is
 lower during holiday months as well as after the intervention.
 
 ``` r
+
 (base_risk <- res_poisson1[1, "exp(beta)"]*10^4)
 #> [1] 2.7
 res1$accept
@@ -812,6 +849,7 @@ and seasonal dummy variables for all months except for December. Hence
 the intercept models the risk in December before the intervention.
 
 ``` r
+
 seas <- rbind(diag(1, 11), rep(0, 11)) 
 seas_dummies <- matrix(rep(t(seas), 16), ncol = 11, byrow = TRUE)
 colnames(seas_dummies) <- c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul",
@@ -822,6 +860,7 @@ X_large <- cbind(X[, -3], seas_dummies)
 We set the prior parameters and fit the model.
 
 ``` r
+
 set.seed(1234)
 res2 <- poisson(y, X_large, e, b0 = 0, B0 = 100)
 
@@ -848,6 +887,7 @@ knitr::kable(res_poisson2)
 
 ``` r
 
+
 (base_risk <- res_poisson2[1, "exp(beta)"]*10^4)
 #> [1] 2.8
 ```
@@ -862,6 +902,7 @@ months they are clearly negative, indicating a considerable reduction of
 the risk.
 
 ``` r
+
 res2$accept
 #> [1] 0.7655
 ```
@@ -879,19 +920,27 @@ heterogeneity. We will first set up the two versions of the three-block
 MH-within-Gibbs sampler.
 
 Note that the negative binomial distribution in R is specified as
-$$p\left( y|\alpha,p \right) = \left( \frac{\alpha - 1 + y}{\alpha - 1} \right)p^{\alpha}(1 - p)^{y}$$
-or alternatively by the parameters $\alpha$ and its expected value
-$$\mu = \alpha(1 - p)/p.$$ The expected value of
-$p\left( y|\alpha,\beta \right)$ is given as
-$$\mu = \alpha\frac{\frac{1}{1 + \alpha/e\exp( - \mathbf{x}{\mathbf{β}})}}{\frac{\alpha/e\exp( - \mathbf{x}{\mathbf{β}})}{1 + \alpha/e\exp( - \mathbf{x}{\mathbf{β}})}} = e\exp(\mathbf{x}{\mathbf{β}}),$$
-and we will use $\alpha$ and $\mu$ to specify the negative binomial
+``` math
+p(y|\alpha, p)={\alpha-1+y \choose \alpha-1} p^\alpha (1-p)^y
+```
+or alternatively by the parameters $`\alpha`$ and its expected value
+``` math
+\mu=\alpha (1-p)/p.
+```
+The expected value of $`p(y|\alpha, \beta)`$ is given as
+``` math
+\mu=\alpha \frac{\frac{1}{1+\alpha/e \exp(- \mathbf{x}\boldsymbol{\beta})}}
+{\frac{\alpha/e \exp(- \mathbf{x}\boldsymbol{\beta})}{1+\alpha/e \exp(- \mathbf{x}\boldsymbol{\beta})}} = e \exp( \mathbf{x}\boldsymbol{\beta}),
+```
+and we will use $`\alpha`$ and $`\mu`$ to specify the negative binomial
 distribution.
 
-We first write a function to sample the parameter $\alpha$ for both, the
-full Gibbs sampler and the partially marginalised Gibbs sampler using a
-log random walk proposal.
+We first write a function to sample the parameter $`\alpha`$ for both,
+the full Gibbs sampler and the partially marginalised Gibbs sampler
+using a log random walk proposal.
 
 ``` r
+
 sample_alpha <- function(y, mu, phi, pri_alpha, alpha_old, 
                        c_alpha, full_gibbs){
  
@@ -927,10 +976,11 @@ sample_alpha <- function(y, mu, phi, pri_alpha, alpha_old,
 }
 ```
 
-Then we combine the sampling steps for sampling $\beta$, $\alpha$ and
-$\phi$ in a gibbs sampler.
+Then we combine the sampling steps for sampling $`\beta`$, $`\alpha`$
+and $`\phi`$ in a gibbs sampler.
 
 ``` r
+
 negbin<- function(y,X,e, b0,B0, pri_alpha,c_alpha,
                   full_gibbs = TRUE, burnin = 1000L, M = 10000L){
 
@@ -982,11 +1032,12 @@ negbin<- function(y,X,e, b0,B0, pri_alpha,c_alpha,
 ```
 
 We use the same Normal prior as in the Poisson model for the regression
-effects $\mathbf{β}$ and a Gamma prior $\mathcal{G}(2,0.5)$ for
-$\alpha$. We first run the full Gibbs sampler for $M = 10,000$
-iterations after a burn-in of 1000.
+effects $`\boldsymbol{\beta}`$ and a Gamma prior
+$`\mathcal{G}(2 , 0.5)`$ for $`\alpha`$. We first run the full Gibbs
+sampler for $`M=10,000`$ iterations after a burn-in of 1000.
 
 ``` r
+
 d <- ncol(X)
 b0=rep(0,d)
 B0=diag(100,d)
@@ -1019,6 +1070,7 @@ knitr::kable(round(res_negbin_full, 3))
 
 ``` r
 
+
 c(mean(res1$acc_beta), mean(res1$acc_alpha))
 #> [1] 0.93886 0.70024
 ```
@@ -1027,6 +1079,7 @@ And then we run the partially marginalized Gibbs sampler under the same
 prior.
 
 ``` r
+
 # Partially marginalized sampler               
 res2 <- negbin(y,X,e, b0,B0, pri_alpha,c_alpha, full_gibbs = FALSE, M=M )
 
@@ -1049,17 +1102,18 @@ knitr::kable(round(res_negbin_partial, 3))
 
 ``` r
 
+
 c(mean(res2$acc_beta), mean(res2$acc_alpha))
 #> [1] 0.93868 0.89880
 ```
 
 Both samplers yield essentially the same estimation results, which is to
 be expected, since both target the same posterior distribution. The
-overdispersion parameter $\alpha$ has a posterior mean of $\ 12.3$,
+overdispersion parameter $`\alpha`$ has a posterior mean of $`~12.3`$,
 which means that overdispersion is not very pronounced.
 
 The two samplers differ, however, particularly w.r.t. the inefficiency
-of $\alpha$ which has a value of 73.78 in the full sampler, but is
+of $`\alpha`$ which has a value of 73.78 in the full sampler, but is
 smaller with a value of 48.18 for the partially marginalized Gibbs
 sampler.
 
@@ -1071,6 +1125,7 @@ We extend the sampler in the scheme (a), (b), (c) by adding as a further
 step sampling the data from the prior.
 
 ``` r
+
 negbin_check_abc <- function(X,e, b0,B0, pri_alpha,c_alpha,
                              full_gibbs = TRUE, burnin = 1000L, 
                              M = 50000L){
@@ -1131,6 +1186,7 @@ We use a tighter priors for the model parameters and a sample size of
 N=50 observations.
 
 ``` r
+
 M=10^5
 N=50
 X=cbind(rep(1,N), rnorm(N), rnorm(N))
@@ -1149,6 +1205,7 @@ heterogeneity parameter via Q-Q plots of draws from the prior and the
 posterior.
 
 ``` r
+
 set.seed(1234)
 res_check_abc <- negbin_check_abc(X,e, b0,B0, pri_alpha,c_alpha,
                              full_gibbs = TRUE, M = M)
@@ -1173,6 +1230,7 @@ We conclude that the sampler is correct - NOT CORRECT!
 We now change the order of the sampling steps to (c)-(b)-(a).
 
 ``` r
+
 negbin_check_cba <- function(X,e, b0,B0,pri_alpha,c_alpha,
                              full_gibbs = TRUE, burnin = 1000L,
                              M = 50000L){
@@ -1230,6 +1288,7 @@ We run the sampler under this scheme and show the Q-Q plots for the
 intercept and the heterogeneity parameter.
 
 ``` r
+
 set.seed(1234)
 res_check_cba <- negbin_check_cba(X,e, b0,B0,pri_alpha,c_alpha,
                                    full_gibbs = TRUE, M=M)
@@ -1254,6 +1313,7 @@ We now analyze the partial marginalized Gibbs sampler, first in the
 order (a)-(b)-(c)
 
 ``` r
+
 set.seed(1234)
 # order (a)-(b)-(c)
 res_check_abc <- negbin_check_abc(X,e, b0,B0,pri_alpha,c_alpha,
@@ -1275,6 +1335,7 @@ FULL SAMPLER!
 and then in the order (c)-(b)-(a)
 
 ``` r
+
 set.seed(1234)
 # order (c)- (b)-(a)
 res_check_cba <- negbin_check_cba(X,e, b0,B0,pri_alpha,c_alpha,
@@ -1303,6 +1364,7 @@ package *robustbase* and we load it from this package and visualize it
 in a scatter plot:
 
 ``` r
+
 data("starsCYG", package = "robustbase")
 plot(starsCYG, pch = 19, xlim = c(3, 5), ylim = c(3, 7),
      xlab = "log temperature", ylab = "log light intensity")
@@ -1314,24 +1376,25 @@ The four giant stars which can also be identified in the scatter plot
 have the following indices in the data set:
 
 ``` r
+
 index <- c(11, 20, 30, 34)
 ```
 
 We fit a standard Bayesian regression analysis under the improper prior
-$p\left( \beta_{0},\beta_{1},\sigma^{2} \right) \propto 1/\sigma^{2}$
-and determine the mean and pointwise 95%-HPD regions of the posterior
-predictive distribution $p\left( y_{i}|x_{i} = x,\mathbf{y} \right)$
-using (a) the full data set and (b) the data set where the observations
-$y_{11}$, $y_{20}$, $y_{30}$, $y_{34}$ corresponding to the giant stars
-are omitted.
+$`p(\beta_0, \beta_1, \sigma^2) \propto 1 / \sigma^2`$ and determine the
+mean and pointwise 95%-HPD regions of the posterior predictive
+distribution $`p(y_i |x_i = x, \mathbf{y})`$ using (a) the full data set
+and (b) the data set where the observations $`y_{11}`$, $`y_{20}`$,
+$`y_{30}`$, $`y_{34}`$ corresponding to the giant stars are omitted.
 
-The posterior predictive distribution for a single observation $i$ with
-covariate value $x_{i}$ given the sample $\mathbf{y}$ with model matrix
-$\mathbf{X}$ is available in closed form when using the improper prior
-and corresponds to the prediction intervals obtained using OLS
-estimation.
+The posterior predictive distribution for a single observation $`i`$
+with covariate value $`x_i`$ given the sample $`\mathbf{y}`$ with model
+matrix $`\mathbf{X}`$ is available in closed form when using the
+improper prior and corresponds to the prediction intervals obtained
+using OLS estimation.
 
 ``` r
+
 ols_all <- lm(log.light ~ log.Te, data = starsCYG)
 xnew <- seq(3, 5, length.out = 100)
 preds_all <- predict(ols_all, newdata = data.frame(log.Te = xnew),
@@ -1348,6 +1411,7 @@ and only the subset without the giant stars (right).
 ### Figure 8.9: Star cluster data
 
 ``` r
+
 plot(starsCYG, pch = 19, xlim = c(3, 5), ylim = c(3, 7),
      xlab = "log temperature", ylab = "log light intensity")
 lines(xnew, preds_all[, "fit"])
@@ -1368,6 +1432,7 @@ We define the binary indicator indicating outlying observations, i.e.,
 in this case observations corresponding to giant stars.
 
 ``` r
+
 S <- rep(1L, nrow(starsCYG))
 S[index] <- 2L
 ```
@@ -1376,6 +1441,7 @@ We prepare the model matrix and the vector of the response and define
 the dimensions.
 
 ``` r
+
 X <- cbind(1, starsCYG$log.Te)
 y <- starsCYG$log.light
 N <- length(y)
@@ -1383,9 +1449,10 @@ d <- ncol(X)
 ```
 
 For the heteroskedastic regression, we define weights depending on the
-binary indicator which are either 1 or equal to $\phi \ll 1$.
+binary indicator which are either 1 or equal to $`\phi \ll 1`$.
 
 ``` r
+
 phi <- 0.001
 w <- phi^(S - 1)
 ```
@@ -1394,6 +1461,7 @@ We include the weights and update the Gibbs sampling scheme for the
 linear regression defined in Chapter 6 accordingly.
 
 ``` r
+
 set.seed(1)
 
 # define prior parameters of semi-conjugate prior
@@ -1445,6 +1513,7 @@ Based on the posterior draws of the parameters we determine draws from
 the predictive distributions for new observations with `xnew` values:
 
 ``` r
+
 pred_hetero <- sapply(1:M, function(m) {
     rnorm(length(xnew), cbind(1, xnew) %*% betas[m, ], sqrt(sigma2s[m]))
 })
@@ -1463,11 +1532,12 @@ lines(xnew, apply(pred_hetero, 1, quantile, 0.975), lty = 2)
 
 We now assume that the indices of the giant stars are not known. We only
 assume that a two-component mixture is used as weight distribution where
-the weights are given by $w_{i} = \phi^{S_{i} - 1}$ and the indicators
-$S_{i}$ are unknown. But we assume that the proportion of giant stars is
+the weights are given by $`w_i = \phi^{S_i-1}`$ and the indicators
+$`S_i`$ are unknown. But we assume that the proportion of giant stars is
 known and we assume this to correspond to 10%.
 
 ``` r
+
 eta <- 0.1
 phi <- 0.001
 ```
@@ -1476,6 +1546,7 @@ We use a more informative prior for the semi-conjugate prior on the
 regression parameters.
 
 ``` r
+
 B0.inv <- diag(rep(1, d), nrow = d)
 b0 <- coef(ols_subset)
 ```
@@ -1484,6 +1555,7 @@ We now modify the Gibbs sampling code to include a sampling step for the
 mixture component indicators.
 
 ``` r
+
 set.seed(1)
 
 # starting values for beta and sigma2
@@ -1523,6 +1595,7 @@ for (m in seq_len(burnin + M)) {
 ```
 
 ``` r
+
 preds_mix_1 <- sapply(1:M, function(m) {
     rnorm(length(xnew), cbind(1, xnew) %*% betas[m, ], sqrt(sigma2s[m]))
 })
@@ -1533,6 +1606,7 @@ data points and show that the fit now is robust to the outlying
 observations.
 
 ``` r
+
 plot(starsCYG, pch = 19, xlim = c(3, 5), ylim = c(3, 7),
      xlab = "log temperature", ylab = "log light intensity")
 lines(xnew, rowMeans(preds_mix_1))
@@ -1544,15 +1618,16 @@ lines(xnew, apply(preds_mix_1, 1, quantile, 0.975), lty = 2)
 
 We now assume that the indices of the giant stars are not known. We only
 assume that a two-component mixture is used as weight distribution where
-the weights are given by $w_{i} = \phi^{S_{i} - 1}$ and the indicators
-$S_{i}$ are unknown. Now, we also assume that the proportion of giant
+the weights are given by $`w_i = \phi^{S_i-1}`$ and the indicators
+$`S_i`$ are unknown. Now, we also assume that the proportion of giant
 stars is unknown.
 
-We need to specify a prior for $\eta$. The usual prior is a beta prior
+We need to specify a prior for $`\eta`$. The usual prior is a beta prior
 and we will use a prior which has mean 0.1 and corresponds to a prior
 sample size of 10.
 
 ``` r
+
 a0 <- 1
 d0 <- 9
 ```
@@ -1561,6 +1636,7 @@ We now modify the Gibbs sampling code to also include a sampling step
 for the component size.
 
 ``` r
+
 set.seed(1)
 
 # prepare storing of results
@@ -1610,6 +1686,7 @@ for (m in seq_len(burnin + M)) {
 ```
 
 ``` r
+
 preds_mix_2 <- sapply(1:M, function(m) {
     rnorm(length(xnew), cbind(1, xnew) %*% betas[m, ], sqrt(sigma2s[m]))
 })
@@ -1629,6 +1706,7 @@ two-component mixture with known component sizes and (3) a Gaussian
 two-component mixture where the component size is unknown.
 
 ``` r
+
 plot(starsCYG, pch = 19, xlim = c(3, 5), ylim = c(3, 7),
      xlab = "log temperature", ylab = "log light intensity")
 lines(xnew, rowMeans(pred_hetero))
@@ -1653,13 +1731,14 @@ that is robust to the outlying observations.
 
 ### Section 8.3.3 Regression analysis with Student-t errors
 
-#### Example 8.15: Star cluster data - Student-$t$ regression analysis
+#### Example 8.15: Star cluster data - Student-$`t`$ regression analysis
 
-Now we analyze the Star cluster data assuming a Student-$t$ distribution
-for the errors. We fix the degrees of freedom to a low value between 4
-and 10, i.e., setting it to 7.
+Now we analyze the Star cluster data assuming a Student-$`t`$
+distribution for the errors. We fix the degrees of freedom to a low
+value between 4 and 10, i.e., setting it to 7.
 
 ``` r
+
 nu <- 7
 ```
 
@@ -1668,6 +1747,7 @@ in Algorithm 8.3. We use the same prior specification for the regression
 parameters as used for the mixture distribution.
 
 ``` r
+
 set.seed(1)
 
 # prepare storing of results
@@ -1708,6 +1788,7 @@ for (m in 1:(burnin + M)) {
 ```
 
 ``` r
+
 preds_stud <- sapply(1:M, function(m) {
     rstudt(length(xnew), cbind(1, xnew) %*% betas[m, ], sqrt(sigma2s[m]), nu)
 })
@@ -1727,11 +1808,12 @@ boxplot(ws, col = 2 * (1:ncol(ws) %in% index))
 
 ![](Chapter08_files/figure-html/unnamed-chunk-68-1.png)
 
-#### Example 8.16: CHF exchange rate data - Fitting a Student-$t$ with $\nu$ unknown
+#### Example 8.16: CHF exchange rate data - Fitting a Student-$`t`$ with $`\nu`$ unknown
 
 We begin with loading the data.
 
 ``` r
+
 data("exrates", package = "stochvol")
 y <- 100 * diff(log(exrates$USD / exrates$CHF))
 X <- 1
@@ -1739,11 +1821,12 @@ N <- length(y)
 ```
 
 Next we perform the Gibbs sampling scheme as above and include sampling
-the degrees of freedom parameter $\nu$ via a log random walk MH step.
+the degrees of freedom parameter $`\nu`$ via a log random walk MH step.
 Note that we do not have any predictors in this case, so the design
 matrix is simply a vector of ones.
 
 ``` r
+
 set.seed(1)
 
 # fix tuning parameter for MH, the number of draws M, and burn-in length
@@ -1827,6 +1910,7 @@ for (m in 1:(burnin + M)) {
 We visualize some results.
 
 ``` r
+
 par(mfrow = c(2, 2), mgp = c(1.5, .5, 0), mar = c(2.5, 2.5, 1, .5))
 ts.plot(mus, xlab = "Iteration", ylab = expression(mu), main = "Trace plot")
 ts.plot(sqrt(sigma2s), xlab = "Iteration", ylab = expression(sigma))
@@ -1839,6 +1923,7 @@ ts.plot(ws[, selecta], xlab = "Iteration", ylab = bquote(~omega[.(selecta)]))
 ![](Chapter08_files/figure-html/unnamed-chunk-71-1.png)
 
 ``` r
+
 grid <- seq(0, 20, by = .1)
 hist(nus, breaks = 20, freq = FALSE, xlab = bquote(nu),
      main = "Histogram")
@@ -1857,6 +1942,7 @@ title(paste0("Empirical ACF (IF: ", round(IF), ")"))
 We begin by loading the data and visualizing them as a time series plot.
 
 ``` r
+
 data("newcars", package = "BayesianLearningCode")
 plot(newcars)
 ```
@@ -1870,6 +1956,7 @@ object, we can do this very easily using `time` and `cycle`. Note that
 baseline and automatically include an intercept.
 
 ``` r
+
 degree <- 4
 tim <- time(newcars)
 month <- factor(cycle(tim))
@@ -1903,6 +1990,7 @@ Before including an autoregressive parameter, we first fit a standard
 regression model, where we assume that the residuals are uncorrelated.
 
 ``` r
+
 y <- newcars
 # Define the burnin and the number of draws thereafter
 burnin <- 100
@@ -1949,6 +2037,7 @@ for (m in 1:(burnin + M)) {
 We can compute draws of the predicted values and the residuals.
 
 ``` r
+
 ypreds <- tcrossprod(X, betas)
 resids <- as.numeric(y) - ypreds
 ```
@@ -1957,6 +2046,7 @@ We proceed with visualizing the data and the posterior mean of the
 predicted values as well as the posterior mean of the residuals.
 
 ``` r
+
 plot(y, ylab = "", main = "New car regristrations")
 points(tim, rowMeans(ypreds), col = 2, type = 'l')
 legend("topright", c("Data", "Posterior mean"), lty = 1, col = 1:2)
@@ -1972,6 +2062,7 @@ COVID-outbreak), we still see autocorrelation in the residuals. Thus, we
 move forward by including an autoregressive coefficient.
 
 ``` r
+
 # Define the prior parameters for phi (the other ones stay the same)
 phiMean <- 0
 phiPrec <- 0

@@ -221,7 +221,7 @@ on the two axes, yielding the corresponding univariate regions
 </h3>
 <p>We again revisit the CHF-USD exchange rate data from the previous
 chapter. We assumed that
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mi>i</mi></msub><mo>∼</mo><msub><mi>t</mi><mn>7</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><msup><mi>σ</mi><mn>2</mn></msup><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo></mrow><annotation encoding="application/x-tex">
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mi>i</mi></msub><mo>∼</mo><msub><mi>t</mi><mn>7</mn></msub><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><msup><mi>σ</mi><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo><mo>,</mo></mrow><annotation encoding="application/x-tex">
 y_i \sim t_7(0, \sigma^2),
 </annotation></semantics></math> and implemented an unnormalized version
 of
@@ -732,12 +732,12 @@ check how often the intervals contain the true parameter.</p>
 model<a class="anchor" aria-label="anchor" href="#example-5-11-coverage-probabilities-under-the-poisson-gamma-model"></a>
 </h3>
 <p>As above, but for data from a
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝒫</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>5</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathcal{P}(5)</annotation></semantics></math>-distribution.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝒫</mi><mo stretchy="false" form="prefix">(</mo><mn>5</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mathcal{P}(5)</annotation></semantics></math>-distribution.
 We estimate the mean from
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>=</mo><mn>24</mn></mrow><annotation encoding="application/x-tex">N = 24</annotation></semantics></math>
 data points and construct CIs. Recall that the posterior under a flat
 prior is
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>μ</mi><mo stretchy="false" form="prefix">|</mo><mi>𝐲</mi><mo>∼</mo><mi>𝒢</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>N</mi><mover><mi>y</mi><mo accent="true">‾</mo></mover><mo>+</mo><mn>1</mn><mo>,</mo><mi>N</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo></mrow><annotation encoding="application/x-tex">
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>μ</mi><mo stretchy="false" form="prefix">|</mo><mi>𝐲</mi><mo>∼</mo><mi>𝒢</mi><mo stretchy="false" form="prefix">(</mo><mi>N</mi><mover><mi>y</mi><mo accent="true">‾</mo></mover><mo>+</mo><mn>1</mn><mo>,</mo><mi>N</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo></mrow><annotation encoding="application/x-tex">
 \mu|\mathbf{y} \sim \mathcal G(N\bar y + 1, N),
 </annotation></semantics></math></p>
 <p>We start by simulating the data and computing sample means and sample
@@ -916,7 +916,7 @@ otherwise).</p>
 <span>  <span class="op">}</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>Next, we define the density function of
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>η</mi><mo>=</mo><mi>l</mi><mi>o</mi><mi>g</mi><mi>i</mi><mi>t</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>ϑ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mo>log</mo><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mi>ϑ</mi><mrow><mn>1</mn><mo>−</mo><mi>ϑ</mi></mrow></mfrac><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>η</mi><mo>=</mo><mi>l</mi><mi>o</mi><mi>g</mi><mi>i</mi><mi>t</mi><mo stretchy="false" form="prefix">(</mo><mi>ϑ</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mi>ϑ</mi><mrow><mn>1</mn><mo>−</mo><mi>ϑ</mi></mrow></mfrac><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
 \eta = logit(\vartheta) = \log\left(\frac{\vartheta}{1-\vartheta}\right)
 </annotation></semantics></math> by using the law of transformation of
 densities.</p>

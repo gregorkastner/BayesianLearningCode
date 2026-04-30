@@ -83,7 +83,7 @@ Inference<a class="anchor" aria-label="anchor" href="#section-9-1-from-bayesian-
 <p>We load the data and extract the observations for the senior people
 in Linz. We then plot the pdf and cdf for the predictive distribution
 which corresponds under the flat prior to
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mi>f</mi></msub><mo stretchy="false" form="prefix">|</mo><mi>𝐲</mi><mo>∼</mo><mi>𝒩</mi><mi>B</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>N</mi><mover><mi>y</mi><mo accent="true">‾</mo></mover><mo>+</mo><mn>1</mn><mo>,</mo><mi>N</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mi>f</mi></msub><mo stretchy="false" form="prefix">|</mo><mi>𝐲</mi><mo>∼</mo><mi>𝒩</mi><mi>B</mi><mo stretchy="false" form="prefix">(</mo><mi>N</mi><mover><mi>y</mi><mo accent="true">‾</mo></mover><mo>+</mo><mn>1</mn><mo>,</mo><mi>N</mi><mo stretchy="false" form="postfix">)</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">
 y_f|\mathbf{y} \sim \mathcal NB(N\bar y + 1, N).
 </annotation></semantics></math></p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
@@ -355,7 +355,7 @@ distributions.</p>
 </h3>
 <p>We use a sampling-based approach to obtain draws from the posterior
 predictive by first drawing from the posterior
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>μ</mi><mo stretchy="false" form="prefix">|</mo><mi>𝕪</mi><mo>∼</mo><mi>𝒢</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>a</mi><mi>N</mi></msub><mo>,</mo><msub><mi>b</mi><mi>N</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mu|\mathbb{y} \sim \mathcal{G}(a_N, b_N)</annotation></semantics></math>.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>μ</mi><mo stretchy="false" form="prefix">|</mo><mi>𝕪</mi><mo>∼</mo><mi>𝒢</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>a</mi><mi>N</mi></msub><mo>,</mo><msub><mi>b</mi><mi>N</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mu|\mathbb{y} \sim \mathcal{G}(a_N, b_N)</annotation></semantics></math>.
 Then, using these draws as mean parameters for the Poisson likelihood,
 we draw 12 times each to obtain yearly predictions. Of these, we take
 the maxima.</p>
