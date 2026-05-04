@@ -1121,64 +1121,64 @@ sampler.
 
 ### Section 8.2.3: Evaluating MCMC samplers
 
-#### Example 8.10 Veryfying the correctness of the full conditional MCMC samper
+#### Example 8.10 Verifying the correctness of the full conditional MCMC samper
 
 We extend the sampler in the scheme (a), (b), (c) by adding as a further
 step sampling the data from the prior.
 
 ``` r
 
-negbin_check_abc <- function(X,e, b0,B0, pri_alpha,c_alpha,
+negbin_check_abc <- function(X, e, b0, B0, pri_alpha, c_alpha,
                              full_gibbs = TRUE, burnin = 1000L, 
-                             M = 50000L){
-  
-  N <- nrow(X)
-  d <- ncol(X)
+                             M = 50000L) {
+    
+    N <- nrow(X)
+    d <- ncol(X)
 
-  beta_post  <- matrix(ncol = d, nrow = M)
-  colnames(beta_post) <- colnames(X)
-  acc_beta <- numeric(length = M)
+    beta_post  <- matrix(ncol = d, nrow = M)
+    colnames(beta_post) <- colnames(X)
+    acc_beta <- numeric(length = M)
 
-  alpha_post <- rep(NA_real_, M)
-  acc_alpha <- rep(NA_real_, M)
+    alpha_post <- rep(NA_real_, M)
+    acc_alpha <- rep(NA_real_, M)
 
-  # Set starting values
-  beta <- as.vector(mvtnorm::rmvnorm(1, mean = b0, sigma = B0))
-  alpha <- pri_alpha$shape/pri_alpha$rate
-  phi <- rgamma(N, shape = alpha , rate = alpha)
-  
-  linpred <- X%*%beta
-  
-  for (m in seq_len(burnin + M)){
+    # Set starting values
+    beta <- as.vector(mvtnorm::rmvnorm(1, mean = b0, sigma = B0))
+    alpha <- pri_alpha$shape/pri_alpha$rate
+    phi <- rgamma(N, shape = alpha, rate = alpha)
     
-    # sample new data
-    y <-rnbinom(N, alpha, mu=e* exp(linpred))  
+    linpred <- X %*% beta
     
-    # Step a
-    parms_proposal <- gen_proposal_poisson(y, X, e*phi, b0, B0)
-   
-    beta_draw<-sample_beta(y, X,e*phi, b0, B0,parms_proposal$mean, 
-                          parms_proposal$var,beta)
-    beta<- beta_draw$beta
-    linpred <- X%*%beta
-    
-    # Step b
-    alpha_draw <- sample_alpha(y,e*exp(linpred), phi, pri_alpha,
-                               alpha,c_alpha,full_gibbs)
-    alpha<- alpha_draw$alpha
-    
-    # Step c
-    phi <- rgamma(N, shape = alpha + y, rate = alpha + e * exp(linpred))
-    
-    # Save the draws
-    if (m > burnin) {
-      beta_post[m - burnin, ] <- beta
-      acc_beta[m - burnin] <- beta_draw$acc
+    for (m in seq_len(burnin + M)) {
+        
+        # sample new data
+        y <- rpois(N, phi * e * exp(linpred))
+        
+        # Step a
+        parms_proposal <- gen_proposal_poisson(y, X, e * phi, b0, B0)
+        
+        beta_draw <- sample_beta(y, X, e * phi, b0, B0, parms_proposal$mean, 
+                                 parms_proposal$var, beta)
+        beta <- beta_draw$beta
+        linpred <- X %*% beta
+        
+        # Step b
+        alpha_draw <- sample_alpha(y, e * exp(linpred), phi, pri_alpha,
+                                   alpha, c_alpha, full_gibbs)
+        alpha <- alpha_draw$alpha
+        
+        # Step c
+        phi <- rgamma(N, shape = alpha + y, rate = alpha + e * exp(linpred))
+        
+        # Save the draws
+        if (m > burnin) {
+            beta_post[m - burnin, ] <- beta
+            acc_beta[m - burnin] <- beta_draw$acc
 
-      alpha_post[m - burnin] <- alpha
-      acc_alpha[m - burnin] <- alpha_draw$acc
+            alpha_post[m - burnin] <- alpha
+            acc_alpha[m - burnin] <- alpha_draw$acc
+        }
     }
-  }
     return(res = list(beta_post = beta_post, acc_beta = acc_beta,
                       alpha_post = alpha_post, acc_alpha = acc_alpha))
 }
@@ -1189,17 +1189,18 @@ observations.
 
 ``` r
 
-#M=10^5
-N=50
-X=cbind(rep(1,N), rnorm(N), rnorm(N))
-e=rep(1,N)
+M <- 10^5
+N <- 50
+set.seed(1234)
+X <- cbind(rep(1, N), rnorm(N), rnorm(N))
+e <- rep(1, N)
 
-d=ncol(X)
-b0 <- rep(0,d)
-B0=diag(0.1,d)
+d <- ncol(X)
+b0 <- rep(0, d)
+B0 <- diag(0.1, d)
 
-pri_alpha <- data.frame(shape = 4, rate =2)
-c_alpha=0.2
+pri_alpha <- data.frame(shape = 4, rate = 2)
+c_alpha <- 0.2
 ```
 
 We run the sampler and investigate the draws of intercept and
@@ -1209,15 +1210,26 @@ posterior.
 ``` r
 
 set.seed(1234)
-res_check_abc <- negbin_check_abc(X,e, b0,B0, pri_alpha,c_alpha,
-                             full_gibbs = TRUE, M = M)
+res_check_abc <- negbin_check_abc(X, e, b0, B0, pri_alpha, c_alpha,
+                                  full_gibbs = TRUE, M = M)
 
-beta0_prior <- rnorm(M, mean = b0[1], sd = sqrt(B0[1]))
-alpha_prior <- rgamma(M, shape = pri_alpha$shape, rate = pri_alpha$rate)
+print(coda::effectiveSize(res_check_abc$beta_post))
+#>     var1     var2     var3 
+#> 7019.895 7181.050 6373.359
+print(coda::effectiveSize(res_check_abc$alpha_post))
+#>     var1 
+#> 1687.551
 
-qqplot(beta0_prior, res_check_abc$beta_post[, 1], xlab = "Prior",
-       ylab = "Posterior", main = "Intercept")
+beta0_prior <- lapply(1:3, function(i)
+    qnorm(ppoints(M), mean = b0[i], sd = sqrt(B0[i, i])))
+alpha_prior <- qgamma(ppoints(M), shape = pri_alpha$shape,
+                      rate = pri_alpha$rate)
+
+for (i in 1:3) {
+qqplot(beta0_prior[[i]], res_check_abc$beta_post[, i], xlab = "Prior",
+       ylab = "Posterior", main = c("Intercept", "beta1", "beta2")[i])
 abline(a = 0, b = 1)
+}
 
 qqplot(alpha_prior,res_check_abc$alpha_post, xlab = "Prior",
        ylab = "Posterior", main = "Heterogeneity parameter", 
@@ -1227,15 +1239,14 @@ abline(a = 0, b = 1)
 
 ![](Chapter08_files/figure-html/unnamed-chunk-43-1.png)
 
-We conclude that the sampler is correct - NOT CORRECT!
-
-We now change the order of the sampling steps to (c)-(b)-(a).
+We conclude that the sampler is correct. Next we change the order of the
+sampling steps to (c)-(b)-(a).
 
 ``` r
 
-negbin_check_cba <- function(X,e, b0,B0,pri_alpha,c_alpha,
+negbin_check_cba <- function(X, e, b0, B0, pri_alpha, c_alpha,
                              full_gibbs = TRUE, burnin = 1000L,
-                             M = 50000L){
+                             M = 50000L) {
 
   N <- nrow(X)
   d <- ncol(X)
@@ -1252,25 +1263,25 @@ negbin_check_cba <- function(X,e, b0,B0,pri_alpha,c_alpha,
   alpha <- pri_alpha$shape/pri_alpha$rate
   phi <- rgamma(N, shape = alpha , rate = alpha)
 
-  for (m in seq_len(burnin + M)){
+  for (m in seq_len(burnin + M)) {
 
     # sample new data
-    linpred <- X%*%beta
-    y <- rnbinom(N, alpha, mu=e* exp(X%*%beta))  
+    linpred <- X %*% beta
+     y <- rpois(N, phi * e * exp(linpred))
     
     # Step c
     phi <- rgamma(N, shape = alpha + y, rate = alpha + e * exp(linpred))
     
     # Step b
-    alpha_draw <- sample_alpha(y,e*exp(linpred), phi,pri_alpha,alpha,
-                               c_alpha,full_gibbs)
-    alpha<- alpha_draw$alpha
+    alpha_draw <- sample_alpha(y, e * exp(linpred), phi, pri_alpha, alpha,
+                               c_alpha, full_gibbs)
+    alpha <- alpha_draw$alpha
     
     # Step a
-    parms_proposal <- gen_proposal_poisson(y, X, e*phi, b0, B0)
-    beta_draw<-sample_beta(y, X,e*phi, b0, B0,parms_proposal$mean, 
-                          parms_proposal$var,beta)
-    beta<- beta_draw$beta
+    parms_proposal <- gen_proposal_poisson(y, X, e * phi, b0, B0)
+    beta_draw <- sample_beta(y, X, e * phi, b0, B0, parms_proposal$mean, 
+                             parms_proposal$var, beta)
+    beta <- beta_draw$beta
     
     # Save the draws
     if (m > burnin) {
@@ -1287,17 +1298,19 @@ negbin_check_cba <- function(X,e, b0,B0,pri_alpha,c_alpha,
 ```
 
 We run the sampler under this scheme and show the Q-Q plots for the
-intercept and the heterogeneity parameter.
+regression coefficients and the heterogeneity parameter.
 
 ``` r
 
 set.seed(1234)
-res_check_cba <- negbin_check_cba(X,e, b0,B0,pri_alpha,c_alpha,
-                                   full_gibbs = TRUE, M=M)
+res_check_cba <- negbin_check_cba(X, e, b0, B0, pri_alpha, c_alpha,
+                                  full_gibbs = TRUE, M = M)
 
-qqplot(beta0_prior, res_check_cba$beta_post[, 1], xlab = "Prior",
-       ylab = "Posterior", main = "Intercept")
+for (i in 1:3) {
+qqplot(beta0_prior[[i]], res_check_cba$beta_post[, i], xlab = "Prior",
+       ylab = "Posterior", main = c("Intercept", "beta1", "beta2")[i])
 abline(a = 0, b = 1)
+}
 
 qqplot(alpha_prior,res_check_cba$alpha_post, xlab = "Prior",
        ylab = "Posterior", main =  "Heterogeneity parameter",
@@ -1307,7 +1320,7 @@ abline(a = 0, b = 1)
 
 ![](Chapter08_files/figure-html/unnamed-chunk-45-1.png)
 
-SEEMS OK.
+We conclude that also this sampling scheme is correct.
 
 ### Example 8.11
 
@@ -1318,12 +1331,14 @@ order (a)-(b)-(c)
 
 set.seed(1234)
 # order (a)-(b)-(c)
-res_check_abc <- negbin_check_abc(X,e, b0,B0,pri_alpha,c_alpha,
-                             full_gibbs = FALSE, M = M)
+res_check_abc <- negbin_check_abc(X, e, b0, B0, pri_alpha, c_alpha,
+                                  full_gibbs = FALSE, M = M)
 
-qqplot(beta0_prior, res_check_abc$beta_post[, 1], xlab = "Prior",
-       ylab = "Posterior", main = "Intercept")
+for (i in 1:3) {
+qqplot(beta0_prior[[i]], res_check_abc$beta_post[, i], xlab = "Prior",
+       ylab = "Posterior", main = c("Intercept", "beta1", "beta2")[i])
 abline(a = 0, b = 1)
+}
 
 qqplot(alpha_prior,res_check_abc$alpha_post, xlab = "Prior", 
        ylab = "Posterior", main  = "Heterogeneity parameter", 
@@ -1331,8 +1346,7 @@ qqplot(alpha_prior,res_check_abc$alpha_post, xlab = "Prior",
 abline(a = 0, b = 1)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-46-1.png) SAME PROBLEM AS
-FULL SAMPLER!
+![](Chapter08_files/figure-html/unnamed-chunk-46-1.png)
 
 and then in the order (c)-(b)-(a)
 
@@ -1340,12 +1354,14 @@ and then in the order (c)-(b)-(a)
 
 set.seed(1234)
 # order (c)- (b)-(a)
-res_check_cba <- negbin_check_cba(X,e, b0,B0,pri_alpha,c_alpha,
-                             full_gibbs = FALSE,M = M)
+res_check_cba <- negbin_check_cba(X, e, b0, B0, pri_alpha, c_alpha,
+                                  full_gibbs = FALSE, M = M)
 
-qqplot(beta0_prior, res_check_cba$beta_post[, 1], xlab = "Prior",
-       ylab = "Posterior", main = "Intercept")
+for (i in 1:3) {
+qqplot(beta0_prior[[i]], res_check_cba$beta_post[, i], xlab = "Prior",
+       ylab = "Posterior", main = c("Intercept", "beta1", "beta2")[i])
 abline(a = 0, b = 1)
+}
 
 qqplot(alpha_prior,res_check_cba$alpha_post, xlab = "Prior", 
        ylab = "Posterior", main = "Heterogeneity parameter",
@@ -1353,7 +1369,8 @@ qqplot(alpha_prior,res_check_cba$alpha_post, xlab = "Prior",
 abline(a = 0, b = 1)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-47-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-47-1.png) Whereas the
+sampler with
 
 ## Section 8.3: Beyond i.i.d. Gaussian error distributions
 
