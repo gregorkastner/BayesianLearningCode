@@ -896,11 +896,11 @@ knitr::kable(res_poisson2)
 With 2.8 deadly or seriously injured children per 10000 at risk, the
 estimated baseline risk is very similar to that from Model 1. Also the
 estimated intervention effect is very similar in both models, indicating
-a reduction of the risk by a factor of 0.69 in Model 2 (compared to 0.70
-in Model 1). The monthly effects have rather wide 95% HPD intervals that
-cover 0 for all months except for July and August. For these two holiday
-months they are clearly negative, indicating a considerable reduction of
-the risk.
+a reduction of the risk by a factor of 0.69 in Model 2 (compared to
+0.697 in Model 1). The monthly effects have rather wide 95% HPD
+intervals that cover 0 for all months except for July and August. For
+these two holiday months they are clearly negative, indicating a
+considerable reduction of the risk.
 
 ``` r
 
@@ -942,38 +942,39 @@ using a log random walk proposal.
 
 ``` r
 
-sample_alpha <- function(y, mu, phi, pri_alpha, alpha_old, 
-                       c_alpha, full_gibbs){
- 
-   alpha_proposed <- exp(rnorm(1,log(alpha_old),c_alpha))
 
-   if (full_gibbs) {
-      llik_alpha_proposed <- sum(dgamma(phi, shape = alpha_proposed,
-                                    rate = alpha_proposed, log = TRUE))
-      llik_alpha_old      <- sum(dgamma(phi, shape = alpha_old,
-                                    rate = alpha_old, log = TRUE))
-   } else {
-     llik_alpha_proposed <- sum(dnbinom(y, size = alpha_proposed,
-                                     mu = mu, log = TRUE))
-     llik_alpha_old      <- sum(dnbinom(y, size = alpha_old,
-                                     mu = mu, log = TRUE))
-   }
+sample_alpha <- function(y, mu, phi, pri_alpha, alpha_old,
+                         c_alpha, full_gibbs){
 
-    log_acc_alpha <- min (0, llik_alpha_proposed - llik_alpha_old +
-                          dgamma(alpha_proposed, shape = pri_alpha$shape,
-                                 rate = pri_alpha$rate, log = TRUE) -
-                          dgamma(alpha_old, shape = pri_alpha$shape,
-                                 rate = pri_alpha$rate, log = TRUE) +
-                         log(alpha_proposed) - log(alpha_old))
+  alpha_proposed <- exp(rnorm(1,log(alpha_old),c_alpha))
 
-   if (log(runif(1)) < min(0,log_acc_alpha)) {
-      alpha <- alpha_proposed
-      acc <- 1
-    } else {
-     alpha <- alpha_old
-     acc <- 0
-    }
-    return(res=list(alpha=alpha, acc=acc))
+  if (full_gibbs) {
+    llik_alpha_proposed <- sum(dgamma(phi, shape = alpha_proposed,
+                                      rate = alpha_proposed, log = TRUE))
+    llik_alpha_old      <- sum(dgamma(phi, shape = alpha_old,
+                                      rate = alpha_old, log = TRUE))
+  } else {
+    llik_alpha_proposed <- sum(dnbinom(y, size = alpha_proposed,
+                                       mu = mu, log = TRUE))
+    llik_alpha_old      <- sum(dnbinom(y, size = alpha_old,
+                                       mu = mu, log = TRUE))
+  }
+
+  log_acc_alpha <- llik_alpha_proposed - llik_alpha_old +
+      dgamma(alpha_proposed, shape = pri_alpha$shape,
+             rate = pri_alpha$rate, log = TRUE) -
+      dgamma(alpha_old, shape = pri_alpha$shape,
+             rate = pri_alpha$rate, log = TRUE) +
+      log(alpha_proposed) - log(alpha_old)
+
+  if (log(runif(1)) < min(0,log_acc_alpha)) {
+    alpha <- alpha_proposed
+    acc <- 1
+  } else {
+    alpha <- alpha_old
+    acc <- 0
+  }
+  return(res=list(alpha=alpha, acc=acc))
 }
 ```
 
@@ -999,20 +1000,20 @@ negbin<- function(y,X,e, b0,B0, pri_alpha,c_alpha,
   beta <- as.vector(mvtnorm::rmvnorm(1, mean = b0, sigma = B0))
   alpha <- pri_alpha$shape/pri_alpha$rate
   phi <- rgamma(N, shape = alpha , rate = alpha)
-  
+
   for (m in seq_len(burnin + M)){
 
     # sample beta
     parms_proposal <- gen_proposal_poisson(y, X, e*phi, b0, B0)
-    beta_draw<-sample_beta(y, X,e*phi, b0, B0,parms_proposal$mean, 
-                         parms_proposal$var,beta)
-  
+    beta_draw<-sample_beta(y, X,e*phi, b0, B0, parms_proposal$mean,
+                           parms_proposal$var, beta)
+
     beta<- beta_draw$beta
     linpred <- X%*%beta
 
     # sample alpha
-    alpha_draw<-sample_alpha(y,mu=e*exp(linpred),phi,pri_alpha,
-                             alpha, c_alpha,full_gibbs)
+    alpha_draw<-sample_alpha(y, mu=e*exp(linpred), phi, pri_alpha,
+                             alpha, c_alpha, full_gibbs)
     alpha<- alpha_draw$alpha
 
     # sample phi
@@ -1183,8 +1184,8 @@ negbin_check_abc <- function(X,e, b0,B0, pri_alpha,c_alpha,
 }
 ```
 
-We use a tighter priors for the model parameters and a sample size of
-N=50 observations.
+We use tighter priors for the model parameters and a sample size of N=50
+observations.
 
 ``` r
 
