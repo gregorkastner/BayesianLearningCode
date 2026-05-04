@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
   fig.height = 6
 )
 knitr::opts_knit$set(global.par = TRUE)
-pdfplots <- FALSE# default: FALSE; set this to TRUE only if you like pdf figures
+pdfplots <- FALSE # default: FALSE; set this to TRUE only if you like pdf figures
 ```
 
 ```{r, include = FALSE}
@@ -1031,7 +1031,7 @@ We use tighter priors for the model parameters and a sample size of  N=50 observ
 
 ```{r}
 M <- 10^5
-N <- 50
+N <- 100
 set.seed(1234)
 X <- cbind(rep(1, N), rnorm(N), rnorm(N))
 e <- rep(1, N)
@@ -1049,7 +1049,7 @@ parameter via Q-Q plots of draws from the prior and the posterior.
 
 ```{r, echo = -c(1:3)}
 if (pdfplots) {
-  pdf("8-2_1.pdf", width = 8, height = 4)
+  pdf("8-2_1.pdf", width = 8, height = 8)
 }
 par(mfrow = c(2, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
 
@@ -1139,7 +1139,7 @@ regression coefficients and the heterogeneity parameter.
 
 ```{r, echo = -c(1:3)}
 if (pdfplots) {
-  pdf("8-2_2.pdf", width = 8, height = 4)
+  pdf("8-2_2.pdf", width = 8, height = 8)
 }
 par(mfrow = c(2, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
 
@@ -1167,7 +1167,7 @@ We now analyze the partial marginalized Gibbs sampler, first in the order (a)-(b
 
 ```{r, echo = -c(1:3)}
 if (pdfplots) {
-  pdf("8-2_3.pdf", width = 8, height = 4)
+  pdf("8-2_3.pdf", width = 8, height = 8)
 }
 par(mfrow = c(2, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
 
@@ -1192,7 +1192,7 @@ and then in the order (c)-(b)-(a)
 
 ```{r, echo = -c(1:3)}
 if (pdfplots) {
-  pdf("8-2_4.pdf", width = 8, height = 4)
+  pdf("8-2_4.pdf", width = 8, height = 8)
 }
 par(mfrow = c(2, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
 
