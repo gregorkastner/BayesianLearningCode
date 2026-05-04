@@ -1190,7 +1190,7 @@ observations.
 ``` r
 
 M <- 10^5
-N <- 50
+N <- 100
 set.seed(1234)
 X <- cbind(rep(1, N), rnorm(N), rnorm(N))
 e <- rep(1, N)
@@ -1215,10 +1215,10 @@ res_check_abc <- negbin_check_abc(X, e, b0, B0, pri_alpha, c_alpha,
 
 print(coda::effectiveSize(res_check_abc$beta_post))
 #>     var1     var2     var3 
-#> 7019.895 7181.050 6373.359
+#> 3745.957 3381.249 3248.031
 print(coda::effectiveSize(res_check_abc$alpha_post))
 #>     var1 
-#> 1687.551
+#> 1211.584
 
 beta0_prior <- lapply(1:3, function(i)
     qnorm(ppoints(M), mean = b0[i], sd = sqrt(B0[i, i])))

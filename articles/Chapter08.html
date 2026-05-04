@@ -1487,7 +1487,7 @@ further step sampling the data from the prior.</p>
 N=50 observations.</p>
 <div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">M</span> <span class="op">&lt;-</span> <span class="fl">10</span><span class="op">^</span><span class="fl">5</span></span>
-<span><span class="va">N</span> <span class="op">&lt;-</span> <span class="fl">50</span></span>
+<span><span class="va">N</span> <span class="op">&lt;-</span> <span class="fl">100</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1234</span><span class="op">)</span></span>
 <span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">N</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">N</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">N</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">N</span><span class="op">)</span></span>
@@ -1508,10 +1508,10 @@ posterior.</p>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu">coda</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/coda/man/effectiveSize.html" class="external-link">effectiveSize</a></span><span class="op">(</span><span class="va">res_check_abc</span><span class="op">$</span><span class="va">beta_post</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;     var1     var2     var3 </span></span>
-<span><span class="co">#&gt; 7019.895 7181.050 6373.359</span></span>
+<span><span class="co">#&gt; 3745.957 3381.249 3248.031</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu">coda</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/coda/man/effectiveSize.html" class="external-link">effectiveSize</a></span><span class="op">(</span><span class="va">res_check_abc</span><span class="op">$</span><span class="va">alpha_post</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;     var1 </span></span>
-<span><span class="co">#&gt; 1687.551</span></span>
+<span><span class="co">#&gt; 1211.584</span></span>
 <span></span>
 <span><span class="va">beta0_prior</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">qnorm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/ppoints.html" class="external-link">ppoints</a></span><span class="op">(</span><span class="va">M</span><span class="op">)</span>, mean <span class="op">=</span> <span class="va">b0</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, sd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">B0</span><span class="op">[</span><span class="va">i</span>, <span class="va">i</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
