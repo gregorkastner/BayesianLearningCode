@@ -2062,17 +2062,17 @@ values as well as the mean of the residuals and their estimated ACF.
 
 ``` r
 
-plot(y, ylab = "", main = "New car regristrations")
+plot(y, xlab = "Year", ylab = "", main = "New car registrations")
 points(tim, rowMeans(ypreds), col = 2, type = 'l')
-legend("topright", c("Data", "Posterior mean"), lty = 1, col = 1:2)
+legend("topleft", c("Data", "Posterior mean"), lty = 1, col = 1:2)
 plot(as.numeric(tim), rowMeans(resids), type = 'l', main = "Mean residuals",
-     xlab = "Time", ylab = "")
+     xlab = "Year", ylab = "")
 abline(h = 0, lty = 3)
 ```
 
 ![](Chapter08_files/figure-html/unnamed-chunk-77-1.png)
 
-We see agenerally good fit but also notice some potential
+We see a generally good fit but also notice some potential
 autocorrelation. Thus, we move forward by including an autoregressive
 coefficient.
 
