@@ -1959,16 +1959,19 @@ title(paste0("Empirical ACF (IF: ", round(IF), ")"))
 ### Section 8.3.4 Regression analysis with autocorrelated errors
 
 We begin by loading the data and visualizing them as a time series plot.
+In what is to follow, we restrict our analysis to the years 2003 through
+2012, i.e., a time span of 10 years or 120 observations.
 
 ``` r
 
 data("newcars", package = "BayesianLearningCode")
+newcars <- window(newcars, start = 2003, end = c(2012, 12))
 plot(newcars)
 ```
 
 ![](Chapter08_files/figure-html/unnamed-chunk-73-1.png)
 
-Seasonal patterns are evident, as is a trend. To model these, we set up
+Seasonal patterns are evident, as is a trend. To model this, we set up
 an appropriate design matrix. Leveraging the fact the the data is a `ts`
 object, we can do this very easily using `time` and `cycle`. Note that
 `model.matrix` will, by default, use the first month (January) as a
@@ -1976,7 +1979,7 @@ baseline and automatically include an intercept.
 
 ``` r
 
-degree <- 4
+degree <- 2
 tim <- time(newcars)
 month <- factor(cycle(tim))
 X <- model.matrix(~ month + poly(tim, degree))
@@ -1988,20 +1991,13 @@ head(X)
 #> 4           1      0      0      1      0      0      0      0      0       0
 #> 5           1      0      0      0      1      0      0      0      0       0
 #> 6           1      0      0      0      0      1      0      0      0       0
-#>   month11 month12 poly(tim, degree)1 poly(tim, degree)2 poly(tim, degree)3
-#> 1       0       0        -0.09758901          0.1251844         -0.1467072
-#> 2       0       0        -0.09696344          0.1227770         -0.1410647
-#> 3       0       0        -0.09633787          0.1203851         -0.1355128
-#> 4       0       0        -0.09571230          0.1180087         -0.1300510
-#> 5       0       0        -0.09508673          0.1156477         -0.1246789
-#> 6       0       0        -0.09446116          0.1133023         -0.1193956
-#>   poly(tim, degree)4
-#> 1          0.1642379
-#> 2          0.1537098
-#> 3          0.1434864
-#> 4          0.1335631
-#> 5          0.1239353
-#> 6          0.1145985
+#>   month11 month12 poly(tim, degree)1 poly(tim, degree)2
+#> 1       0       0         -0.1568017          0.1990840
+#> 2       0       0         -0.1541664          0.1890461
+#> 3       0       0         -0.1515311          0.1791784
+#> 4       0       0         -0.1488957          0.1694808
+#> 5       0       0         -0.1462604          0.1599534
+#> 6       0       0         -0.1436251          0.1505961
 d <- ncol(X)
 ```
 
@@ -2061,24 +2057,24 @@ ypreds <- tcrossprod(X, betas)
 resids <- as.numeric(y) - ypreds
 ```
 
-We proceed with visualizing the data and the posterior mean of the
-predicted values as well as the posterior mean of the residuals.
+We proceed with visualizing the data and the mean of the predicted
+values as well as the mean of the residuals and their estimated ACF.
 
 ``` r
 
 plot(y, ylab = "", main = "New car regristrations")
 points(tim, rowMeans(ypreds), col = 2, type = 'l')
 legend("topright", c("Data", "Posterior mean"), lty = 1, col = 1:2)
-plot(tim, rowMeans(resids), type = 'l', main = "Mean residuals", xlab = "Time",
-     ylab = "")
+plot(as.numeric(tim), rowMeans(resids), type = 'l', main = "Mean residuals",
+     xlab = "Time", ylab = "")
 abline(h = 0, lty = 3)
 ```
 
 ![](Chapter08_files/figure-html/unnamed-chunk-77-1.png)
 
-Apart from some outliers (the most prominent ones being related to the
-COVID-outbreak), we still see autocorrelation in the residuals. Thus, we
-move forward by including an autoregressive coefficient.
+We see agenerally good fit but also notice some potential
+autocorrelation. Thus, we move forward by including an autoregressive
+coefficient.
 
 ``` r
 
@@ -2134,3 +2130,20 @@ for (m in 1:(burnin + M)) {
 ```
 
 We can again compute draws of the predicted values and the residuals.
+
+``` r
+
+preds <- tcrossprod(X, betas)
+us <- as.numeric(y) - preds
+epss <- us[-1, ] - t(phis * t(us[-nrow(us), ]))
+plot(as.numeric(tim), rowMeans(us), type = "l", xlab = "Time",
+     main = "Mean residuals")
+acf(rowMeans(us))
+title("Estimated ACF")
+plot(as.numeric(tim), c(NA, rowMeans(epss)), type = "l", xlab = "Time",
+     main = "Mean residuals of residuals")
+acf(rowMeans(epss))
+title("Estimated ACF")
+```
+
+![](Chapter08_files/figure-html/unnamed-chunk-79-1.png)

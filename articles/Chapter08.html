@@ -2178,19 +2178,21 @@ in this case, so the design matrix is simply a vector of ones.</p>
 <h3 id="section-8-3-4-regression-analysis-with-autocorrelated-errors">Section 8.3.4 Regression analysis with autocorrelated errors<a class="anchor" aria-label="anchor" href="#section-8-3-4-regression-analysis-with-autocorrelated-errors"></a>
 </h3>
 <p>We begin by loading the data and visualizing them as a time series
-plot.</p>
+plot. In what is to follow, we restrict our analysis to the years 2003
+through 2012, i.e., a time span of 10 years or 120 observations.</p>
 <div class="sourceCode" id="cb80"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"newcars"</span>, package <span class="op">=</span> <span class="st">"BayesianLearningCode"</span><span class="op">)</span></span>
+<span><span class="va">newcars</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/window.html" class="external-link">window</a></span><span class="op">(</span><span class="va">newcars</span>, start <span class="op">=</span> <span class="fl">2003</span>, end <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2012</span>, <span class="fl">12</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">newcars</span><span class="op">)</span></span></code></pre></div>
 <p><img src="Chapter08_files/figure-html/unnamed-chunk-73-1.png" class="r-plt" alt="" width="768"></p>
-<p>Seasonal patterns are evident, as is a trend. To model these, we set
+<p>Seasonal patterns are evident, as is a trend. To model this, we set
 up an appropriate design matrix. Leveraging the fact the the data is a
 <code>ts</code> object, we can do this very easily using
 <code>time</code> and <code>cycle</code>. Note that
 <code>model.matrix</code> will, by default, use the first month
 (January) as a baseline and automatically include an intercept.</p>
 <div class="sourceCode" id="cb81"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">degree</span> <span class="op">&lt;-</span> <span class="fl">4</span></span>
+<code class="sourceCode R"><span><span class="va">degree</span> <span class="op">&lt;-</span> <span class="fl">2</span></span>
 <span><span class="va">tim</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/time.html" class="external-link">time</a></span><span class="op">(</span><span class="va">newcars</span><span class="op">)</span></span>
 <span><span class="va">month</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/time.html" class="external-link">cycle</a></span><span class="op">(</span><span class="va">tim</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/model.matrix.html" class="external-link">model.matrix</a></span><span class="op">(</span><span class="op">~</span> <span class="va">month</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/poly.html" class="external-link">poly</a></span><span class="op">(</span><span class="va">tim</span>, <span class="va">degree</span><span class="op">)</span><span class="op">)</span></span>
@@ -2202,20 +2204,13 @@ up an appropriate design matrix. Leveraging the fact the the data is a
 <span><span class="co">#&gt; 4           1      0      0      1      0      0      0      0      0       0</span></span>
 <span><span class="co">#&gt; 5           1      0      0      0      1      0      0      0      0       0</span></span>
 <span><span class="co">#&gt; 6           1      0      0      0      0      1      0      0      0       0</span></span>
-<span><span class="co">#&gt;   month11 month12 poly(tim, degree)1 poly(tim, degree)2 poly(tim, degree)3</span></span>
-<span><span class="co">#&gt; 1       0       0        -0.09758901          0.1251844         -0.1467072</span></span>
-<span><span class="co">#&gt; 2       0       0        -0.09696344          0.1227770         -0.1410647</span></span>
-<span><span class="co">#&gt; 3       0       0        -0.09633787          0.1203851         -0.1355128</span></span>
-<span><span class="co">#&gt; 4       0       0        -0.09571230          0.1180087         -0.1300510</span></span>
-<span><span class="co">#&gt; 5       0       0        -0.09508673          0.1156477         -0.1246789</span></span>
-<span><span class="co">#&gt; 6       0       0        -0.09446116          0.1133023         -0.1193956</span></span>
-<span><span class="co">#&gt;   poly(tim, degree)4</span></span>
-<span><span class="co">#&gt; 1          0.1642379</span></span>
-<span><span class="co">#&gt; 2          0.1537098</span></span>
-<span><span class="co">#&gt; 3          0.1434864</span></span>
-<span><span class="co">#&gt; 4          0.1335631</span></span>
-<span><span class="co">#&gt; 5          0.1239353</span></span>
-<span><span class="co">#&gt; 6          0.1145985</span></span>
+<span><span class="co">#&gt;   month11 month12 poly(tim, degree)1 poly(tim, degree)2</span></span>
+<span><span class="co">#&gt; 1       0       0         -0.1568017          0.1990840</span></span>
+<span><span class="co">#&gt; 2       0       0         -0.1541664          0.1890461</span></span>
+<span><span class="co">#&gt; 3       0       0         -0.1515311          0.1791784</span></span>
+<span><span class="co">#&gt; 4       0       0         -0.1488957          0.1694808</span></span>
+<span><span class="co">#&gt; 5       0       0         -0.1462604          0.1599534</span></span>
+<span><span class="co">#&gt; 6       0       0         -0.1436251          0.1505961</span></span>
 <span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span></span></code></pre></div>
 <p>Before including an autoregressive parameter, we first fit a standard
 regression model, where we assume that the residuals are
@@ -2266,19 +2261,19 @@ uncorrelated.</p>
 <div class="sourceCode" id="cb83"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ypreds</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/crossprod.html" class="external-link">tcrossprod</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">betas</span><span class="op">)</span></span>
 <span><span class="va">resids</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="op">-</span> <span class="va">ypreds</span></span></code></pre></div>
-<p>We proceed with visualizing the data and the posterior mean of the
-predicted values as well as the posterior mean of the residuals.</p>
+<p>We proceed with visualizing the data and the mean of the predicted
+values as well as the mean of the residuals and their estimated ACF.</p>
 <div class="sourceCode" id="cb84"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">y</span>, ylab <span class="op">=</span> <span class="st">""</span>, main <span class="op">=</span> <span class="st">"New car regristrations"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">tim</span>, <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="va">ypreds</span><span class="op">)</span>, col <span class="op">=</span> <span class="fl">2</span>, type <span class="op">=</span> <span class="st">'l'</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topright"</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Data"</span>, <span class="st">"Posterior mean"</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fl">1</span>, col <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">tim</span>, <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="va">resids</span><span class="op">)</span>, type <span class="op">=</span> <span class="st">'l'</span>, main <span class="op">=</span> <span class="st">"Mean residuals"</span>, xlab <span class="op">=</span> <span class="st">"Time"</span>,</span>
-<span>     ylab <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">tim</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="va">resids</span><span class="op">)</span>, type <span class="op">=</span> <span class="st">'l'</span>, main <span class="op">=</span> <span class="st">"Mean residuals"</span>,</span>
+<span>     xlab <span class="op">=</span> <span class="st">"Time"</span>, ylab <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>h <span class="op">=</span> <span class="fl">0</span>, lty <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
 <p><img src="Chapter08_files/figure-html/unnamed-chunk-77-1.png" class="r-plt" alt="" width="768"></p>
-<p>Apart from some outliers (the most prominent ones being related to
-the COVID-outbreak), we still see autocorrelation in the residuals.
-Thus, we move forward by including an autoregressive coefficient.</p>
+<p>We see agenerally good fit but also notice some potential
+autocorrelation. Thus, we move forward by including an autoregressive
+coefficient.</p>
 <div class="sourceCode" id="cb85"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Define the prior parameters for phi (the other ones stay the same)</span></span>
 <span><span class="va">phiMean</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
@@ -2331,6 +2326,19 @@ Thus, we move forward by including an autoregressive coefficient.</p>
 <span><span class="op">}</span></span></code></pre></div>
 <p>We can again compute draws of the predicted values and the
 residuals.</p>
+<div class="sourceCode" id="cb86"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">preds</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/crossprod.html" class="external-link">tcrossprod</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">betas</span><span class="op">)</span></span>
+<span><span class="va">us</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="op">-</span> <span class="va">preds</span></span>
+<span><span class="va">epss</span> <span class="op">&lt;-</span> <span class="va">us</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span>, <span class="op">]</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="va">phis</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="va">us</span><span class="op">[</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">us</span><span class="op">)</span>, <span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">tim</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="va">us</span><span class="op">)</span>, type <span class="op">=</span> <span class="st">"l"</span>, xlab <span class="op">=</span> <span class="st">"Time"</span>,</span>
+<span>     main <span class="op">=</span> <span class="st">"Mean residuals"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/acf.html" class="external-link">acf</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="va">us</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/title.html" class="external-link">title</a></span><span class="op">(</span><span class="st">"Estimated ACF"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">tim</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="va">epss</span><span class="op">)</span><span class="op">)</span>, type <span class="op">=</span> <span class="st">"l"</span>, xlab <span class="op">=</span> <span class="st">"Time"</span>,</span>
+<span>     main <span class="op">=</span> <span class="st">"Mean residuals of residuals"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/acf.html" class="external-link">acf</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="va">epss</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/title.html" class="external-link">title</a></span><span class="op">(</span><span class="st">"Estimated ACF"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="Chapter08_files/figure-html/unnamed-chunk-79-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
