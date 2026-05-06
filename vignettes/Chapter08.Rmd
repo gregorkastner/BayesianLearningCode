@@ -1862,7 +1862,7 @@ if (pdfplots) {
   pdf("8-3_5.pdf", width = 8, height = 6.5)
 }
 par(mfrow = c(2, 1), mar = c(2.5, 1.5, 1.5, .5), mgp = c(1.5, .5, 0), lwd = 1.5)
-plot(y, xlab = "Year", ylab = "", main = "New car regristrations")
+plot(y, xlab = "Year", ylab = "", main = "New car registrations")
 points(tim, rowMeans(ypreds), col = 2, type = 'l')
 legend("topleft", c("Data", "Posterior mean"), lty = 1, col = 1:2)
 plot(as.numeric(tim), rowMeans(resids), type = 'l', main = "Mean residuals",
