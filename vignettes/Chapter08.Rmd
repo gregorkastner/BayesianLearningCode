@@ -1775,21 +1775,24 @@ title(paste0("Empirical ACF (IF: ", round(IF), ")"))
 
 ## Section 8.3.4 Regression analysis with autocorrelated errors
 
-We begin by loading the data and visualizing them as a time series plot.
+We begin by loading the data and visualizing them as a time series plot. In
+what is to follow, we restrict our analysis to the years 2003 through 2012,
+i.e., a time span of 10 years or 120 observations.
 
 ```{r}
 data("newcars", package = "BayesianLearningCode")
+newcars <- window(newcars, start = 2003, end = c(2012, 12))
 plot(newcars)
 ```
 
-Seasonal patterns are evident, as is a trend. To model these, we set up an
-appropriate design matrix. Leveraging the fact the the data is a `ts` object, we
-can do this very easily using `time` and `cycle`. 
+Seasonal patterns are evident, as is a trend. To model this, we set up
+an appropriate design matrix. Leveraging the fact the the data is a `ts` object,
+we can do this very easily using `time` and `cycle`. 
 Note that `model.matrix` will, by default, use the first month
 (January) as a baseline and automatically include an intercept.
 
 ```{r}
-degree <- 4
+degree <- 2
 tim <- time(newcars)
 month <- factor(cycle(tim))
 X <- model.matrix(~ month + poly(tim, degree))
@@ -1867,9 +1870,8 @@ plot(tim, rowMeans(resids), type = 'l', main = "Mean residuals", xlab = "Time",
 abline(h = 0, lty = 3)
 ```
 
-Apart from some outliers (the most prominent ones being related to the
-COVID-outbreak), we still see autocorrelation in the residuals. Thus, we move
-forward by including an autoregressive coefficient.
+We see agenerally good fit but also notice some potential autocorrelation.
+Thus, we move forward by including an autoregressive coefficient.
 
 ```{r}
 # Define the prior parameters for phi (the other ones stay the same)
