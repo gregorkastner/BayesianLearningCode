@@ -1854,8 +1854,8 @@ ypreds <- tcrossprod(X, betas)
 resids <- as.numeric(y) - ypreds
 ```
 
-We proceed with visualizing the data and the posterior mean of the predicted
-values as well as the posterior mean of the residuals.
+We proceed with visualizing the data and the mean of the predicted
+values as well as the mean of the residuals and their estimated ACF.
 
 ```{r, echo = -c(1:2)}
 if (pdfplots) {
@@ -1865,8 +1865,8 @@ par(mfrow = c(2, 1), mar = c(2.5, 1.5, 1.5, .5), mgp = c(1.5, .5, 0), lwd = 1.5)
 plot(y, ylab = "", main = "New car regristrations")
 points(tim, rowMeans(ypreds), col = 2, type = 'l')
 legend("topright", c("Data", "Posterior mean"), lty = 1, col = 1:2)
-plot(tim, rowMeans(resids), type = 'l', main = "Mean residuals", xlab = "Time",
-     ylab = "")
+plot(as.numeric(tim), rowMeans(resids), type = 'l', main = "Mean residuals",
+     xlab = "Time", ylab = "")
 abline(h = 0, lty = 3)
 ```
 
