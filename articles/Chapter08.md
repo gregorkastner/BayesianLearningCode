@@ -2127,7 +2127,15 @@ for (m in 1:(burnin + M)) {
     phis[m - burnin] <- phi
   }
 }
+knitr::kable(c(mean = mean(phis), sd = sd(phis), pos_prob = mean(phis > 0)),
+             digits = 3, col.names = "phi")
 ```
+
+|          |   phi |
+|:---------|------:|
+| mean     | 0.255 |
+| sd       | 0.097 |
+| pos_prob | 0.992 |
 
 We can again compute draws of the predicted values and the residuals.
 

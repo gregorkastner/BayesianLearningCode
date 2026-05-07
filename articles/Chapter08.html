@@ -2323,7 +2323,29 @@ coefficient.</p>
 <span>    <span class="va">sigma2s</span><span class="op">[</span><span class="va">m</span> <span class="op">-</span> <span class="va">burnin</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">sigma2</span></span>
 <span>    <span class="va">phis</span><span class="op">[</span><span class="va">m</span> <span class="op">-</span> <span class="va">burnin</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">phi</span></span>
 <span>  <span class="op">}</span></span>
-<span><span class="op">}</span></span></code></pre></div>
+<span><span class="op">}</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>mean <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">phis</span><span class="op">)</span>, sd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/sd.html" class="external-link">sd</a></span><span class="op">(</span><span class="va">phis</span><span class="op">)</span>, pos_prob <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">phis</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>             digits <span class="op">=</span> <span class="fl">3</span>, col.names <span class="op">=</span> <span class="st">"phi"</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left"></th>
+<th align="right">phi</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">mean</td>
+<td align="right">0.255</td>
+</tr>
+<tr class="even">
+<td align="left">sd</td>
+<td align="right">0.097</td>
+</tr>
+<tr class="odd">
+<td align="left">pos_prob</td>
+<td align="right">0.992</td>
+</tr>
+</tbody>
+</table>
 <p>We can again compute draws of the predicted values and the
 residuals.</p>
 <div class="sourceCode" id="cb86"><pre class="downlit sourceCode r">
