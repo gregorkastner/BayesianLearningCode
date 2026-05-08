@@ -364,11 +364,13 @@ for (i in seq_along(a0)) {
                      sum(lgamma(y + 1))
 }
 
-knitr::kable(matrix(logmarglikM1, nrow = length(a0_tmp), ncol = length(m0_tmp),
-             dimnames = list(a0 = a0_tmp, m0 = round(m0_tmp, 2))), digits = 2)
+resM1 <- matrix(logmarglikM1, nrow = length(a0_tmp), ncol = length(m0_tmp),
+                dimnames = list(a0 = a0_tmp, m0 = round(m0_tmp, 2)))
+resM2 <- matrix(logmarglikM2, nrow = length(a0_tmp), ncol = length(m0_tmp),
+                dimnames = list(a0 = a0_tmp, m0 = round(m0_tmp, 2)))
 
-knitr::kable(matrix(logmarglikM2, nrow = length(a0_tmp), ncol = length(m0_tmp),
-             dimnames = list(a0 = a0_tmp, m0 = round(m0_tmp, 2))), digits = 2)
+knitr::kable(resM1, digits = 2)
+knitr::kable(resM2, digits = 2)
 ```
 
 ## Example 10.11: Eye tracking data - Testing Poisson vs. negative binomial
@@ -390,8 +392,10 @@ for (i in seq_along(a0)) {
                      N * lgamma(a0[i]) + sum(lgamma(a0[i] + y)) - sum(lgamma(y + 1))
 }
 
-knitr::kable(matrix(logmarglikM3, nrow = length(a0_tmp), ncol = length(m0_tmp),
-             dimnames = list(a0 = a0_tmp, m0 = round(m0_tmp, 2))), digits = 2)
+resM3 <- matrix(logmarglikM3, nrow = length(a0_tmp), ncol = length(m0_tmp),
+                dimnames = list(a0 = a0_tmp, m0 = round(m0_tmp, 2)))
+
+knitr::kable(resM3, digits = 2)
 ```
 
 
@@ -570,4 +574,17 @@ a0 <- c(0.01, 0.1, 0.5, 1:5)
 res <- rbind(gamma(a0))
 colnames(res) <- a0
 knitr::kable(res)
+```
+
+# Section 10.4: Addressing Model Uncertainty
+
+We re-use the marginal likelihoods from above to compute posterior
+probabilities under a uniform prior for the individual models.
+
+```{r}
+res <- rbind(resM1, resM3)
+probs_unnormalized <- exp(res - max(res))
+probs <- probs_unnormalized / sum(probs_unnormalized)
+
+knitr::kable(probs, digits = 2)
 ```
