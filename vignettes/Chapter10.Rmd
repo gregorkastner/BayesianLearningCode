@@ -67,11 +67,11 @@ all.equal(logBF, logmarglikM1 - logmarglikM2)
 Now we are ready to investigate the sensitivity of the log Bayes factor with
 respect to prior hyperparameter choices.
 
-```{r, echo = -1}
+```{r, echo = -c(1:2)}
 if (pdfplots) {
   pdf("10-1_1.pdf", width = 8, height = 4)
-  par(mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.6, .6, 0))
 }
+par(mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.6, .6, 0))
 c0 <- c(-1, 0, 0.001, 1, 100)
 C0 <- c(0, 0, 0.001, 1, 100)
 N0 <- 10^seq(1, 10, by = 0.1)
@@ -441,8 +441,8 @@ Here is a visualization.
 ```{r, echo = -1}
 if (pdfplots) {
   pdf("10-1_2.pdf", width = 8, height = 4)
-  par(mar = c(2.5, 1.5, .5, .5), mgp = c(1.6, .6, 0))
 }
+par(mar = c(2.5, 1.5, .5, .5), mgp = c(1.6, .6, 0))
 mus <- seq(-.01, .02, 0.0001)
 plot(NULL, xlim = range(mus), log = "", xlab = expression(mu), ylab = "",
      ylim = range(dstudt(mus,
@@ -477,8 +477,8 @@ the prior and the posterior of the no-income-risk difference.
 ```{r, echo = -1}
 if (pdfplots) {
   pdf("10-1_3a.pdf", width = 5, height = 4)
-  par(mar = c(2.5, 1.5, .5, .8), mgp = c(1.6, .6, 0))
 }
+par(mar = c(2.5, 1.5, .5, .8), mgp = c(1.6, .6, 0))
 set.seed(42)
 M <- 10000000
 
@@ -531,8 +531,8 @@ As above, with different data.
 ```{r, echo = -1}
 if (pdfplots) {
   pdf("10-1_3b.pdf", width = 5, height = 4)
-  par(mar = c(2.5, 1.5, .5, .8), mgp = c(1.6, .6, 0))
 }
+par(mar = c(2.5, 1.5, .5, .8), mgp = c(1.6, .6, 0))
 N1  <- 1668 # number at risk in City A
 SN1 <- 2    # cancer deaths in City A
 N2  <- 583  # number at risk in City B
@@ -603,7 +603,7 @@ posterior_xi <- function(xi, y, a0, m0, alpha_b0, log = FALSE) {
   if (log) logdens else exp(logdens)
 }
 
-xis <- seq(0, 1, length.out = 500)
+xis <- seq(0, 1, length.out = 700)
 post_xis <- array(NA_real_,
                   dim = c(length(a0_tmp), length(m0_tmp), length(xis)),
                   dimnames = list(a0 = a0_tmp, m0 = round(m0_tmp, 2), xi = xis))
