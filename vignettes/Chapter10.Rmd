@@ -20,7 +20,7 @@ knitr::opts_knit$set(global.par = TRUE)
 pdfplots <- FALSE # default: FALSE; set this to TRUE only if you like pdf figures
 ```
 
-# Section 10.1: The Foundations of Bayesian Model Selections
+# Section 10.1: The Foundations of Bayesian Model Selection
 ## Table 10.1: (Log) Bayes factor and model probabilities
 
 ```{r}
