@@ -791,3 +791,25 @@ abline(h = 0, lwd = 1.5)
 ```
 
 ![](Chapter10_files/figure-html/unnamed-chunk-35-1.png)
+
+Let us compute the posterior mean for the most probable model and the
+BMA mean.
+
+``` r
+
+posterior_mean_xi <- function(y, a0, m0, alpha_b0) {
+  N <- length(y)
+  alpha_bN <- alpha_b0 + N * a0
+  beta_bN  <- (alpha_b0 - 1) * m0 / a0 + sum(y)
+  logmean <- lbeta(alpha_bN + a0, beta_bN) - lbeta(alpha_bN, beta_bN)
+  exp(logmean)
+}
+
+grid <- expand.grid(a0 = a0_tmp, m0 = m0_tmp)
+post_means <- posterior_mean_xi(eyetracking$anomalies, grid$a0, grid$m0, 6)
+
+(bms_mean <- post_means[which.max(probs[5:8, ])])
+#> [1] 0.3488389
+(bma_mean <- sum(probs[5:8, ] * post_means))
+#> [1] 0.3508087
+```
