@@ -588,3 +588,29 @@ probs <- probs_unnormalized / sum(probs_unnormalized)
 
 knitr::kable(probs, digits = 2)
 ```
+
+We now evaluate the posteriors for $\xi$ for the different hyperparameter
+values.
+
+```{r}
+posterior_xi <- function(xi, y, a0, m0, alpha_b0, log = FALSE) {
+  N <- length(y)
+  alpha_bN <- alpha_b0 + N * a0
+  beta_bN  <- (alpha_b0 - 1) * m0 / a0 + sum(y)
+  logdens <- -a0 - lbeta(alpha_bN, beta_bN) +
+             (alpha_bN / a0 - 1) * log(xi) +
+             (beta_bN - 1) * log(1 - xi^(1 / a0))
+  if (log) logdens else exp(logdens)
+}
+
+xis <- seq(0, 1, length.out = 500)
+post_xis <- array(NA_real_,
+                  dim = c(length(a0_tmp), length(m0_tmp), length(xis)),
+                  dimnames = list(a0 = a0_tmp, m0 = round(m0_tmp, 2), xi = xis))
+for (i in seq_along(a0_tmp)) {
+  for (j in seq_along(m0_tmp)) {
+    post_xis[i, j, ] <- posterior_xi(xis, eyetracking$anomalies,
+                                     a0_tmp[i], m0_tmp[j], 6)
+  }
+}
+```
