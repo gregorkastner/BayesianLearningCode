@@ -1,6 +1,6 @@
 # Chapter 10: Bayesian Model Selection
 
-## Section 10.1: The Foundations of Bayesian Model Selections
+## Section 10.1: The Foundations of Bayesian Model Selection
 
 ### Table 10.1: (Log) Bayes factor and model probabilities
 
@@ -435,8 +435,12 @@ for (i in seq_along(a0)) {
                      sum(lgamma(y + 1))
 }
 
-knitr::kable(matrix(logmarglikM1, nrow = length(a0_tmp), ncol = length(m0_tmp),
-             dimnames = list(a0 = a0_tmp, m0 = round(m0_tmp, 2))), digits = 2)
+resM1 <- matrix(logmarglikM1, nrow = length(a0_tmp), ncol = length(m0_tmp),
+                dimnames = list(a0 = a0_tmp, m0 = round(m0_tmp, 2)))
+resM2 <- matrix(logmarglikM2, nrow = length(a0_tmp), ncol = length(m0_tmp),
+                dimnames = list(a0 = a0_tmp, m0 = round(m0_tmp, 2)))
+
+knitr::kable(resM1, digits = 2)
 ```
 
 |     |       1 |    3.52 |       5 |      10 |      20 |
@@ -448,9 +452,7 @@ knitr::kable(matrix(logmarglikM1, nrow = length(a0_tmp), ncol = length(m0_tmp),
 
 ``` r
 
-
-knitr::kable(matrix(logmarglikM2, nrow = length(a0_tmp), ncol = length(m0_tmp),
-             dimnames = list(a0 = a0_tmp, m0 = round(m0_tmp, 2))), digits = 2)
+knitr::kable(resM2, digits = 2)
 ```
 
 |     |       1 |    3.52 |       5 |      10 |      20 |
@@ -481,8 +483,10 @@ for (i in seq_along(a0)) {
                      N * lgamma(a0[i]) + sum(lgamma(a0[i] + y)) - sum(lgamma(y + 1))
 }
 
-knitr::kable(matrix(logmarglikM3, nrow = length(a0_tmp), ncol = length(m0_tmp),
-             dimnames = list(a0 = a0_tmp, m0 = round(m0_tmp, 2))), digits = 2)
+resM3 <- matrix(logmarglikM3, nrow = length(a0_tmp), ncol = length(m0_tmp),
+                dimnames = list(a0 = a0_tmp, m0 = round(m0_tmp, 2)))
+
+knitr::kable(resM3, digits = 2)
 ```
 
 |     |       1 |    3.52 |       5 |      10 |      20 |
@@ -557,6 +561,7 @@ Here is a visualization.
 
 ``` r
 
+par(mar = c(2.5, 1.5, .5, .5), mgp = c(1.6, .6, 0))
 mus <- seq(-.01, .02, 0.0001)
 plot(NULL, xlim = range(mus), log = "", xlab = expression(mu), ylab = "",
      ylim = range(dstudt(mus,
@@ -592,6 +597,7 @@ simulate the prior and the posterior of the no-income-risk difference.
 
 ``` r
 
+par(mar = c(2.5, 1.5, .5, .8), mgp = c(1.6, .6, 0))
 set.seed(42)
 M <- 10000000
 
@@ -647,6 +653,7 @@ As above, with different data.
 
 ``` r
 
+par(mar = c(2.5, 1.5, .5, .8), mgp = c(1.6, .6, 0))
 N1  <- 1668 # number at risk in City A
 SN1 <- 2    # cancer deaths in City A
 N2  <- 583  # number at risk in City B
@@ -699,3 +706,88 @@ knitr::kable(res)
 |     0.01 |      0.1 |      0.5 |   1 |   2 |   3 |   4 |   5 |
 |---------:|---------:|---------:|----:|----:|----:|----:|----:|
 | 99.43259 | 9.513508 | 1.772454 |   1 |   1 |   2 |   6 |  24 |
+
+## Section 10.4: Addressing Model Uncertainty
+
+We re-use the marginal likelihoods from above to compute posterior
+probabilities under a uniform prior for the individual models.
+
+``` r
+
+res <- rbind(resM1, resM3)
+probs_unnormalized <- exp(res - max(res))
+probs <- probs_unnormalized / sum(probs_unnormalized)
+
+knitr::kable(probs, digits = 2)
+```
+
+|     |    1 | 3.52 |    5 |   10 |  20 |
+|:----|-----:|-----:|-----:|-----:|----:|
+| 0.1 | 0.00 | 0.00 | 0.00 | 0.00 |   0 |
+| 0.5 | 0.00 | 0.00 | 0.00 | 0.00 |   0 |
+| 1   | 0.00 | 0.00 | 0.00 | 0.00 |   0 |
+| 2   | 0.00 | 0.00 | 0.00 | 0.00 |   0 |
+| 0.1 | 0.00 | 0.00 | 0.00 | 0.00 |   0 |
+| 0.5 | 0.02 | 0.46 | 0.47 | 0.05 |   0 |
+| 1   | 0.00 | 0.00 | 0.00 | 0.00 |   0 |
+| 2   | 0.00 | 0.00 | 0.00 | 0.00 |   0 |
+
+We now evaluate the posteriors for $`\xi`$ for the different
+hyperparameter values.
+
+``` r
+
+posterior_xi <- function(xi, y, a0, m0, alpha_b0, log = FALSE) {
+  N <- length(y)
+  alpha_bN <- alpha_b0 + N * a0
+  beta_bN  <- (alpha_b0 - 1) * m0 / a0 + sum(y)
+  logdens <- -a0 - lbeta(alpha_bN, beta_bN) +
+             (alpha_bN / a0 - 1) * log(xi) +
+             (beta_bN - 1) * log(1 - xi^(1 / a0))
+  if (log) logdens else exp(logdens)
+}
+
+xis <- seq(0, 1, length.out = 700)
+post_xis <- array(NA_real_,
+                  dim = c(length(a0_tmp), length(m0_tmp), length(xis)),
+                  dimnames = list(a0 = a0_tmp, m0 = round(m0_tmp, 2), xi = xis))
+for (i in seq_along(a0_tmp)) {
+  for (j in seq_along(m0_tmp)) {
+    post_xis[i, j, ] <- posterior_xi(xis, eyetracking$anomalies,
+                                     a0_tmp[i], m0_tmp[j], 6)
+  }
+}
+```
+
+Now we visualize, first the individual (model-specific) posteriors, then
+the BMA density and (again) the one for the model with highest posterior
+probability.
+
+``` r
+
+plot(NULL, xlim = c(0, 1), ylim = range(post_xis), xlab = expression(xi),
+     ylab = "", main = "Model-specific posterior densities")
+legend("topright",
+       legend = c(paste("a0 = ", a0_tmp), "", paste("m0 = ", round(m0_tmp, 2))),
+       lty = c(rep(1, length(a0_tmp)), NA, seq_along(m0_tmp)),
+       col = c(seq_along(a0_tmp) + 1, NA, rep(1, length(m0_tmp))))
+for (i in seq_along(a0_tmp)) {
+  for (j in seq_along(m0_tmp)) {
+    lines(xis, post_xis[i, j, ], col = i + 1, lty = j)
+  }
+}
+abline(h = 0, lwd = 1.5)
+
+weighted_post_xis <- apply(as.numeric(probs[5:8, ]) * post_xis, 3, sum)
+argmax <- which(probs[5:8, ] == max(probs[5:8, ]), arr.ind = TRUE)
+
+plot(xis, post_xis[argmax[1, 1], argmax[1, 2], ], type = "l", lwd = 3,
+     xlim = c(0.27, 0.43), col = argmax[1, 1] + 1, lty = argmax[1, 2],
+     main = "Most probable and BMA posterior", xlab = expression(xi))
+lines(xis, weighted_post_xis, lwd = 2)
+legend("topright", legend = c("BMS", "BMA"),
+       col = c(argmax[1, 1] + 1, 1), lty = c(argmax[1, 2], 1), lwd = c(3, 2))
+abline(h = 0, lwd = 1.5)
+```
+
+![](Chapter10_files/figure-html/unnamed-chunk-35-1.png)

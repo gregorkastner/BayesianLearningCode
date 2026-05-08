@@ -74,7 +74,7 @@
     
     
 <div class="section level2">
-<h2 id="section-10-1-the-foundations-of-bayesian-model-selections">Section 10.1: The Foundations of Bayesian Model Selections<a class="anchor" aria-label="anchor" href="#section-10-1-the-foundations-of-bayesian-model-selections"></a>
+<h2 id="section-10-1-the-foundations-of-bayesian-model-selection">Section 10.1: The Foundations of Bayesian Model Selection<a class="anchor" aria-label="anchor" href="#section-10-1-the-foundations-of-bayesian-model-selection"></a>
 </h2>
 <div class="section level3">
 <h3 id="table-10-1-log-bayes-factor-and-model-probabilities">Table 10.1: (Log) Bayes factor and model probabilities<a class="anchor" aria-label="anchor" href="#table-10-1-log-bayes-factor-and-model-probabilities"></a>
@@ -715,8 +715,12 @@ unobserved heterogeneity<a class="anchor" aria-label="anchor" href="#example-10-
 <span>                     <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Special.html" class="external-link">lgamma</a></span><span class="op">(</span><span class="va">y</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span></span>
-<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="va">logmarglikM1</span>, nrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">a0_tmp</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">m0_tmp</span><span class="op">)</span>,</span>
-<span>             dimnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>a0 <span class="op">=</span> <span class="va">a0_tmp</span>, m0 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">m0_tmp</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, digits <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">resM1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="va">logmarglikM1</span>, nrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">a0_tmp</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">m0_tmp</span><span class="op">)</span>,</span>
+<span>                dimnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>a0 <span class="op">=</span> <span class="va">a0_tmp</span>, m0 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">m0_tmp</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">resM2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="va">logmarglikM2</span>, nrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">a0_tmp</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">m0_tmp</span><span class="op">)</span>,</span>
+<span>                dimnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>a0 <span class="op">=</span> <span class="va">a0_tmp</span>, m0 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">m0_tmp</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">resM1</span>, digits <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
 <th align="left"></th>
@@ -762,9 +766,7 @@ unobserved heterogeneity<a class="anchor" aria-label="anchor" href="#example-10-
 </tbody>
 </table>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="va">logmarglikM2</span>, nrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">a0_tmp</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">m0_tmp</span><span class="op">)</span>,</span>
-<span>             dimnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>a0 <span class="op">=</span> <span class="va">a0_tmp</span>, m0 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">m0_tmp</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, digits <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">resM2</span>, digits <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
 <th align="left"></th>
@@ -834,8 +836,10 @@ marginal likelihood.</p>
 <span>                     <span class="va">N</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Special.html" class="external-link">lgamma</a></span><span class="op">(</span><span class="va">a0</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Special.html" class="external-link">lgamma</a></span><span class="op">(</span><span class="va">a0</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">+</span> <span class="va">y</span><span class="op">)</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Special.html" class="external-link">lgamma</a></span><span class="op">(</span><span class="va">y</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span></span>
-<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="va">logmarglikM3</span>, nrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">a0_tmp</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">m0_tmp</span><span class="op">)</span>,</span>
-<span>             dimnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>a0 <span class="op">=</span> <span class="va">a0_tmp</span>, m0 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">m0_tmp</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, digits <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">resM3</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="va">logmarglikM3</span>, nrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">a0_tmp</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">m0_tmp</span><span class="op">)</span>,</span>
+<span>                dimnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>a0 <span class="op">=</span> <span class="va">a0_tmp</span>, m0 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">m0_tmp</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">resM3</span>, digits <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
 <th align="left"></th>
@@ -938,7 +942,8 @@ ratio<a class="anchor" aria-label="anchor" href="#example-10-12-chf-exchange-rat
 <span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
 <p>Here is a visualization.</p>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">mus</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="op">-</span><span class="fl">.01</span>, <span class="fl">.02</span>, <span class="fl">0.0001</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.5</span>, <span class="fl">1.5</span>, <span class="fl">.5</span>, <span class="fl">.5</span><span class="op">)</span>, mgp <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.6</span>, <span class="fl">.6</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">mus</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="op">-</span><span class="fl">.01</span>, <span class="fl">.02</span>, <span class="fl">0.0001</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="cn">NULL</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">mus</span><span class="op">)</span>, log <span class="op">=</span> <span class="st">""</span>, xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">mu</span><span class="op">)</span>, ylab <span class="op">=</span> <span class="st">""</span>,</span>
 <span>     ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="fu"><a href="../reference/StudTDist.html">dstudt</a></span><span class="op">(</span><span class="va">mus</span>,</span>
 <span>                         <span class="va">bNs</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">N0s</span><span class="op">)</span><span class="op">]</span>,</span>
@@ -972,7 +977,8 @@ the no-income-risk homogeneity test<a class="anchor" aria-label="anchor" href="#
 simulate the prior and the posterior of the no-income-risk
 difference.</p>
 <div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.5</span>, <span class="fl">1.5</span>, <span class="fl">.5</span>, <span class="fl">.8</span><span class="op">)</span>, mgp <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.6</span>, <span class="fl">.6</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span>
 <span><span class="va">M</span> <span class="op">&lt;-</span> <span class="fl">10000000</span></span>
 <span></span>
 <span><span class="va">a01</span> <span class="op">&lt;-</span> <span class="va">a02</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
@@ -1022,7 +1028,8 @@ the mortality rate homogeneity test<a class="anchor" aria-label="anchor" href="#
 </h3>
 <p>As above, with different data.</p>
 <div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">N1</span>  <span class="op">&lt;-</span> <span class="fl">1668</span> <span class="co"># number at risk in City A</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.5</span>, <span class="fl">1.5</span>, <span class="fl">.5</span>, <span class="fl">.8</span><span class="op">)</span>, mgp <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.6</span>, <span class="fl">.6</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">N1</span>  <span class="op">&lt;-</span> <span class="fl">1668</span> <span class="co"># number at risk in City A</span></span>
 <span><span class="va">SN1</span> <span class="op">&lt;-</span> <span class="fl">2</span>    <span class="co"># cancer deaths in City A</span></span>
 <span><span class="va">N2</span>  <span class="op">&lt;-</span> <span class="fl">583</span>  <span class="co"># number at risk in City B</span></span>
 <span><span class="va">SN2</span> <span class="op">&lt;-</span> <span class="fl">1</span>    <span class="co"># cancer deaths in City B</span></span>
@@ -1087,6 +1094,146 @@ approximation.</p>
 </tr></tbody>
 </table>
 </div>
+</div>
+<div class="section level2">
+<h2 id="section-10-4-addressing-model-uncertainty">Section 10.4: Addressing Model Uncertainty<a class="anchor" aria-label="anchor" href="#section-10-4-addressing-model-uncertainty"></a>
+</h2>
+<p>We re-use the marginal likelihoods from above to compute posterior
+probabilities under a uniform prior for the individual models.</p>
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">resM1</span>, <span class="va">resM3</span><span class="op">)</span></span>
+<span><span class="va">probs_unnormalized</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">res</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">probs</span> <span class="op">&lt;-</span> <span class="va">probs_unnormalized</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">probs_unnormalized</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">probs</span>, digits <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left"></th>
+<th align="right">1</th>
+<th align="right">3.52</th>
+<th align="right">5</th>
+<th align="right">10</th>
+<th align="right">20</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">0.1</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">0.5</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">1</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">2</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">0.1</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">0.5</td>
+<td align="right">0.02</td>
+<td align="right">0.46</td>
+<td align="right">0.47</td>
+<td align="right">0.05</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">1</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">2</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0</td>
+</tr>
+</tbody>
+</table>
+<p>We now evaluate the posteriors for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ξ</mi><annotation encoding="application/x-tex">\xi</annotation></semantics></math>
+for the different hyperparameter values.</p>
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">posterior_xi</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">xi</span>, <span class="va">y</span>, <span class="va">a0</span>, <span class="va">m0</span>, <span class="va">alpha_b0</span>, <span class="va">log</span> <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">N</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span></span>
+<span>  <span class="va">alpha_bN</span> <span class="op">&lt;-</span> <span class="va">alpha_b0</span> <span class="op">+</span> <span class="va">N</span> <span class="op">*</span> <span class="va">a0</span></span>
+<span>  <span class="va">beta_bN</span>  <span class="op">&lt;-</span> <span class="op">(</span><span class="va">alpha_b0</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">*</span> <span class="va">m0</span> <span class="op">/</span> <span class="va">a0</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span></span>
+<span>  <span class="va">logdens</span> <span class="op">&lt;-</span> <span class="op">-</span><span class="va">a0</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Special.html" class="external-link">lbeta</a></span><span class="op">(</span><span class="va">alpha_bN</span>, <span class="va">beta_bN</span><span class="op">)</span> <span class="op">+</span></span>
+<span>             <span class="op">(</span><span class="va">alpha_bN</span> <span class="op">/</span> <span class="va">a0</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">xi</span><span class="op">)</span> <span class="op">+</span></span>
+<span>             <span class="op">(</span><span class="va">beta_bN</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">xi</span><span class="op">^</span><span class="op">(</span><span class="fl">1</span> <span class="op">/</span> <span class="va">a0</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="kw">if</span> <span class="op">(</span><span class="va">log</span><span class="op">)</span> <span class="va">logdens</span> <span class="kw">else</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">logdens</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="va">xis</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, length.out <span class="op">=</span> <span class="fl">700</span><span class="op">)</span></span>
+<span><span class="va">post_xis</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></span><span class="op">(</span><span class="cn">NA_real_</span>,</span>
+<span>                  dim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">a0_tmp</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">m0_tmp</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">xis</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>                  dimnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>a0 <span class="op">=</span> <span class="va">a0_tmp</span>, m0 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">m0_tmp</span>, <span class="fl">2</span><span class="op">)</span>, xi <span class="op">=</span> <span class="va">xis</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">a0_tmp</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="kw">for</span> <span class="op">(</span><span class="va">j</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">m0_tmp</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">post_xis</span><span class="op">[</span><span class="va">i</span>, <span class="va">j</span>, <span class="op">]</span> <span class="op">&lt;-</span> <span class="fu">posterior_xi</span><span class="op">(</span><span class="va">xis</span>, <span class="va">eyetracking</span><span class="op">$</span><span class="va">anomalies</span>,</span>
+<span>                                     <span class="va">a0_tmp</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, <span class="va">m0_tmp</span><span class="op">[</span><span class="va">j</span><span class="op">]</span>, <span class="fl">6</span><span class="op">)</span></span>
+<span>  <span class="op">}</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+<p>Now we visualize, first the individual (model-specific) posteriors,
+then the BMA density and (again) the one for the model with highest
+posterior probability.</p>
+<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="cn">NULL</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">post_xis</span><span class="op">)</span>, xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">xi</span><span class="op">)</span>,</span>
+<span>     ylab <span class="op">=</span> <span class="st">""</span>, main <span class="op">=</span> <span class="st">"Model-specific posterior densities"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topright"</span>,</span>
+<span>       legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"a0 = "</span>, <span class="va">a0_tmp</span><span class="op">)</span>, <span class="st">""</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"m0 = "</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">m0_tmp</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>       lty <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">a0_tmp</span><span class="op">)</span><span class="op">)</span>, <span class="cn">NA</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">m0_tmp</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>       col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">a0_tmp</span><span class="op">)</span> <span class="op">+</span> <span class="fl">1</span>, <span class="cn">NA</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">m0_tmp</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">a0_tmp</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="kw">for</span> <span class="op">(</span><span class="va">j</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">m0_tmp</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">xis</span>, <span class="va">post_xis</span><span class="op">[</span><span class="va">i</span>, <span class="va">j</span>, <span class="op">]</span>, col <span class="op">=</span> <span class="va">i</span> <span class="op">+</span> <span class="fl">1</span>, lty <span class="op">=</span> <span class="va">j</span><span class="op">)</span></span>
+<span>  <span class="op">}</span></span>
+<span><span class="op">}</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>h <span class="op">=</span> <span class="fl">0</span>, lwd <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">weighted_post_xis</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">probs</span><span class="op">[</span><span class="fl">5</span><span class="op">:</span><span class="fl">8</span>, <span class="op">]</span><span class="op">)</span> <span class="op">*</span> <span class="va">post_xis</span>, <span class="fl">3</span>, <span class="va">sum</span><span class="op">)</span></span>
+<span><span class="va">argmax</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="va">probs</span><span class="op">[</span><span class="fl">5</span><span class="op">:</span><span class="fl">8</span>, <span class="op">]</span> <span class="op">==</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">probs</span><span class="op">[</span><span class="fl">5</span><span class="op">:</span><span class="fl">8</span>, <span class="op">]</span><span class="op">)</span>, arr.ind <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">xis</span>, <span class="va">post_xis</span><span class="op">[</span><span class="va">argmax</span><span class="op">[</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">]</span>, <span class="va">argmax</span><span class="op">[</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">]</span>, <span class="op">]</span>, type <span class="op">=</span> <span class="st">"l"</span>, lwd <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>     xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.27</span>, <span class="fl">0.43</span><span class="op">)</span>, col <span class="op">=</span> <span class="va">argmax</span><span class="op">[</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">]</span> <span class="op">+</span> <span class="fl">1</span>, lty <span class="op">=</span> <span class="va">argmax</span><span class="op">[</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">]</span>,</span>
+<span>     main <span class="op">=</span> <span class="st">"Most probable and BMA posterior"</span>, xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">xi</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">xis</span>, <span class="va">weighted_post_xis</span>, lwd <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topright"</span>, legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"BMS"</span>, <span class="st">"BMA"</span><span class="op">)</span>,</span>
+<span>       col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">argmax</span><span class="op">[</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">]</span> <span class="op">+</span> <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">argmax</span><span class="op">[</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">]</span>, <span class="fl">1</span><span class="op">)</span>, lwd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>h <span class="op">=</span> <span class="fl">0</span>, lwd <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span></span></code></pre></div>
+<p><img src="Chapter10_files/figure-html/unnamed-chunk-35-1.png" class="r-plt" alt="" width="768"></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
