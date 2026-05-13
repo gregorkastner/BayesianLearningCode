@@ -741,7 +741,7 @@ posterior_xi <- function(xi, y, a0, m0, alpha_b0, log = FALSE) {
   N <- length(y)
   alpha_bN <- alpha_b0 + N * a0
   beta_bN  <- (alpha_b0 - 1) * m0 / a0 + sum(y)
-  logdens <- -a0 - lbeta(alpha_bN, beta_bN) +
+  logdens <- -log(a0) - lbeta(alpha_bN, beta_bN) +
              (alpha_bN / a0 - 1) * log(xi) +
              (beta_bN - 1) * log(1 - xi^(1 / a0))
   if (log) logdens else exp(logdens)
@@ -767,7 +767,7 @@ probability.
 
 plot(NULL, xlim = c(0, 1), ylim = range(post_xis), xlab = expression(xi),
      ylab = "", main = "Model-specific posterior densities")
-legend("topright",
+legend("topright", ncol = 2,
        legend = c(paste("a0 = ", a0_tmp), "", paste("m0 = ", round(m0_tmp, 2))),
        lty = c(rep(1, length(a0_tmp)), NA, seq_along(m0_tmp)),
        col = c(seq_along(a0_tmp) + 1, NA, rep(1, length(m0_tmp))))
@@ -778,13 +778,28 @@ for (i in seq_along(a0_tmp)) {
 }
 abline(h = 0, lwd = 1.5)
 
-weighted_post_xis <- apply(as.numeric(probs[5:8, ]) * post_xis, 3, sum)
+weighted_post_xis <- as.numeric(probs[5:8, ]) * post_xis
+bma_post_xis <- apply(weighted_post_xis, 3, sum)
 argmax <- which(probs[5:8, ] == max(probs[5:8, ]), arr.ind = TRUE)
 
-plot(xis, post_xis[argmax[1, 1], argmax[1, 2], ], type = "l", lwd = 3,
+plot(xis, post_xis[argmax[1, 1], argmax[1, 2], ], type = "l", lwd = 4,
      xlim = c(0.27, 0.43), col = argmax[1, 1] + 1, lty = argmax[1, 2],
      main = "Most probable and BMA posterior", xlab = expression(xi))
-lines(xis, weighted_post_xis, lwd = 2)
+lines(xis, bma_post_xis, lwd = 2)
+
+for (i in seq_len(nrow(weighted_post_xis))) {
+  for (j in seq_len(ncol(weighted_post_xis))) {
+    if (probs[4 + i, j] > 0.0001) {
+      print("y")
+      lines(xis, weighted_post_xis[i,j, ], col = rgb(0, 1, 0, .5))
+    }
+  }
+}
+#> [1] "y"
+#> [1] "y"
+#> [1] "y"
+#> [1] "y"
+
 legend("topright", legend = c("BMS", "BMA"),
        col = c(argmax[1, 1] + 1, 1), lty = c(argmax[1, 2], 1), lwd = c(3, 2))
 abline(h = 0, lwd = 1.5)
