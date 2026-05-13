@@ -625,7 +625,7 @@ if (pdfplots) {
 par(mfrow = c(1, 2), mar = c(2.5, 1.5, 1, .5), mgp = c(1.6, .6, 0))
 plot(NULL, xlim = c(0, 1), ylim = range(post_xis), xlab = expression(xi),
      ylab = "", main = "Model-specific posterior densities")
-legend("topright",
+legend("topright", ncol = 2,
        legend = c(paste("a0 = ", a0_tmp), "", paste("m0 = ", round(m0_tmp, 2))),
        lty = c(rep(1, length(a0_tmp)), NA, seq_along(m0_tmp)),
        col = c(seq_along(a0_tmp) + 1, NA, rep(1, length(m0_tmp))))
@@ -639,7 +639,7 @@ abline(h = 0, lwd = 1.5)
 weighted_post_xis <- apply(as.numeric(probs[5:8, ]) * post_xis, 3, sum)
 argmax <- which(probs[5:8, ] == max(probs[5:8, ]), arr.ind = TRUE)
 
-plot(xis, post_xis[argmax[1, 1], argmax[1, 2], ], type = "l", lwd = 3,
+plot(xis, post_xis[argmax[1, 1], argmax[1, 2], ], type = "l", lwd = 4,
      xlim = c(0.27, 0.43), col = argmax[1, 1] + 1, lty = argmax[1, 2],
      main = "Most probable and BMA posterior", xlab = expression(xi))
 lines(xis, weighted_post_xis, lwd = 2)
