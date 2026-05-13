@@ -636,13 +636,14 @@ for (i in seq_along(a0_tmp)) {
 }
 abline(h = 0, lwd = 1.5)
 
-weighted_post_xis <- apply(as.numeric(probs[5:8, ]) * post_xis, 3, sum)
+weighted_post_xis <- as.numeric(probs[5:8, ]) * post_xis
+bma_post_xis <- apply(weighted_post_xis, 3, sum)
 argmax <- which(probs[5:8, ] == max(probs[5:8, ]), arr.ind = TRUE)
 
 plot(xis, post_xis[argmax[1, 1], argmax[1, 2], ], type = "l", lwd = 4,
      xlim = c(0.27, 0.43), col = argmax[1, 1] + 1, lty = argmax[1, 2],
      main = "Most probable and BMA posterior", xlab = expression(xi))
-lines(xis, weighted_post_xis, lwd = 2)
+lines(xis, bma_post_xis, lwd = 2)
 legend("topright", legend = c("BMS", "BMA"),
        col = c(argmax[1, 1] + 1, 1), lty = c(argmax[1, 2], 1), lwd = c(3, 2))
 abline(h = 0, lwd = 1.5)
