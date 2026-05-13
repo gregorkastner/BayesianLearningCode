@@ -644,6 +644,16 @@ plot(xis, post_xis[argmax[1, 1], argmax[1, 2], ], type = "l", lwd = 4,
      xlim = c(0.27, 0.43), col = argmax[1, 1] + 1, lty = argmax[1, 2],
      main = "Most probable and BMA posterior", xlab = expression(xi))
 lines(xis, bma_post_xis, lwd = 2)
+
+for (i in seq_len(nrow(weighted_post_xis))) {
+  for (j in seq_len(ncol(weighted_post_xis))) {
+    if (probs[4 + i, j] > 0.0001) {
+      print("y")
+      lines(xis, weighted_post_xis[i,j, ], col = rgb(0, 1, 0, .5))
+    }
+  }
+}
+
 legend("topright", legend = c("BMS", "BMA"),
        col = c(argmax[1, 1] + 1, 1), lty = c(argmax[1, 2], 1), lwd = c(3, 2))
 abline(h = 0, lwd = 1.5)
