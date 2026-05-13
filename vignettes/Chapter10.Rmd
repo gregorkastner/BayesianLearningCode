@@ -597,7 +597,7 @@ posterior_xi <- function(xi, y, a0, m0, alpha_b0, log = FALSE) {
   N <- length(y)
   alpha_bN <- alpha_b0 + N * a0
   beta_bN  <- (alpha_b0 - 1) * m0 / a0 + sum(y)
-  logdens <- -a0 - lbeta(alpha_bN, beta_bN) +
+  logdens <- -log(a0) - lbeta(alpha_bN, beta_bN) +
              (alpha_bN / a0 - 1) * log(xi) +
              (beta_bN - 1) * log(1 - xi^(1 / a0))
   if (log) logdens else exp(logdens)
