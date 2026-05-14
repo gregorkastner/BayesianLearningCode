@@ -765,10 +765,12 @@ probability.
 
 ``` r
 
-plot(NULL, xlim = c(0, 1), ylim = range(post_xis), xlab = expression(xi),
-     ylab = "", main = "Model-specific posterior densities")
+plot(NULL, xlim = c(0, 1), ylim = c(0, 1.15 * max(post_xis)),
+     xlab = expression(xi), ylab = "",
+     main = "Model-specific posterior densities")
 legend("topright", ncol = 2,
-       legend = c(paste("a0 = ", a0_tmp), "", paste("m0 = ", round(m0_tmp, 2))),
+       legend = parse(text = c(paste("a[0] == ", a0_tmp), '""',
+                               paste("m[0] == ", round(m0_tmp, 2)))),
        lty = c(rep(1, length(a0_tmp)), NA, seq_along(m0_tmp)),
        col = c(seq_along(a0_tmp) + 1, NA, rep(1, length(m0_tmp))))
 for (i in seq_along(a0_tmp)) {
@@ -782,26 +784,23 @@ weighted_post_xis <- as.numeric(probs[5:8, ]) * post_xis
 bma_post_xis <- apply(weighted_post_xis, 3, sum)
 argmax <- which(probs[5:8, ] == max(probs[5:8, ]), arr.ind = TRUE)
 
-plot(xis, post_xis[argmax[1, 1], argmax[1, 2], ], type = "l", lwd = 4,
-     xlim = c(0.27, 0.43), col = argmax[1, 1] + 1, lty = argmax[1, 2],
-     main = "Most probable and BMA posterior", xlab = expression(xi))
+plot(xis, post_xis[argmax[1, 1], argmax[1, 2], ], type = "l", lwd = 2,
+     xlim = c(0.27, 0.43),
+     ylim = c(0, 1.17 * max(post_xis[probs[5:8, ] > 0.0001])),
+     lty = 2, main = "Most probable and BMA posterior", xlab = expression(xi))
 lines(xis, bma_post_xis, lwd = 2)
 
 for (i in seq_len(nrow(weighted_post_xis))) {
   for (j in seq_len(ncol(weighted_post_xis))) {
     if (probs[4 + i, j] > 0.0001) {
-      print("y")
-      lines(xis, weighted_post_xis[i,j, ], col = rgb(0, 1, 0, .5))
+      lines(xis, weighted_post_xis[i,j, ])
     }
   }
 }
-#> [1] "y"
-#> [1] "y"
-#> [1] "y"
-#> [1] "y"
 
-legend("topright", legend = c("BMS", "BMA"),
-       col = c(argmax[1, 1] + 1, 1), lty = c(argmax[1, 2], 1), lwd = c(3, 2))
+legend("topright", c("Most probable posterior", "BMA posterior",
+                     "Weighted components"),
+       col = 1, lty = c(2, 1, 1), lwd = c(2, 2, 1))
 abline(h = 0, lwd = 1.5)
 ```
 
