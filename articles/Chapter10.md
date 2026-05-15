@@ -6,6 +6,7 @@
 
 ``` r
 
+library("BayesianLearningCode")
 logBF <- -7:7
 BF <- exp(logBF)
 PrM1 <- BF / (1 + BF)
@@ -500,36 +501,25 @@ knitr::kable(resM3, digits = 2)
 
 ``` r
 
-library("BayesianLearningCode")
-#> 
-#> Attaching package: 'BayesianLearningCode'
-#> The following object is masked _by_ '.GlobalEnv':
-#> 
-#>     labor
 y <- 100 * diff(log(exrates$USD / exrates$CHF))
 
 c0R <- 1
 c0U <- c0R - 1/2 # This is needed for the SD theorem to be valid!
 C0 <- 1
-N0s <- N0 <- 10^(seq(2.5, 7, by = .1))
+#N0s <- N0 <- 10^(seq(2.5, 7, by = .1))
+N0 <- 10^(2:5)
 
 N <- length(y)
-bNs <- sum(y) / (N0s + N)
+bNs <- sum(y) / (N0 + N)
 cNR <- c0R + N / 2
 cNU <- c0U + N / 2
-CNs <- C0 + 0.5 * sum((y - mean(y))^2) + 0.5 * N * N0s * mean(y)^2 / (N0s + N)
+CNs <- C0 + 0.5 * sum((y - mean(y))^2) + 0.5 * N * N0 * mean(y)^2 / (N0 + N)
 
-(logSD <- dstudt(0, bNs, sqrt(CNs / (cNU * (N0s + N))), df = 2 * cNU, log = TRUE) -
-          dstudt(0, 0, sqrt(C0 / (c0U * N0s)), df = 2 * c0U, log = TRUE))
-#>  [1] 1.2539440 1.1698030 1.0920726 1.0216664 0.9594487 0.9061529 0.8622889
-#>  [8] 0.8280519 0.8032528 0.7872897 0.7791769 0.7776305 0.7811990 0.7884095
-#> [15] 0.7979005 0.8085183 0.8193645 0.8298015 0.8394245 0.8480177 0.8555049
-#> [22] 0.8619045 0.8672923 0.8717745 0.8754681 0.8784890 0.8809449 0.8829321
-#> [29] 0.8845339 0.8858211 0.8868532 0.8876790 0.8883389 0.8888655 0.8892853
-#> [36] 0.8896197 0.8898860 0.8900979 0.8902665 0.8904006 0.8905072 0.8905919
-#> [43] 0.8906592 0.8907127 0.8907553 0.8907891
+(logSD <- dstudt(0, bNs, sqrt(CNs / (cNU * (N0 + N))), df = 2 * cNU, log = TRUE) -
+          dstudt(0, 0, sqrt(C0 / (c0U * N0)), df = 2 * c0U, log = TRUE))
+#> [1] 1.7416826 0.9061529 0.8085183 0.8784890
 
-plot(N0s, logSD, type = "l", log = "x")
+plot(N0, logSD, type = "l", log = "x")
 ```
 
 ![](Chapter10_files/figure-html/unnamed-chunk-25-1.png)
@@ -546,13 +536,7 @@ logmarglikM2 <- lgamma(cNU) + c0U * log(C0) + 0.5 * log(N0) -
    lgamma(c0U) - cNU * log(CNs) - 0.5 * N * log(2 * pi) - 0.5 * log(N0 + N)
 
 (logBF <- logmarglikM1 - logmarglikM2)
-#>  [1] 1.2539440 1.1698030 1.0920726 1.0216664 0.9594487 0.9061529 0.8622889
-#>  [8] 0.8280519 0.8032528 0.7872897 0.7791769 0.7776305 0.7811990 0.7884095
-#> [15] 0.7979005 0.8085183 0.8193645 0.8298015 0.8394245 0.8480177 0.8555049
-#> [22] 0.8619045 0.8672923 0.8717745 0.8754681 0.8784890 0.8809449 0.8829321
-#> [29] 0.8845339 0.8858211 0.8868532 0.8876790 0.8883389 0.8888655 0.8892853
-#> [36] 0.8896197 0.8898860 0.8900979 0.8902665 0.8904006 0.8905072 0.8905919
-#> [43] 0.8906592 0.8907127 0.8907553 0.8907891
+#> [1] 1.7416826 0.9061529 0.8085183 0.8784890
 all.equal(logSD, logBF)
 #> [1] TRUE
 ```
@@ -565,24 +549,24 @@ par(mar = c(2.5, 1.5, .5, .5), mgp = c(1.6, .6, 0))
 mus <- seq(-.01, .02, 0.0001)
 plot(NULL, xlim = range(mus), log = "", xlab = expression(mu), ylab = "",
      ylim = range(dstudt(mus,
-                         bNs[length(N0s)],
-                         sqrt(CNs[length(N0s)] / (cNU * (N0s[length(N0s)] + N))),
+                         bNs[length(N0)],
+                         sqrt(CNs[length(N0)] / (cNU * (N0[length(N0)] + N))),
                          df = 2 * cNU)))
 abline(v = 0, lty = 3)
 abline(h = 0, lty = 3)
-for (i in seq_along(N0s)) {
-  lines(mus, dstudt(mus, 0, sqrt(C0 / (c0R * N0s[i])), df = 2 * c0R),
+for (i in seq_along(N0)) {
+  lines(mus, dstudt(mus, 0, sqrt(C0 / (c0R * N0[i])), df = 2 * c0R),
         lty = 2, col = i)
-  lines(mus, dstudt(mus, bNs[i], sqrt(CNs[i] / (cNU * (N0s[i] + N))), df = 2 * cNU),
+  lines(mus, dstudt(mus, bNs[i], sqrt(CNs[i] / (cNU * (N0[i] + N))), df = 2 * cNU),
         lty = 1, col = i)
   points(c(0, 0),
-         c(dstudt(0, 0, sqrt(C0 / (c0R * N0s[i])), df = 2 * c0R),
-           dstudt(0, bNs[i], sqrt(CNs[i] / (cNU * (N0s[i] + N))), df = 2 * cNU)),
+         c(dstudt(0, 0, sqrt(C0 / (c0R * N0[i])), df = 2 * c0R),
+           dstudt(0, bNs[i], sqrt(CNs[i] / (cNU * (N0[i] + N))), df = 2 * cNU)),
          col = i, pch = c(1, 16))
 }
-legend("topright",
-       paste0(rep(c("Posterior (N0 = ", "Prior (N0 = "), each = length(N0)),
-              rep(N0, 2), ")"),
+options(scipen = 999) # to avoid scientific notation
+legend("topright", parse(text = c(paste0("Posterior ~ (N[0] == ", N0, ")"),
+                                  paste0("Prior ~ (N[0] == ", N0, ")"))),
        lty = rep(c(1, 2), each = length(N0)),
        pch = rep(c(16, 1), each = length(N0)), 
        col = rep(seq_along(N0), 2))
