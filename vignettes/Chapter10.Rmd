@@ -24,6 +24,7 @@ pdfplots <- FALSE # default: FALSE; set this to TRUE only if you like pdf figure
 ## Table 10.1: (Log) Bayes factor and model probabilities
 
 ```{r}
+library("BayesianLearningCode")
 logBF <- -7:7
 BF <- exp(logBF)
 PrM1 <- BF / (1 + BF)
@@ -402,7 +403,6 @@ knitr::kable(resM3, digits = 2)
 ## Example 10.12: CHF exchange rate data - Savage-Dickey density ratio 
 
 ```{r}
-library("BayesianLearningCode")
 y <- 100 * diff(log(exrates$USD / exrates$CHF))
 
 c0R <- 1
