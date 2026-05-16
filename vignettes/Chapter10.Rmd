@@ -490,6 +490,7 @@ plot(N0, logSD, type = "l", log = "x", ylim = c(0, max(logSD)),
      main = "Log Bayes factor in favor of the zero-mean model")
 abline(h = 0, lty = 3)
 abline(h = logSD[length(logSD)], lty = 2)
+(exp(logSD[length(logSD)]))
 ```
 
 ## Example 10.13: Labor market data - Savage-Dickey density ratio for the no-income-risk homogeneity test
