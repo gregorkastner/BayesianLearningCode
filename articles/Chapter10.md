@@ -506,7 +506,6 @@ y <- 100 * diff(log(exrates$USD / exrates$CHF))
 c0R <- 1
 c0U <- c0R - 1/2 # This is needed for the SD theorem to be valid!
 C0 <- 1
-#N0s <- N0 <- 10^(seq(2.5, 7, by = .1))
 N0 <- 10^(2:5)
 
 N <- length(y)
@@ -518,11 +517,7 @@ CNs <- C0 + 0.5 * sum((y - mean(y))^2) + 0.5 * N * N0 * mean(y)^2 / (N0 + N)
 (logSD <- dstudt(0, bNs, sqrt(CNs / (cNU * (N0 + N))), df = 2 * cNU, log = TRUE) -
           dstudt(0, 0, sqrt(C0 / (c0U * N0)), df = 2 * c0U, log = TRUE))
 #> [1] 1.7416826 0.9061529 0.8085183 0.8784890
-
-plot(N0, logSD, type = "l", log = "x")
 ```
-
-![](Chapter10_files/figure-html/unnamed-chunk-25-1.png)
 
 Let us double-check this:
 
@@ -564,7 +559,7 @@ for (i in seq_along(N0)) {
            dstudt(0, bNs[i], sqrt(CNs[i] / (cNU * (N0[i] + N))), df = 2 * cNU)),
          col = i, pch = c(1, 16))
 }
-options(scipen = 999) # to avoid scientific notation
+op <- options(scipen = 999) # to avoid scientific notation
 legend("topright", parse(text = c(paste0("Posterior ~ (N[0] == ", N0, ")"),
                                   paste0("Prior ~ (N[0] == ", N0, ")"))),
        lty = rep(c(1, 2), each = length(N0)),
@@ -573,6 +568,41 @@ legend("topright", parse(text = c(paste0("Posterior ~ (N[0] == ", N0, ")"),
 ```
 
 ![](Chapter10_files/figure-html/unnamed-chunk-27-1.png)
+
+``` r
+
+options(op) # reset to allow scientific notation
+```
+
+Finally, we repeat the exercise for a higher number of different values
+of $`N_0`$.
+
+``` r
+
+par(mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.6, .6, 0))
+N0 <- 10^seq(1, 10, by = 0.1)
+N <- length(y)
+bNs <- sum(y) / (N0 + N)
+cNR <- c0R + N / 2
+cNU <- c0U + N / 2
+CNs <- C0 + 0.5 * sum((y - mean(y))^2) + 0.5 * N * N0 * mean(y)^2 / (N0 + N)
+
+logSD <- dstudt(0, bNs, sqrt(CNs / (cNU * (N0 + N))), df = 2 * cNU, log = TRUE) -
+         dstudt(0, 0, sqrt(C0 / (c0U * N0)), df = 2 * c0U, log = TRUE)
+plot(N0, logSD, type = "l", log = "x", ylim = c(0, max(logSD)),
+     xlab = expression(paste(N[0], " [log scale]")), ylab = "log BF",
+     main = "Log Bayes factor in favor of the zero-mean model")
+abline(h = 0, lty = 3)
+abline(h = logSD[length(logSD)], lty = 2)
+```
+
+![](Chapter10_files/figure-html/unnamed-chunk-28-1.png)
+
+``` r
+
+(exp(logSD[length(logSD)]))
+#> [1] 2.43737
+```
 
 ### Example 10.13: Labor market data - Savage-Dickey density ratio for the no-income-risk homogeneity test
 
@@ -611,7 +641,7 @@ abline(h = 0, lty = 3)
 lines(d <- density(psi), lwd = 2)
 ```
 
-![](Chapter10_files/figure-html/unnamed-chunk-28-1.png)
+![](Chapter10_files/figure-html/unnamed-chunk-29-1.png)
 
 We can approximate the Bayes factor through the estimated Savage-Dickey
 density ratio. Note, though, that this can be a very poor approximation.
@@ -661,7 +691,7 @@ abline(v = 0, lty = 3)
 abline(h = 0, lty = 3)
 ```
 
-![](Chapter10_files/figure-html/unnamed-chunk-30-1.png)
+![](Chapter10_files/figure-html/unnamed-chunk-31-1.png)
 
 We can approximate the Bayes factor through the estimated Savage-Dickey
 density ratio. Note, though, that this can be a very poor approximation.
@@ -788,7 +818,7 @@ legend("topright", c("Most probable posterior", "BMA posterior",
 abline(h = 0, lwd = 1.5)
 ```
 
-![](Chapter10_files/figure-html/unnamed-chunk-35-1.png)
+![](Chapter10_files/figure-html/unnamed-chunk-36-1.png)
 
 Let us compute the posterior mean for the most probable model and the
 BMA mean.
