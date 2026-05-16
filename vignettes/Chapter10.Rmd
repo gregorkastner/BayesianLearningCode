@@ -485,10 +485,11 @@ CNs <- C0 + 0.5 * sum((y - mean(y))^2) + 0.5 * N * N0 * mean(y)^2 / (N0 + N)
 
 logSD <- dstudt(0, bNs, sqrt(CNs / (cNU * (N0 + N))), df = 2 * cNU, log = TRUE) -
          dstudt(0, 0, sqrt(C0 / (c0U * N0)), df = 2 * c0U, log = TRUE)
-plot(N0, logSD, type = "l", log = "x",
+plot(N0, logSD, type = "l", log = "x", ylim = c(0, max(logSD)),
      xlab = expression(paste(N[0], " [log scale]")), ylab = "log BF",
      main = "Log Bayes factor in favor of the zero-mean model")
-abline(h = logSD[length(logSD)], lty = 3)
+abline(h = 0, lty = 3)
+abline(h = logSD[length(logSD)], lty = 2)
 ```
 
 ## Example 10.13: Labor market data - Savage-Dickey density ratio for the no-income-risk homogeneity test
