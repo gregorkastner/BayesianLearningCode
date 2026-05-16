@@ -498,7 +498,7 @@ the prior and the posterior of the no-income-risk difference.
 
 ```{r, echo = -1}
 if (pdfplots) {
-  pdf("10-1_3a.pdf", width = 5, height = 4)
+  pdf("10-1_4a.pdf", width = 5, height = 4)
 }
 par(mar = c(2.5, 1.5, .5, .8), mgp = c(1.6, .6, 0))
 set.seed(42)
@@ -552,7 +552,7 @@ As above, with different data.
 
 ```{r, echo = -1}
 if (pdfplots) {
-  pdf("10-1_3b.pdf", width = 5, height = 4)
+  pdf("10-1_4b.pdf", width = 5, height = 4)
 }
 par(mar = c(2.5, 1.5, .5, .8), mgp = c(1.6, .6, 0))
 N1  <- 1668 # number at risk in City A
