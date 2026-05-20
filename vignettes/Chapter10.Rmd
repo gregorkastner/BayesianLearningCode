@@ -32,7 +32,7 @@ PrM2 <- 1 - PrM1
 knitr::kable(cbind(BF, logBF, PrM1, PrM2))
 ```
 
-## Example 10.5: CHF exchange rate data - Testing the null hypothesis $\mu = 0$
+## Example 10.5: CHF exchange rate data - Testing for zero mean
 
 Before producing Figure 10.1, we begin with a concrete example.
 We load the data, compute the required parameters, and evaluate the two 
