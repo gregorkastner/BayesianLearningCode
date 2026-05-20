@@ -746,3 +746,28 @@ unrestricted2restricted <- function(theta) {
   c(alpha0, alpha1, gamma1)
 }
 ```
+
+Next, we define the log likelihood function and the log posterior.
+
+```{r}
+loglik <- function(y, theta) {
+  pars <- unrestricted2restricted(theta)
+  sigma2 <- rep(NA_real_, length(y))
+
+  # initialize at unconditional variance
+  sigma2[1] <- pars[1] / (1 - pars[2] - pars[3])
+
+  for (i in 2:length(y)) {
+    sigma2[i] <- pars[1] + pars[2] * y[i - 1]^2 + pars[3] * sigma2[i - 1]
+  }
+
+  -0.5 * log(2 * pi) * length(y) - sum(log(sigma2) + y^2 / sigma2)
+}
+
+logpost <- function(y, theta, priormeans = rep(0, 3), priorsds = rep(10, 3)) {
+  loglik(y, theta) +
+    dnorm(theta[1], priormeans[1], priorsds[1], log = TRUE) +
+    dnorm(theta[2], priormeans[2], priorsds[2], log = TRUE) +
+    dnorm(theta[3], priormeans[3], priorsds[3], log = TRUE)
+}
+```
