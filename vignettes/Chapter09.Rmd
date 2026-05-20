@@ -730,3 +730,19 @@ polygon(pxs, c(quants["5%", 1], quants["95%", ], rev(quants["5%", ])),
         col = rgb(1, 0, 0, .2), border = NA)
 abline(h = 0, lty = 3)
 ```
+
+## Section 2.5.3: Forecasting Volatility via GARCH(1,1) Models
+
+We start by defining the parameter transformation.
+
+```{r}
+unrestricted2restricted <- function(theta) {
+  alpha0 <- exp(theta[1])
+  exptheta2 <- exp(theta[2])
+  exptheta3 <- exp(theta[3])
+  denom <- 1 + exptheta2 + exptheta3
+  alpha1 <- exptheta2 / denom
+  gamma1  <- exptheta3 / denom
+  c(alpha0, alpha1, gamma1)
+}
+```
