@@ -669,7 +669,7 @@ argmax <- which(probs[5:8, ] == max(probs[5:8, ]), arr.ind = TRUE)
 plot(xis, post_xis[argmax[1, 1], argmax[1, 2], ], type = "l", lwd = 2,
      xlim = c(0.27, 0.43),
      ylim = c(0, 1.17 * max(post_xis[probs[5:8, ] > 0.0001])),
-     lty = 2, main = "Most probable and BMA posterior", xlab = expression(xi))
+     lty = 2, main = "MAP and BMA posterior", xlab = expression(xi))
 lines(xis, bma_post_xis, lwd = 2)
 
 for (i in seq_len(nrow(weighted_post_xis))) {
@@ -680,7 +680,7 @@ for (i in seq_len(nrow(weighted_post_xis))) {
   }
 }
 
-legend("topright", c("Most probable posterior", "BMA posterior",
+legend("topright", c("MAP posterior", "BMA posterior",
                      "Weighted components"),
        col = 1, lty = c(2, 1, 1), lwd = c(2, 2, 1))
 abline(h = 0, lwd = 1.5)
