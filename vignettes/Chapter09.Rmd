@@ -801,3 +801,16 @@ sampler <- function(y, M = 20000L, nburn = 5000L, propsds = c(0.1, 0.1, 0.1)) {
 }
 ```
 
+We are now ready to apply the sampler to our EUR-CHF exchange rate percentage
+log returns. After running the sampler, we need to transform back to our
+original parameters.
+
+```{r}
+data("exrates", package = "stochvol")
+y <- 100 * diff(log(exrates$USD / exrates$CHF))
+thetas <- sampler(y)
+draws <- t(apply(thetas, 1, unrestricted2restricted))
+colnames(draws) <- c("alpha0", "alpha1", "gamma1")
+plot.ts(thetas)
+plot.ts(draws)
+```
