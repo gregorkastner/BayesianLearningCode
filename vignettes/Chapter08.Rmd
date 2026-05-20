@@ -816,7 +816,6 @@ We first write a function to sample  the parameter $\alpha$ for both, the full
 Gibbs sampler and the partially marginalised Gibbs sampler using a log random walk proposal.
 
 ```{r}
-
 sample_alpha <- function(y, mu, phi, pri_alpha, alpha_old,
                          c_alpha, full_gibbs){
 
@@ -850,6 +849,7 @@ sample_alpha <- function(y, mu, phi, pri_alpha, alpha_old,
   }
   return(res=list(alpha=alpha, acc=acc))
 }
+
 ```
 Then we combine the sampling steps for sampling $\beta$, $\alpha$ and $\phi$ in
 a gibbs sampler.
@@ -917,28 +917,29 @@ B0=diag(100,d)
 
 pri_alpha <- data.frame(shape = 2, rate = 0.5)
 c_alpha=0.1
-
+                                                    
 M <- 50000L
-
+                                                    
 # Full Gibbs sampler
 set.seed(1234)
 res1 <- negbin(y,X,e, b0,B0, pri_alpha,c_alpha, full_gibbs = TRUE, M=M )
-
+                                                    
 res_negbin_full <- rbind(t(apply(res1$beta_post, 2, res.mcmc)), 
-                         alpha = res.mcmc(res1$alpha_post))
-
+                                  alpha = res.mcmc(res1$alpha_post))
+                                                    
 ESS_beta1 <- coda::effectiveSize(res1$beta_post)
 ESS_alpha1 <- coda::effectiveSize(res1$alpha_post)
 IF_res1 <- M / c(ESS_beta1, ESS_alpha1)
 res_negbin_full <- cbind(res_negbin_full, IF = IF_res1)
 knitr::kable(round(res_negbin_full, 3))
-
+                                                    
 c(mean(res1$acc_beta), mean(res1$acc_alpha))
 ```
 
-And then we run the partially marginalized Gibbs sampler under the same prior.   
+Next we run the partially marginalized Gibbs sampler under the same prior.
+
 ```{r}
-# Partially marginalized sampler               
+set.seed(1234)               
 res2 <- negbin(y,X,e, b0,B0, pri_alpha,c_alpha, full_gibbs = FALSE, M=M )
 
 res_negbin_partial <- rbind(t(apply(res2$beta_post, 2, res.mcmc)),
@@ -967,20 +968,19 @@ sampler.
 ## Section 8.2.3: Evaluating MCMC samplers
 ### Example 8.10 Verifying the correctness of the full conditional MCMC samper
 
-We extend the sampler in the scheme (a), (b), (c) by adding as a
-further step sampling the data from the prior.
+We extend the sampler in the scheme (a), (b), (c) by adding sampling the data from the prior as a further sampling step.
 
 ```{r}
-negbin_check_abc <- function(X, e, b0, B0, pri_alpha, c_alpha,
+negbin_check <- function(X, e, b0, B0, pri_alpha, c_alpha,
                              full_gibbs = TRUE, burnin = 1000L, 
                              M = 50000L) {
     
     N <- nrow(X)
     d <- ncol(X)
-
+    
     beta_post  <- matrix(ncol = d, nrow = M)
     colnames(beta_post) <- colnames(X)
-    acc_beta <- numeric(length = M)
+    acc_beta <- rep(NA_real_, M)
 
     alpha_post <- rep(NA_real_, M)
     acc_alpha <- rep(NA_real_, M)
@@ -1000,8 +1000,8 @@ negbin_check_abc <- function(X, e, b0, B0, pri_alpha, c_alpha,
         # Step a
         parms_proposal <- gen_proposal_poisson(y, X, e * phi, b0, B0)
         
-        beta_draw <- sample_beta(y, X, e * phi, b0, B0, parms_proposal$mean, 
-                                 parms_proposal$var, beta)
+        beta_draw <- sample_beta(y, X, e * phi, b0, B0, 
+                                 parms_proposal$mean, parms_proposal$var, beta)
         beta <- beta_draw$beta
         linpred <- X %*% beta
         
@@ -1009,7 +1009,7 @@ negbin_check_abc <- function(X, e, b0, B0, pri_alpha, c_alpha,
         alpha_draw <- sample_alpha(y, e * exp(linpred), phi, pri_alpha,
                                    alpha, c_alpha, full_gibbs)
         alpha <- alpha_draw$alpha
-        
+       
         # Step c
         phi <- rgamma(N, shape = alpha + y, rate = alpha + e * exp(linpred))
         
@@ -1027,10 +1027,9 @@ negbin_check_abc <- function(X, e, b0, B0, pri_alpha, c_alpha,
 }
 ```
 
-We use tighter priors for the model parameters and a sample size of  N=50 observations.
+We use tighter priors for the model parameters and a sample size of  N=100 observations.
 
 ```{r}
-M <- 10^5
 N <- 100
 set.seed(1234)
 X <- cbind(rep(1, N), rnorm(N), rnorm(N))
@@ -1044,93 +1043,152 @@ pri_alpha <- data.frame(shape = 4, rate = 2)
 c_alpha <- 0.2
 ```
 
-We  run the sampler and investigate the draws of intercept and heterogeneity
-parameter via Q-Q plots of draws from the prior and the posterior.
+We  run the sampler and check the effective sample size of the draws of the regression 
+effects and the heterogeneity parameter.
 
-```{r, echo = -c(1:3)}
-if (pdfplots) {
-  pdf("8-2_1.pdf", width = 8, height = 8)
-}
-par(mfrow = c(2, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
-
-set.seed(1234)
-res_check_abc <- negbin_check_abc(X, e, b0, B0, pri_alpha, c_alpha,
+```{r}
+M=10000
+set.seed(1)
+res_check <- negbin_check(X, e, b0, B0, pri_alpha, c_alpha,
                                   full_gibbs = TRUE, M = M)
 
-print(coda::effectiveSize(res_check_abc$beta_post))
-print(coda::effectiveSize(res_check_abc$alpha_post))
+cat("effective sample sizes \n")
+cat("beta: ", coda::effectiveSize(res_check$beta_post),"\n")
+cat("alpha:", coda::effectiveSize(res_check$alpha_post))
 
-beta0_prior <- lapply(1:3, function(i)
+beta_prior <- lapply(1:3, function(i)
     qnorm(ppoints(M), mean = b0[i], sd = sqrt(B0[i, i])))
 alpha_prior <- qgamma(ppoints(M), shape = pri_alpha$shape,
                       rate = pri_alpha$rate)
+```
+Next we thin the sampled values by a factor of 100 to get (almost) uncorrelated 
+draws and make a QQ-plot of the values from
+the prior and the thinned draws from posterior.
 
-for (i in 1:3) {
-qqplot(beta0_prior[[i]], res_check_abc$beta_post[, i], xlab = "Prior",
-       ylab = "Posterior", main = c("Intercept", "beta1", "beta2")[i])
-abline(a = 0, b = 1)
+```{r, echo = -c(1:3)}
+if (pdfplots) {
+   pdf("8-2_1.pdf", width = 8, height = 8)
 }
+par(mfrow = c(2, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
 
-qqplot(alpha_prior,res_check_abc$alpha_post, xlab = "Prior",
+thin=seq(from=1, by=100, to=M)
+for (i in 1:3) {
+   ks.b <- ks.test(beta_prior[[i]],res_check$beta_post[thin,i])
+   qqplot(beta_prior[[i]], res_check$beta_post[thin, i],
+           xlab = "Prior", ylab = "Posterior",xlim=c(-1.2,1.2), ylim=c(-1.2,1.2), 
+           main = c("Intercept", "beta1", "beta2")[i])
+   abline(a = 0, b = 1)
+   text(0.5,- 0.9, paste0('KS-test: p-value= ', round(ks.b$p.value,4)))
+}
+ks.a <- ks.test(alpha_prior,res_check$alpha_post[thin])
+qqplot(alpha_prior,res_check$alpha_post[thin], xlab = "Prior",
        ylab = "Posterior", main = "Heterogeneity parameter", 
-       xlim = c(0, 12), ylim = c(0, 12))
+       xlim = c(0, 6), ylim = c(0, 6))
 abline(a = 0, b = 1)
+text(4, 0.2, paste0('KS-test: p-value= ', round(ks.a$p.value,4)))
 ```
 
-We conclude that the sampler is correct. 
-Next we  change the order of the sampling steps to (c)-(b)-(a).
+As all the points are close to the identity line  and the p-value of the
+Kolmogorov-Smirnov test is larger than 0.05 we
+can conclude that the sampler is correct. 
+
+Next we implement  sampling alpha by using a proposal ratio of 1, which would be
+correct for a random walk proposal, however is wrong for a log-random walk 
+proposal.
+
 
 ```{r}
-negbin_check_cba <- function(X, e, b0, B0, pri_alpha, c_alpha,
-                             full_gibbs = TRUE, burnin = 1000L,
-                             M = 50000L) {
+sample_alpha_wrong <- function(y, mu, phi, pri_alpha, alpha_old,
+                         c_alpha, full_gibbs){
 
-  N <- nrow(X)
-  d <- ncol(X)
+  alpha_proposed <- exp(rnorm(1,log(alpha_old),c_alpha))
 
-  beta_post  <- matrix(ncol = d, nrow = M)
-  colnames(beta_post) <- colnames(X)
-  acc_beta <- numeric(length = M)
-
-  alpha_post <- rep(NA_real_, M)
-  acc_alpha <- rep(NA_real_, M)
-
-  # Set starting values
-  beta <- as.vector(mvtnorm::rmvnorm(1, mean = b0, sigma = B0))
-  alpha <- pri_alpha$shape/pri_alpha$rate
-  phi <- rgamma(N, shape = alpha , rate = alpha)
-
-  for (m in seq_len(burnin + M)) {
-
-    # sample new data
-    linpred <- X %*% beta
-     y <- rpois(N, phi * e * exp(linpred))
-    
-    # Step c
-    phi <- rgamma(N, shape = alpha + y, rate = alpha + e * exp(linpred))
-    
-    # Step b
-    alpha_draw <- sample_alpha(y, e * exp(linpred), phi, pri_alpha, alpha,
-                               c_alpha, full_gibbs)
-    alpha <- alpha_draw$alpha
-    
-    # Step a
-    parms_proposal <- gen_proposal_poisson(y, X, e * phi, b0, B0)
-    beta_draw <- sample_beta(y, X, e * phi, b0, B0, parms_proposal$mean, 
-                             parms_proposal$var, beta)
-    beta <- beta_draw$beta
-    
-    # Save the draws
-    if (m > burnin) {
-      beta_post[m - burnin, ] <- beta
-      acc_beta[m - burnin] <- beta_draw$acc
-
-      alpha_post[m - burnin] <- alpha
-      acc_alpha[m - burnin] <- alpha_draw$acc
-    }
+  if (full_gibbs) {
+    llik_alpha_proposed <- sum(dgamma(phi, shape = alpha_proposed,
+                                      rate = alpha_proposed, log = TRUE))
+    llik_alpha_old      <- sum(dgamma(phi, shape = alpha_old,
+                                      rate = alpha_old, log = TRUE))
+  } else {
+    llik_alpha_proposed <- sum(dnbinom(y, size = alpha_proposed,
+                                       mu = mu, log = TRUE))
+    llik_alpha_old      <- sum(dnbinom(y, size = alpha_old,
+                                       mu = mu, log = TRUE))
   }
-  return(res = list(beta_post = beta_post, acc_beta = acc_beta,
-                    alpha_post = alpha_post, acc_alpha = acc_alpha))
+
+  log_acc_alpha <- llik_alpha_proposed - llik_alpha_old +
+      dgamma(alpha_proposed, shape = pri_alpha$shape,
+             rate = pri_alpha$rate, log = TRUE) -
+      dgamma(alpha_old, shape = pri_alpha$shape,
+             rate = pri_alpha$rate, log = TRUE) 
+
+  if (log(runif(1)) < min(0,log_acc_alpha)) {
+    alpha <- alpha_proposed
+    acc <- 1
+  } else {
+    alpha <- alpha_old
+    acc <- 0
+  }
+  return(res=list(alpha=alpha, acc=acc))
+}
+```
+ 
+We use this wrong  sampling step in our Gibbs sampler and check for 
+its correctness. 
+
+```{r}
+negbin_check_wrong <- function(X, e, b0, B0, pri_alpha, c_alpha,
+                                 full_gibbs = TRUE, burnin = 1000L, 
+                                 M = 50000L) {
+    
+    N <- nrow(X)
+    d <- ncol(X)
+    
+    beta_post  <- matrix(ncol = d, nrow = M)
+    colnames(beta_post) <- colnames(X)
+    acc_beta <- rep(NA_real_, M)
+
+    alpha_post <- rep(NA_real_, M)
+    acc_alpha <- rep(NA_real_, M)
+
+    # Set starting values
+    beta <- as.vector(mvtnorm::rmvnorm(1, mean = b0, sigma = B0))
+    alpha <- pri_alpha$shape/pri_alpha$rate
+    phi <- rgamma(N, shape = alpha, rate = alpha)
+    
+    linpred <- X %*% beta
+    
+    for (m in seq_len(burnin + M)) {
+        
+        # sample new data
+        y <- rpois(N, phi * e * exp(linpred))
+        
+        # Step a
+        parms_proposal <- gen_proposal_poisson(y, X, e * phi, b0, B0)
+        
+        beta_draw <- sample_beta(y, X, e * phi, b0, B0, 
+                                 parms_proposal$mean, parms_proposal$var, beta)
+        beta <- beta_draw$beta
+        linpred <- X %*% beta
+        
+        # Step b
+        alpha_draw <- sample_alpha_wrong(y, e * exp(linpred), phi, pri_alpha,
+                                   alpha, c_alpha, full_gibbs)
+        alpha <- alpha_draw$alpha
+       
+        # Step c
+        phi <- rgamma(N, shape = alpha + y, rate = alpha + e * exp(linpred))
+        
+        # Save the draws
+        if (m > burnin) {
+            beta_post[m - burnin, ] <- beta
+            acc_beta[m - burnin] <- beta_draw$acc
+
+            alpha_post[m - burnin] <- alpha
+            acc_alpha[m - burnin] <- alpha_draw$acc
+        }
+    }
+    return(res = list(beta_post = beta_post, acc_beta = acc_beta,
+                      alpha_post = alpha_post, acc_alpha = acc_alpha))
 }
 ```
 
@@ -1143,27 +1201,37 @@ if (pdfplots) {
 }
 par(mfrow = c(2, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
 
-set.seed(1234)
-res_check_cba <- negbin_check_cba(X, e, b0, B0, pri_alpha, c_alpha,
-                                  full_gibbs = TRUE, M = M)
+set.seed(1)
+res_check_wrong <- negbin_check_wrong(X, e, b0, B0, pri_alpha, c_alpha,
+                                       full_gibbs = TRUE, M = M)
+
+cat("effective sample sizes \n")
+cat("beta: ", coda::effectiveSize(res_check_wrong$beta_post),"\n")
+cat("alpha:", coda::effectiveSize(res_check_wrong$alpha_post))
+
 
 for (i in 1:3) {
-qqplot(beta0_prior[[i]], res_check_cba$beta_post[, i], xlab = "Prior",
-       ylab = "Posterior", main = c("Intercept", "beta1", "beta2")[i])
-abline(a = 0, b = 1)
+   ks.b <- ks.test(beta_prior[[i]],res_check_wrong$beta_post[thin,i])
+   qqplot(beta_prior[[i]], res_check_wrong$beta_post[thin, i],
+           xlab = "Prior", ylab = "Posterior",xlim=c(-1.2,1.2), ylim=c(-1.2,1.2), 
+           main = c("Intercept", "beta1", "beta2")[i])
+   abline(a = 0, b = 1)
+   text(0.5,- 0.9, paste0('KS-test: p-value= ', round(ks.b$p.value,4)))
 }
-
-qqplot(alpha_prior,res_check_cba$alpha_post, xlab = "Prior",
-       ylab = "Posterior", main =  "Heterogeneity parameter",
-       xlim = c(0, 12), ylim = c(0, 12))
+ks.a <- ks.test(alpha_prior,res_check_wrong$alpha_post[thin])
+qqplot(alpha_prior,res_check_wrong$alpha_post[thin], xlab = "Prior",
+       ylab = "Posterior", main = "Heterogeneity parameter", 
+       xlim = c(0, 6), ylim = c(0, 6))
 abline(a = 0, b = 1)
+text(4, 0.2, paste0('KS-test: p-value= ', round(ks.a$p.value,4)))
 ```
  
-We conclude that also this sampling scheme is correct.   
+We see very a clear deviation from the identity line and a p-value of 0
+for the heterogeneity parameter which indicates that the sampler is erroneous. 
 
 ## Example 8.11
 
-We now analyze the partial marginalized Gibbs sampler, first in the order (a)-(b)-(c) 
+We now analyze the partial marginalized Gibbs sampler
 
 ```{r, echo = -c(1:3)}
 if (pdfplots) {
@@ -1172,23 +1240,33 @@ if (pdfplots) {
 par(mfrow = c(2, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
 
 set.seed(1234)
-# order (a)-(b)-(c)
-res_check_abc <- negbin_check_abc(X, e, b0, B0, pri_alpha, c_alpha,
+res_check <- negbin_check(X, e, b0, B0, pri_alpha, c_alpha,
                                   full_gibbs = FALSE, M = M)
 
-for (i in 1:3) {
-qqplot(beta0_prior[[i]], res_check_abc$beta_post[, i], xlab = "Prior",
-       ylab = "Posterior", main = c("Intercept", "beta1", "beta2")[i])
-abline(a = 0, b = 1)
-}
+cat("effective sample sizes \n")
+cat("beta: ", coda::effectiveSize(res_check$beta_post),"\n")
+cat("alpha:", coda::effectiveSize(res_check$alpha_post))
 
-qqplot(alpha_prior,res_check_abc$alpha_post, xlab = "Prior", 
-       ylab = "Posterior", main  = "Heterogeneity parameter", 
-       xlim = c(0, 12), ylim = c(0, 12))
+for (i in 1:3) {
+   ks.b <- ks.test(beta_prior[[i]],res_check$beta_post[thin,i])
+   qqplot(beta_prior[[i]], res_check$beta_post[thin, i],
+           xlab = "Prior", ylab = "Posterior",xlim=c(-1.2,1.2), ylim=c(-1.2,1.2), 
+           main = c("Intercept", "beta1", "beta2")[i])
+   abline(a = 0, b = 1)
+   text(0.5,- 0.9, paste0('KS-test: p-value= ', round(ks.b$p.value,4)))
+}
+ks.a <- ks.test(alpha_prior,res_check$alpha_post[thin])
+qqplot(alpha_prior,res_check$alpha_post[thin], xlab = "Prior",
+       ylab = "Posterior", main = "Heterogeneity parameter", 
+       xlim = c(0, 6), ylim = c(0, 6))
 abline(a = 0, b = 1)
+text(4, 0.2, paste0('KS-test: p-value= ', round(ks.a$p.value,4)))
 ```
 
-and then in the order (c)-(b)-(a)
+Again the points of the QQplot lie close to the
+identity line and the p-value of the Kolmogorov-Smirnov test is larger than 
+0.05 and thus we conclude that the sampler is correct. 
+
 
 ```{r, echo = -c(1:3)}
 if (pdfplots) {
@@ -1197,22 +1275,32 @@ if (pdfplots) {
 par(mfrow = c(2, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
 
 set.seed(1234)
-# order (c)- (b)-(a)
-res_check_cba <- negbin_check_cba(X, e, b0, B0, pri_alpha, c_alpha,
+res_check_wrong <- negbin_check_wrong(X, e, b0, B0, pri_alpha, c_alpha,
                                   full_gibbs = FALSE, M = M)
+cat("effective sample sizes \n")
+cat("beta: ", coda::effectiveSize(res_check_wrong$beta_post),"\n")
+cat("alpha:", coda::effectiveSize(res_check_wrong$alpha_post))
 
 for (i in 1:3) {
-qqplot(beta0_prior[[i]], res_check_cba$beta_post[, i], xlab = "Prior",
-       ylab = "Posterior", main = c("Intercept", "beta1", "beta2")[i])
-abline(a = 0, b = 1)
+   ks.b <- ks.test(beta_prior[[i]],res_check_wrong$beta_post[thin,i])
+   qqplot(beta_prior[[i]], res_check_wrong$beta_post[thin, i],
+           xlab = "Prior", ylab = "Posterior",xlim=c(-1.2,1.2), ylim=c(-1.2,1.2), 
+           main = c("Intercept", "beta1", "beta2")[i])
+   abline(a = 0, b = 1)
+   text(0.5,- 0.9, paste0('KS-test: p-value= ', round(ks.b$p.value,4)))
 }
-
-qqplot(alpha_prior,res_check_cba$alpha_post, xlab = "Prior", 
-       ylab = "Posterior", main = "Heterogeneity parameter",
-       xlim = c(0, 12), ylim = c(0, 12))
+ks.a <- ks.test(alpha_prior,res_check_wrong$alpha_post[thin])
+qqplot(alpha_prior,res_check_wrong$alpha_post[thin], xlab = "Prior",
+       ylab = "Posterior", main = "Heterogeneity parameter", 
+       xlim = c(0, 6), ylim = c(0, 6))
 abline(a = 0, b = 1)
+text(4, 0.2, paste0('KS-test: p-value= ', round(ks.a$p.value,4)))
 ```                                                     
-Whereas the sampler  with
+Also for the partial marginalized sampler with the wrong sampling step for the 
+heterogeneity parameter we get a Q-Q plot which deviates considerably from the 
+identity line and a p-value of the Kolmogorov-Smirnov statistics of 0, which 
+indicates that the sampler is not correct.
+
 
 
 # Section 8.3: Beyond i.i.d. Gaussian error distributions
