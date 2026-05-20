@@ -808,9 +808,15 @@ original parameters.
 ```{r}
 data("exrates", package = "stochvol")
 y <- 100 * diff(log(exrates$USD / exrates$CHF))
+
+# Run the sampler
 thetas <- sampler(y)
+
+# Transform back to the usual parameterization
 draws <- t(apply(thetas, 1, unrestricted2restricted))
 colnames(draws) <- c("alpha0", "alpha1", "gamma1")
+
+# Visually check convergence
 plot.ts(thetas)
 plot.ts(draws)
 ```
