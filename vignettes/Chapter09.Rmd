@@ -771,3 +771,33 @@ logpost <- function(y, theta, priormeans = rep(0, 3), priorsds = rep(10, 3)) {
     dnorm(theta[3], priormeans[3], priorsds[3], log = TRUE)
 }
 ```
+
+Finally, we define our random walk MH posterior sampler.
+
+```{r}
+sampler <- function(y, M = 10000L, nburn = 1000L, propsds = c(0.1, 0.1, 0.1)) {
+  # allocate storage
+  thetas <- matrix(NA_real_, M, 3)
+
+  # starting values
+  theta <- rep(0, 3)
+  currentlogpost <- logpost(y, theta)
+
+  naccepts <- 0L
+  for (m in seq_len(nburn + M)) {
+    prop <- rnorm(3, theta, propsds)
+    proplogpost <- logpost(y, prop)
+    logR <- proplogpost - currentlogpost
+
+    if (log(runif(1)) < logR) {
+      theta <- prop
+      currentlogpost <- proplogpost
+      naccepts <- naccepts + 1L
+    }
+
+    if (m > nburn) thetas[m - nburn, ] <- theta
+  }
+  thetas
+}
+```
+
