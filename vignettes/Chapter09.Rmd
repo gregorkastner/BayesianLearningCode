@@ -836,16 +836,21 @@ plot.ts(res$para, main = paste("Acceptance Rate:", round(res$acceptrate, 2)))
 Let us visualize the parameters and the posterior mean of the conditional
 standard deviations (along with the data).
 
-```{r}
+```{r, echo = -c(1:2)}
+if (pdfplots) {
+  pdf("9-5_5.pdf", width = 6, height = 5)
+  par(mar = c(2.5, 2, .1, .5), mgp = c(1.6, .6, 0))
+}
+layout(matrix(c(1, 1, 1, 2, 3, 4), nrow = 2, byrow = TRUE))
 myhist <- function(dat, breaks = 30, freq = FALSE, ...) {
   hist(dat, breaks = seq(min(dat), max(dat), length.out = breaks), freq = freq,
        main = "", ylab = "", ...)
 }
 
-layout(matrix(c(1, 1, 1, 2, 3, 4), nrow = 2, byrow = TRUE))
-ts.plot(y, col = "gray")
+ts.plot(y, col = "gray", ylab = "")
 lines(colMeans(sqrt(res$sigma2)))
-lines(-colMeans(sqrt(res$sigma2)))
+legend("topright", legend = c("Data", bquote(E(sigma[t] ~ "|" ~  bold(y)))),
+       lty = 1, col = c("gray", 1))
 myhist(res$para$alpha0, xlab = expression(alpha[0]))
 myhist(res$para$alpha1, xlab = expression(alpha[1]))
 myhist(res$para$gamma1, xlab = expression(gamma[1]))
