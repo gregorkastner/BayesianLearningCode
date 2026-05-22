@@ -829,11 +829,21 @@ plot.ts(res$theta, main = paste("Acceptance Rate:", round(res$acceptrate, 2)))
 plot.ts(res$para, main = paste("Acceptance Rate:", round(res$acceptrate, 2)))
 ```
 
-Let us visualize the posterior mean of the conditional standard deviations.
+Let us visualize the parameters and the posterior mean of the conditional
+standard deviations (along with the data).
 
 ```{r}
+myhist <- function(dat, breaks = 30, freq = FALSE, ...) {
+  hist(dat, breaks = seq(min(dat), max(dat), length.out = breaks), freq = freq,
+       main = "", ylab = "", ...)
+}
+
+layout(matrix(c(1, 1, 1, 2, 3, 4), nrow = 2, byrow = TRUE))
 ts.plot(y, col = "gray")
 lines(colMeans(sqrt(res$sigma2)))
 lines(-colMeans(sqrt(res$sigma2)))
+myhist(res$para$alpha0, xlab = expression(alpha[0]))
+myhist(res$para$alpha1, xlab = expression(alpha[1]))
+myhist(res$para$gamma1, xlab = expression(gamma[1]))
 ```
 
