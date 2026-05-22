@@ -925,7 +925,7 @@ abline(h = 0, lty = 3, col = "gray")
 abline(v = cutoff, lty = 3)
 lines((cutoff - nahead):cutoff, colMeans(sqrt(restrain$sigma2[, (cutoff - nahead):cutoff])))
 lines(cutoff + 1:nahead, colMeans(sqrt(predstatic$sigma2)))
-abline(h = mean(restrain$para$alpha0 / (1 - restrain$para$alpha1 - restrain$para$gamma1)),
+abline(h = mean(sqrt(restrain$para$alpha0 / (1 - restrain$para$alpha1 - restrain$para$gamma1))),
        lty = 2)
 for (i in seq_along(thesequants)) {
   lines(cutoff + 1:nahead, predstaticquants[i, ], col = 2)
