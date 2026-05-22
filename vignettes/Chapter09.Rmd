@@ -893,4 +893,21 @@ restrain <- sampler(ytrain)
 predstatic <- prediction(restrain, nahead, drawsmult = 10)
 predstaticquants <- apply(predstatic$y, 2, quantile, thesequants)
 ```
+
+Alternatively, we might want to do sequential one-step-ahead predictions. Note
+that this amounts to re-estimating the model very often, thus we reduce the
+number of posterior draws.
+
+```{r}
+predquants <- matrix(NA_real_, nrow = length(thesequants), nahead)
+predsigmamean <- rep(NA_real_, nahead)
+for (i in seq_len(nahead)) {
+  y1 <- head(y, cutoff - 1 + i)
+  res1 <- sampler(y1, M = 2000)
+  pred1 <- prediction(res1, 1, drawsmult = 10)
+  predsigmamean[i] <- mean(sqrt(pred1$sigma2[, 1]))
+  predquants[, i] <- quantile(pred1$y[, 1], thesequants)
+}
+```
+
 ```
