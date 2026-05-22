@@ -847,3 +847,28 @@ myhist(res$para$alpha1, xlab = expression(alpha[1]))
 myhist(res$para$gamma1, xlab = expression(gamma[1]))
 ```
 
+We now turn towards prediction, which can be done iteratively. We define a
+function that predicts a number of steps ahead.
+
+```{r}
+prediction <- function(obj, nahead = 1L) {
+  sigma2f <- yf <- matrix(NA_real_, obj$ndraws, nahead)
+  sigma2f[, 1] <- obj$para$alpha0 + obj$para$alpha1 * tail(obj$y, 1)^2 +
+    obj$para$gamma1 * obj$sigma2[, ncol(obj$sigma2)]
+  yf[, 1] <- rnorm(obj$ndraws, 0, sqrt(sigma2f[, 1]))
+  if (nahead > 1L) {
+    for (i in 2:nahead) {
+      sigma2f[, i] <- obj$para$alpha0 + obj$para$alpha1 * yf[, i - 1]^2 +
+        obj$para$gamma1 * sigma2f[, i - 1]
+      yf[, i] <- rnorm(obj$ndraws, 0, sqrt(sigma2f[, i]))
+    }
+  }
+  list(y = yf, sigma2 = sigma2f)
+}
+```
+
+Let's try it out.
+
+```{r}
+pred <- prediction(res, 2)
+```
