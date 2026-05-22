@@ -828,3 +828,12 @@ res <- sampler(y)
 plot.ts(res$theta, main = paste("Acceptance Rate:", round(res$acceptrate, 2)))
 plot.ts(res$para, main = paste("Acceptance Rate:", round(res$acceptrate, 2)))
 ```
+
+Let us visualize the posterior mean of the conditional standard deviations.
+
+```{r}
+ts.plot(y, col = "gray")
+lines(colMeans(sqrt(res$sigma2)))
+lines(-colMeans(sqrt(res$sigma2)))
+```
+
