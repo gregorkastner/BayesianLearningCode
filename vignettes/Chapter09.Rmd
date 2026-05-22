@@ -883,8 +883,14 @@ prediction <- function(obj, nahead = 1L, drawsmult = 1L) {
 }
 ```
 
-Let's try it out.
+Let's try it out. We cut the data a some point, re-estimate and predict.
 
 ```{r}
-pred <- prediction(res, 2)
+cutoff <- 2990
+nahead <- 50
+ytrain <- head(y, cutoff)
+restrain <- sampler(ytrain)
+predstatic <- prediction(restrain, nahead, drawsmult = 10)
+predstaticquants <- apply(predstatic$y, 2, quantile, thesequants)
+```
 ```
