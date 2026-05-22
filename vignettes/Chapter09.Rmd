@@ -214,10 +214,10 @@ yf_t <- rstudt(ndraws, 0, sqrt(sigma2draws_t), 7)
 Now we can compute their empirical quantiles, and those of the data.
 
 ```{r}
-quants <- c(0.01, 0.05, 0.25, 0.4, 0.5, 0.6, 0.75, 0.95, 0.99)
-q_normal <- quantile(yf_normal, quants)
-q_t <- quantile(yf_t, quants)
-q_y <- quantile(y, quants)
+thesequants <- c(0.01, 0.05, 0.25, 0.4, 0.5, 0.6, 0.75, 0.95, 0.99)
+q_normal <- quantile(yf_normal, thesequants)
+q_t <- quantile(yf_t, thesequants)
+q_y <- quantile(y, thesequants)
 
 knitr::kable(round(t(cbind("Data" = q_y, "Student t" = q_t,
                            "Gaussian" = q_normal)), 3))
