@@ -731,7 +731,7 @@ polygon(pxs, c(quants["5%", 1], quants["95%", ], rev(quants["5%", ])),
 abline(h = 0, lty = 3)
 ```
 
-## Section 2.5.3: Forecasting Volatility via GARCH(1,1) Models
+## Section 10.5.3: Forecasting Volatility via GARCH(1,1) Models
 
 We start by defining the parameter transformation.
 
