@@ -781,6 +781,7 @@ Finally, we define our random walk MH posterior sampler.
 sampler <- function(y, M = 20000L, nburn = 2000L, propsds = rep(0.15, 3)) {
   # allocate storage
   thetas <- matrix(NA_real_, M, 3)
+  sigma2s <- matrix(NA_real_, M, length(y))
 
   # starting values
   theta <- rep(0, 3)
@@ -788,6 +789,7 @@ sampler <- function(y, M = 20000L, nburn = 2000L, propsds = rep(0.15, 3)) {
 
   naccepts <- 0L
   for (m in seq_len(nburn + M)) {
+    if (m > nburn) sigma2s[m - nburn, ] <- attr(currentlogpost, "sigma2")
     prop <- rnorm(3, theta, propsds)
     proplogpost <- loglik(y, prop) + logprior(prop)
     logR <- proplogpost - currentlogpost
@@ -800,7 +802,14 @@ sampler <- function(y, M = 20000L, nburn = 2000L, propsds = rep(0.15, 3)) {
 
     if (m > nburn) thetas[m - nburn, ] <- theta
   }
-  thetas
+  
+  # Transform back to the usual parameterization
+  paras <- t(apply(thetas, 1, unrestricted2restricted))
+  colnames(paras) <- c("alpha0", "alpha1", "gamma1")
+  ret <- list(para = as.data.frame(paras), sigma2 = sigma2s,
+              theta = as.data.frame(thetas), y = y,
+              ndraws = M, nburn = nburn, acceptrate = naccepts / ndraws)
+  ret
 }
 ```
 
@@ -813,13 +822,9 @@ data("exrates", package = "stochvol")
 y <- 100 * diff(log(exrates$USD / exrates$CHF))
 
 # Run the sampler
-thetas <- sampler(y)
-
-# Transform back to the usual parameterization
-draws <- t(apply(thetas, 1, unrestricted2restricted))
-colnames(draws) <- c("alpha0", "alpha1", "gamma1")
+res <- sampler(y)
 
 # Visually check convergence
-plot.ts(thetas)
-plot.ts(draws)
+plot.ts(res$theta, main = paste("Acceptance Rate:", round(res$acceptrate, 2)))
+plot.ts(res$para, main = paste("Acceptance Rate:", round(res$acceptrate, 2)))
 ```
