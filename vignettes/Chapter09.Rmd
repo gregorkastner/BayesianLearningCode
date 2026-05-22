@@ -754,7 +754,7 @@ loglik <- function(y, theta) {
   pars <- unrestricted2restricted(theta)
   sigma2 <- rep(NA_real_, length(y))
 
-  # initialize at unconditional variance
+  # Initialize at unconditional variance
   sigma2[1] <- pars[1] / (1 - pars[2] - pars[3])
 
   for (i in 2:length(y)) {
@@ -779,28 +779,32 @@ Finally, we define our random walk MH posterior sampler.
 
 ```{r}
 sampler <- function(y, M = 20000L, nburn = 2000L, propsds = rep(0.15, 3)) {
-  # allocate storage
+  # Allocate storage
   thetas <- matrix(NA_real_, M, 3)
   sigma2s <- matrix(NA_real_, M, length(y))
 
-  # starting values
+  # Starting values
   theta <- rep(0, 3)
   currentlogpost <- loglik(y, theta) + logprior(theta)
 
   naccepts <- 0L
   for (m in seq_len(nburn + M)) {
-    if (m > nburn) sigma2s[m - nburn, ] <- attr(currentlogpost, "sigma2")
     prop <- rnorm(3, theta, propsds)
     proplogpost <- loglik(y, prop) + logprior(prop)
     logR <- proplogpost - currentlogpost
 
+    # Accept / reject
     if (log(runif(1)) < logR) {
       theta <- prop
       currentlogpost <- proplogpost
       if (m > nburn) naccepts <- naccepts + 1L
     }
 
-    if (m > nburn) thetas[m - nburn, ] <- theta
+    # Store
+    if (m > nburn) {
+      thetas[m - nburn, ] <- theta
+      sigma2s[m - nburn, ] <- attr(currentlogpost, "sigma2")
+    }
   }
   
   # Transform back to the usual parameterization
@@ -852,10 +856,15 @@ function that predicts a number of steps ahead.
 
 ```{r}
 prediction <- function(obj, nahead = 1L) {
+  # Allocate storage space
   sigma2f <- yf <- matrix(NA_real_, obj$ndraws, nahead)
+  
+  # Predict one step ahead
   sigma2f[, 1] <- obj$para$alpha0 + obj$para$alpha1 * tail(obj$y, 1)^2 +
     obj$para$gamma1 * obj$sigma2[, ncol(obj$sigma2)]
   yf[, 1] <- rnorm(obj$ndraws, 0, sqrt(sigma2f[, 1]))
+  
+  # Predict two and more steps ahead
   if (nahead > 1L) {
     for (i in 2:nahead) {
       sigma2f[, i] <- obj$para$alpha0 + obj$para$alpha1 * yf[, i - 1]^2 +
@@ -863,6 +872,8 @@ prediction <- function(obj, nahead = 1L) {
       yf[, i] <- rnorm(obj$ndraws, 0, sqrt(sigma2f[, i]))
     }
   }
+  
+  # Return
   list(y = yf, sigma2 = sigma2f)
 }
 ```
