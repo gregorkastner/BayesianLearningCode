@@ -860,21 +860,21 @@ We now turn towards prediction, which can be done iteratively. We define a
 function that predicts a number of steps ahead.
 
 ```{r}
-prediction <- function(obj, nahead = 1L) {
+prediction <- function(obj, nahead = 1L, drawsmult = 1L) {
   # Allocate storage space
-  sigma2f <- yf <- matrix(NA_real_, obj$ndraws, nahead)
+  sigma2f <- yf <- matrix(NA_real_, obj$ndraws * drawsmult, nahead)
   
   # Predict one step ahead
-  sigma2f[, 1] <- obj$para$alpha0 + obj$para$alpha1 * tail(obj$y, 1)^2 +
-    obj$para$gamma1 * obj$sigma2[, ncol(obj$sigma2)]
-  yf[, 1] <- rnorm(obj$ndraws, 0, sqrt(sigma2f[, 1]))
+  sigma2f[, 1] <- rep(obj$para$alpha0 + obj$para$alpha1 * tail(obj$y, 1)^2 +
+    obj$para$gamma1 * obj$sigma2[, ncol(obj$sigma2)], drawsmult)
+  yf[, 1] <- rnorm(obj$ndraws * drawsmult, 0, sqrt(sigma2f[, 1]))
   
   # Predict two and more steps ahead
   if (nahead > 1L) {
     for (i in 2:nahead) {
       sigma2f[, i] <- obj$para$alpha0 + obj$para$alpha1 * yf[, i - 1]^2 +
         obj$para$gamma1 * sigma2f[, i - 1]
-      yf[, i] <- rnorm(obj$ndraws, 0, sqrt(sigma2f[, i]))
+      yf[, i] <- rnorm(obj$ndraws * drawsmult, 0, sqrt(sigma2f[, i]))
     }
   }
   
