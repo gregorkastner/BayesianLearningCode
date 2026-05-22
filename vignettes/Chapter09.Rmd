@@ -915,12 +915,15 @@ for (i in seq_len(nahead)) {
 
 And visualize.
 
-```{r}
+```{r, echo = -c(1:2)}
+if (pdfplots) {
+  pdf("9-5_6.pdf", width = 9, height = 7)
+  par(mar = c(1.5, 1.5, 1.5, .5), mgp = c(1.6, .6, 0))
+}
 par(mfrow = c(2, 1))
 plotwindow <- (cutoff - nahead):(cutoff + nahead)
-plot(plotwindow, y[plotwindow], xlab = "Time", ylab = "", col = "gray", type = "l",
-#     col = c(rep("black", nahead + 1), rep("gray", nahead)),
-     ylim = range(predstaticquants, y[plotwindow]))
+plot(plotwindow, y[plotwindow], xlab = "", ylab = "", col = "gray", type = "l",
+     main = "Static predictions", ylim = range(predstaticquants, y[plotwindow]))
 abline(h = 0, lty = 3, col = "gray")
 abline(v = cutoff, lty = 3)
 lines((cutoff - nahead):cutoff, colMeans(sqrt(restrain$sigma2[, (cutoff - nahead):cutoff])))
@@ -931,14 +934,13 @@ for (i in seq_along(thesequants)) {
   lines(cutoff + 1:nahead, predstaticquants[i, ], col = 2)
 }
 
-plot(plotwindow, y[plotwindow], xlab = "Time", ylab = "", col = "gray", type = "l",
-     ylim = range(predstaticquants, y[plotwindow]))
+plot(plotwindow, y[plotwindow], xlab = "", ylab = "", col = "gray", type = "l",
+     main = "Dynamic predictions", ylim = range(predstaticquants, y[plotwindow]))
 abline(h = 0, lty = 3, col = "gray")
 abline(v = cutoff, lty = 3)
 lines((cutoff - nahead):cutoff, colMeans(sqrt(restrain$sigma2[, (cutoff - nahead):cutoff])))
 lines(cutoff + 1:nahead, predsigmamean)
-abline(h = mean(restrain$para$alpha0 / (1 - restrain$para$alpha1 - restrain$para$gamma1)),
-       lty = 2)
+lines(cutoff + 1:nahead, longrunsdmean, lty = 2)
 for (i in seq_along(thesequants)) {
   lines(cutoff + 1:nahead, predquants[i, ], col = 2)
 }
