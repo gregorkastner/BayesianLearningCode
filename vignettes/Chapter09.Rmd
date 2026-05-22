@@ -768,9 +768,8 @@ loglik <- function(y, theta) {
   loglik
 }
 
-logpost <- function(y, theta, priormeans = rep(0, 3), priorsds = rep(10, 3)) {
-  loglik(y, theta) +
-    dnorm(theta[1], priormeans[1], priorsds[1], log = TRUE) +
+logprior <- function(theta, priormeans = rep(0, 3), priorsds = rep(10, 3)) {
+  dnorm(theta[1], priormeans[1], priorsds[1], log = TRUE) +
     dnorm(theta[2], priormeans[2], priorsds[2], log = TRUE) +
     dnorm(theta[3], priormeans[3], priorsds[3], log = TRUE)
 }
@@ -785,12 +784,12 @@ sampler <- function(y, M = 20000L, nburn = 5000L, propsds = c(0.1, 0.1, 0.1)) {
 
   # starting values
   theta <- rep(0, 3)
-  currentlogpost <- logpost(y, theta)
+  currentlogpost <- loglik(y, theta) + logprior(theta)
 
   naccepts <- 0L
   for (m in seq_len(nburn + M)) {
     prop <- rnorm(3, theta, propsds)
-    proplogpost <- logpost(y, prop)
+    proplogpost <- loglik(y, prop) + logprior(prop)
     logR <- proplogpost - currentlogpost
 
     if (log(runif(1)) < logR) {
