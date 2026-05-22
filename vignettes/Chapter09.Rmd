@@ -761,7 +761,11 @@ loglik <- function(y, theta) {
     sigma2[i] <- pars[1] + pars[2] * y[i - 1]^2 + pars[3] * sigma2[i - 1]
   }
 
-  -0.5 * log(2 * pi) * length(y) - sum(log(sigma2) + y^2 / sigma2)
+  loglik <- -0.5 * log(2 * pi) * length(y) - sum(log(sigma2) + y^2 / sigma2)
+  
+  # To return sigma2 as a by-product, we "attach" it to the loglik value
+  attr(loglik, "sigma2") <- sigma2
+  loglik
 }
 
 logpost <- function(y, theta, priormeans = rep(0, 3), priorsds = rep(10, 3)) {
