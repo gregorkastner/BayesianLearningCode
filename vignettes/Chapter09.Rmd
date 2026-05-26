@@ -922,25 +922,33 @@ if (pdfplots) {
 }
 par(mfrow = c(2, 1))
 plotwindow <- (cutoff - nahead):(cutoff + nahead)
+pastwindow <- (cutoff - nahead):cutoff
+predwindow <- cutoff + 1:nahead
 plot(plotwindow, y[plotwindow], xlab = "", ylab = "", col = "gray", type = "l",
      main = "Static predictions", ylim = range(predstaticquants, y[plotwindow]))
 abline(h = 0, lty = 3, col = "gray")
 abline(v = cutoff, lty = 3)
-lines((cutoff - nahead):cutoff, colMeans(sqrt(restrain$sigma2[, (cutoff - nahead):cutoff])))
-lines(cutoff + 1:nahead, colMeans(sqrt(predstatic$sigma2)))
-abline(h = mean(sqrt(restrain$para$alpha0 / (1 - restrain$para$alpha1 - restrain$para$gamma1))),
-       lty = 2)
+lines(pastwindow, colMeans(sqrt(restrain$sigma2[, pastwindow])))
+lines(predwindow, colMeans(sqrt(predstatic$sigma2)))
+lines(plotwindow[c(1, length(plotwindow))],
+      rep(mean(sqrt(restrain$para$alpha0 / (1 - restrain$para$alpha1 -
+                                              restrain$para$gamma1))), 2),
+      lty = 2)
 for (i in seq_along(thesequants)) {
-  lines(cutoff + 1:nahead, predstaticquants[i, ], col = 2)
+  lines(predwindow, predstaticquants[i, ], col = 2)
 }
 
 plot(plotwindow, y[plotwindow], xlab = "", ylab = "", col = "gray", type = "l",
      main = "Dynamic predictions", ylim = range(predstaticquants, y[plotwindow]))
 abline(h = 0, lty = 3, col = "gray")
 abline(v = cutoff, lty = 3)
-lines((cutoff - nahead):cutoff, colMeans(sqrt(restrain$sigma2[, (cutoff - nahead):cutoff])))
-lines(cutoff + 1:nahead, predsigmamean)
-lines(cutoff + 1:nahead, longrunsdmean, lty = 2)
+lines(pastwindow, colMeans(sqrt(restrain$sigma2[, pastwindow])))
+lines(pastwindow[c(1, length(pastwindow))],
+      rep(mean(sqrt(restrain$para$alpha0 / (1 - restrain$para$alpha1 -
+                                              restrain$para$gamma1))), 2),
+      lty = 2)
+lines(predwindow, predsigmamean)
+lines(predwindow, longrunsdmean, lty = 2)
 for (i in seq_along(thesequants)) {
   lines(cutoff + 1:nahead, predquants[i, ], col = 2)
 }
