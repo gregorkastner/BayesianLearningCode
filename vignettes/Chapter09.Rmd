@@ -952,4 +952,7 @@ lines(predwindow, longrunsdmean, lty = 2)
 for (i in seq_along(thesequants)) {
   lines(cutoff + 1:nahead, predquants[i, ], col = 2)
 }
+legend("bottomleft", legend = c("Data", "Conditional std. dev.",
+                                "Long-run std. dev.", "Predictive quantiles"),
+       col = c("gray", "black", "black", "red"), lty = c(1, 1, 2, 1))
 ```
