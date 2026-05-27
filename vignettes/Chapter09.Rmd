@@ -817,8 +817,7 @@ sampler <- function(y, M = 20000L, nburn = 2000L, propsds = rep(0.2, 3),
 ```
 
 We are now ready to apply the sampler to our USD-CHF exchange rate percentage
-log returns. After running the sampler, we need to transform back to our
-original parameters.
+log returns. 
 
 ```{r}
 data("exrates", package = "stochvol")
