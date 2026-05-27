@@ -895,7 +895,8 @@ predstaticquants <- apply(predstatic$y, 2, quantile, thesequants)
 
 Alternatively, we might want to do sequential one-step-ahead predictions. Note
 that this amounts to re-estimating the model very often, thus we reduce the
-number of posterior draws.
+number of posterior draws and the burn-in. To speed up convergence, we
+initialize the sampler at the posterior means from above.
 
 ```{r}
 predquants <- matrix(NA_real_, nrow = length(thesequants), nahead)
@@ -903,7 +904,8 @@ predsigmamean <- rep(NA_real_, nahead)
 longrunsdmean <- rep(NA_real_, nahead)
 for (i in seq_len(nahead)) {
   y1 <- head(y, cutoff - 1 + i)
-  res1 <- sampler(y1, M = 2000)
+  res1 <- sampler(y1, M = 2000, nburn = 200,
+                  startvaltheta = colMeans(restrain$theta))
   longrunsdmean[i] <- mean(sqrt(res1$para$alpha0 /
                                    (1 - res1$para$alpha1 - res1$para$gamma1)))
   pred1 <- prediction(res1, 1, drawsmult = 100)
