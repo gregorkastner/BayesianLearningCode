@@ -947,14 +947,6 @@ for (i in seq_along(thesequants)) {
 plot(plotwindow, y[plotwindow], xlab = "", ylab = "", col = "gray", type = "l",
      main = "Dynamic predictions", ylim = range(predstaticquants, y[plotwindow]))
 abline(h = 0, lty = 3, col = "gray")
-abline(v = cutoff, lty = 3)
-lines(pastwindow, colMeans(sqrt(restrain$sigma2[, pastwindow])))
-lines(pastwindow[c(1, length(pastwindow))],
-      rep(mean(sqrt(restrain$para$alpha0 / (1 - restrain$para$alpha1 -
-                                              restrain$para$gamma1))), 2),
-      lty = 2)
-lines(predwindow, predsigmamean)
-lines(predwindow, longrunsdmean, lty = 2)
 lines(predwindow, predsigmamean, col = 4)
 for (i in seq_along(thesequants)) {
   lines(cutoff + 1:nahead, predquants[i, ], col = 2)
