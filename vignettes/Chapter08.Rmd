@@ -2025,12 +2025,13 @@ par(mfrow = c(2, 2), mar = c(2.5, 1.5, 1.5, .5), mgp = c(1.5, .5, 0), lwd = 1.5)
 preds <- tcrossprod(X, betas)
 us <- as.numeric(y) - preds
 epss <- us[-1, ] - t(phis * t(us[-nrow(us), ]))
+myylim <- range(rowMeans(us), rowMeans(epss))
 plot(as.numeric(tim), rowMeans(us), type = "l", xlab = "Time",
-     main = "Mean residuals")
+     main = "Mean residuals", ylim = myylim)
 acf(rowMeans(us))
 title("Estimated ACF")
 plot(as.numeric(tim), c(NA, rowMeans(epss)), type = "l", xlab = "Time",
-     main = "Mean residuals of residuals")
+     main = "Mean residuals of residuals", ylim = myylim)
 acf(rowMeans(epss))
 title("Estimated ACF")
 ```
