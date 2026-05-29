@@ -913,7 +913,7 @@ for (i in seq_len(nahead)) {
                   startvaltheta = colMeans(restrain$theta))
   longrunsdmean[i] <- mean(sqrt(res1$para$alpha0 /
                                    (1 - res1$para$alpha1 - res1$para$gamma1)))
-  pred1 <- prediction(res1, 1, drawsmult = 100)
+  pred1 <- prediction(res1, 1, drawsmult = 1000)
   predsigmamean[i] <- mean(sqrt(pred1$sigma2[, 1]))
   predquants[, i] <- quantile(pred1$y[, 1], thesequants)
 }
