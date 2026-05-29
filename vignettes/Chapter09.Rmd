@@ -909,7 +909,7 @@ predsigmamean <- rep(NA_real_, nahead)
 longrunsdmean <- rep(NA_real_, nahead)
 for (i in seq_len(nahead)) {
   y1 <- head(y, cutoff - 1 + i)
-  res1 <- sampler(y1, M = 5000, nburn = 200,
+  res1 <- sampler(y1, M = 2000, nburn = 200,
                   startvaltheta = colMeans(restrain$theta))
   longrunsdmean[i] <- mean(sqrt(res1$para$alpha0 /
                                    (1 - res1$para$alpha1 - res1$para$gamma1)))
