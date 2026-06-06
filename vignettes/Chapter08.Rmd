@@ -408,7 +408,7 @@ posteriors in case of separation and with a tighter prior we can
 shrink coefficients to zero.
 
 
-# Example 8.6: Complete separation: analysis under an informative prior
+### Example 8.6: Complete separation: analysis under an informative prior
 
 We now analyze the data of example 8.4. under the more informative
 prior $\mathcal{N}(\mathbf{0}, \mathbf{I})$. This prior distribution
@@ -910,7 +910,7 @@ We use the same Normal prior as in the Poisson model for the
 regression effects $\boldsymbol{\beta}$ and a Gamma prior
 $\mathcal{G}(2 , 0.5)$ for $\alpha$. We first run the full Gibbs sampler for $M=10,000$ iterations after a burn-in of 1000.
 
-```{r}
+```{r,negbin}
 d <- ncol(X)
 b0=rep(0,d)
 B0=diag(100,d)
@@ -1229,9 +1229,9 @@ text(4, 0.2, paste0('KS-test: p-value= ', round(ks.a$p.value,4)))
 We see very a clear deviation from the identity line and a p-value of 0
 for the heterogeneity parameter which indicates that the sampler is erroneous. 
 
-## Example 8.11
+## Example 8.11 Verifying the correctness of the partial marginalized Gibbs sampler
 
-We now analyze the partial marginalized Gibbs sampler
+We now analyze the partial marginalized Gibbs sampler.
 
 ```{r, echo = -c(1:3)}
 if (pdfplots) {
@@ -1263,7 +1263,7 @@ abline(a = 0, b = 1)
 text(4, 0.2, paste0('KS-test: p-value= ', round(ks.a$p.value,4)))
 ```
 
-Again the points of the QQplot lie close to the
+Again the points of the QQ-plot lie close to the
 identity line and the p-value of the Kolmogorov-Smirnov test is larger than 
 0.05 and thus we conclude that the sampler is correct. 
 
@@ -1296,28 +1296,26 @@ qqplot(alpha_prior,res_check_wrong$alpha_post[thin], xlab = "Prior",
 abline(a = 0, b = 1)
 text(4, 0.2, paste0('KS-test: p-value= ', round(ks.a$p.value,4)))
 ```                                                     
-Also for the partial marginalized sampler with the wrong sampling step for the 
-heterogeneity parameter we get a Q-Q plot which deviates considerably from the 
-identity line and a p-value of the Kolmogorov-Smirnov statistics of 0, which 
-indicates that the sampler is not correct.
+This is not the case for the partial marginalized sampler with the wrong 
+sampling step for the heterogeneity parameter: we get a Q-Q plot which deviates
+considerably from the lidentity line and a p-value of the Kolmogorov-Smirnov
+statistics of 0, which indicates that the sampler is not correct.
 
-## Example 8.12
-In this example we would like to check whether changing the order of the sampling 
+## Example 8.12 : Changing the order of the sampling steps
+In this example we check whether changing the order of the sampling 
 steps to (c)- (b)-(a) (instead of (a)-(b)-(c) ) still yields a correct Gibbs
 sampler.
 We first set up the sampler.
 
 ```{r}
 negbin_check_cba <- function(X, e, b0, B0, pri_alpha, c_alpha,
-                             full_gibbs = TRUE, burnin = 1000L,
-                             M = 50000L) {
-
+                             full_gibbs = TRUE, burnin = 1000L, M = 50000L) {
   N <- nrow(X)
   d <- ncol(X)
 
   beta_post  <- matrix(ncol = d, nrow = M)
   colnames(beta_post) <- colnames(X)
-  acc_beta <- numeric(length = M)
+  acc_beta <- rep(NA_real_, M)
 
   alpha_post <- rep(NA_real_, M)
   acc_alpha <- rep(NA_real_, M)
@@ -1331,7 +1329,7 @@ negbin_check_cba <- function(X, e, b0, B0, pri_alpha, c_alpha,
 
     # sample new data
     linpred <- X %*% beta
-     y <- rpois(N, phi * e * exp(linpred))
+    y <- rpois(N, phi * e * exp(linpred))
     
     # Step c
     phi <- rgamma(N, shape = alpha + y, rate = alpha + e * exp(linpred))
@@ -1371,15 +1369,16 @@ X <- cbind(rep(1, N), c(rep(0,N/2),rep(1,N/2)))
 e <- rep(1, N)
 
 d <- ncol(X)
-b0 <- c(0,0.5)
+b0 <- c(0,1)
 B0 <- diag(0.25, d)
 
-pri_alpha <- data.frame(shape = 2, rate = 2)
+pri_alpha <- data.frame(shape = 1.5, rate = 3)
 c_alpha <- 0.35
 ```
-We run the full Gibbs sampler under this scheme. To check the correctness of the sampler 
-we focus on the overdispersion  $\frac{\mu_i^2}{\alpha}$$  which we compute from the draws of 
-the augmented MCMC sampler as well as from draws of the prior distribution.
+We run the full Gibbs sampler under this scheme. To check the correctness of the
+sampler we focus on the overdispersion  $\frac{\mu_i^2}{\alpha}$  computed from 
+the draws of the augmented MCMC sampler as well as from draws of the prior
+distribution.
 
 ```{r, echo = -c(1:3)}
 if (pdfplots) {
