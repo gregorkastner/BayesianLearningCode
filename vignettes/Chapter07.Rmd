@@ -1476,9 +1476,9 @@ if (pdfplots) {
 }
 par(mfrow = c(1, 2))
 corrplot::corrplot(mean_xi_female, method = "square", is.corr = FALSE,
-                   col = 1, cl.pos = "n")
+                   col = 1, cl.pos = "n", col.lim = c(0, 1.5))
 corrplot::corrplot(mean_xi_male, method = "square", is.corr = FALSE,
-                   col = 1, cl.pos = "n")
+                   col = 1, cl.pos = "n", col.lim = c(0, 1.5))
 ```
 
 We compare the posterior densities of various transition probabilities
