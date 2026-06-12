@@ -22,3 +22,9 @@ from [GitHub](https://github.com/gregorkastner/BayesianLearningCode/) with:
 # install.packages("pak")
 pak::pak("gregorkastner/BayesianLearningCode")
 ```
+
+Another variant (for Sylvia's course)
+``` r
+install.packages(c("corrplot", "robustbase", "stochvol", "mvtnorm", "pgdraw", "coda", "numDeriv", "RColorBrewer", "gsl", "knitr", "rmarkdown"))
+install.packages("https://github.com/gregorkastner/BayesianLearningCode/releases/download/v0.0.1/BayesianLearningCode_0.0.1.tar.gz", repos = NULL, type = "source")
+```
