@@ -408,7 +408,7 @@ posteriors in case of separation and with a tighter prior we can
 shrink coefficients to zero.
 
 
-# Example 8.6: Complete separation: analysis under an informative prior
+### Example 8.6: Complete separation: analysis under an informative prior
 
 We now analyze the data of example 8.4. under the more informative
 prior $\mathcal{N}(\mathbf{0}, \mathbf{I})$. This prior distribution
@@ -604,7 +604,7 @@ gen_proposal_poisson <- function(y, X, e, b0 = 0, B0 = 100, t.max = 20) {
   N <- length(y)
   d <- ncol(X)
 
-  beta_new <- matrix(c(log(mean(y/e)), rep(0, d - 1)), nrow = d)
+  beta_new <- matrix(c(log(mean(y/e)),rnorm(d - 1)/10), nrow = d)
 
   XtXi <- lapply(seq_len(N), function(i) tcrossprod(X[i,]))
   B0.inv <- solve(B0)
@@ -723,7 +723,7 @@ poisson <- function(y, X, e, b0 = 0, B0 = 100, burnin = 1000L, M = 10000L) {
 }
 ```
 
-We perform MCMC and report the results.
+We perform MCMC for !0000 iterations after a burnin of 1000 and report the results.
 
 ```{r}
 set.seed(1234)
@@ -776,7 +776,7 @@ knitr::kable(res_poisson2)
 With 2.8 deadly or seriously injured children per 10000 at risk, the
 estimated baseline risk is very similar to that from Model 1. Also the
 estimated intervention effect is very similar in both models,
-indicating a reduction of the risk by a factor of 0.69 in Model 2
+indicating a reduction of the risk by a factor of 0.692 in Model 2
 (compared to 0.697 in Model 1). The monthly effects have rather wide
 95\% HPD intervals that cover 0 for all months except for July and
 August. For these two holiday months they are clearly negative,
@@ -908,9 +908,9 @@ negbin<- function(y,X,e, b0,B0, pri_alpha,c_alpha,
 
 We use the same Normal prior as in the Poisson model for the
 regression effects $\boldsymbol{\beta}$ and a Gamma prior
-$\mathcal{G}(2 , 0.5)$ for $\alpha$. We first run the full Gibbs sampler for $M=10,000$ iterations after a burn-in of 1000.
+$\mathcal{G}(2 , 0.5)$ for $\alpha$. We first run the full Gibbs sampler for $M=50,000$ iterations after a burn-in of 1000.
 
-```{r}
+```{r,negbin}
 d <- ncol(X)
 b0=rep(0,d)
 B0=diag(100,d)
@@ -966,14 +966,14 @@ sampler.
 
 
 ## Section 8.2.3: Evaluating MCMC samplers
+
 ### Example 8.10 Verifying the correctness of the full conditional MCMC samper
 
-We extend the sampler in the scheme (a), (b), (c) by adding sampling the data from the prior as a further sampling step.
+To check the MCMC algorithm for correctness, we extend the sampler by adding sampling the data from the prior as a further sampling step.
 
 ```{r}
 negbin_check <- function(X, e, b0, B0, pri_alpha, c_alpha,
-                             full_gibbs = TRUE, burnin = 1000L, 
-                             M = 50000L) {
+                          full_gibbs = TRUE, burnin = 1000L,   M = 50000L) {
     
     N <- nrow(X)
     d <- ncol(X)
@@ -1229,9 +1229,9 @@ text(4, 0.2, paste0('KS-test: p-value= ', round(ks.a$p.value,4)))
 We see very a clear deviation from the identity line and a p-value of 0
 for the heterogeneity parameter which indicates that the sampler is erroneous. 
 
-## Example 8.11
+## Example 8.11 Verifying the correctness of the partial marginalized Gibbs sampler
 
-We now analyze the partial marginalized Gibbs sampler
+We now analyze the partial marginalized Gibbs sampler.
 
 ```{r, echo = -c(1:3)}
 if (pdfplots) {
@@ -1263,7 +1263,7 @@ abline(a = 0, b = 1)
 text(4, 0.2, paste0('KS-test: p-value= ', round(ks.a$p.value,4)))
 ```
 
-Again the points of the QQplot lie close to the
+Again the points of the QQ-plot lie close to the
 identity line and the p-value of the Kolmogorov-Smirnov test is larger than 
 0.05 and thus we conclude that the sampler is correct. 
 
@@ -1296,13 +1296,229 @@ qqplot(alpha_prior,res_check_wrong$alpha_post[thin], xlab = "Prior",
 abline(a = 0, b = 1)
 text(4, 0.2, paste0('KS-test: p-value= ', round(ks.a$p.value,4)))
 ```                                                     
-Also for the partial marginalized sampler with the wrong sampling step for the 
-heterogeneity parameter we get a Q-Q plot which deviates considerably from the 
-identity line and a p-value of the Kolmogorov-Smirnov statistics of 0, which 
-indicates that the sampler is not correct.
+This is not the case for the partial marginalized sampler with the wrong 
+sampling step for the heterogeneity parameter: we get a Q-Q plot which deviates
+considerably from the lidentity line and a p-value of the Kolmogorov-Smirnov
+statistics of 0, which indicates that the sampler is not correct.
 
+## Example 8.12 : Changing the order of the sampling steps
+In this example we check whether changing the order of the sampling 
+steps to (c)- (b)-(a) (instead of (a)-(b)-(c) ) still yields a correct Gibbs
+sampler.
+We first set up the sampler.
 
+```{r}
+negbin_check_cba <- function(X, e, b0, B0, pri_alpha, c_alpha,
+                             full_gibbs = TRUE, burnin = 1000L, M = 50000L) {
+  N <- nrow(X)
+  d <- ncol(X)
 
+  beta_post  <- matrix(ncol = d, nrow = M)
+  colnames(beta_post) <- colnames(X)
+  acc_beta <- rep(NA_real_, M)
+
+  alpha_post <- rep(NA_real_, M)
+  acc_alpha <- rep(NA_real_, M)
+
+  # Set starting values
+  beta <- as.vector(mvtnorm::rmvnorm(1, mean = b0, sigma = B0))
+  alpha <- pri_alpha$shape/pri_alpha$rate
+  phi <- rgamma(N, shape = alpha , rate = alpha)
+
+  for (m in seq_len(burnin + M)) {
+
+    # sample new data
+    linpred <- X %*% beta
+    y <- rpois(N, phi * e * exp(linpred))
+    
+    # Step c
+    phi <- rgamma(N, shape = alpha + y, rate = alpha + e * exp(linpred))
+    
+    # Step b
+    alpha_draw <- sample_alpha(y, e * exp(linpred), phi, pri_alpha, alpha,
+                               c_alpha, full_gibbs)
+    alpha <- alpha_draw$alpha
+  
+    # Step a
+    parms_proposal <- gen_proposal_poisson(y, X, e * phi, b0, B0)
+    beta_draw <- sample_beta(y, X, e * phi, b0, B0, parms_proposal$mean, 
+                             parms_proposal$var, beta)
+    beta <- beta_draw$beta
+  
+    # Save the draws
+    if (m > burnin) {
+      beta_post[m - burnin, ] <- beta
+      acc_beta[m - burnin] <- beta_draw$acc
+
+      alpha_post[m - burnin] <- alpha
+      acc_alpha[m - burnin] <- alpha_draw$acc
+    }
+  }
+  return(res = list(beta_post = beta_post, acc_beta = acc_beta,
+                    alpha_post = alpha_post, acc_alpha = acc_alpha))
+}
+```
+We define the size of the sample and use one binary covariate which has the 
+value zero for half of the data and one for the other half
+half of the data and use Normal prior for the regression parameters with mean
+$(0.5,2)$ and covariance matrix $0.2 \mathbf{I}$  and a Gamma prior with shape 5 
+and rate 10 for the heterogeneity parameter $\alpha$. 
+
+```{r}
+N <- 40
+
+X <- cbind(rep(1, N), c(rep(0,N/2),rep(1,N/2)))
+e <- rep(1, N)
+
+d <- ncol(X)
+b0 <- c(0.5,2)
+B0 <- matrix(c(0.2, 0.15, 0.15, 0.2),nrow=2) # diag(0.2, d)
+
+pri_alpha <- data.frame(shape = 5, rate = 10)
+c_alpha <- 0.35
+```
+We run the full Gibbs sampler under this scheme. To check the correctness of the
+sampler we focus on the overdispersion  $\frac{\mu_i^2}{\alpha}$ for $x_i=0$ and
+$x-i=1$ which we compute from 
+the draws of the augmented MCMC sampler as well as from draws of the prior
+distribution.
+
+```{r, echo = -c(1:3)}
+if (pdfplots) {
+  pdf("8-2_5.pdf", width = 8, height = 4)
+}
+par(mfrow = c(1, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
+
+M=300000
+set.seed(1234)
+res_check_full <- negbin_check_cba(X, e, b0, B0, pri_alpha, c_alpha,
+                                  full_gibbs = TRUE, M = M)
+h=300
+thin=seq(from=1, to=M,by=h)
+
+mu1=exp(res_check_full$beta_post[,1])
+ov1<-(mu1^2/res_check_full$alpha_post)[thin]
+print(coda::effectiveSize(ov1))
+
+mu2=exp(res_check_full$beta_post[,1]+res_check_full$beta_post[,2])
+ov2<-(mu2^2/res_check_full$alpha_post)[thin]
+print(coda::effectiveSize(ov2))
+
+set.seed(1234)
+beta_prior <- t(mvtnorm::rmvnorm(M/h, mean = b0, sigma = B0))
+alpha_prior <- rgamma(M/h, shape = pri_alpha$shape,rate = pri_alpha$rate)
+ov1_prior<- exp(beta_prior[1,])^2/alpha_prior
+ov2_prior<- exp(beta_prior[1,]+beta_prior[2,])^2/alpha_prior
+print(coda::effectiveSize(ov2_prior))
+print(coda::effectiveSize(ov1_prior))
+
+ks1<- ks.test(ov1_prior,ov1)
+qqplot(log(ov1_prior), log(ov1),xlab = "Prior",xlim=c(0,6), ylim=c(0,6),
+       ylab = "Posterior", main = "Overdispersion for X=0")
+abline(a = 0, b = 1)
+text(3,0.1, paste0('KS-test: p-value= ', round(ks1$p.value,4)))
+
+ks2<- ks.test(ov2_prior,ov2)
+qqplot(log(ov2_prior),log(ov2), xlab = "Prior",xlim=c(0,10), ylim=c(0,10),
+       ylab = "Posterior", main = "Overdispersion for X=1")
+abline(a = 0, b = 1)
+text(5,0.1, paste0('KS-test: p-value= ', round(ks2$p.value,4)))
+```
+Both p_values are larger than 0.05, which is as expected for the full-conditional
+Gibbs sampler.
+
+Now we run the partially marginalised Gibbs sampler, first with correct order
+of sampling steps.
+```{r, echo = -c(1:3)}
+if (pdfplots) {
+  pdf("8-2_6.pdf", width = 8, height = 4)
+}
+par(mfrow = c(1, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
+
+set.seed(1234)
+res_partial <- negbin_check(X, e, b0, B0, pri_alpha, c_alpha,
+                                  full_gibbs = FALSE, M = M)
+
+mu1=exp(res_partial$beta_post[,1])
+ov1<-((mu1^2)/res_partial$alpha_post)[thin]
+print(coda::effectiveSize(ov1))
+
+mu2=exp(res_partial$beta_post[,1]+res_partial$beta_post[,2])
+ov2<-((mu2^2)/res_partial$alpha_post)[thin]
+print(coda::effectiveSize(ov2))
+
+ks1<- ks.test(ov1_prior,ov1)
+qqplot(log(ov1_prior), log(ov1),xlab = "Prior",xlim=c(0,5), ylim=c(0,5),
+       ylab = "Posterior", main = "Overdispersion for X=0")
+abline(a = 0, b = 1)
+text(3,0.1, paste0('KS-test: p-value= ', round(ks1$p.value,4)))
+
+ks2<- ks.test(ov2_prior,ov2)
+qqplot(log(ov2_prior),log(ov2), xlab = "Prior",xlim=c(0,10), ylim=c(0,10),
+       ylab = "Posterior", main = "Overdispersion for X=1")
+abline(a = 0, b = 1)
+text(5,0.1, paste0('KS-test: p-value= ', round(ks2$p.value,4))) 
+
+```
+
+We next run the ivalid partially marginalised Gibbs sampler.
+
+```{r, echo = -c(1:3)}
+if (pdfplots) {
+  pdf("8-2_6.pdf", width = 8, height = 4)
+}
+par(mfrow = c(1, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
+
+set.seed(1234)
+res_check_partial <- negbin_check_cba(X, e, b0, B0, pri_alpha, c_alpha,
+                                  full_gibbs = FALSE, M = M)
+
+mu1=exp(res_check_partial$beta_post[,1])
+ov1<-((mu1^2)/res_check_partial$alpha_post)[thin]
+print(coda::effectiveSize(ov1))
+
+mu2=exp(res_check_partial$beta_post[,1]+res_check_partial$beta_post[,2])
+ov2<-((mu2^2)/res_check_partial$alpha_post)[thin]
+print(coda::effectiveSize(ov2))
+
+ks1<- ks.test(ov1_prior,ov1)
+qqplot(log(ov1_prior), log(ov1),xlab = "Prior",xlim=c(0,5), ylim=c(0,5),
+       ylab = "Posterior", main = "Overdispersion for X=0")
+abline(a = 0, b = 1)
+text(3,0.1, paste0('KS-test: p-value= ', round(ks1$p.value,4)))
+
+ks2<- ks.test(ov2_prior,ov2)
+qqplot(log(ov2_prior),log(ov2), xlab = "Prior",xlim=c(0,10), ylim=c(0,10),
+       ylab = "Posterior", main = "Overdispersion for X=1")
+abline(a = 0, b = 1)
+text(5,0.1, paste0('KS-test: p-value= ', round(ks2$p.value,4))) 
+
+```
+Also for the partially marginalised Gibbs sampler both p-values are larger than
+0.05 and hence we fail to detect that this sampler is wrong. 
+
+We compare the scatterplots of the regression effects $\beta_0$ and $\beta_1$
+versus the heterogeneity parameter $\alpha$
+```{r, echo = -c(1:3)}
+if (pdfplots) {
+  pdf("8-2_7.pdf", width = 8, height = 4)
+}
+par(mfrow = c(2,3), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
+
+plot(res_check_full$beta_post[thin,1],res_check_full$alpha_post[thin],
+      xlab="beta1", ylab="alpha",main="full",xlim=c(-1,2), ylim=c(0,1.4))
+plot(res_partial$beta_post[thin,1],res_partial$alpha_post[thin],
+           xlab="beta1", ylab="alpha",main="correct partial",xlim=c(-1,2), ylim=c(0,1.4))
+plot(res_check_partial$beta_post[thin,1],res_check_partial$alpha_post[thin],
+           xlab="beta1", ylab="alpha",main="incorrect partial",xlim=c(-1,2), ylim=c(0,1.4))
+
+plot(res_check_full$beta_post[thin,2],res_check_full$alpha_post[thin],
+        xlab="beta2", ylab="alpha",xlim=c(0.5,3.5), ylim=c(0,1.4))
+plot(res_partial$beta_post[thin,2],res_partial$alpha_post[thin],
+      xlab="beta2", ylab="alpha",xlim=c(0.5,3.5), ylim=c(0,1.4))
+plot(res_check_partial$beta_post[thin,2],res_check_partial$alpha_post[thin],
+        xlab="beta2", ylab="alpha",xlim=c(0.5,3.5), ylim=c(0,1.4))
+```
 # Section 8.3: Beyond i.i.d. Gaussian error distributions
 
 ## Section 8.3.1: Regression analysis with heteroskedastic errors
