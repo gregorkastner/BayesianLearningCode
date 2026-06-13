@@ -18,6 +18,7 @@ knitr::opts_chunk$set(
 )
 knitr::opts_knit$set(global.par = TRUE)
 pdfplots <- FALSE # default: FALSE; set this to TRUE only if you like pdf figures
+mcmcspeedup <- 10 # default: 1; set this to something higher for fewer draws
 ```
 
 ```{r, include = FALSE}
@@ -89,7 +90,7 @@ the algorithm detailed in Section 8.1.1.
 
 ```{r}
 probit <- function(y, X, b0 = 0, B0 = 10000,
-                   burnin = 1000L, M = 20000L) {
+                   burnin = 1000L, M = 20000L / mcmcspeedup) {
   N <- length(y)
   d <- ncol(X) # number of regression effects 
 
@@ -137,7 +138,7 @@ independence prior and estimate the model parameters.
  
 ```{r}
 set.seed(1234)
-M <- 20000
+M <- 20000 / mcmcspeedup
 betas <- probit(y_unemp, X_unemp, b0 = 0, B0 = 1000L, burnin = 1000, M = M)
 ```
 
@@ -469,7 +470,7 @@ using the two-block Polya-Gamma sampler.
 
 ```{r}
 logit <- function(y, X, b0 = 0, B0 = 10000,
-                  burnin = 1000L, M = 5000L) {
+                  burnin = 1000L, M = 5000L / mcmcspeedup) {
     
     N <- length(y)
     d <- ncol(X) # number regression effects 
@@ -693,7 +694,8 @@ Next we combine the determination of the proposal and the MH-sampling step
 in a  program to sample from the posterior of a Poisson regression model.
 
 ```{r}
-poisson <- function(y, X, e, b0 = 0, B0 = 100, burnin = 1000L, M = 10000L) {
+poisson <- function(y, X, e, b0 = 0, B0 = 100, burnin = 1000L,
+                    M = 10000L / mcmcspeedup) {
   d <- ncol(X)
 
   b0 <- rep(b0, length.out = d)
@@ -723,7 +725,7 @@ poisson <- function(y, X, e, b0 = 0, B0 = 100, burnin = 1000L, M = 10000L) {
 }
 ```
 
-We perform MCMC for !0000 iterations after a burnin of 1000 and report the results.
+We perform MCMC for 10000 iterations after a burnin of 1000 and report the results.
 
 ```{r}
 set.seed(1234)
@@ -857,7 +859,7 @@ a gibbs sampler.
 
 ```{r}
 negbin<- function(y,X,e, b0,B0, pri_alpha,c_alpha,
-                  full_gibbs = TRUE, burnin = 1000L, M = 10000L){
+                  full_gibbs = TRUE, burnin = 1000L, M = 10000L / mcmcspeedup){
 
   N <- nrow(X)
   d <- ncol(X)
@@ -908,7 +910,8 @@ negbin<- function(y,X,e, b0,B0, pri_alpha,c_alpha,
 
 We use the same Normal prior as in the Poisson model for the
 regression effects $\boldsymbol{\beta}$ and a Gamma prior
-$\mathcal{G}(2 , 0.5)$ for $\alpha$. We first run the full Gibbs sampler for $M=50,000$ iterations after a burn-in of 1000.
+$\mathcal{G}(2 , 0.5)$ for $\alpha$. We first run the full Gibbs sampler for
+$M = 50,000$ iterations after a burn-in of 1000.
 
 ```{r,negbin}
 d <- ncol(X)
@@ -918,7 +921,7 @@ B0=diag(100,d)
 pri_alpha <- data.frame(shape = 2, rate = 0.5)
 c_alpha=0.1
                                                     
-M <- 50000L
+M <- 50000L / mcmcspeedup
                                                     
 # Full Gibbs sampler
 set.seed(1234)
@@ -972,8 +975,8 @@ sampler.
 To check the MCMC algorithm for correctness, we extend the sampler by adding sampling the data from the prior as a further sampling step.
 
 ```{r}
-negbin_check <- function(X, e, b0, B0, pri_alpha, c_alpha,
-                          full_gibbs = TRUE, burnin = 1000L,   M = 50000L) {
+negbin_check <- function(X, e, b0, B0, pri_alpha, c_alpha, full_gibbs = TRUE,
+                         burnin = 1000L, M = 50000L / mcmcspeedup) {
     
     N <- nrow(X)
     d <- ncol(X)
@@ -1047,7 +1050,7 @@ We  run the sampler and check the effective sample size of the draws of the regr
 effects and the heterogeneity parameter.
 
 ```{r}
-M=10000
+M <- 10000 / mcmcspeedup
 set.seed(1)
 res_check <- negbin_check(X, e, b0, B0, pri_alpha, c_alpha,
                                   full_gibbs = TRUE, M = M)
@@ -1138,7 +1141,7 @@ its correctness.
 ```{r}
 negbin_check_wrong <- function(X, e, b0, B0, pri_alpha, c_alpha,
                                  full_gibbs = TRUE, burnin = 1000L, 
-                                 M = 50000L) {
+                                 M = 50000L / mcmcspeedup) {
     
     N <- nrow(X)
     d <- ncol(X)
@@ -1308,8 +1311,8 @@ sampler.
 We first set up the sampler.
 
 ```{r}
-negbin_check_cba <- function(X, e, b0, B0, pri_alpha, c_alpha,
-                             full_gibbs = TRUE, burnin = 1000L, M = 50000L) {
+negbin_check_cba <- function(X, e, b0, B0, pri_alpha, c_alpha, full_gibbs = TRUE,
+                             burnin = 1000L, M = 50000L / mcmcspeedup) {
   N <- nrow(X)
   d <- ncol(X)
 
@@ -1389,7 +1392,7 @@ if (pdfplots) {
 }
 par(mfrow = c(1, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
 
-M=300000
+M <- 300000 / (10 * mcmcspeedup)
 set.seed(1234)
 res_check_full <- negbin_check_cba(X, e, b0, B0, pri_alpha, c_alpha,
                                   full_gibbs = TRUE, M = M)
@@ -1639,7 +1642,7 @@ cN <- c0 + N / 2
 
 # define burnin and M
 burnin <- 1000
-M <- 20000
+M <- 20000 / mcmcspeedup
 
 # prepare storing of results
 betas <- matrix(NA_real_, nrow = M, ncol = d)
@@ -1973,7 +1976,7 @@ set.seed(1)
 
 # fix tuning parameter for MH, the number of draws M, and burn-in length
 cnu <- 0.3
-M <- 5000
+M <- 5000 / mcmcspeedup
 burnin <- 1000
 
 # fix prior hyperparameters
@@ -2111,7 +2114,7 @@ regression model, where we assume that the residuals are uncorrelated.
 y <- newcars
 # Define the burnin and the number of draws thereafter
 burnin <- 100
-M <- 1000
+M <- 1000 / mcmcspeedup
 
 # Define the prior parameters
 b0 <- rep(0, d)
