@@ -1,6 +1,6 @@
 Package: BayesianLearningCode
 Title: Accompanying Code to a Future Book
-Version: 0.0.1
+Version: 0.0.2
 Authors@R: 
     c(person(given = "Sylvia",
              family = "Frühwirth-Schnatter",
