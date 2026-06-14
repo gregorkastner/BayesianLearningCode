@@ -1,0 +1,106 @@
+# BayesianLearningCode
+
+BayesianLearningCode provides R code to reproduce (most of the) examples
+in a future book.
+
+## Typical use case
+
+Click on **Articles** on top of the page to view the R code.
+
+## Installation
+
+If for some reason (e.g., because you would like to have access to the
+data sets) you’d like to have the entire package on your computer, you
+can do so by installing the development version of BayesianLearningCode
+from [GitHub](https://github.com/gregorkastner/BayesianLearningCode/)
+with:
+
+``` r
+
+install.packages("pak")
+pak::pak("gregorkastner/BayesianLearningCode")
+```
+
+Another variant (for Sylvia’s course)
+
+``` r
+
+# First, install the dependencies from CRAN
+install.packages(c("corrplot", "robustbase", "stochvol", "mvtnorm",
+                   "pgdraw", "coda", "numDeriv", "RColorBrewer", "gsl",
+                   "knitr", "rmarkdown"))
+
+# For Windows users: Install the pre-built package directly
+install.packages(
+  "https://github.com/gregorkastner/BayesianLearningCode/releases/download/v0.0.1/BayesianLearningCode_0.0.1.zip",
+  repos = NULL,
+  type = "win.binary"
+)
+
+# Alternatively: Install the source file from github (may throw warnings)
+install.packages(
+  "https://github.com/gregorkastner/BayesianLearningCode/releases/download/v0.0.1/BayesianLearningCode_0.0.1.tar.gz",
+  repos = NULL,
+  type = "source"
+)
+```
+
+# Package index
+
+## All functions
+
+- [`rdirichlet()`](https://gregorkastner.github.io/BayesianLearningCode/reference/Dirichlet.md)
+  : The Dirichlet Distribution
+- [`dinvgamma()`](https://gregorkastner.github.io/BayesianLearningCode/reference/InvGammaDist.md)
+  [`pinvgamma()`](https://gregorkastner.github.io/BayesianLearningCode/reference/InvGammaDist.md)
+  [`qinvgamma()`](https://gregorkastner.github.io/BayesianLearningCode/reference/InvGammaDist.md)
+  [`rinvgamma()`](https://gregorkastner.github.io/BayesianLearningCode/reference/InvGammaDist.md)
+  : The Inverse Gamma Distribution
+- [`dstudt()`](https://gregorkastner.github.io/BayesianLearningCode/reference/StudTDist.md)
+  [`pstudt()`](https://gregorkastner.github.io/BayesianLearningCode/reference/StudTDist.md)
+  [`qstudt()`](https://gregorkastner.github.io/BayesianLearningCode/reference/StudTDist.md)
+  [`rstudt()`](https://gregorkastner.github.io/BayesianLearningCode/reference/StudTDist.md)
+  : The Non-standardized Student t Distribution
+- [`accidents`](https://gregorkastner.github.io/BayesianLearningCode/reference/accidents.md)
+  : Accidents Data
+- [`eyetracking`](https://gregorkastner.github.io/BayesianLearningCode/reference/eyetracking.md)
+  : Eye Tracking Data
+- [`gdp`](https://gregorkastner.github.io/BayesianLearningCode/reference/gdp.md)
+  : GDP data
+- [`inflation`](https://gregorkastner.github.io/BayesianLearningCode/reference/inflation.md)
+  : Inflation Data
+- [`labor`](https://gregorkastner.github.io/BayesianLearningCode/reference/labor.md)
+  : Labor Market Data
+- [`movies`](https://gregorkastner.github.io/BayesianLearningCode/reference/movies.md)
+  : Movie Open Box Office Data
+- [`newcars`](https://gregorkastner.github.io/BayesianLearningCode/reference/newcars.md)
+  : New Cars Registration Data
+- [`words`](https://gregorkastner.github.io/BayesianLearningCode/reference/words.md)
+  : Words Data
+
+# Articles
+
+### All vignettes
+
+- [Chapter 1: From Bayes’ Rule to Bayes’
+  Theorem](https://gregorkastner.github.io/BayesianLearningCode/articles/Chapter01.md):
+- [Chapter 2: A First Bayesian Analysis of Count
+  Data](https://gregorkastner.github.io/BayesianLearningCode/articles/Chapter02.md):
+- [Chapter 3: A First Bayesian Analysis of Unknown
+  Probabilities](https://gregorkastner.github.io/BayesianLearningCode/articles/Chapter03.md):
+- [Chapter 4: A First Bayesian Analysis of Continuous
+  Data](https://gregorkastner.github.io/BayesianLearningCode/articles/Chapter04.md):
+- [Chapter 5: Learning More About Bayesian
+  Learning](https://gregorkastner.github.io/BayesianLearningCode/articles/Chapter05.md):
+- [Chapter 6: The Bayesian Approach to Standard Regression
+  Analysis](https://gregorkastner.github.io/BayesianLearningCode/articles/Chapter06.md):
+- [Chapter 7: Introduction to Bayesian Time Series
+  Analysis](https://gregorkastner.github.io/BayesianLearningCode/articles/Chapter07.md):
+- [Chapter 8: Beyond Standard Regression
+  Analysis](https://gregorkastner.github.io/BayesianLearningCode/articles/Chapter08.md):
+- [Chapter 9: Bayesian Predictive
+  Analysis](https://gregorkastner.github.io/BayesianLearningCode/articles/Chapter09.md):
+- [Chapter 10: Bayesian Model
+  Selection](https://gregorkastner.github.io/BayesianLearningCode/articles/Chapter10.md):
+- [Chapter 11: Bayesian Model Selection in Regression and Time Series
+  Analysis](https://gregorkastner.github.io/BayesianLearningCode/articles/Chapter11.md):
