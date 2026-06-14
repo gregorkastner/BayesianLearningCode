@@ -1,0 +1,28 @@
+{
+    "id": "DCAF7F9C",
+    "path": "~/git/BayesianLearningCode/vignettes/Chapter09.Rmd",
+    "project_path": "vignettes/Chapter09.Rmd",
+    "type": "r_markdown",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1779433991301.0,
+    "source_on_save": false,
+    "relative_order": 2,
+    "properties": {
+        "chunk_output_type": "console",
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "944,1",
+        "scrollLine": "0",
+        "marks": "<:914,17\n>:914,17"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1780056645,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1780056645182,
+    "read_only": false,
+    "read_only_alternatives": []
+}

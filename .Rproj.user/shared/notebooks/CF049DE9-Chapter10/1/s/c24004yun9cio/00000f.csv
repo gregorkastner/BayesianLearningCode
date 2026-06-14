@@ -1,0 +1,5 @@
+"0","logBF <- -7:7"
+"0","BF <- exp(logBF)"
+"0","PrM1 <- 1 / (1 + BF)"
+"0","PrM2 <- 1 - PrM1"
+"0","knitr::kable(cbind(BF, logBF, PrM1, PrM1))"
