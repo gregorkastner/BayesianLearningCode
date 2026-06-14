@@ -16,12 +16,12 @@
 
 Frühwirth-Schnatter S, Grün B, Kastner G, Wagner H (2026).
 *BayesianLearningCode: Accompanying Code to a Future Book*. R package
-version 0.0.1, <https://gregorkastner.github.io/BayesianLearningCode/>.
+version 0.0.2, <https://gregorkastner.github.io/BayesianLearningCode/>.
 
     @Manual{,
       title = {BayesianLearningCode: Accompanying Code to a Future Book},
       author = {Sylvia Frühwirth-Schnatter and Bettina Grün and Gregor Kastner and Helga Wagner},
       year = {2026},
-      note = {R package version 0.0.1},
+      note = {R package version 0.0.2},
       url = {https://gregorkastner.github.io/BayesianLearningCode/},
     }
