@@ -1,0 +1,21 @@
+---
+title: "Chapter 12: Model Assessment and Predictive Model Checking"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{Chapter 12: Model Assessment and Predictive Model Checking}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 8,
+  fig.height = 6
+)
+knitr::opts_knit$set(global.par = TRUE)
+pdfplots <- FALSE # default: FALSE; set this to TRUE only if you like pdf figures
+```
