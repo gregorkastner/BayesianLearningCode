@@ -162,6 +162,32 @@ for (p in 1:4) {
                          b0 = b0, B0 = B0, c0 = 2, C0 = 0.001)
 }
 ```
+
+## Figure 11.2: Graphical assessment of the Savage-Dickey density ratio
+
+Now we plot the draws for the leading coefficient, i.e., the coefficient
+corresponding to the highest lag in each of the models, along with the marginal
+prior.
+
+```{r, echo = -c(1:2)}
+if (pdfplots) {
+  pdf("11-4_1.pdf", width = 6, height = 3)
+}
+par(mfrow = c(1, 4), mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.5, .5, 0))
+mymin <- -.75
+mymax <- .75
+mybreaks <- seq(mymin, mymax, by = .02)
+myats <- seq(mymin, mymax, length.out = 200)
+for (p in 1:4) {
+  hist(res[[p]]$betas[, p + 1], freq = FALSE, main = bquote(AR(.(p))),
+       xlab = bquote(phi[.(p)]), ylab = "", breaks = mybreaks, border = NA)
+  abline(v = 0, lty = 3)
+  abline(h = 0, lty = 3)
+  lines(myats, dnorm(myats, b0, sqrt(B0)), lwd = 1.5)
+}
+dev.off()
+```
+
 ## Section 11.4.3: Bayesian testing for first-order markov chain models
 
 ## Example 11.18: Application to Austrian wage mobility data - homogeneity versus grouped model
