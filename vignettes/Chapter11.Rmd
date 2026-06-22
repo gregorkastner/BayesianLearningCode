@@ -185,7 +185,6 @@ for (p in 1:4) {
   abline(h = 0, lty = 3)
   lines(myats, dnorm(myats, b0, sqrt(B0)), lwd = 1.5)
 }
-dev.off()
 ```
 
 ## Section 11.4.3: Bayesian testing for first-order markov chain models
