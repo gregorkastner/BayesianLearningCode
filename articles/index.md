@@ -24,3 +24,5 @@
   Selection](https://gregorkastner.github.io/BayesianLearningCode/articles/Chapter10.md):
 - [Chapter 11: Bayesian Model Selection in Regression and Time Series
   Analysis](https://gregorkastner.github.io/BayesianLearningCode/articles/Chapter11.md):
+- [Chapter 12: Model Assessment and Predictive Model
+  Checking](https://gregorkastner.github.io/BayesianLearningCode/articles/Chapter12.md):

@@ -30,6 +30,8 @@ abline(h = probs, lty = 3)
 mtext(probs, side = 2, at = probs, adj = c(0, 1), cex = .8, col = "dimgrey")
 ```
 
+![](Chapter09_files/figure-html/unnamed-chunk-3-1.png)
+
 ### Example 9.2: CHF exchange rate data - single predictions
 
 We load the data and then plot the pdf and cdf for the predictive
@@ -64,6 +66,8 @@ abline(h = probs, lty = 3)
 mtext(probs, side = 2, at = probs, adj = c(0, 1), cex = .8, col = "dimgrey")
 ```
 
+![](Chapter09_files/figure-html/unnamed-chunk-4-1.png)
+
 We inspect the parameters of the Student-t distribution.
 
 ``` r
@@ -97,6 +101,8 @@ for (i in seq_along(Ns)) {
   lines(x, dstudt(x, location = bN, scale = scale, df = 2 * cN), lwd = 1.5)
 }
 ```
+
+![](Chapter09_files/figure-html/unnamed-chunk-6-1.png)
 
 ### Example 9.4: Road safety data - posterior predictive credible interval
 
@@ -232,6 +238,8 @@ abline(h = q_t, col = 2, lty = 2, lwd = 1.5)
 legend("topleft", c("Normal", "Student t"), lty = 1:2, col = c(4, 2), lwd = 1.5)
 ```
 
+![](Chapter09_files/figure-html/unnamed-chunk-14-1.png)
+
 ### Example 9.9: Road safety data - sampling-based prediction
 
 We use a sampling-based approach to obtain draws from the posterior
@@ -264,6 +272,8 @@ plot(as.table(cumsum(tab)), type = "h", xlab = "U", ylab = "")
 abline(h = probs, lty = 3)
 mtext(probs, side = 2, at = probs, adj = c(0, 1), cex = .8, col = "dimgrey")
 ```
+
+![](Chapter09_files/figure-html/unnamed-chunk-16-1.png)
 
 ### Example 9.11: Predicting the probability of future successes
 
@@ -332,6 +342,8 @@ boxplot(pk2, xlab = "k", range = 0, main = "Rao-Blackwellized",
         ylim = range(pk1))
 points(pk3, col = 3, cex = 1.5, pch = 16)
 ```
+
+![](Chapter09_files/figure-html/unnamed-chunk-20-1.png)
 
 ## Section 9.4 Posterior Predictive Distributions in Regression Analysis
 
@@ -506,6 +518,8 @@ matplot(as.vector(time(e.pred)), pred.int, col = "blue", type = "l",
 abline(v = 1994.75, col = "red")
 ```
 
+![](Chapter09_files/figure-html/unnamed-chunk-25-1.png)
+
 We see that the prediction intervals after the intervention are much too
 wide which again indicates that there is an intervention effect. Note
 that whereas the risk for a child to be killed or seriously injured in
@@ -581,6 +595,8 @@ for (p in 2:4) {
 }
 ```
 
+![](Chapter09_files/figure-html/unnamed-chunk-28-1.png)
+
 ### Example 9.15: US GDP data - multi-step forecasting
 
 Now, we want to “sample the future” up to 12 steps ahead for $`p = 2`$.
@@ -644,6 +660,8 @@ for (i in 1:4) {
 }
 ```
 
+![](Chapter09_files/figure-html/unnamed-chunk-30-1.png)
+
 And now we plot the predictions.
 
 ``` r
@@ -664,6 +682,8 @@ polygon(pxs, c(quants["5%", 1], quants["95%", ], rev(quants["5%", ])),
         col = rgb(1, 0, 0, .2), border = NA)
 abline(h = 0, lty = 3)
 ```
+
+![](Chapter09_files/figure-html/unnamed-chunk-31-1.png)
 
 ### Example 9.16: US GDP data - forecasting non-linear functionals
 
@@ -709,6 +729,8 @@ polygon(pxs, c(quants["5%", 1], quants["95%", ], rev(quants["5%", ])),
         col = rgb(1, 0, 0, .2), border = NA)
 abline(h = 0, lty = 3)
 ```
+
+![](Chapter09_files/figure-html/unnamed-chunk-34-1.png)
 
 ### Section 10.5.3: Forecasting Volatility via GARCH(1,1) Models
 
@@ -842,6 +864,8 @@ myhist(res$para$alpha1, xlab = expression(alpha[1]))
 myhist(res$para$gamma1, xlab = expression(gamma[1]))
 ```
 
+![](Chapter09_files/figure-html/unnamed-chunk-39-1.png)
+
 We now turn towards prediction, which can be done iteratively. We define
 a function that predicts a number of steps ahead.
 
@@ -954,3 +978,5 @@ legend("bottomleft", legend = c("Data", "Conditional std. dev.",
                                 "Long-run std. dev.", "Predictive quantiles"),
        col = c("gray", "blue", "blue", "red"), lty = c(1, 1, 2, 1))
 ```
+
+![](Chapter09_files/figure-html/unnamed-chunk-43-1.png)
