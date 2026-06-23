@@ -184,7 +184,7 @@ for (i in seq_len(length(res) - 1)) {
   logSD[i] <- log(mean(dnorm(0, means, sds))) - dnorm(0, b0, sqrt(B0), log = TRUE)
 }
 names(logSD) <- c("0 vs 1", "1 vs 2", "2 vs 3", "3 vs 4")
-logSD
+round(logSD, 2)
 ```
 
 To reproduce this using Chib's method, we need to be careful to compare models
@@ -239,7 +239,7 @@ for (i in seq_along(allres)) {
 }
 dimnames(logML) <- list("Conditioning set length" = c("p", "p + 1", "4"),
                         "Lag order" = seq_len(ncol(logML)))
-knitr::kable(logML)
+knitr::kable(round(logML, 2))
 ```
 
 The values below should be equal to the logSD values from above.
