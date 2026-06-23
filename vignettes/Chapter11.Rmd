@@ -22,7 +22,7 @@ pdfplots <- FALSE # default: FALSE; set this to TRUE only if you like pdf figure
 
 # Section 11.4: Model Selection Problems in Time Series Analysis
 
-# Section 11.4.1: Selecting the model order in an AR(p) model
+## Section 11.4.1: Selecting the model order in an AR(p) model
 
 Akin to Chapter 7, we load the US GDP data, restrict our analysis to the time
 before the COVID outbreak, and compute log returns.
@@ -187,7 +187,7 @@ for (p in 1:4) {
 }
 ```
 
-## Section 11.4.3: Bayesian testing for first-order markov chain models
+## Section 11.4.3: Bayesian testing for first-order Markov Chain models
 
 ## Example 11.18: Application to Austrian wage mobility data - homogeneity versus grouped model
 
