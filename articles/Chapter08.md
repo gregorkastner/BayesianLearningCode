@@ -1551,32 +1551,20 @@ pri_alpha <- data.frame(shape = 5, rate = 10)
 c_alpha <- 0.35
 ```
 
-We run the full Gibbs sampler under this scheme. To check the
-correctness of the sampler we focus on the overdispersion
-$`\frac{\mu_i^2}{\alpha}`$ for $`x_i=0`$ and $`x-i=1`$ which we compute
-from the draws of the augmented MCMC sampler as well as from draws of
-the prior distribution.
+To check the correctness of the Gibbs sampler we focus on the
+overdispersion $`\frac{\mu_i^2}{\alpha}`$ for $`x_i=0`$ and $`x-i=1`$
+which we compute from the draws of the augmented MCMC sampler as well as
+from draws of the prior distribution.
+
+We run first the correct partially collapsed Gibbs sampler.
 
 ``` r
 
-M <- 1000000 / (10 * mcmcspeedup)
-set.seed(1234)
-res_check_full <- negbin_check_cba(X, e, b0, B0, pri_alpha, c_alpha,
-                                  full_gibbs = TRUE, M = M)
-h=1000
+h=200
 thin=seq(from=1, to=M,by=h)
 
-mu1=exp(res_check_full$beta_post[,1])
-ov1<-(mu1^2/res_check_full$alpha_post)[thin]
-print(coda::effectiveSize(ov1))
-#>     var1 
-#> 24.30867
+par(mfrow = c(1, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
 
-mu2=exp(res_check_full$beta_post[,1]+res_check_full$beta_post[,2])
-ov2<-(mu2^2/res_check_full$alpha_post)[thin]
-print(coda::effectiveSize(ov2))
-#> var1 
-#>   10
 
 set.seed(1234)
 beta_prior <- t(mvtnorm::rmvnorm(M/h, mean = b0, sigma = B0))
@@ -1590,27 +1578,6 @@ print(coda::effectiveSize(ov1_prior))
 #> var1 
 #>   10
 
-ks1<- ks.test(ov1_prior,ov1)
-qqplot(log(ov1_prior), log(ov1),xlab = "Prior",xlim=c(0,6), ylim=c(0,6),
-       ylab = "Posterior", main = "Overdispersion for X=0")
-abline(a = 0, b = 1)
-text(3,0.1, paste0('KS-test: p-value= ', round(ks1$p.value,4)))
-
-ks2<- ks.test(ov2_prior,ov2)
-qqplot(log(ov2_prior),log(ov2), xlab = "Prior",xlim=c(0,10), ylim=c(0,10),
-       ylab = "Posterior", main = "Overdispersion for X=1")
-abline(a = 0, b = 1)
-text(5,0.1, paste0('KS-test: p-value= ', round(ks2$p.value,4)))
-```
-
-![](Chapter08_files/figure-html/unnamed-chunk-51-1.png) Both p_values
-are larger than 0.05, which is as expected for the full-conditional
-Gibbs sampler.
-
-Now we run the partially marginalised Gibbs sampler, first with correct
-order of sampling steps.
-
-``` r
 
 set.seed(1234)
 res_partial <- negbin_check(X, e, b0, B0, pri_alpha, c_alpha,
@@ -1625,8 +1592,8 @@ print(coda::effectiveSize(ov1))
 mu2=exp(res_partial$beta_post[,1]+res_partial$beta_post[,2])
 ov2<-((mu2^2)/res_partial$alpha_post)[thin]
 print(coda::effectiveSize(ov2))
-#> var1 
-#>   10
+#>     var1 
+#> 22.22753
 
 ks1<- ks.test(ov1_prior,ov1)
 qqplot(log(ov1_prior), log(ov1),xlab = "Prior",xlim=c(0,5), ylim=c(0,5),
@@ -1641,9 +1608,9 @@ abline(a = 0, b = 1)
 text(5,0.1, paste0('KS-test: p-value= ', round(ks2$p.value,4))) 
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-52-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-51-1.png)
 
-We next run the invalid partially marginalised Gibbs sampler.
+We next run the invalid partially collapsed Gibbs sampler.
 
 ``` r
 
@@ -1676,7 +1643,7 @@ abline(a = 0, b = 1)
 text(5,0.1, paste0('KS-test: p-value= ', round(ks2$p.value,4))) 
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-53-1.png) Also for the
+![](Chapter08_files/figure-html/unnamed-chunk-52-1.png) Also for the
 partially marginalised Gibbs sampler both p-values are larger than 0.05
 and hence we fail to detect that this sampler is wrong.
 
@@ -1685,31 +1652,24 @@ $`\beta_1`$ versus the heterogeneity parameter $`\alpha`$
 
 ``` r
 
-plot(res_check_full$beta_post[thin,1],res_check_full$beta_post[thin,2],
-      xlab="beta1", ylab="beta2",main="full",xlim=c(-1,2),
-     ylim=c(0.5,3.5))
 plot(res_partial$beta_post[thin,1],res_partial$beta_post[thin,2],
            xlab="beta1", ylab="beta2",main="correct partial",xlim=c(-1,2), ylim=c(0.5,3.5))
 plot(res_check_partial$beta_post[thin,1],res_check_partial$beta_post[thin,2],
            xlab="beta1", ylab="beta2",main="incorrect partial",xlim=c(-1,2),
      ylim=c(0.5,3.5))
 
-plot(res_check_full$beta_post[thin,1],res_check_full$alpha_post[thin],
-      xlab="beta1", ylab="alpha",main="full",xlim=c(-1,2), ylim=c(0,1.4))
 plot(res_partial$beta_post[thin,1],res_partial$alpha_post[thin],
            xlab="beta1", ylab="alpha",main="correct partial",xlim=c(-1,2), ylim=c(0,1.4))
 plot(res_check_partial$beta_post[thin,1],res_check_partial$alpha_post[thin],
            xlab="beta1", ylab="alpha",main="incorrect partial",xlim=c(-1,2), ylim=c(0,1.4))
 
-plot(res_check_full$beta_post[thin,2],res_check_full$alpha_post[thin],
-        xlab="beta2", ylab="alpha",main="full",xlim=c(0.5,3.5), ylim=c(0,1.4))
 plot(res_partial$beta_post[thin,2],res_partial$alpha_post[thin],
       xlab="beta2", ylab="alpha",main="correct partial",xlim=c(0.5,3.5), ylim=c(0,1.4))
 plot(res_check_partial$beta_post[thin,2],res_check_partial$alpha_post[thin],
         xlab="beta2", ylab="alpha",main="incorrect partial",xlim=c(0.5,3.5), ylim=c(0,1.4))
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-54-1.png) \# Section 8.3:
+![](Chapter08_files/figure-html/unnamed-chunk-53-1.png) \# Section 8.3:
 Beyond i.i.d. Gaussian error distributions
 
 ### Section 8.3.1: Regression analysis with heteroskedastic errors
@@ -1727,7 +1687,7 @@ plot(starsCYG, pch = 19, xlim = c(3, 5), ylim = c(3, 7),
      xlab = "log temperature", ylab = "log light intensity")
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-55-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-54-1.png)
 
 The four giant stars which can also be identified in the scatter plot
 have the following indices in the data set:
@@ -1781,7 +1741,7 @@ lines(xnew, preds_subset[, "lwr"], lty = 2)
 lines(xnew, preds_subset[, "upr"], lty = 2)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-58-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-57-1.png)
 
 #### Example 8.13: Star cluster data - heteroskedastic regression analysis with known outliers
 
@@ -1881,7 +1841,7 @@ lines(xnew, apply(pred_hetero, 1, quantile, 0.025), lty = 2)
 lines(xnew, apply(pred_hetero, 1, quantile, 0.975), lty = 2)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-63-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-62-1.png)
 
 ### Section 8.3.2 Regression analysis with errors following a Gaussian mixture
 
@@ -1971,7 +1931,7 @@ lines(xnew, apply(preds_mix_1, 1, quantile, 0.025), lty = 2)
 lines(xnew, apply(preds_mix_1, 1, quantile, 0.975), lty = 2)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-68-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-67-1.png)
 
 We now assume that the indices of the giant stars are not known. We only
 assume that a two-component mixture is used as weight distribution where
@@ -2054,7 +2014,7 @@ lines(xnew, apply(preds_mix_2, 1, quantile, 0.025), lty = 2)
 lines(xnew, apply(preds_mix_2, 1, quantile, 0.975), lty = 2)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-71-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-70-1.png)
 
 Finally, we visualize again the mean and the 95%-HPD region together
 with the data points for the three modeling approaches: (1) a
@@ -2081,7 +2041,7 @@ lines(xnew, apply(preds_mix_2, 1, quantile, 0.025), lty = 2)
 lines(xnew, apply(preds_mix_2, 1, quantile, 0.975), lty = 2)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-72-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-71-1.png)
 
 The plot indicates that all three modeling approaches result in a fit
 that is robust to the outlying observations.
@@ -2163,7 +2123,7 @@ lines(xnew, apply(preds_norm, 1, quantile, 0.975), lty = 3)
 boxplot(ws, col = 2 * (1:ncol(ws) %in% index))
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-75-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-74-1.png)
 
 #### Example 8.16: CHF exchange rate data - Fitting a Student-$`t`$ with $`\nu`$ unknown
 
@@ -2277,7 +2237,7 @@ selecta <- sample.int(N, 1)
 ts.plot(ws[, selecta], xlab = "Iteration", ylab = bquote(~omega[.(selecta)]))
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-78-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-77-1.png)
 
 ``` r
 
@@ -2292,7 +2252,7 @@ IF <- M / coda::effectiveSize(nus)
 title(paste0("Empirical ACF (IF: ", round(IF), ")"))
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-79-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-78-1.png)
 
 ### Section 8.3.4 Regression analysis with autocorrelated errors
 
@@ -2307,7 +2267,7 @@ newcars <- window(newcars, start = 2003, end = c(2012, 12))
 plot(newcars)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-80-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-79-1.png)
 
 Seasonal patterns are evident, as is a trend. To model this, we set up
 an appropriate design matrix. Leveraging the fact the the data is a `ts`
@@ -2408,7 +2368,7 @@ plot(as.numeric(tim), rowMeans(resids), type = 'l', main = "Mean residuals",
 abline(h = 0, lty = 3)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-84-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-83-1.png)
 
 We see a generally good fit but also notice some potential
 autocorrelation. Thus, we move forward by including an autoregressive
@@ -2493,4 +2453,4 @@ acf(rowMeans(epss))
 title("Estimated ACF")
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-86-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-85-1.png)
