@@ -19,6 +19,7 @@ knitr::opts_chunk$set(
 knitr::opts_knit$set(global.par = TRUE)
 pdfplots <- FALSE # default: FALSE; set this to TRUE only if you like pdf figures
 mcmcspeedup <- 10 # default: 1; set this to something higher for fewer draws
+seed <- 420
 ```
 
 # Section 11.4: Model Selection Problems in Time Series Analysis
@@ -135,7 +136,7 @@ We obtain draws and parameters for four AR models under the semi-conjugate
 prior.
 
 ```{r}
-set.seed(42)
+set.seed(seed)
 b0 <- 0
 B0 <- 1
 res <- vector("list", 5)
@@ -192,7 +193,7 @@ which were estimated conditional on the same initial data. Thus, we re-estimate
 conditioning on one extra initial observation.
 
 ```{r}
-set.seed(42)
+set.seed(seed)
 res2 <- vector("list", 5)
 for (i in seq_along(res2)) {
   p <- i - 1
@@ -207,7 +208,7 @@ of the model order). This makes it possible to compare all AR models via
 model probabilities.
 
 ```{r}
-set.seed(42)
+set.seed(seed)
 res3 <- vector("list", 5)
 for (i in seq_along(res3)) {
   p <- i - 1
