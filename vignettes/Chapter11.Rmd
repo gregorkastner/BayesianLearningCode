@@ -170,6 +170,19 @@ for (p in 1:4) {
 }
 ```
 
+After visualizing the Savage-Dickey density ratio, we now move towards
+computing its numerical value by Rao-Blackwellization.
+
+```{r}
+logSD <- rep(NA_real_, length(res))
+for (i in seq_len(length(res))) {
+  means <- res[[i]]$paras$bN[, i + 1]
+  sds <- sqrt(res[[i]]$paras$BN[, i + 1, i + 1])
+  logSD[i] <- log(mean(dnorm(0, means, sds))) - dnorm(0, b0, sqrt(B0), log = TRUE)
+}
+knitr::kable(logSD)
+```
+
 ## Section 11.4.3: Bayesian testing for first-order Markov Chain models
 
 ## Example 11.18: Application to Austrian wage mobility data - homogeneity versus grouped model
