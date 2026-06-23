@@ -123,7 +123,7 @@ ARdesignmatrix <- function(dat, p = 1, conditioninglength = p) {
   for (i in seq_len(p)) {
     Xy[, i + 1] <- dat[(p + 1 - i) : (length(dat) - i)]
   }
-  Xy[(1 + conditioninglength - p):N, ]
+  Xy[(1 + conditioninglength - p):N, , drop = FALSE]
 }
 ```
 
