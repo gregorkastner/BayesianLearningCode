@@ -56,6 +56,9 @@ install.packages(
   [`qinvgamma()`](https://gregorkastner.github.io/BayesianLearningCode/reference/InvGammaDist.md)
   [`rinvgamma()`](https://gregorkastner.github.io/BayesianLearningCode/reference/InvGammaDist.md)
   : The Inverse Gamma Distribution
+- [`logsumexp()`](https://gregorkastner.github.io/BayesianLearningCode/reference/Logsumexp.md)
+  [`logmeanexp()`](https://gregorkastner.github.io/BayesianLearningCode/reference/Logsumexp.md)
+  : The Log-sum-exp function and the Log-mean-exp function
 - [`dstudt()`](https://gregorkastner.github.io/BayesianLearningCode/reference/StudTDist.md)
   [`pstudt()`](https://gregorkastner.github.io/BayesianLearningCode/reference/StudTDist.md)
   [`qstudt()`](https://gregorkastner.github.io/BayesianLearningCode/reference/StudTDist.md)

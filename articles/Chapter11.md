@@ -26,7 +26,7 @@ marginal likelihoods at a later stage.
 library("BayesianLearningCode")
 library("mvtnorm")
 
-regression <- function(y, X, b0 = 0, B0 = 1, c0 = 0.01, C0 = 0.01,
+regression <- function(y, X, b0, B0, c0, C0,
                        nburn = 1000L, M = 100000L / mcmcspeedup) {
   
   N <- nrow(X)
@@ -118,7 +118,7 @@ semi-conjugate prior.
 
 ``` r
 
-set.seed(42)
+set.seed(seed)
 b0 <- 0
 B0 <- 1
 res <- vector("list", 5)
@@ -155,7 +155,22 @@ for (i in 2:5) {
 ![](Chapter11_files/figure-html/unnamed-chunk-6-1.png)
 
 After visualizing the Savage-Dickey density ratio, we now move towards
-computing its numerical value by Rao-Blackwellization.
+computing its numerical value by Rao-Blackwellization. We first define a
+numerically stable version of the log-sum-exp (log-mean-exp) function.
+
+``` r
+
+logsumexp <- function(x) {
+  maxx <- max(x)
+  maxx + log(sum(exp(x - maxx)))
+}
+
+logmeanexp <- function(x) {
+  logsumexp(x) - log(length(x))
+}
+```
+
+Now we are ready to compute.
 
 ``` r
 
@@ -164,7 +179,8 @@ for (i in seq_len(length(res) - 1)) {
   p <- i
   means <- res[[i + 1]]$paras$bN[, p + 1]
   sds <- sqrt(res[[i + 1]]$paras$BN[, p + 1, p + 1])
-  logSD[i] <- log(mean(dnorm(0, means, sds))) - dnorm(0, b0, sqrt(B0), log = TRUE)
+  logSD[i] <- logmeanexp(dnorm(0, means, sds, log = TRUE)) -
+    dnorm(0, b0, sqrt(B0), log = TRUE)
 }
 names(logSD) <- c("0 vs 1", "1 vs 2", "2 vs 3", "3 vs 4")
 round(logSD, 2)
@@ -172,13 +188,15 @@ round(logSD, 2)
 #> -35.98  -1.18   0.46   2.75
 ```
 
+Not that the first value of logSD is numerically rather unstable.
+
 To reproduce this using Chib’s method, we need to be careful to compare
 models which were estimated conditional on the same initial data. Thus,
 we re-estimate conditioning on one extra initial observation.
 
 ``` r
 
-set.seed(42)
+set.seed(seed)
 res2 <- vector("list", 5)
 for (i in seq_along(res2)) {
   p <- i - 1
@@ -194,7 +212,7 @@ all AR models via model probabilities.
 
 ``` r
 
-set.seed(42)
+set.seed(seed)
 res3 <- vector("list", 5)
 for (i in seq_along(res3)) {
   p <- i - 1
@@ -223,7 +241,7 @@ for (i in seq_along(allres)) {
       dmvnorm(beta_med, myres$b0, myres$B0, log = TRUE) +
       dinvgamma(sigma2_med, myres$c0, myres$C0, log = TRUE) -
       dmvnorm(beta_med, bN_med, BN_med, log = TRUE) -
-      log(mean(dinvgamma(sigma2_med, myres$paras$cN, myres$paras$CN)))
+      logmeanexp(dinvgamma(sigma2_med, myres$paras$cN, myres$paras$CN, log = TRUE))
   }
 }
 dimnames(logML) <- list("Conditioning set length" = c("p", "p + 1", "4"),
