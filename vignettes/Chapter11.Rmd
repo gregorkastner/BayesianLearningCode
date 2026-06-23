@@ -180,7 +180,8 @@ for (i in seq_len(length(res))) {
   sds <- sqrt(res[[i]]$paras$BN[, i + 1, i + 1])
   logSD[i] <- log(mean(dnorm(0, means, sds))) - dnorm(0, b0, sqrt(B0), log = TRUE)
 }
-knitr::kable(logSD)
+names(logSD) <- c("0 vs 1", "1 vs 2", "2 vs 3", "3 vs 4")
+logSD
 ```
 
 To reproduce this using Chib's method, we need to be careful to compare models
@@ -240,9 +241,9 @@ knitr::kable(logML)
 The values below should be equal to the logSD values from above.
 
 ```{r}
-(logML[1,2] - logML[2,1])
-(logML[1,3] - logML[2,2])
-(logML[1,4] - logML[2,3])
+pairwiselogML <- logML[2, 1:3] - logML[1, 2:4]
+names(pairwiselogML) <- names(logSD)[-1]
+pairwiselogML
 ```
 
 
