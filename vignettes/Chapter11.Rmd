@@ -210,6 +210,7 @@ model probabilities.
 set.seed(42)
 res3 <- vector("list", 5)
 for (i in seq_along(res3)) {
+  p <- i - 1
   y <- tail(logret, -4)
   Xy <- ARdesignmatrix(logret, p, conditioninglength = 4)
   res3[[i]] <- regression(y, Xy, b0 = b0, B0 = B0, c0 = 2, C0 = 0.001)
