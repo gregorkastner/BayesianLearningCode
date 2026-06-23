@@ -184,7 +184,8 @@ knitr::kable(logSD)
 ```
 
 To reproduce this using Chib's method, we need to be careful to compare models
-which were estimated conditional on the same initial data.
+which were estimated conditional on the same initial data. Thus, we re-estimate
+conditioning on one extra initial observation.
 
 ```{r}
 set.seed(42)
@@ -195,6 +196,10 @@ for (p in 1:4) {
   res2[[p]] <- regression(y, Xy, b0 = b0, B0 = B0, c0 = 2, C0 = 0.001)
 }
 ```
+
+And now, we always condition on the first four observations (irrespectively
+of the model order). This makes it possible to compare all AR models via
+model probabilities.
 
 ```{r}
 set.seed(42)
