@@ -45,7 +45,7 @@ a later stage.
 library("BayesianLearningCode")
 library("mvtnorm")
 
-regression <- function(y, X, b0 = 0, B0 = 1, c0 = 0.01, C0 = 0.01,
+regression <- function(y, X, b0, B0, c0, C0,
                        nburn = 1000L, M = 100000L / mcmcspeedup) {
   
   N <- nrow(X)
