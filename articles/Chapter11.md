@@ -105,7 +105,7 @@ ARdesignmatrix <- function(dat, p = 1, conditioninglength = p) {
   for (i in seq_len(p)) {
     Xy[, i + 1] <- dat[(p + 1 - i) : (length(dat) - i)]
   }
-  Xy[(1 + conditioninglength - p):N, ]
+  Xy[(1 + conditioninglength - p):N, , drop = FALSE]
 }
 ```
 
@@ -121,11 +121,12 @@ semi-conjugate prior.
 set.seed(42)
 b0 <- 0
 B0 <- 1
-res <- vector("list", 4)
-for (p in 1:4) {
-  y <- tail(logret, -p)
+res <- vector("list", 5)
+for (i in seq_along(res)) {
+  p <- i - 1
+  if (p > 0) y <- tail(logret, -p) else y <- logret
   Xy <- ARdesignmatrix(logret, p)
-  res[[p]] <- regression(y, Xy, b0 = b0, B0 = B0, c0 = 2, C0 = 0.001)
+  res[[i]] <- regression(y, Xy, b0 = b0, B0 = B0, c0 = 2, C0 = 0.001)
 }
 ```
 
@@ -141,8 +142,9 @@ mymin <- -.75
 mymax <- .75
 mybreaks <- seq(mymin, mymax, by = .02)
 myats <- seq(mymin, mymax, length.out = 200)
-for (p in 1:4) {
-  hist(res[[p]]$betas[, p + 1], freq = FALSE, main = bquote(AR(.(p))),
+for (i in 2:5) {
+  p <- i - 1
+  hist(res[[i]]$betas[, p + 1], freq = FALSE, main = bquote(AR(.(p))),
        xlab = bquote(phi[.(p)]), ylab = "", breaks = mybreaks, border = NA)
   abline(v = 0, lty = 3)
   abline(h = 0, lty = 3)
@@ -157,21 +159,18 @@ computing its numerical value by Rao-Blackwellization.
 
 ``` r
 
-logSD <- rep(NA_real_, length(res))
-for (i in seq_len(length(res))) {
-  means <- res[[i]]$paras$bN[, i + 1]
-  sds <- sqrt(res[[i]]$paras$BN[, i + 1, i + 1])
+logSD <- rep(NA_real_, length(res) - 1)
+for (i in seq_len(length(res) - 1)) {
+  p <- i
+  means <- res[[i + 1]]$paras$bN[, p + 1]
+  sds <- sqrt(res[[i + 1]]$paras$BN[, p + 1, p + 1])
   logSD[i] <- log(mean(dnorm(0, means, sds))) - dnorm(0, b0, sqrt(B0), log = TRUE)
 }
-knitr::kable(logSD)
+names(logSD) <- c("0 vs 1", "1 vs 2", "2 vs 3", "3 vs 4")
+round(logSD, 2)
+#> 0 vs 1 1 vs 2 2 vs 3 3 vs 4 
+#> -35.98  -1.18   0.46   2.75
 ```
-
-|           x |
-|------------:|
-| -35.4906086 |
-|  -1.1834467 |
-|   0.4640396 |
-|   2.7535079 |
 
 To reproduce this using Chib’s method, we need to be careful to compare
 models which were estimated conditional on the same initial data. Thus,
@@ -180,11 +179,12 @@ we re-estimate conditioning on one extra initial observation.
 ``` r
 
 set.seed(42)
-res2 <- vector("list", 4)
-for (p in 1:4) {
+res2 <- vector("list", 5)
+for (i in seq_along(res2)) {
+  p <- i - 1
   y <- tail(logret, -(p + 1))
   Xy <- ARdesignmatrix(logret, p, conditioninglength = p + 1)
-  res2[[p]] <- regression(y, Xy, b0 = b0, B0 = B0, c0 = 2, C0 = 0.001)
+  res2[[i]] <- regression(y, Xy, b0 = b0, B0 = B0, c0 = 2, C0 = 0.001)
 }
 ```
 
@@ -195,11 +195,12 @@ all AR models via model probabilities.
 ``` r
 
 set.seed(42)
-res3 <- vector("list", 4)
-for (p in 1:4) {
+res3 <- vector("list", 5)
+for (i in seq_along(res3)) {
+  p <- i - 1
   y <- tail(logret, -4)
   Xy <- ARdesignmatrix(logret, p, conditioninglength = 4)
-  res3[[p]] <- regression(y, Xy, b0 = b0, B0 = B0, c0 = 2, C0 = 0.001)
+  res3[[i]] <- regression(y, Xy, b0 = b0, B0 = B0, c0 = 2, C0 = 0.001)
 }
 ```
 
@@ -208,9 +209,9 @@ We now compute Chib’s estimator, evaluated at the posterior median.
 ``` r
 
 allres <- list(res, res2, res3)
-logML <- matrix(NA_real_, length(allres), length(allres[[1]]))
+logML <- matrix(NA_real_, length(allres), length(res))
 for (i in seq_along(allres)) {
-  for (j in seq_len(length(allres[[i]]))) {
+  for (j in seq_len(length(res))) {
     myres <- allres[[i]][[j]]
     beta_med <- apply(myres$betas, 2, median)
     sigma2_med <- median(myres$sigma2s)
@@ -227,26 +228,47 @@ for (i in seq_along(allres)) {
 }
 dimnames(logML) <- list("Conditioning set length" = c("p", "p + 1", "4"),
                         "Lag order" = seq_len(ncol(logML)))
-knitr::kable(logML)
+knitr::kable(round(logML, 2))
 ```
 
-|       |        1 |        2 |        3 |        4 |
-|:------|---------:|---------:|---------:|---------:|
-| p     | 923.3798 | 920.8573 | 920.2116 | 913.8044 |
-| p + 1 | 919.6779 | 920.6771 | 916.5575 | 910.0905 |
-| 4     | 915.6709 | 916.9934 | 916.5575 | 913.8044 |
+|       |      1 |      2 |      3 |      4 |      5 |
+|:------|-------:|-------:|-------:|-------:|-------:|
+| p     | 890.93 | 923.38 | 920.86 | 920.21 | 913.80 |
+| p + 1 | 887.41 | 919.68 | 920.68 | 916.56 | 910.09 |
+| 4     | 879.34 | 915.67 | 916.99 | 916.56 | 913.80 |
 
 The values below should be equal to the logSD values from above.
 
 ``` r
 
-(logML[1,2] - logML[2,1])
-#> [1] 1.179454
-(logML[1,3] - logML[2,2])
-#> [1] -0.4654876
-(logML[1,4] - logML[2,3])
-#> [1] -2.753159
+pairwiselogML <- logML[2, 1:4] - logML[1, 2:5]
+names(pairwiselogML) <- names(logSD)
+round(pairwiselogML, 2)
+#> 0 vs 1 1 vs 2 2 vs 3 3 vs 4 
+#> -35.97  -1.18   0.47   2.75
 ```
+
+To compute model probabilities, we use the uniform and the penalty
+prior.
+
+``` r
+
+# Uniform prior:
+stableML <- exp(logML[3, ] - max(logML[3, ]))
+probs_unif <- stableML / sum(stableML)
+
+# Penalty prior:
+tmp <- logML[3, ] - log(seq_along(stableML)) - log(seq_along(stableML) + 1)
+stablepost <- exp(tmp - max(tmp))
+probs_pen <- stablepost / sum(stablepost)
+
+knitr::kable(t(round(cbind(unif = probs_unif, penalized = probs_pen), 3)))
+```
+
+|           |   1 |     2 |     3 |     4 |     5 |
+|:----------|----:|------:|------:|------:|------:|
+| unif      |   0 | 0.136 | 0.512 | 0.331 | 0.021 |
+| penalized |   0 | 0.275 | 0.516 | 0.200 | 0.009 |
 
 ### Section 11.4.3: Bayesian testing for first-order Markov Chain models
 
