@@ -844,7 +844,10 @@ Newton-Raphson estimator described in Section 8.2.1.</p>
 <span>  <span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span></span>
 <span></span>
 <span>  <span class="va">beta_new</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">y</span><span class="op">/</span><span class="va">e</span><span class="op">)</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">d</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span><span class="op">/</span><span class="fl">10</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="va">d</span><span class="op">)</span></span>
-<span></span>
+<span>  <span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/is.finite.html" class="external-link">is.nan</a></span><span class="op">(</span><span class="va">beta_new</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span>
+<span>    <span class="va">beta.new</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="op">}</span></span>
+<span>  </span>
 <span>  <span class="va">XtXi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">N</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/crossprod.html" class="external-link">tcrossprod</a></span><span class="op">(</span><span class="va">X</span><span class="op">[</span><span class="va">i</span>,<span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="va">B0.inv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/solve.html" class="external-link">solve</a></span><span class="op">(</span><span class="va">B0</span><span class="op">)</span></span>
 <span>  <span class="kw">for</span> <span class="op">(</span><span class="va">t</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">t.max</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
@@ -1291,7 +1294,7 @@ iterations after a burn-in of 1000.</p>
 <span><span class="va">B0</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fl">100</span>,<span class="va">d</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">pri_alpha</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>shape <span class="op">=</span> <span class="fl">2</span>, rate <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span>
-<span><span class="va">c_alpha</span><span class="op">=</span><span class="fl">0.1</span></span>
+<span><span class="va">c_alpha</span><span class="op">=</span><span class="fl">0.3</span></span>
 <span>                                                    </span>
 <span><span class="va">M</span> <span class="op">&lt;-</span> <span class="fl">50000L</span> <span class="op">/</span> <span class="va">mcmcspeedup</span></span>
 <span>                                                    </span>
@@ -1318,38 +1321,38 @@ iterations after a burn-in of 1000.</p>
 <tbody>
 <tr class="odd">
 <td align="left">intercept</td>
-<td align="right">-8.382</td>
+<td align="right">-8.377</td>
 <td align="right">-8.216</td>
 <td align="right">-8.059</td>
-<td align="right">1.605</td>
+<td align="right">2.066</td>
 </tr>
 <tr class="even">
 <td align="left">intervention</td>
-<td align="right">-0.592</td>
-<td align="right">-0.363</td>
-<td align="right">-0.138</td>
-<td align="right">1.473</td>
+<td align="right">-0.593</td>
+<td align="right">-0.361</td>
+<td align="right">-0.139</td>
+<td align="right">1.537</td>
 </tr>
 <tr class="odd">
 <td align="left">holiday</td>
 <td align="right">-1.181</td>
-<td align="right">-0.786</td>
-<td align="right">-0.417</td>
-<td align="right">1.525</td>
+<td align="right">-0.789</td>
+<td align="right">-0.412</td>
+<td align="right">1.494</td>
 </tr>
 <tr class="even">
 <td align="left">alpha</td>
-<td align="right">6.397</td>
-<td align="right">12.240</td>
-<td align="right">21.899</td>
-<td align="right">83.470</td>
+<td align="right">6.814</td>
+<td align="right">12.394</td>
+<td align="right">20.184</td>
+<td align="right">42.790</td>
 </tr>
 </tbody>
 </table>
 <div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span>                                                    </span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">res1</span><span class="op">$</span><span class="va">acc_beta</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">res1</span><span class="op">$</span><span class="va">acc_alpha</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.9424 0.7130</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 0.9374 0.3806</span></span></code></pre></div>
 <p>Next we run the partially marginalized Gibbs sampler under the same
 prior.</p>
 <div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
@@ -1376,37 +1379,37 @@ prior.</p>
 <tr class="odd">
 <td align="left">intercept</td>
 <td align="right">-8.372</td>
-<td align="right">-8.216</td>
-<td align="right">-8.059</td>
-<td align="right">1.630</td>
+<td align="right">-8.217</td>
+<td align="right">-8.063</td>
+<td align="right">1.678</td>
 </tr>
 <tr class="even">
 <td align="left">intervention</td>
-<td align="right">-0.586</td>
+<td align="right">-0.591</td>
 <td align="right">-0.361</td>
-<td align="right">-0.136</td>
-<td align="right">1.417</td>
+<td align="right">-0.132</td>
+<td align="right">1.607</td>
 </tr>
 <tr class="odd">
 <td align="left">holiday</td>
-<td align="right">-1.219</td>
-<td align="right">-0.792</td>
-<td align="right">-0.404</td>
-<td align="right">1.848</td>
+<td align="right">-1.193</td>
+<td align="right">-0.787</td>
+<td align="right">-0.410</td>
+<td align="right">1.575</td>
 </tr>
 <tr class="even">
 <td align="left">alpha</td>
-<td align="right">5.945</td>
-<td align="right">11.791</td>
-<td align="right">19.973</td>
-<td align="right">45.943</td>
+<td align="right">6.419</td>
+<td align="right">12.519</td>
+<td align="right">22.179</td>
+<td align="right">9.119</td>
 </tr>
 </tbody>
 </table>
 <div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">res2</span><span class="op">$</span><span class="va">acc_beta</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">res2</span><span class="op">$</span><span class="va">acc_alpha</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.9344 0.8902</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 0.9334 0.6988</span></span></code></pre></div>
 <p>Both samplers yield essentially the same estimation results, which is
 to be expected, since both target the same posterior distribution. The
 overdispersion parameter
@@ -1425,8 +1428,8 @@ value of 48.18 for the partially marginalized Gibbs sampler.</p>
 <h3 id="section-8-2-3-evaluating-mcmc-samplers">Section 8.2.3: Evaluating MCMC samplers<a class="anchor" aria-label="anchor" href="#section-8-2-3-evaluating-mcmc-samplers"></a>
 </h3>
 <div class="section level4">
-<h4 id="example-8-10-verifying-the-correctness-of-the-full-conditional-mcmc-samper">Example 8.10 Verifying the correctness of the full conditional MCMC
-samper<a class="anchor" aria-label="anchor" href="#example-8-10-verifying-the-correctness-of-the-full-conditional-mcmc-samper"></a>
+<h4 id="example-8-10-verifying-the-correctness-of-the-full-conditional-mcmc-sampler">Example 8.10 Verifying the correctness of the full conditional MCMC
+sampler<a class="anchor" aria-label="anchor" href="#example-8-10-verifying-the-correctness-of-the-full-conditional-mcmc-sampler"></a>
 </h4>
 <p>To check the MCMC algorithm for correctness, we extend the sampler by
 adding sampling the data from the prior as a further sampling step.</p>
@@ -1822,24 +1825,24 @@ and
 which we compute from the draws of the augmented MCMC sampler as well as
 from draws of the prior distribution.</p>
 <div class="sourceCode" id="cb59"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">M</span> <span class="op">&lt;-</span> <span class="fl">300000</span> <span class="op">/</span> <span class="op">(</span><span class="fl">10</span> <span class="op">*</span> <span class="va">mcmcspeedup</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">M</span> <span class="op">&lt;-</span> <span class="fl">1000000</span> <span class="op">/</span> <span class="op">(</span><span class="fl">10</span> <span class="op">*</span> <span class="va">mcmcspeedup</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1234</span><span class="op">)</span></span>
 <span><span class="va">res_check_full</span> <span class="op">&lt;-</span> <span class="fu">negbin_check_cba</span><span class="op">(</span><span class="va">X</span>, <span class="va">e</span>, <span class="va">b0</span>, <span class="va">B0</span>, <span class="va">pri_alpha</span>, <span class="va">c_alpha</span>,</span>
 <span>                                  full_gibbs <span class="op">=</span> <span class="cn">TRUE</span>, M <span class="op">=</span> <span class="va">M</span><span class="op">)</span></span>
-<span><span class="va">h</span><span class="op">=</span><span class="fl">300</span></span>
+<span><span class="va">h</span><span class="op">=</span><span class="fl">1000</span></span>
 <span><span class="va">thin</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span>from<span class="op">=</span><span class="fl">1</span>, to<span class="op">=</span><span class="va">M</span>,by<span class="op">=</span><span class="va">h</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">mu1</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">res_check_full</span><span class="op">$</span><span class="va">beta_post</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="va">ov1</span><span class="op">&lt;-</span><span class="op">(</span><span class="va">mu1</span><span class="op">^</span><span class="fl">2</span><span class="op">/</span><span class="va">res_check_full</span><span class="op">$</span><span class="va">alpha_post</span><span class="op">)</span><span class="op">[</span><span class="va">thin</span><span class="op">]</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu">coda</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/coda/man/effectiveSize.html" class="external-link">effectiveSize</a></span><span class="op">(</span><span class="va">ov1</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; var1 </span></span>
-<span><span class="co">#&gt;   10</span></span>
+<span><span class="co">#&gt;     var1 </span></span>
+<span><span class="co">#&gt; 24.30867</span></span>
 <span></span>
 <span><span class="va">mu2</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">res_check_full</span><span class="op">$</span><span class="va">beta_post</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span><span class="op">+</span><span class="va">res_check_full</span><span class="op">$</span><span class="va">beta_post</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="va">ov2</span><span class="op">&lt;-</span><span class="op">(</span><span class="va">mu2</span><span class="op">^</span><span class="fl">2</span><span class="op">/</span><span class="va">res_check_full</span><span class="op">$</span><span class="va">alpha_post</span><span class="op">)</span><span class="op">[</span><span class="va">thin</span><span class="op">]</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu">coda</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/coda/man/effectiveSize.html" class="external-link">effectiveSize</a></span><span class="op">(</span><span class="va">ov2</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt;     var1 </span></span>
-<span><span class="co">#&gt; 9.454177</span></span>
+<span><span class="co">#&gt; var1 </span></span>
+<span><span class="co">#&gt;   10</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1234</span><span class="op">)</span></span>
 <span><span class="va">beta_prior</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu">mvtnorm</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/mvtnorm/man/Mvnorm.html" class="external-link">rmvnorm</a></span><span class="op">(</span><span class="va">M</span><span class="op">/</span><span class="va">h</span>, mean <span class="op">=</span> <span class="va">b0</span>, sigma <span class="op">=</span> <span class="va">B0</span><span class="op">)</span><span class="op">)</span></span>
@@ -1877,8 +1880,8 @@ correct order of sampling steps.</p>
 <span><span class="va">mu1</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">res_partial</span><span class="op">$</span><span class="va">beta_post</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="va">ov1</span><span class="op">&lt;-</span><span class="op">(</span><span class="op">(</span><span class="va">mu1</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">/</span><span class="va">res_partial</span><span class="op">$</span><span class="va">alpha_post</span><span class="op">)</span><span class="op">[</span><span class="va">thin</span><span class="op">]</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu">coda</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/coda/man/effectiveSize.html" class="external-link">effectiveSize</a></span><span class="op">(</span><span class="va">ov1</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt;     var1 </span></span>
-<span><span class="co">#&gt; 44.37082</span></span>
+<span><span class="co">#&gt; var1 </span></span>
+<span><span class="co">#&gt;   10</span></span>
 <span></span>
 <span><span class="va">mu2</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">res_partial</span><span class="op">$</span><span class="va">beta_post</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span><span class="op">+</span><span class="va">res_partial</span><span class="op">$</span><span class="va">beta_post</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="va">ov2</span><span class="op">&lt;-</span><span class="op">(</span><span class="op">(</span><span class="va">mu2</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">/</span><span class="va">res_partial</span><span class="op">$</span><span class="va">alpha_post</span><span class="op">)</span><span class="op">[</span><span class="va">thin</span><span class="op">]</span></span>
@@ -1898,7 +1901,7 @@ correct order of sampling steps.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>a <span class="op">=</span> <span class="fl">0</span>, b <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/text.html" class="external-link">text</a></span><span class="op">(</span><span class="fl">5</span>,<span class="fl">0.1</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">'KS-test: p-value= '</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">ks2</span><span class="op">$</span><span class="va">p.value</span>,<span class="fl">4</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> </span></code></pre></div>
 <p><img src="Chapter08_files/figure-html/unnamed-chunk-52-1.png" class="r-plt" alt="" width="768"></p>
-<p>We next run the ivalid partially marginalised Gibbs sampler.</p>
+<p>We next run the invalid partially marginalised Gibbs sampler.</p>
 <div class="sourceCode" id="cb61"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1234</span><span class="op">)</span></span>
 <span><span class="va">res_check_partial</span> <span class="op">&lt;-</span> <span class="fu">negbin_check_cba</span><span class="op">(</span><span class="va">X</span>, <span class="va">e</span>, <span class="va">b0</span>, <span class="va">B0</span>, <span class="va">pri_alpha</span>, <span class="va">c_alpha</span>,</span>
@@ -1907,8 +1910,8 @@ correct order of sampling steps.</p>
 <span><span class="va">mu1</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">res_check_partial</span><span class="op">$</span><span class="va">beta_post</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="va">ov1</span><span class="op">&lt;-</span><span class="op">(</span><span class="op">(</span><span class="va">mu1</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">/</span><span class="va">res_check_partial</span><span class="op">$</span><span class="va">alpha_post</span><span class="op">)</span><span class="op">[</span><span class="va">thin</span><span class="op">]</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu">coda</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/coda/man/effectiveSize.html" class="external-link">effectiveSize</a></span><span class="op">(</span><span class="va">ov1</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    var1 </span></span>
-<span><span class="co">#&gt; 33.0562</span></span>
+<span><span class="co">#&gt; var1 </span></span>
+<span><span class="co">#&gt;   10</span></span>
 <span></span>
 <span><span class="va">mu2</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">res_check_partial</span><span class="op">$</span><span class="va">beta_post</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span><span class="op">+</span><span class="va">res_check_partial</span><span class="op">$</span><span class="va">beta_post</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="va">ov2</span><span class="op">&lt;-</span><span class="op">(</span><span class="op">(</span><span class="va">mu2</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">/</span><span class="va">res_check_partial</span><span class="op">$</span><span class="va">alpha_post</span><span class="op">)</span><span class="op">[</span><span class="va">thin</span><span class="op">]</span></span>
@@ -1938,7 +1941,16 @@ and
 versus the heterogeneity parameter
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>α</mi><annotation encoding="application/x-tex">\alpha</annotation></semantics></math></p>
 <div class="sourceCode" id="cb62"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">res_check_full</span><span class="op">$</span><span class="va">beta_post</span><span class="op">[</span><span class="va">thin</span>,<span class="fl">1</span><span class="op">]</span>,<span class="va">res_check_full</span><span class="op">$</span><span class="va">alpha_post</span><span class="op">[</span><span class="va">thin</span><span class="op">]</span>,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">res_check_full</span><span class="op">$</span><span class="va">beta_post</span><span class="op">[</span><span class="va">thin</span>,<span class="fl">1</span><span class="op">]</span>,<span class="va">res_check_full</span><span class="op">$</span><span class="va">beta_post</span><span class="op">[</span><span class="va">thin</span>,<span class="fl">2</span><span class="op">]</span>,</span>
+<span>      xlab<span class="op">=</span><span class="st">"beta1"</span>, ylab<span class="op">=</span><span class="st">"beta2"</span>,main<span class="op">=</span><span class="st">"full"</span>,xlim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span>,</span>
+<span>     ylim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>,<span class="fl">3.5</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">res_partial</span><span class="op">$</span><span class="va">beta_post</span><span class="op">[</span><span class="va">thin</span>,<span class="fl">1</span><span class="op">]</span>,<span class="va">res_partial</span><span class="op">$</span><span class="va">beta_post</span><span class="op">[</span><span class="va">thin</span>,<span class="fl">2</span><span class="op">]</span>,</span>
+<span>           xlab<span class="op">=</span><span class="st">"beta1"</span>, ylab<span class="op">=</span><span class="st">"beta2"</span>,main<span class="op">=</span><span class="st">"correct partial"</span>,xlim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span>, ylim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>,<span class="fl">3.5</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">res_check_partial</span><span class="op">$</span><span class="va">beta_post</span><span class="op">[</span><span class="va">thin</span>,<span class="fl">1</span><span class="op">]</span>,<span class="va">res_check_partial</span><span class="op">$</span><span class="va">beta_post</span><span class="op">[</span><span class="va">thin</span>,<span class="fl">2</span><span class="op">]</span>,</span>
+<span>           xlab<span class="op">=</span><span class="st">"beta1"</span>, ylab<span class="op">=</span><span class="st">"beta2"</span>,main<span class="op">=</span><span class="st">"incorrect partial"</span>,xlim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span>,</span>
+<span>     ylim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>,<span class="fl">3.5</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">res_check_full</span><span class="op">$</span><span class="va">beta_post</span><span class="op">[</span><span class="va">thin</span>,<span class="fl">1</span><span class="op">]</span>,<span class="va">res_check_full</span><span class="op">$</span><span class="va">alpha_post</span><span class="op">[</span><span class="va">thin</span><span class="op">]</span>,</span>
 <span>      xlab<span class="op">=</span><span class="st">"beta1"</span>, ylab<span class="op">=</span><span class="st">"alpha"</span>,main<span class="op">=</span><span class="st">"full"</span>,xlim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span>, ylim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1.4</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">res_partial</span><span class="op">$</span><span class="va">beta_post</span><span class="op">[</span><span class="va">thin</span>,<span class="fl">1</span><span class="op">]</span>,<span class="va">res_partial</span><span class="op">$</span><span class="va">alpha_post</span><span class="op">[</span><span class="va">thin</span><span class="op">]</span>,</span>
 <span>           xlab<span class="op">=</span><span class="st">"beta1"</span>, ylab<span class="op">=</span><span class="st">"alpha"</span>,main<span class="op">=</span><span class="st">"correct partial"</span>,xlim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span>, ylim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1.4</span><span class="op">)</span><span class="op">)</span></span>
@@ -1946,11 +1958,11 @@ versus the heterogeneity parameter
 <span>           xlab<span class="op">=</span><span class="st">"beta1"</span>, ylab<span class="op">=</span><span class="st">"alpha"</span>,main<span class="op">=</span><span class="st">"incorrect partial"</span>,xlim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span>, ylim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1.4</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">res_check_full</span><span class="op">$</span><span class="va">beta_post</span><span class="op">[</span><span class="va">thin</span>,<span class="fl">2</span><span class="op">]</span>,<span class="va">res_check_full</span><span class="op">$</span><span class="va">alpha_post</span><span class="op">[</span><span class="va">thin</span><span class="op">]</span>,</span>
-<span>        xlab<span class="op">=</span><span class="st">"beta2"</span>, ylab<span class="op">=</span><span class="st">"alpha"</span>,xlim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>,<span class="fl">3.5</span><span class="op">)</span>, ylim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1.4</span><span class="op">)</span><span class="op">)</span></span>
+<span>        xlab<span class="op">=</span><span class="st">"beta2"</span>, ylab<span class="op">=</span><span class="st">"alpha"</span>,main<span class="op">=</span><span class="st">"full"</span>,xlim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>,<span class="fl">3.5</span><span class="op">)</span>, ylim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1.4</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">res_partial</span><span class="op">$</span><span class="va">beta_post</span><span class="op">[</span><span class="va">thin</span>,<span class="fl">2</span><span class="op">]</span>,<span class="va">res_partial</span><span class="op">$</span><span class="va">alpha_post</span><span class="op">[</span><span class="va">thin</span><span class="op">]</span>,</span>
-<span>      xlab<span class="op">=</span><span class="st">"beta2"</span>, ylab<span class="op">=</span><span class="st">"alpha"</span>,xlim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>,<span class="fl">3.5</span><span class="op">)</span>, ylim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1.4</span><span class="op">)</span><span class="op">)</span></span>
+<span>      xlab<span class="op">=</span><span class="st">"beta2"</span>, ylab<span class="op">=</span><span class="st">"alpha"</span>,main<span class="op">=</span><span class="st">"correct partial"</span>,xlim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>,<span class="fl">3.5</span><span class="op">)</span>, ylim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1.4</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">res_check_partial</span><span class="op">$</span><span class="va">beta_post</span><span class="op">[</span><span class="va">thin</span>,<span class="fl">2</span><span class="op">]</span>,<span class="va">res_check_partial</span><span class="op">$</span><span class="va">alpha_post</span><span class="op">[</span><span class="va">thin</span><span class="op">]</span>,</span>
-<span>        xlab<span class="op">=</span><span class="st">"beta2"</span>, ylab<span class="op">=</span><span class="st">"alpha"</span>,xlim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>,<span class="fl">3.5</span><span class="op">)</span>, ylim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1.4</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span>        xlab<span class="op">=</span><span class="st">"beta2"</span>, ylab<span class="op">=</span><span class="st">"alpha"</span>,main<span class="op">=</span><span class="st">"incorrect partial"</span>,xlim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>,<span class="fl">3.5</span><span class="op">)</span>, ylim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1.4</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="Chapter08_files/figure-html/unnamed-chunk-54-1.png" class="r-plt" alt="" width="768">
 # Section 8.3: Beyond i.i.d. Gaussian error distributions</p>
 </div>

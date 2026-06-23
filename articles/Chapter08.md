@@ -680,7 +680,10 @@ gen_proposal_poisson <- function(y, X, e, b0 = 0, B0 = 100, t.max = 20) {
   d <- ncol(X)
 
   beta_new <- matrix(c(log(mean(y/e)),rnorm(d - 1)/10), nrow = d)
-
+  if(is.nan(beta_new[1])){
+    beta.new[1]<- log(mean(y)/mean(e))
+  }
+  
   XtXi <- lapply(seq_len(N), function(i) tcrossprod(X[i,]))
   B0.inv <- solve(B0)
   for (t in seq_len(t.max)) {
@@ -1046,7 +1049,7 @@ b0=rep(0,d)
 B0=diag(100,d)
 
 pri_alpha <- data.frame(shape = 2, rate = 0.5)
-c_alpha=0.1
+c_alpha=0.3
                                                     
 M <- 50000L / mcmcspeedup
                                                     
@@ -1066,16 +1069,16 @@ knitr::kable(round(res_negbin_full, 3))
 
 |              |   2.5% | Posterior mean |  97.5% |     IF |
 |:-------------|-------:|---------------:|-------:|-------:|
-| intercept    | -8.382 |         -8.216 | -8.059 |  1.605 |
-| intervention | -0.592 |         -0.363 | -0.138 |  1.473 |
-| holiday      | -1.181 |         -0.786 | -0.417 |  1.525 |
-| alpha        |  6.397 |         12.240 | 21.899 | 83.470 |
+| intercept    | -8.377 |         -8.216 | -8.059 |  2.066 |
+| intervention | -0.593 |         -0.361 | -0.139 |  1.537 |
+| holiday      | -1.181 |         -0.789 | -0.412 |  1.494 |
+| alpha        |  6.814 |         12.394 | 20.184 | 42.790 |
 
 ``` r
 
                                                     
 c(mean(res1$acc_beta), mean(res1$acc_alpha))
-#> [1] 0.9424 0.7130
+#> [1] 0.9374 0.3806
 ```
 
 Next we run the partially marginalized Gibbs sampler under the same
@@ -1096,18 +1099,18 @@ res_negbin_partial <- cbind(res_negbin_partial, IF = IF_res2)
 knitr::kable(round(res_negbin_partial, 3))
 ```
 
-|              |   2.5% | Posterior mean |  97.5% |     IF |
-|:-------------|-------:|---------------:|-------:|-------:|
-| intercept    | -8.372 |         -8.216 | -8.059 |  1.630 |
-| intervention | -0.586 |         -0.361 | -0.136 |  1.417 |
-| holiday      | -1.219 |         -0.792 | -0.404 |  1.848 |
-| alpha        |  5.945 |         11.791 | 19.973 | 45.943 |
+|              |   2.5% | Posterior mean |  97.5% |    IF |
+|:-------------|-------:|---------------:|-------:|------:|
+| intercept    | -8.372 |         -8.217 | -8.063 | 1.678 |
+| intervention | -0.591 |         -0.361 | -0.132 | 1.607 |
+| holiday      | -1.193 |         -0.787 | -0.410 | 1.575 |
+| alpha        |  6.419 |         12.519 | 22.179 | 9.119 |
 
 ``` r
 
 
 c(mean(res2$acc_beta), mean(res2$acc_alpha))
-#> [1] 0.9344 0.8902
+#> [1] 0.9334 0.6988
 ```
 
 Both samplers yield essentially the same estimation results, which is to
@@ -1122,7 +1125,7 @@ sampler.
 
 ### Section 8.2.3: Evaluating MCMC samplers
 
-#### Example 8.10 Verifying the correctness of the full conditional MCMC samper
+#### Example 8.10 Verifying the correctness of the full conditional MCMC sampler
 
 To check the MCMC algorithm for correctness, we extend the sampler by
 adding sampling the data from the prior as a further sampling step.
@@ -1556,24 +1559,24 @@ the prior distribution.
 
 ``` r
 
-M <- 300000 / (10 * mcmcspeedup)
+M <- 1000000 / (10 * mcmcspeedup)
 set.seed(1234)
 res_check_full <- negbin_check_cba(X, e, b0, B0, pri_alpha, c_alpha,
                                   full_gibbs = TRUE, M = M)
-h=300
+h=1000
 thin=seq(from=1, to=M,by=h)
 
 mu1=exp(res_check_full$beta_post[,1])
 ov1<-(mu1^2/res_check_full$alpha_post)[thin]
 print(coda::effectiveSize(ov1))
-#> var1 
-#>   10
+#>     var1 
+#> 24.30867
 
 mu2=exp(res_check_full$beta_post[,1]+res_check_full$beta_post[,2])
 ov2<-(mu2^2/res_check_full$alpha_post)[thin]
 print(coda::effectiveSize(ov2))
-#>     var1 
-#> 9.454177
+#> var1 
+#>   10
 
 set.seed(1234)
 beta_prior <- t(mvtnorm::rmvnorm(M/h, mean = b0, sigma = B0))
@@ -1616,8 +1619,8 @@ res_partial <- negbin_check(X, e, b0, B0, pri_alpha, c_alpha,
 mu1=exp(res_partial$beta_post[,1])
 ov1<-((mu1^2)/res_partial$alpha_post)[thin]
 print(coda::effectiveSize(ov1))
-#>     var1 
-#> 44.37082
+#> var1 
+#>   10
 
 mu2=exp(res_partial$beta_post[,1]+res_partial$beta_post[,2])
 ov2<-((mu2^2)/res_partial$alpha_post)[thin]
@@ -1640,7 +1643,7 @@ text(5,0.1, paste0('KS-test: p-value= ', round(ks2$p.value,4)))
 
 ![](Chapter08_files/figure-html/unnamed-chunk-52-1.png)
 
-We next run the ivalid partially marginalised Gibbs sampler.
+We next run the invalid partially marginalised Gibbs sampler.
 
 ``` r
 
@@ -1651,8 +1654,8 @@ res_check_partial <- negbin_check_cba(X, e, b0, B0, pri_alpha, c_alpha,
 mu1=exp(res_check_partial$beta_post[,1])
 ov1<-((mu1^2)/res_check_partial$alpha_post)[thin]
 print(coda::effectiveSize(ov1))
-#>    var1 
-#> 33.0562
+#> var1 
+#>   10
 
 mu2=exp(res_check_partial$beta_post[,1]+res_check_partial$beta_post[,2])
 ov2<-((mu2^2)/res_check_partial$alpha_post)[thin]
@@ -1682,6 +1685,15 @@ $`\beta_1`$ versus the heterogeneity parameter $`\alpha`$
 
 ``` r
 
+plot(res_check_full$beta_post[thin,1],res_check_full$beta_post[thin,2],
+      xlab="beta1", ylab="beta2",main="full",xlim=c(-1,2),
+     ylim=c(0.5,3.5))
+plot(res_partial$beta_post[thin,1],res_partial$beta_post[thin,2],
+           xlab="beta1", ylab="beta2",main="correct partial",xlim=c(-1,2), ylim=c(0.5,3.5))
+plot(res_check_partial$beta_post[thin,1],res_check_partial$beta_post[thin,2],
+           xlab="beta1", ylab="beta2",main="incorrect partial",xlim=c(-1,2),
+     ylim=c(0.5,3.5))
+
 plot(res_check_full$beta_post[thin,1],res_check_full$alpha_post[thin],
       xlab="beta1", ylab="alpha",main="full",xlim=c(-1,2), ylim=c(0,1.4))
 plot(res_partial$beta_post[thin,1],res_partial$alpha_post[thin],
@@ -1690,11 +1702,11 @@ plot(res_check_partial$beta_post[thin,1],res_check_partial$alpha_post[thin],
            xlab="beta1", ylab="alpha",main="incorrect partial",xlim=c(-1,2), ylim=c(0,1.4))
 
 plot(res_check_full$beta_post[thin,2],res_check_full$alpha_post[thin],
-        xlab="beta2", ylab="alpha",xlim=c(0.5,3.5), ylim=c(0,1.4))
+        xlab="beta2", ylab="alpha",main="full",xlim=c(0.5,3.5), ylim=c(0,1.4))
 plot(res_partial$beta_post[thin,2],res_partial$alpha_post[thin],
-      xlab="beta2", ylab="alpha",xlim=c(0.5,3.5), ylim=c(0,1.4))
+      xlab="beta2", ylab="alpha",main="correct partial",xlim=c(0.5,3.5), ylim=c(0,1.4))
 plot(res_check_partial$beta_post[thin,2],res_check_partial$alpha_post[thin],
-        xlab="beta2", ylab="alpha",xlim=c(0.5,3.5), ylim=c(0,1.4))
+        xlab="beta2", ylab="alpha",main="incorrect partial",xlim=c(0.5,3.5), ylim=c(0,1.4))
 ```
 
 ![](Chapter08_files/figure-html/unnamed-chunk-54-1.png) \# Section 8.3:
