@@ -221,9 +221,9 @@ We now compute Chib's estimator, evaluated at the posterior median.
 
 ```{r}
 allres <- list(res, res2, res3)
-logML <- matrix(NA_real_, length(allres), length(allres[[1]]))
+logML <- matrix(NA_real_, length(allres), length(res))
 for (i in seq_along(allres)) {
-  for (j in seq_len(length(allres[[i]]))) {
+  for (j in seq_len(length(res))) {
     myres <- allres[[i]][[j]]
     beta_med <- apply(myres$betas, 2, median)
     sigma2_med <- median(myres$sigma2s)
@@ -251,6 +251,20 @@ names(pairwiselogML) <- names(logSD)
 round(pairwiselogML, 2)
 ```
 
+To compute model probabilities, we use the uniform and the penalty prior.
+
+```{r}
+# Uniform prior:
+stableML <- exp(logML[3, ] - max(logML[3, ]))
+probs_unif <- stableML / sum(stableML)
+
+# Penalty prior:
+tmp <- logML[3, ] - log(seq_along(stableML)) - log(seq_along(stableML) + 1)
+stablepost <- exp(tmp - max(tmp))
+probs_pen <- stablepost / sum(stablepost)
+
+knitr::kable(t(round(cbind(unif = probs_unif, penalized = probs_pen), 3)))
+```
 
 ## Section 11.4.3: Bayesian testing for first-order Markov Chain models
 
