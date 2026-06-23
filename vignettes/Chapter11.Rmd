@@ -110,10 +110,11 @@ regression <- function(y, X, b0 = 0, B0 = 1, c0 = 0.01, C0 = 0.01,
 ```
 
 We also need a function to create the AR-specific design matrix (also re-used
-from Chapter 7).
+from Chapter 7, now with the added option to condition on more initial data
+than then bare minimum).
 
 ```{r}
-ARdesignmatrix <- function(dat, p = 1) {
+ARdesignmatrix <- function(dat, p = 1, conditioninglength = p) {
   d <- p + 1
   N <- length(dat) - p
 
@@ -122,7 +123,7 @@ ARdesignmatrix <- function(dat, p = 1) {
   for (i in seq_len(p)) {
     Xy[, i + 1] <- dat[(p + 1 - i) : (length(dat) - i)]
   }
-  Xy
+  Xy[(1 + conditioninglength - p):N, ]
 }
 ```
 
