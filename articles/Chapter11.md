@@ -2,7 +2,7 @@
 
 ## Section 11.4: Model Selection Problems in Time Series Analysis
 
-## Section 11.4.1: Selecting the model order in an AR(p) model
+### Section 11.4.1: Selecting the model order in an AR(p) model
 
 Akin to Chapter 7, we load the US GDP data, restrict our analysis to the
 time before the COVID outbreak, and compute log returns.
@@ -17,15 +17,17 @@ logret <- ts(logret, start = c(1947, 2), end = c(2019, 4),
 ```
 
 We re-use the regression function defined in Chapter 7, again using the
-tools developed in Chapter 6.
+tools developed in Chapter 6. In addition, we store the parameters of
+the conditional posteriors to compute Savage-Dickey density ratios and
+marginal likelihoods at a later stage.
 
 ``` r
 
 library("BayesianLearningCode")
 library("mvtnorm")
 
-regression <- function(y, X, prior = "improper", b0 = 0, B0 = 1, c0 = 0.01,
-                       C0 = 0.01, nburn = 1000L, M = 10000L) {
+regression <- function(y, X, b0 = 0, B0 = 1, c0 = 0.01, C0 = 0.01,
+                       nburn = 1000L, M = 100000L / mcmcspeedup) {
   
   N <- nrow(X)
   d <- ncol(X)
@@ -40,81 +42,61 @@ regression <- function(y, X, prior = "improper", b0 = 0, B0 = 1, c0 = 0.01,
     }
   }
   
-  if (prior == "improper") {
-
-    fit <- lm.fit(X, y)
-    betahat <- fit$coefficients
-    SSR <- sum(fit$residuals^2)
-    cN <- (N - d) / 2
-    CN <- SSR / 2
-    bN <- betahat
-    BN <- solve(crossprod(X))
+  # Precompute some values
+  B0inv <- solve(B0)
+  B0invb0 <- B0inv %*% b0
+  cN <- c0 + N / 2
+  XX <- crossprod(X)
+  Xy <- crossprod(X, y)
     
-    sigma2s <- rinvgamma(M, cN, CN)
-    betas <- matrix(NA_real_, M, d)
-    for (i in seq_len(M)) betas[i, ] <- rmvnorm(1, bN, sigma2s[i] * BN)
+  # Prepare memory to store the draws
+  betas <- matrix(NA_real_, nrow = M, ncol = d)
+  sigma2s <- rep(NA_real_, M)
+  colnames(betas) <- colnames(X)
   
-  } else if (prior == "conjugate") {
+  # Prepare memory to store the parameters
+  paras <- list(bN = matrix(NA_real_, nrow = M, ncol = d),
+                BN = array(NA_real_, dim = c(M, d, d)),
+                cN = rep(NA_real_, M),
+                CN = rep(NA_real_, M))
     
-    B0inv <- solve(B0)
-    BNinv <- B0inv + crossprod(X)
-    BN <- solve(BNinv)
-    bN <- BN %*% (B0inv %*% b0 + crossprod(X, y))
-    Seps0 <- crossprod(y) + crossprod(b0, B0inv) %*% b0 -
-      crossprod(bN, BNinv) %*% bN
-    cN <- c0 + N / 2
-    CN <- C0 + Seps0 / 2
+  # Set the starting value for beta
+  sigma2 <- var(y) / 2
     
-    sigma2s <- rinvgamma(M, cN, CN)
-    betas <- matrix(NA_real_, M, d)
-    for (i in seq_len(M)) betas[i, ] <- rmvnorm(1, bN, sigma2s[i] * BN)
-  
-  } else if (prior == "semi-conjugate") {
+  # Run the Gibbs sampler
+  for (m in seq_len(nburn + M)) {
+    # Sample beta from its full conditional
+    BN <- solve(B0inv + XX / sigma2) 
+    bN <- BN %*% (B0invb0 + Xy / sigma2)
+    beta <- rmvnorm(1, mean = bN, sigma = BN)
     
-    # Precompute some values
-    B0inv <- solve(B0)
-    B0invb0 <- B0inv %*% b0
-    cN <- c0 + N / 2
-    XX <- crossprod(X)
-    Xy <- crossprod(X, y)
-    
-    # Prepare memory to store the draws
-    betas <- matrix(NA_real_, nrow = M, ncol = d)
-    sigma2s <- rep(NA_real_, M)
-    colnames(betas) <- colnames(X)
-    
-    # Set the starting value for sigma2
-    sigma2 <- var(y) / 2
-    
-    # Run the Gibbs sampler
-    for (m in seq_len(nburn + M)) {
-      # Sample beta from its full conditional
-      BN <- solve(B0inv + XX / sigma2) 
-      bN <- BN %*% (B0invb0 + Xy / sigma2)
-      beta <- rmvnorm(1, mean = bN, sigma = BN)
+    # Sample sigma^2 from its full conditional
+    eps <- y - tcrossprod(X, beta)
+    CN <- C0 + crossprod(eps) / 2
+    sigma2 <- rinvgamma(1, cN, CN)
       
-      # Sample sigma^2 from its full conditional
-      eps <- y - tcrossprod(X, beta)
-      CN <- C0 + crossprod(eps) / 2
-      sigma2 <- rinvgamma(1, cN, CN)
-      
-      # Store the results
-      if (m > nburn) {
-        betas[m - nburn, ] <- beta
-        sigma2s[m - nburn] <- sigma2
-      }
+    # Store the results
+    if (m > nburn) {
+      betas[m - nburn, ] <- beta
+      sigma2s[m - nburn] <- sigma2
+      paras[["bN"]][m - nburn, ] <- bN
+      paras[["BN"]][m - nburn, , ] <- BN
+      paras[["cN"]][m - nburn] <- cN
+      paras[["CN"]][m - nburn] <- CN
     }
   }
-  list(betas = betas, sigma2s = sigma2s)
+  list(betas = betas, sigma2s = sigma2s, paras = paras, X = X, y = y,
+       b0 = b0, B0 = B0, c0 = c0, C0 = C0)
 }
 ```
 
 We also need a function to create the AR-specific design matrix (also
-re-used from Chapter 7).
+re-used from Chapter 7, now with the added option to condition on more
+initial data than then bare minimum).
 
 ``` r
 
-ARdesignmatrix <- function(dat, p = 1) {
+ARdesignmatrix <- function(dat, p = 1, conditioninglength = p) {
   d <- p + 1
   N <- length(dat) - p
 
@@ -123,7 +105,7 @@ ARdesignmatrix <- function(dat, p = 1) {
   for (i in seq_len(p)) {
     Xy[, i + 1] <- dat[(p + 1 - i) : (length(dat) - i)]
   }
-  Xy
+  Xy[(1 + conditioninglength - p):N, ]
 }
 ```
 
@@ -131,7 +113,8 @@ Now we are ready to reproduce the results in the book.
 
 ### Example 11.8: US GDP data: Choosing the model order via Savage-Dickey density ratios
 
-We obtain draws for four AR models under the semi-conjugate prior.
+We obtain draws and parameters for four AR models under the
+semi-conjugate prior.
 
 ``` r
 
@@ -142,8 +125,7 @@ res <- vector("list", 4)
 for (p in 1:4) {
   y <- tail(logret, -p)
   Xy <- ARdesignmatrix(logret, p)
-  res[[p]] <- regression(y, Xy, prior = "semi-conjugate",
-                         b0 = b0, B0 = B0, c0 = 2, C0 = 0.001)
+  res[[p]] <- regression(y, Xy, b0 = b0, B0 = B0, c0 = 2, C0 = 0.001)
 }
 ```
 
@@ -170,14 +152,103 @@ for (p in 1:4) {
 
 ![](Chapter11_files/figure-html/unnamed-chunk-6-1.png)
 
+After visualizing the Savage-Dickey density ratio, we now move towards
+computing its numerical value by Rao-Blackwellization.
+
 ``` r
 
-dev.off()
-#> null device 
-#>           1
+logSD <- rep(NA_real_, length(res))
+for (i in seq_len(length(res))) {
+  means <- res[[i]]$paras$bN[, i + 1]
+  sds <- sqrt(res[[i]]$paras$BN[, i + 1, i + 1])
+  logSD[i] <- log(mean(dnorm(0, means, sds))) - dnorm(0, b0, sqrt(B0), log = TRUE)
+}
+knitr::kable(logSD)
 ```
 
-### Section 11.4.3: Bayesian testing for first-order markov chain models
+|           x |
+|------------:|
+| -35.4906086 |
+|  -1.1834467 |
+|   0.4640396 |
+|   2.7535079 |
+
+To reproduce this using Chib’s method, we need to be careful to compare
+models which were estimated conditional on the same initial data. Thus,
+we re-estimate conditioning on one extra initial observation.
+
+``` r
+
+set.seed(42)
+res2 <- vector("list", 4)
+for (p in 1:4) {
+  y <- tail(logret, -(p + 1))
+  Xy <- ARdesignmatrix(logret, p, conditioninglength = p + 1)
+  res2[[p]] <- regression(y, Xy, b0 = b0, B0 = B0, c0 = 2, C0 = 0.001)
+}
+```
+
+And now, we always condition on the first four observations
+(irrespectively of the model order). This makes it possible to compare
+all AR models via model probabilities.
+
+``` r
+
+set.seed(42)
+res3 <- vector("list", 4)
+for (p in 1:4) {
+  y <- tail(logret, -4)
+  Xy <- ARdesignmatrix(logret, p, conditioninglength = 4)
+  res3[[p]] <- regression(y, Xy, b0 = b0, B0 = B0, c0 = 2, C0 = 0.001)
+}
+```
+
+We now compute Chib’s estimator, evaluated at the posterior median.
+
+``` r
+
+allres <- list(res, res2, res3)
+logML <- matrix(NA_real_, length(allres), length(allres[[1]]))
+for (i in seq_along(allres)) {
+  for (j in seq_len(length(allres[[i]]))) {
+    myres <- allres[[i]][[j]]
+    beta_med <- apply(myres$betas, 2, median)
+    sigma2_med <- median(myres$sigma2s)
+    BN_med <- solve(solve(myres$B0) + crossprod(myres$X) / sigma2_med)
+    bN_med <- BN_med %*% (solve(myres$B0) %*% myres$b0 + 
+                            crossprod(myres$X, myres$y) / sigma2_med)
+    logML[i, j] <-
+      sum(dnorm(myres$y, myres$X %*% beta_med, sqrt(sigma2_med), log = TRUE)) +
+      dmvnorm(beta_med, myres$b0, myres$B0, log = TRUE) +
+      dinvgamma(sigma2_med, myres$c0, myres$C0, log = TRUE) -
+      dmvnorm(beta_med, bN_med, BN_med, log = TRUE) -
+      log(mean(dinvgamma(sigma2_med, myres$paras$cN, myres$paras$CN)))
+  }
+}
+dimnames(logML) <- list("Conditioning set length" = c("p", "p + 1", "4"),
+                        "Lag order" = seq_len(ncol(logML)))
+knitr::kable(logML)
+```
+
+|       |        1 |        2 |        3 |        4 |
+|:------|---------:|---------:|---------:|---------:|
+| p     | 923.3798 | 920.8573 | 920.2116 | 913.8044 |
+| p + 1 | 919.6779 | 920.6771 | 916.5575 | 910.0905 |
+| 4     | 915.6709 | 916.9934 | 916.5575 | 913.8044 |
+
+The values below should be equal to the logSD values from above.
+
+``` r
+
+(logML[1,2] - logML[2,1])
+#> [1] 1.179454
+(logML[1,3] - logML[2,2])
+#> [1] -0.4654876
+(logML[1,4] - logML[2,3])
+#> [1] -2.753159
+```
+
+### Section 11.4.3: Bayesian testing for first-order Markov Chain models
 
 ### Example 11.18: Application to Austrian wage mobility data - homogeneity versus grouped model
 
