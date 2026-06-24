@@ -188,7 +188,7 @@ round(logSD, 2)
 #> -35.98  -1.18   0.46   2.75
 ```
 
-Not that the first value of logSD is numerically rather unstable.
+Note that the first value of logSD is numerically rather unstable.
 
 To reproduce this using Chib’s method, we need to be careful to compare
 models which were estimated conditional on the same initial data. Thus,

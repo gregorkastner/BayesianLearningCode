@@ -241,7 +241,8 @@ function.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">logSD</span>, <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="co">#&gt; 0 vs 1 1 vs 2 2 vs 3 3 vs 4 </span></span>
 <span><span class="co">#&gt; -35.98  -1.18   0.46   2.75</span></span></code></pre></div>
-<p>Not that the first value of logSD is numerically rather unstable.</p>
+<p>Note that the first value of logSD is numerically rather
+unstable.</p>
 <p>To reproduce this using Chib’s method, we need to be careful to
 compare models which were estimated conditional on the same initial
 data. Thus, we re-estimate conditioning on one extra initial

@@ -857,7 +857,7 @@ myhist <- function(dat, breaks = 30, freq = FALSE, ...) {
 
 ts.plot(y, col = "gray", ylab = "")
 lines(colMeans(sqrt(res$sigma2)))
-legend("topright", legend = c("Data", bquote(E(sigma[t] ~ "|" ~  bold(y)))),
+legend("topright", legend = c("Log returns", bquote(E(sigma[t] ~ "|" ~  bold(y)))),
        lty = 1, col = c("gray", 1))
 myhist(res$para$alpha0, xlab = expression(alpha[0]))
 myhist(res$para$alpha1, xlab = expression(alpha[1]))
@@ -954,7 +954,8 @@ plotwindow <- (cutoff - nahead):(cutoff + nahead)
 pastwindow <- (cutoff - nahead):cutoff
 predwindow <- cutoff + 1:nahead
 plot(plotwindow, y[plotwindow], xlab = "", ylab = "", col = "gray", type = "l",
-     main = "Static predictions", ylim = range(predstaticquants, y[plotwindow]))
+     main = "Multi-step-ahead forecasting at t = 2990",
+     ylim = range(predstaticquants, y[plotwindow]))
 abline(h = 0, lty = 3, col = "gray")
 abline(v = cutoff, lty = 3)
 lines(pastwindow, colMeans(sqrt(restrain$sigma2[, pastwindow])), col = 4)
@@ -968,13 +969,14 @@ for (i in seq_along(thesequants)) {
 }
 
 plot(plotwindow, y[plotwindow], xlab = "", ylab = "", col = "gray", type = "l",
-     main = "Dynamic predictions", ylim = range(predstaticquants, y[plotwindow]))
+     main = "Expanding window one-step-ahead forecasting",
+     ylim = range(predstaticquants, y[plotwindow]))
 abline(h = 0, lty = 3, col = "gray")
 lines(predwindow, predsigmamean, col = 4)
 for (i in seq_along(thesequants)) {
   lines(cutoff + 1:nahead, predquants[i, ], col = 2)
 }
-legend("bottomleft", legend = c("Data", "Conditional std. dev.",
+legend("bottomleft", legend = c("Log returns", "Conditional std. dev.",
                                 "Long-run std. dev.", "Predictive quantiles"),
        col = c("gray", "blue", "blue", "red"), lty = c(1, 1, 2, 1))
 ```
