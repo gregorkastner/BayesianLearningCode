@@ -893,7 +893,7 @@ abline(a = 0, b = 1)
 #### Example 6.9: Movie data - Predictions
 
 We predict the box office sales for different movies: a film with
-baseline values in all covariates (A), a film with baseline values in
+reference values in all covariates (A), a film with reference values in
 all covariates except genre *Comedy* (B) or *Thriller* (C) and finally a
 film of genre *Thriller* with MPAA rating PG13 (D).
 
@@ -907,7 +907,7 @@ X_new[2, "Comedy"] <- 1
 X_new[3:4, "Thriller"] <- 1
 X_new[3, "PG13"] <- 1
 X_new[4, "R"] <- 1
-X_new[, "Budget"] <- 10
+#X_new[, "Budget"] <- 10
 
 ypred.sc <- X_new %*% t(beta.sc) + 
      rep(rnorm(length(sigma2.sc), sd = sqrt(sigma2.sc)), each = nrow(X_new))

@@ -1,5 +1,5 @@
 pandoc: 3.8.3
-pkgdown: 2.2.0
+pkgdown: 2.2.1
 pkgdown_sha: ~
 articles:
   Chapter01: Chapter01.html
@@ -14,7 +14,7 @@ articles:
   Chapter10: Chapter10.html
   Chapter11: Chapter11.html
   Chapter12: Chapter12.html
-last_built: 2026-06-24T10:23Z
+last_built: 2026-07-12T16:16Z
 urls:
   reference: https://gregorkastner.github.io/BayesianLearningCode/reference
   article: https://gregorkastner.github.io/BayesianLearningCode/articles
