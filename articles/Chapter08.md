@@ -1125,7 +1125,7 @@ sampler.
 
 ### Section 8.2.3: Evaluating MCMC samplers
 
-#### Example 8.10 Verifying the correctness of the full conditional MCMC sampler
+#### Example 8.10 Testing correctness of a wrongfully implemented MH-within Gibbs sampler
 
 To check the MCMC algorithm for correctness, we extend the sampler by
 adding sampling the data from the prior as a further sampling step.
@@ -1234,7 +1234,7 @@ the thinned draws from posterior.
 
 ``` r
 
-thin=seq(from=1, by=100, to=M)
+thin <- seq(from=1, by=100, to=M)
 for (i in 1:3) {
    ks.b <- ks.test(beta_prior[[i]],res_check$beta_post[thin,i])
    qqplot(beta_prior[[i]], res_check$beta_post[thin, i],
@@ -1253,11 +1253,10 @@ text(4, 0.2, paste0('KS-test: p-value= ', round(ks.a$p.value,4)))
 
 ![](Chapter08_files/figure-html/unnamed-chunk-43-1.png)
 
-As all the points are close to the identity line and the p-value of the
-Kolmogorov-Smirnov test is larger than 0.05 we can conclude that the
-sampler is correct.
+Neither the QQ-plot nor the Kolmogorov-Smirnov test shows any evidence
+that the sampler is incorrect.
 
-Next we implement sampling alpha by using a proposal ratio of 1, which
+Next we implement sampling alpha by using a proposal ratio of 1: this
 would be correct for a random walk proposal, however is wrong for a
 log-random walk proposal.
 
@@ -1393,85 +1392,11 @@ text(4, 0.2, paste0('KS-test: p-value= ', round(ks.a$p.value,4)))
 
 ![](Chapter08_files/figure-html/unnamed-chunk-46-1.png)
 
-We see very a clear deviation from the identity line and a p-value of 0
-for the heterogeneity parameter which indicates that the sampler is
-erroneous.
+We see very a clear deviation from the identity line and a p-value of
+0.001 for the heterogeneity parameter which indicates that the sampler
+is erroneous.
 
-### Example 8.11 Verifying the correctness of the partial marginalized Gibbs sampler
-
-We now analyze the partial marginalized Gibbs sampler.
-
-``` r
-
-set.seed(1234)
-res_check <- negbin_check(X, e, b0, B0, pri_alpha, c_alpha,
-                                  full_gibbs = FALSE, M = M)
-
-cat("effective sample sizes \n")
-#> effective sample sizes
-cat("beta: ", coda::effectiveSize(res_check$beta_post),"\n")
-#> beta:  41.22228 39.27825 42.4517
-cat("alpha:", coda::effectiveSize(res_check$alpha_post))
-#> alpha: 35.99974
-
-for (i in 1:3) {
-   ks.b <- ks.test(beta_prior[[i]],res_check$beta_post[thin,i])
-   qqplot(beta_prior[[i]], res_check$beta_post[thin, i],
-           xlab = "Prior", ylab = "Posterior",xlim=c(-1.2,1.2), ylim=c(-1.2,1.2), 
-           main = c("Intercept", "beta1", "beta2")[i])
-   abline(a = 0, b = 1)
-   text(0.5,- 0.9, paste0('KS-test: p-value= ', round(ks.b$p.value,4)))
-}
-ks.a <- ks.test(alpha_prior,res_check$alpha_post[thin])
-qqplot(alpha_prior,res_check$alpha_post[thin], xlab = "Prior",
-       ylab = "Posterior", main = "Heterogeneity parameter", 
-       xlim = c(0, 6), ylim = c(0, 6))
-abline(a = 0, b = 1)
-text(4, 0.2, paste0('KS-test: p-value= ', round(ks.a$p.value,4)))
-```
-
-![](Chapter08_files/figure-html/unnamed-chunk-47-1.png)
-
-Again the points of the QQ-plot lie close to the identity line and the
-p-value of the Kolmogorov-Smirnov test is larger than 0.05 and thus we
-conclude that the sampler is correct.
-
-``` r
-
-set.seed(1234)
-res_check_wrong <- negbin_check_wrong(X, e, b0, B0, pri_alpha, c_alpha,
-                                  full_gibbs = FALSE, M = M)
-cat("effective sample sizes \n")
-#> effective sample sizes
-cat("beta: ", coda::effectiveSize(res_check_wrong$beta_post),"\n")
-#> beta:  43.8297 33.4717 38.47304
-cat("alpha:", coda::effectiveSize(res_check_wrong$alpha_post))
-#> alpha: 35.86108
-
-for (i in 1:3) {
-   ks.b <- ks.test(beta_prior[[i]],res_check_wrong$beta_post[thin,i])
-   qqplot(beta_prior[[i]], res_check_wrong$beta_post[thin, i],
-           xlab = "Prior", ylab = "Posterior",xlim=c(-1.2,1.2), ylim=c(-1.2,1.2), 
-           main = c("Intercept", "beta1", "beta2")[i])
-   abline(a = 0, b = 1)
-   text(0.5,- 0.9, paste0('KS-test: p-value= ', round(ks.b$p.value,4)))
-}
-ks.a <- ks.test(alpha_prior,res_check_wrong$alpha_post[thin])
-qqplot(alpha_prior,res_check_wrong$alpha_post[thin], xlab = "Prior",
-       ylab = "Posterior", main = "Heterogeneity parameter", 
-       xlim = c(0, 6), ylim = c(0, 6))
-abline(a = 0, b = 1)
-text(4, 0.2, paste0('KS-test: p-value= ', round(ks.a$p.value,4)))
-```
-
-![](Chapter08_files/figure-html/unnamed-chunk-48-1.png) This is not the
-case for the partial marginalized sampler with the wrong sampling step
-for the heterogeneity parameter: we get a Q-Q plot which deviates
-considerably from the lidentity line and a p-value of the
-Kolmogorov-Smirnov statistics of 0, which indicates that the sampler is
-not correct.
-
-### Example 8.12 : Changing the order of the sampling steps
+### Example 8.11: Testing correctness of an invalid partially collapsed sampler
 
 In this example we check whether changing the order of the sampling
 steps to (c)- (b)-(a) (instead of (a)-(b)-(c) ) still yields a correct
@@ -1608,7 +1533,7 @@ abline(a = 0, b = 1)
 text(5,0.1, paste0('KS-test: p-value= ', round(ks2$p.value,4))) 
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-51-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-49-1.png)
 
 We next run the invalid partially collapsed Gibbs sampler.
 
@@ -1643,7 +1568,7 @@ abline(a = 0, b = 1)
 text(5,0.1, paste0('KS-test: p-value= ', round(ks2$p.value,4))) 
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-52-1.png) Also for the
+![](Chapter08_files/figure-html/unnamed-chunk-50-1.png) Also for the
 partially marginalised Gibbs sampler both p-values are larger than 0.05
 and hence we fail to detect that this sampler is wrong.
 
@@ -1669,7 +1594,7 @@ plot(res_check_partial$beta_post[thin,2],res_check_partial$alpha_post[thin],
         xlab="beta2", ylab="alpha",main="incorrect partial",xlim=c(0.5,3.5), ylim=c(0,1.4))
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-53-1.png) \# Section 8.3:
+![](Chapter08_files/figure-html/unnamed-chunk-51-1.png) \# Section 8.3:
 Beyond i.i.d. Gaussian error distributions
 
 ### Section 8.3.1: Regression analysis with heteroskedastic errors
@@ -1687,7 +1612,7 @@ plot(starsCYG, pch = 19, xlim = c(3, 5), ylim = c(3, 7),
      xlab = "log temperature", ylab = "log light intensity")
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-54-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-52-1.png)
 
 The four giant stars which can also be identified in the scatter plot
 have the following indices in the data set:
@@ -1741,7 +1666,7 @@ lines(xnew, preds_subset[, "lwr"], lty = 2)
 lines(xnew, preds_subset[, "upr"], lty = 2)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-57-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-55-1.png)
 
 #### Example 8.13: Star cluster data - heteroskedastic regression analysis with known outliers
 
@@ -1841,7 +1766,7 @@ lines(xnew, apply(pred_hetero, 1, quantile, 0.025), lty = 2)
 lines(xnew, apply(pred_hetero, 1, quantile, 0.975), lty = 2)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-62-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-60-1.png)
 
 ### Section 8.3.2 Regression analysis with errors following a Gaussian mixture
 
@@ -1931,7 +1856,7 @@ lines(xnew, apply(preds_mix_1, 1, quantile, 0.025), lty = 2)
 lines(xnew, apply(preds_mix_1, 1, quantile, 0.975), lty = 2)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-67-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-65-1.png)
 
 We now assume that the indices of the giant stars are not known. We only
 assume that a two-component mixture is used as weight distribution where
@@ -2014,7 +1939,7 @@ lines(xnew, apply(preds_mix_2, 1, quantile, 0.025), lty = 2)
 lines(xnew, apply(preds_mix_2, 1, quantile, 0.975), lty = 2)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-70-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-68-1.png)
 
 Finally, we visualize again the mean and the 95%-HPD region together
 with the data points for the three modeling approaches: (1) a
@@ -2041,7 +1966,7 @@ lines(xnew, apply(preds_mix_2, 1, quantile, 0.025), lty = 2)
 lines(xnew, apply(preds_mix_2, 1, quantile, 0.975), lty = 2)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-71-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-69-1.png)
 
 The plot indicates that all three modeling approaches result in a fit
 that is robust to the outlying observations.
@@ -2123,7 +2048,7 @@ lines(xnew, apply(preds_norm, 1, quantile, 0.975), lty = 3)
 boxplot(ws, col = 2 * (1:ncol(ws) %in% index))
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-74-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-72-1.png)
 
 #### Example 8.16: CHF exchange rate data - Fitting a Student-$`t`$ with $`\nu`$ unknown
 
@@ -2237,7 +2162,7 @@ selecta <- sample.int(N, 1)
 ts.plot(ws[, selecta], xlab = "Iteration", ylab = bquote(~omega[.(selecta)]))
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-77-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-75-1.png)
 
 ``` r
 
@@ -2252,7 +2177,7 @@ IF <- M / coda::effectiveSize(nus)
 title(paste0("Empirical ACF (IF: ", round(IF), ")"))
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-78-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-76-1.png)
 
 ### Section 8.3.4 Regression analysis with autocorrelated errors
 
@@ -2267,7 +2192,7 @@ newcars <- window(newcars, start = 2003, end = c(2012, 12))
 plot(newcars)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-79-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-77-1.png)
 
 Seasonal patterns are evident, as is a trend. To model this, we set up
 an appropriate design matrix. Leveraging the fact the the data is a `ts`
@@ -2368,7 +2293,7 @@ plot(as.numeric(tim), rowMeans(resids), type = 'l', main = "Mean residuals",
 abline(h = 0, lty = 3)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-83-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-81-1.png)
 
 We see a generally good fit but also notice some potential
 autocorrelation. Thus, we move forward by including an autoregressive
@@ -2453,4 +2378,4 @@ acf(rowMeans(epss))
 title("Estimated ACF")
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-85-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-83-1.png)
