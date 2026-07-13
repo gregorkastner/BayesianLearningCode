@@ -973,8 +973,7 @@ sampler.
 
 ## Section 8.2.3: Evaluating MCMC samplers
 
-### Example 8.10 Verifying the correctness of the full conditional MCMC sampler
-
+### Example 8.10 Testing correctness of a wrongfully implemented MH-within Gibbs sampler
 To check the MCMC algorithm for correctness, we extend the sampler by adding sampling the data from the prior as a further sampling step.
 
 ```{r}
@@ -1077,7 +1076,7 @@ if (pdfplots) {
 }
 par(mfrow = c(2, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
 
-thin=seq(from=1, by=100, to=M)
+thin <- seq(from=1, by=100, to=M)
 for (i in 1:3) {
    ks.b <- ks.test(beta_prior[[i]],res_check$beta_post[thin,i])
    qqplot(beta_prior[[i]], res_check$beta_post[thin, i],
@@ -1094,13 +1093,12 @@ abline(a = 0, b = 1)
 text(4, 0.2, paste0('KS-test: p-value= ', round(ks.a$p.value,4)))
 ```
 
-As all the points are close to the identity line  and the p-value of the
-Kolmogorov-Smirnov test is larger than 0.05 we
-can conclude that the sampler is correct. 
+Neither the QQ-plot nor  the
+Kolmogorov-Smirnov test shows any evidence that the sampler is incorrect.
 
-Next we implement  sampling alpha by using a proposal ratio of 1, which would be
-correct for a random walk proposal, however is wrong for a log-random walk 
-proposal.
+Next we implement sampling alpha by using a proposal ratio of 1: this
+would be correct for a random walk proposal, however is wrong for a
+log-random walk proposal.
 
 
 ```{r}
@@ -1232,82 +1230,11 @@ abline(a = 0, b = 1)
 text(4, 0.2, paste0('KS-test: p-value= ', round(ks.a$p.value,4)))
 ```
  
-We see very a clear deviation from the identity line and a p-value of 0
-for the heterogeneity parameter which indicates that the sampler is erroneous. 
+We see very a clear deviation from the identity line and a p-value of
+0.001 for the heterogeneity parameter which indicates that the sampler is
+erroneous. 
 
-## Example 8.11 Verifying the correctness of the partial marginalized Gibbs sampler
-
-We now analyze the partial marginalized Gibbs sampler.
-
-```{r, echo = -c(1:3)}
-if (pdfplots) {
-  pdf("8-2_3.pdf", width = 8, height = 8)
-}
-par(mfrow = c(2, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
-
-set.seed(1234)
-res_check <- negbin_check(X, e, b0, B0, pri_alpha, c_alpha,
-                                  full_gibbs = FALSE, M = M)
-
-cat("effective sample sizes \n")
-cat("beta: ", coda::effectiveSize(res_check$beta_post),"\n")
-cat("alpha:", coda::effectiveSize(res_check$alpha_post))
-
-for (i in 1:3) {
-   ks.b <- ks.test(beta_prior[[i]],res_check$beta_post[thin,i])
-   qqplot(beta_prior[[i]], res_check$beta_post[thin, i],
-           xlab = "Prior", ylab = "Posterior",xlim=c(-1.2,1.2), ylim=c(-1.2,1.2), 
-           main = c("Intercept", "beta1", "beta2")[i])
-   abline(a = 0, b = 1)
-   text(0.5,- 0.9, paste0('KS-test: p-value= ', round(ks.b$p.value,4)))
-}
-ks.a <- ks.test(alpha_prior,res_check$alpha_post[thin])
-qqplot(alpha_prior,res_check$alpha_post[thin], xlab = "Prior",
-       ylab = "Posterior", main = "Heterogeneity parameter", 
-       xlim = c(0, 6), ylim = c(0, 6))
-abline(a = 0, b = 1)
-text(4, 0.2, paste0('KS-test: p-value= ', round(ks.a$p.value,4)))
-```
-
-Again the points of the QQ-plot lie close to the
-identity line and the p-value of the Kolmogorov-Smirnov test is larger than 
-0.05 and thus we conclude that the sampler is correct. 
-
-
-```{r, echo = -c(1:3)}
-if (pdfplots) {
-  pdf("8-2_4.pdf", width = 8, height = 8)
-}
-par(mfrow = c(2, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
-
-set.seed(1234)
-res_check_wrong <- negbin_check_wrong(X, e, b0, B0, pri_alpha, c_alpha,
-                                  full_gibbs = FALSE, M = M)
-cat("effective sample sizes \n")
-cat("beta: ", coda::effectiveSize(res_check_wrong$beta_post),"\n")
-cat("alpha:", coda::effectiveSize(res_check_wrong$alpha_post))
-
-for (i in 1:3) {
-   ks.b <- ks.test(beta_prior[[i]],res_check_wrong$beta_post[thin,i])
-   qqplot(beta_prior[[i]], res_check_wrong$beta_post[thin, i],
-           xlab = "Prior", ylab = "Posterior",xlim=c(-1.2,1.2), ylim=c(-1.2,1.2), 
-           main = c("Intercept", "beta1", "beta2")[i])
-   abline(a = 0, b = 1)
-   text(0.5,- 0.9, paste0('KS-test: p-value= ', round(ks.b$p.value,4)))
-}
-ks.a <- ks.test(alpha_prior,res_check_wrong$alpha_post[thin])
-qqplot(alpha_prior,res_check_wrong$alpha_post[thin], xlab = "Prior",
-       ylab = "Posterior", main = "Heterogeneity parameter", 
-       xlim = c(0, 6), ylim = c(0, 6))
-abline(a = 0, b = 1)
-text(4, 0.2, paste0('KS-test: p-value= ', round(ks.a$p.value,4)))
-```                                                     
-This is not the case for the partial marginalized sampler with the wrong 
-sampling step for the heterogeneity parameter: we get a Q-Q plot which deviates
-considerably from the lidentity line and a p-value of the Kolmogorov-Smirnov
-statistics of 0, which indicates that the sampler is not correct.
-
-## Example 8.12 : Changing the order of the sampling steps
+## Example 8.11: Testing correctness of an invalid partially collapsed sampler
 In this example we check whether changing the order of the sampling 
 steps to (c)- (b)-(a) (instead of (a)-(b)-(c) ) still yields a correct Gibbs
 sampler.
