@@ -476,7 +476,6 @@ par(mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.6, .6, 0))
 N0 <- 10^seq(0, 10, by = 0.1)
 N <- length(y)
 bNs <- sum(y) / (N0 + N)
-cNR <- c0R + N / 2
 cNU <- c0U + N / 2
 CNs <- C0 + 0.5 * sum((y - mean(y))^2) + 0.5 * N * N0 * mean(y)^2 / (N0 + N)
 
