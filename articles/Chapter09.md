@@ -921,6 +921,18 @@ plot.ts(restrain$para, main = paste("Acceptance Rate:", round(restrain$acceptrat
 
 predstatic <- prediction(restrain, nahead, drawsmult = 10)
 predstaticquants <- apply(predstatic$y, 2, quantile, thesequants)
+
+# How close to nonstationary are we?
+(mean(restrain$para$alpha1 + restrain$para$gamma1))
+#> [1] 0.9952645
+(sd(restrain$para$alpha1 + restrain$para$gamma1))
+#> [1] 0.001938267
+
+# Autocorrelation of sigma^2 nahead steps ahead?
+(mean((restrain$para$alpha1 + restrain$para$gamma1)^nahead))
+#> [1] 0.7923058
+(sd((restrain$para$alpha1 + restrain$para$gamma1)^nahead))
+#> [1] 0.07437182
 ```
 
 Alternatively, we might want to do sequential one-step-ahead

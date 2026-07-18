@@ -80,7 +80,7 @@ with respect to prior hyperparameter choices.
 
 c0 <- c(-1, 0, 0.001, 1, 100)
 C0 <- c(0, 0, 0.001, 1, 100)
-N0 <- 10^seq(1, 10, by = 0.1)
+N0 <- 10^seq(0, 10, by = 0.1)
 
 logBF <- matrix(NA_real_, nrow = length(N0), ncol = length(c0))
 for (i in seq_along(c0)) {
@@ -503,10 +503,10 @@ knitr::kable(resM3, digits = 2)
 
 y <- 100 * diff(log(exrates$USD / exrates$CHF))
 
-c0R <- 1
-c0U <- c0R - 1/2 # This is needed for the SD theorem to be valid!
+c0U <- 1
+c0R <- c0U + 1/2 # This is needed for the SD theorem to be valid!
 C0 <- 1
-N0 <- 10^(2:5)
+N0 <- 10^c(0, 2, 3, 4)
 
 N <- length(y)
 bNs <- sum(y) / (N0 + N)
@@ -516,7 +516,7 @@ CNs <- C0 + 0.5 * sum((y - mean(y))^2) + 0.5 * N * N0 * mean(y)^2 / (N0 + N)
 
 (logSD <- dstudt(0, bNs, sqrt(CNs / (cNU * (N0 + N))), df = 2 * cNU, log = TRUE) -
           dstudt(0, 0, sqrt(C0 / (c0U * N0)), df = 2 * c0U, log = TRUE))
-#> [1] 1.7416826 0.9061529 0.8085183 0.8784890
+#> [1] 3.5490208 1.2899763 0.4545081 0.3570251
 ```
 
 Let us double-check this:
@@ -531,7 +531,7 @@ logmarglikM2 <- lgamma(cNU) + c0U * log(C0) + 0.5 * log(N0) -
    lgamma(c0U) - cNU * log(CNs) - 0.5 * N * log(2 * pi) - 0.5 * log(N0 + N)
 
 (logBF <- logmarglikM1 - logmarglikM2)
-#> [1] 1.7416826 0.9061529 0.8085183 0.8784890
+#> [1] 3.5490208 1.2899763 0.4545081 0.3570251
 all.equal(logSD, logBF)
 #> [1] TRUE
 ```
@@ -541,38 +541,31 @@ Here is a visualization.
 ``` r
 
 par(mar = c(2.5, 1.5, .5, .5), mgp = c(1.6, .6, 0))
-mus <- seq(-.01, .02, 0.0001)
+mus <- seq(-.01, .04, 0.0001)
 plot(NULL, xlim = range(mus), log = "", xlab = expression(mu), ylab = "",
-     ylim = range(dstudt(mus,
-                         bNs[length(N0)],
-                         sqrt(CNs[length(N0)] / (cNU * (N0[length(N0)] + N))),
-                         df = 2 * cNU)))
+     ylim = range(0, dstudt(mus, bNs[length(N0)],
+                       sqrt(CNs[length(N0)] / (cNU * (N0[length(N0)] + N))),
+                       df = 2 * cNU)))
 abline(v = 0, lty = 3)
 abline(h = 0, lty = 3)
 for (i in seq_along(N0)) {
-  lines(mus, dstudt(mus, 0, sqrt(C0 / (c0R * N0[i])), df = 2 * c0R),
+  lines(mus, dstudt(mus, 0, sqrt(C0 / (c0U * N0[i])), df = 2 * c0U),
         lty = 2, col = i)
   lines(mus, dstudt(mus, bNs[i], sqrt(CNs[i] / (cNU * (N0[i] + N))), df = 2 * cNU),
         lty = 1, col = i)
   points(c(0, 0),
-         c(dstudt(0, 0, sqrt(C0 / (c0R * N0[i])), df = 2 * c0R),
+         c(dstudt(0, 0, sqrt(C0 / (c0U * N0[i])), df = 2 * c0U),
            dstudt(0, bNs[i], sqrt(CNs[i] / (cNU * (N0[i] + N))), df = 2 * cNU)),
-         col = i, pch = c(1, 16))
+         col = i, pch = c(5, 1))
 }
-op <- options(scipen = 999) # to avoid scientific notation
 legend("topright", parse(text = c(paste0("Posterior ~ (N[0] == ", N0, ")"),
                                   paste0("Prior ~ (N[0] == ", N0, ")"))),
        lty = rep(c(1, 2), each = length(N0)),
-       pch = rep(c(16, 1), each = length(N0)), 
+       pch = rep(c(1, 5), each = length(N0)), 
        col = rep(seq_along(N0), 2))
 ```
 
 ![](Chapter10_files/figure-html/unnamed-chunk-27-1.png)
-
-``` r
-
-options(op) # reset to allow scientific notation
-```
 
 Finally, we repeat the exercise for a higher number of different values
 of $`N_0`$.
@@ -580,10 +573,9 @@ of $`N_0`$.
 ``` r
 
 par(mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.6, .6, 0))
-N0 <- 10^seq(1, 10, by = 0.1)
+N0 <- 10^seq(0, 10, by = 0.1)
 N <- length(y)
 bNs <- sum(y) / (N0 + N)
-cNR <- c0R + N / 2
 cNU <- c0U + N / 2
 CNs <- C0 + 0.5 * sum((y - mean(y))^2) + 0.5 * N * N0 * mean(y)^2 / (N0 + N)
 
@@ -601,7 +593,7 @@ abline(h = logSD[length(logSD)], lty = 2)
 ``` r
 
 (exp(logSD[length(logSD)]))
-#> [1] 2.43737
+#> [1] 1.551925
 ```
 
 ### Example 10.13: Labor market data - Savage-Dickey density ratio for the no-income-risk homogeneity test
