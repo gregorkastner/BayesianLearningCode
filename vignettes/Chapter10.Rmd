@@ -456,7 +456,7 @@ for (i in seq_along(N0)) {
   points(c(0, 0),
          c(dstudt(0, 0, sqrt(C0 / (c0U * N0[i])), df = 2 * c0U),
            dstudt(0, bNs[i], sqrt(CNs[i] / (cNU * (N0[i] + N))), df = 2 * cNU)),
-         col = i, pch = c(1, 5))
+         col = i, pch = c(5, 1))
 }
 legend("topright", parse(text = c(paste0("Posterior ~ (N[0] == ", N0, ")"),
                                   paste0("Prior ~ (N[0] == ", N0, ")"))),
