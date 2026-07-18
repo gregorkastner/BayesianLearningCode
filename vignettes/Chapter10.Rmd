@@ -405,8 +405,8 @@ knitr::kable(resM3, digits = 2)
 ```{r}
 y <- 100 * diff(log(exrates$USD / exrates$CHF))
 
-c0R <- 1
-c0U <- c0R - 1/2 # This is needed for the SD theorem to be valid!
+c0U <- 1
+c0R <- c0U + 1/2 # This is needed for the SD theorem to be valid!
 C0 <- 1
 N0 <- 10^c(0, 2, 3, 4)
 
