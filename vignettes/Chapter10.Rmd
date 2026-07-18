@@ -449,12 +449,12 @@ plot(NULL, xlim = range(mus), log = "", xlab = expression(mu), ylab = "",
 abline(v = 0, lty = 3)
 abline(h = 0, lty = 3)
 for (i in seq_along(N0)) {
-  lines(mus, dstudt(mus, 0, sqrt(C0 / (c0R * N0[i])), df = 2 * c0R),
+  lines(mus, dstudt(mus, 0, sqrt(C0 / (c0U * N0[i])), df = 2 * c0U),
         lty = 2, col = i)
   lines(mus, dstudt(mus, bNs[i], sqrt(CNs[i] / (cNU * (N0[i] + N))), df = 2 * cNU),
         lty = 1, col = i)
   points(c(0, 0),
-         c(dstudt(0, 0, sqrt(C0 / (c0R * N0[i])), df = 2 * c0R),
+         c(dstudt(0, 0, sqrt(C0 / (c0U * N0[i])), df = 2 * c0U),
            dstudt(0, bNs[i], sqrt(CNs[i] / (cNU * (N0[i] + N))), df = 2 * cNU)),
          col = i, pch = c(1, 5))
 }
