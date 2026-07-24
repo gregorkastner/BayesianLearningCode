@@ -2,8 +2,8 @@
 title: "Chapter 1: From Bayes’ Rule to Bayes’ Theorem"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Chapter 1: From Bayes’ Rule to Bayes’ Theorem}
   %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{Chapter 1: From Bayes’ Rule to Bayes’ Theorem}
   %\VignetteEngine{knitr::rmarkdown}
 editor_options: 
   chunk_output_type: console
@@ -24,8 +24,32 @@ pdfplots <- FALSE # default: FALSE; set this to TRUE only if you like pdf figure
 par(mgp = c(1.6, .6, 0), mar = c(2.6, 2.6, 2.6, .4), lwd = 1)
 ```
 
+# Section 1.1: Data science Anno 1763
+
+[no code]
+
+# Section 1.2: From elementary probability to Bayes' rule
+
+### Example 1.1: Diagnosing a disease based on symptoms
+
+[no code]
+
+### Example 1.2: Diagnosing a disease based on symptoms (ctd.)
+
+```{r}
+PrA <- 0.2
+PrBgA <- 0.5
+PrBgAC <- 0.05
+
+(PrAgB_unnormalized <- PrBgA * PrA)
+(PrACgB_unnormalized <- PrBgAC * (1 - PrA))
+(PrAgB <- PrAgB_unnormalized / (PrAgB_unnormalized + PrACgB_unnormalized))
+```
+
 # Section 1.3: Naive Bayes classifiers
-## Example 1.3 and 1.4: Classifying categorical observations into two states
+## Section 1.3.1: From Bayes' rule to classifying categorical observations
+
+### Example 1.3: Classifying categorical observations into two states
 
 We have two firms, a reliable firm $A$ with $Pr(A) = 0.7$ and a less reliable
 firm $A^C$ with $Pr(A^C) = 1 - 0.7 = 0.3$.
@@ -42,6 +66,8 @@ reliable firm $A$ and 0.05 for the less reliable firm $A^C$.
 PrFA <- 0.01
 PrFAC <- 0.05
 ```
+
+### Example 1.4: Classifying categorical observations into two states (ctd.)
 
 Assume that we observe any number of failures $y$ between 0 and 6 (from
 $N = 100$ observations in total), but we don't know whether the items are from
@@ -88,8 +114,9 @@ rownames(res) <- c("reliable company", "less reliable company")
 knitr::kable(round(res, 3))
 ```
 
+## Section 1.3.2: Classyfing continuous observations
 
-## Example 1.5: Classifying continuous observations into two states
+### Example 1.5: Classifying continuous observations into two states
 
 We have a Bernoulli random variable $\vartheta$ with prior probability
 $$Pr(\vartheta) = 0.55,$$
@@ -169,3 +196,7 @@ colnames(res) <- y_all
 barplot(res, main = "Posterior probabilities", xlab = "Distance",
         ylab = "Probabilities", col = c("black", "red"))
 ```
+
+# Section 1.4: Learning parameters of a statistical model from data
+
+[no code]
