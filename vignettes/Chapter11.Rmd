@@ -130,7 +130,7 @@ ARdesignmatrix <- function(dat, p = 1, conditioninglength = p) {
 
 Now we are ready to reproduce the results in the book.
 
-## Example 11.8: US GDP data: Choosing the model order via Savage-Dickey density ratios
+## Example 11.9: US GDP data: Qualitative model-order selection
 
 We obtain draws and parameters for four AR models under the semi-conjugate
 prior.
@@ -172,6 +172,8 @@ for (i in 2:5) {
   lines(myats, dnorm(myats, b0, sqrt(B0)), lwd = 1.5)
 }
 ```
+
+## Example 11.10: US GDP data: Quantitative model-order selection
 
 After visualizing the Savage-Dickey density ratio, we now move towards
 computing its numerical value by Rao-Blackwellization. We first define
@@ -269,6 +271,8 @@ names(pairwiselogML) <- names(logSD)
 round(pairwiselogML, 2)
 ```
 
+## Example 11.11: US GDP data: Choosing the model order via marginal likelihoods
+
 To compute model probabilities, we use the uniform and the penalty prior.
 
 ```{r}
@@ -283,6 +287,8 @@ probs_pen <- stablepost / sum(stablepost)
 
 knitr::kable(t(round(cbind(unif = probs_unif, penalized = probs_pen), 3)))
 ```
+
+## Section 11.4.2: Bayesian unit root testing
 
 ## Section 11.4.3: Bayesian testing for first-order Markov Chain models
 
