@@ -22,15 +22,13 @@
 
 ### Section 11.2.4: Priors on the model space
 
-#### Example 2.5: Movie Data: Hierarchichal prior on the model space
+#### Example 11.5: Movie Data: Hierarchichal prior on the model space
 
 ### Section 11.2.5: Bayesian model averaging
 
 #### Example 11.6: Movie data: Bayesian model averaging
 
 ## Section 11.3: Model selection beyond standard regression analysis
-
-## Section 11.4: Model selection problems in time series analysis
 
 ### Section 11.3.1: Marginal likelihoods under transformed outcome variables
 
@@ -40,7 +38,7 @@
 
 #### Example 11.8: Labor market data: Bayesian variable selection
 
-## Section 2.4: Model selection problems in time series analysis
+## Section 11.4: Model selection problems in time series analysis
 
 ### Section 11.4.1: Selecting the model order in an AR(p) model
 

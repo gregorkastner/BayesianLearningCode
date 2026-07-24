@@ -1,8 +1,6 @@
 # Chapter 2: A First Bayesian Analysis of Count Data
 
-## Section 2.1
-
-### Example 2.2: Road Safety Data
+#### Example 2.1: Road Safety Data
 
 Let us first take a look at the data.
 
@@ -40,7 +38,17 @@ mtext("Time", side = 1, line = 1.5, at = 1995.6)
 
 ![](Chapter02_files/figure-html/unnamed-chunk-3-2.png)
 
-### Example 2.3: Posterior inference for the Road Safety Data (flat prior)
+## Section 2.1: I.i.d. observations from a Poisson distribution
+
+### Section 2.1.1: Bayesian learning under a flat prior
+
+#### Example 2.2: Road safety data: Deriving the posterior distribution
+
+\[TODO\]
+
+### Section 2.1.2: Reporting posterior inference
+
+#### Example 2.3: Road safety data: Posterior inference (flat prior)
 
 The posterior under a flat prior is
 ``` math
@@ -85,7 +93,9 @@ for (i in seq_along(probs)) {
 
 ![](Chapter02_files/figure-html/unnamed-chunk-4-1.png)
 
-### Example 2.4: Posterior inference for the Road Safety Data (gamma prior)
+### Section 2.1.3: Choosing the prior distribution
+
+#### Example 2.4: Road safety data: Posterior inference (various priors)
 
 We choose several values for $`m_0`$ and $`a_0`$. Note that, formally,
 choosing $`m_0 = \infty`$ and $`a_0 = 1`$ gives the improper prior from
@@ -139,9 +149,11 @@ knitr::kable(round(res, 3))
 |  3.0 | 1.000 |  3.00 |    5.238 |  0.165 |         4.920 |          5.566 |
 |  3.0 | 0.300 | 10.00 |    5.257 |  0.165 |         4.938 |          5.586 |
 
-## Section 2.2
+## Section 2.2: Some extensions
 
-### Example 2.8: Including exposures for the Road Safety Data
+### Section 2.2.1: Including exposures
+
+#### Example 2.5: Road safety data: Including exposures
 
 We now include the exposure at time $`i`$, $`e_i`$, to estimate the
 monthly risk $`\lambda`$ of children to be killed or seriously injured
@@ -196,7 +208,9 @@ res
 #> a0 = 2.0, b0 = 9634  0.0001865610 0.0002075970   0.0002297405
 ```
 
-### Example 2.9: Including a structural break for the Road Safety Data
+### Section 2.2.2: Including a structural break
+
+#### Example 2.6: Road safety data: Posterior inference including exposures (flat prior)
 
 We now continue with a Poisson model with a (known) structural break at
 $`i = 94`$ (that is, in October 1994). Because the data is stored as a
@@ -247,7 +261,9 @@ abline(0,1)
 
 ![](Chapter02_files/figure-html/unnamed-chunk-9-1.png)
 
-### Example 2.10: Obtaining posterior draws for the Road Safety Data
+### Section 2.2.3: Try your luck with Monte Carlo
+
+#### Example 2.7: Road safety data: Obtaining posterior draws
 
 We now proceed with simple Monte Carlo approximation of (nonlinear)
 functionals of the posterior.
@@ -274,3 +290,27 @@ hist(delta2, breaks = 20, prob = TRUE, xlab = expression(delta[2]), ylab = "",
 ```
 
 ![](Chapter02_files/figure-html/unnamed-chunk-10-1.png)
+
+## Section 2.3: A first encounter with a hierarchical Bayes model
+
+#### Example 2.8: Eye tracking data
+
+\[TODO\]
+
+### Section 2.3.1: The Poisson-Gamma model
+
+\[no code\]
+
+### Section 2.3.2: Bayesian learning in a hierarchical Bayes model
+
+#### Example 2.9: Eye tracking data
+
+\[TODO\]
+
+#### Example 2.10: Eye tracking data
+
+\[TODO\]
+
+#### Example 2.11: Eye tracking data
+
+\[TODO\]

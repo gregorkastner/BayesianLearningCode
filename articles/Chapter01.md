@@ -1,8 +1,36 @@
 # Chapter 1: From Bayes’ Rule to Bayes’ Theorem
 
+## Section 1.1: Data science Anno 1763
+
+\[no code\]
+
+## Section 1.2: From elementary probability to Bayes’ rule
+
+#### Example 1.1: Diagnosing a disease based on symptoms
+
+\[no code\]
+
+#### Example 1.2: Diagnosing a disease based on symptoms (ctd.)
+
+``` r
+
+PrA <- 0.2
+PrBgA <- 0.5
+PrBgAC <- 0.05
+
+(PrAgB_unnormalized <- PrBgA * PrA)
+#> [1] 0.1
+(PrACgB_unnormalized <- PrBgAC * (1 - PrA))
+#> [1] 0.04
+(PrAgB <- PrAgB_unnormalized / (PrAgB_unnormalized + PrACgB_unnormalized))
+#> [1] 0.7142857
+```
+
 ## Section 1.3: Naive Bayes classifiers
 
-### Example 1.3 and 1.4: Classifying categorical observations into two states
+### Section 1.3.1: From Bayes’ rule to classifying categorical observations
+
+#### Example 1.3: Classifying categorical observations into two states
 
 We have two firms, a reliable firm $`A`$ with $`Pr(A) = 0.7`$ and a less
 reliable firm $`A^C`$ with $`Pr(A^C) = 1 - 0.7 = 0.3`$.
@@ -21,6 +49,8 @@ the reliable firm $`A`$ and 0.05 for the less reliable firm $`A^C`$.
 PrFA <- 0.01
 PrFAC <- 0.05
 ```
+
+#### Example 1.4: Classifying categorical observations into two states (ctd.)
 
 Assume that we observe any number of failures $`y`$ between 0 and 6
 (from $`N = 100`$ observations in total), but we don’t know whether the
@@ -80,7 +110,9 @@ knitr::kable(round(res, 3))
 | reliable company      | 0.984 | 0.922 | 0.695 | 0.304 | 0.077 | 0.016 | 0.003 |
 | less reliable company | 0.016 | 0.078 | 0.305 | 0.696 | 0.923 | 0.984 | 0.997 |
 
-### Example 1.5: Classifying continuous observations into two states
+### Section 1.3.2: Classyfing continuous observations
+
+#### Example 1.5: Classifying continuous observations into two states
 
 We have a Bernoulli random variable $`\vartheta`$ with prior probability
 ``` math
@@ -137,7 +169,7 @@ legend("topright", c("Conditional density (female)",
        pch = c(NA, NA, 1, 2))
 ```
 
-![](Chapter01_files/figure-html/unnamed-chunk-9-1.png)
+![](Chapter01_files/figure-html/unnamed-chunk-10-1.png)
 
 Finally, here are the posterior probabilities. Note that each ratio of
 the pairs of corresponding posterior probabilities is the same as each
@@ -173,4 +205,8 @@ barplot(res, main = "Posterior probabilities", xlab = "Distance",
         ylab = "Probabilities", col = c("black", "red"))
 ```
 
-![](Chapter01_files/figure-html/unnamed-chunk-11-1.png)
+![](Chapter01_files/figure-html/unnamed-chunk-12-1.png)
+
+## Section 1.4: Learning parameters of a statistical model from data
+
+\[no code\]

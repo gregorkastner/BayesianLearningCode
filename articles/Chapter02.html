@@ -74,12 +74,9 @@
 
     
     
-<div class="section level2">
-<h2 id="section-2-1">Section 2.1<a class="anchor" aria-label="anchor" href="#section-2-1"></a>
-</h2>
-<div class="section level3">
-<h3 id="example-2-2-road-safety-data">Example 2.2: Road Safety Data<a class="anchor" aria-label="anchor" href="#example-2-2-road-safety-data"></a>
-</h3>
+<div class="section level4">
+<h4 id="example-2-1-road-safety-data">Example 2.1: Road Safety Data<a class="anchor" aria-label="anchor" href="#example-2-1-road-safety-data"></a>
+</h4>
 <p>Let us first take a look at the data.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"accidents"</span>, package <span class="op">=</span> <span class="st">"BayesianLearningCode"</span><span class="op">)</span></span>
@@ -108,10 +105,25 @@
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/mtext.html" class="external-link">mtext</a></span><span class="op">(</span><span class="st">"Time"</span>, side <span class="op">=</span> <span class="fl">1</span>, line <span class="op">=</span> <span class="fl">1.5</span>, at <span class="op">=</span> <span class="fl">1995.6</span><span class="op">)</span></span></code></pre></div>
 <p><img src="Chapter02_files/figure-html/unnamed-chunk-3-2.png" class="r-plt" alt="" width="768"></p>
 </div>
+<div class="section level2">
+<h2 id="section-2-1-i-i-d--observations-from-a-poisson-distribution">Section 2.1: I.i.d. observations from a Poisson distribution<a class="anchor" aria-label="anchor" href="#section-2-1-i-i-d--observations-from-a-poisson-distribution"></a>
+</h2>
 <div class="section level3">
-<h3 id="example-2-3-posterior-inference-for-the-road-safety-data-flat-prior">Example 2.3: Posterior inference for the Road Safety Data (flat
-prior)<a class="anchor" aria-label="anchor" href="#example-2-3-posterior-inference-for-the-road-safety-data-flat-prior"></a>
+<h3 id="section-2-1-1-bayesian-learning-under-a-flat-prior">Section 2.1.1: Bayesian learning under a flat prior<a class="anchor" aria-label="anchor" href="#section-2-1-1-bayesian-learning-under-a-flat-prior"></a>
 </h3>
+<div class="section level4">
+<h4 id="example-2-2-road-safety-data-deriving-the-posterior-distribution">Example 2.2: Road safety data: Deriving the posterior
+distribution<a class="anchor" aria-label="anchor" href="#example-2-2-road-safety-data-deriving-the-posterior-distribution"></a>
+</h4>
+<p>[TODO]</p>
+</div>
+</div>
+<div class="section level3">
+<h3 id="section-2-1-2-reporting-posterior-inference">Section 2.1.2: Reporting posterior inference<a class="anchor" aria-label="anchor" href="#section-2-1-2-reporting-posterior-inference"></a>
+</h3>
+<div class="section level4">
+<h4 id="example-2-3-road-safety-data-posterior-inference-flat-prior">Example 2.3: Road safety data: Posterior inference (flat prior)<a class="anchor" aria-label="anchor" href="#example-2-3-road-safety-data-posterior-inference-flat-prior"></a>
+</h4>
 <p>The posterior under a flat prior is
 <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>μ</mi><mo stretchy="false" form="prefix">|</mo><mi>𝐲</mi><mo>∼</mo><mi>𝒢</mi><mo stretchy="false" form="prefix">(</mo><mi>N</mi><mover><mi>y</mi><mo accent="true">‾</mo></mover><mo>+</mo><mn>1</mn><mo>,</mo><mi>N</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo></mrow><annotation encoding="application/x-tex">
 \mu|\mathbf{y} \sim \mathcal G(N\bar y + 1, N),
@@ -150,10 +162,14 @@ along with the 0.025-, the 0.5-, and the 0.975-quantile.</p>
 <span><span class="op">}</span></span></code></pre></div>
 <p><img src="Chapter02_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" alt="" width="768"></p>
 </div>
+</div>
 <div class="section level3">
-<h3 id="example-2-4-posterior-inference-for-the-road-safety-data-gamma-prior">Example 2.4: Posterior inference for the Road Safety Data (gamma
-prior)<a class="anchor" aria-label="anchor" href="#example-2-4-posterior-inference-for-the-road-safety-data-gamma-prior"></a>
+<h3 id="section-2-1-3-choosing-the-prior-distribution">Section 2.1.3: Choosing the prior distribution<a class="anchor" aria-label="anchor" href="#section-2-1-3-choosing-the-prior-distribution"></a>
 </h3>
+<div class="section level4">
+<h4 id="example-2-4-road-safety-data-posterior-inference-various-priors">Example 2.4: Road safety data: Posterior inference (various
+priors)<a class="anchor" aria-label="anchor" href="#example-2-4-road-safety-data-posterior-inference-various-priors"></a>
+</h4>
 <p>We choose several values for
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>m</mi><mn>0</mn></msub><annotation encoding="application/x-tex">m_0</annotation></semantics></math>
 and
@@ -272,12 +288,16 @@ gives the improper prior from above.</p>
 </table>
 </div>
 </div>
+</div>
 <div class="section level2">
-<h2 id="section-2-2">Section 2.2<a class="anchor" aria-label="anchor" href="#section-2-2"></a>
+<h2 id="section-2-2-some-extensions">Section 2.2: Some extensions<a class="anchor" aria-label="anchor" href="#section-2-2-some-extensions"></a>
 </h2>
 <div class="section level3">
-<h3 id="example-2-8-including-exposures-for-the-road-safety-data">Example 2.8: Including exposures for the Road Safety Data<a class="anchor" aria-label="anchor" href="#example-2-8-including-exposures-for-the-road-safety-data"></a>
+<h3 id="section-2-2-1-including-exposures">Section 2.2.1: Including exposures<a class="anchor" aria-label="anchor" href="#section-2-2-1-including-exposures"></a>
 </h3>
+<div class="section level4">
+<h4 id="example-2-5-road-safety-data-including-exposures">Example 2.5: Road safety data: Including exposures<a class="anchor" aria-label="anchor" href="#example-2-5-road-safety-data-including-exposures"></a>
+</h4>
 <p>We now include the exposure at time
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>e</mi><mi>i</mi></msub><annotation encoding="application/x-tex">e_i</annotation></semantics></math>,
@@ -326,10 +346,14 @@ credible intervals differ slightly.</p>
 <span><span class="co">#&gt; a0 = 1.0, b0 = 4817  0.0001865321 0.0002075970   0.0002297725</span></span>
 <span><span class="co">#&gt; a0 = 2.0, b0 = 9634  0.0001865610 0.0002075970   0.0002297405</span></span></code></pre></div>
 </div>
+</div>
 <div class="section level3">
-<h3 id="example-2-9-including-a-structural-break-for-the-road-safety-data">Example 2.9: Including a structural break for the Road Safety
-Data<a class="anchor" aria-label="anchor" href="#example-2-9-including-a-structural-break-for-the-road-safety-data"></a>
+<h3 id="section-2-2-2-including-a-structural-break">Section 2.2.2: Including a structural break<a class="anchor" aria-label="anchor" href="#section-2-2-2-including-a-structural-break"></a>
 </h3>
+<div class="section level4">
+<h4 id="example-2-6-road-safety-data-posterior-inference-including-exposures-flat-prior">Example 2.6: Road safety data: Posterior inference including
+exposures (flat prior)<a class="anchor" aria-label="anchor" href="#example-2-6-road-safety-data-posterior-inference-including-exposures-flat-prior"></a>
+</h4>
 <p>We now continue with a Poisson model with a (known) structural break
 at
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo>=</mo><mn>94</mn></mrow><annotation encoding="application/x-tex">i = 94</annotation></semantics></math>
@@ -377,10 +401,13 @@ two time frames.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span></span></code></pre></div>
 <p><img src="Chapter02_files/figure-html/unnamed-chunk-9-1.png" class="r-plt" alt="" width="768"></p>
 </div>
+</div>
 <div class="section level3">
-<h3 id="example-2-10-obtaining-posterior-draws-for-the-road-safety-data">Example 2.10: Obtaining posterior draws for the Road Safety
-Data<a class="anchor" aria-label="anchor" href="#example-2-10-obtaining-posterior-draws-for-the-road-safety-data"></a>
+<h3 id="section-2-2-3-try-your-luck-with-monte-carlo">Section 2.2.3: Try your luck with Monte Carlo<a class="anchor" aria-label="anchor" href="#section-2-2-3-try-your-luck-with-monte-carlo"></a>
 </h3>
+<div class="section level4">
+<h4 id="example-2-7-road-safety-data-obtaining-posterior-draws">Example 2.7: Road safety data: Obtaining posterior draws<a class="anchor" aria-label="anchor" href="#example-2-7-road-safety-data-obtaining-posterior-draws"></a>
+</h4>
 <p>We now proceed with simple Monte Carlo approximation of (nonlinear)
 functionals of the posterior.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
@@ -402,6 +429,40 @@ functionals of the posterior.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">delta2</span>, breaks <span class="op">=</span> <span class="fl">20</span>, prob <span class="op">=</span> <span class="cn">TRUE</span>, xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">delta</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span>, ylab <span class="op">=</span> <span class="st">""</span>,</span>
 <span>     main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/bquote.html" class="external-link">bquote</a></span><span class="op">(</span><span class="st">"Histogram of "</span> <span class="op">~</span> <span class="va">delta</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="Chapter02_files/figure-html/unnamed-chunk-10-1.png" class="r-plt" alt="" width="768"></p>
+</div>
+</div>
+</div>
+<div class="section level2">
+<h2 id="section-2-3-a-first-encounter-with-a-hierarchical-bayes-model">Section 2.3: A first encounter with a hierarchical Bayes model<a class="anchor" aria-label="anchor" href="#section-2-3-a-first-encounter-with-a-hierarchical-bayes-model"></a>
+</h2>
+<div class="section level4">
+<h4 id="example-2-8-eye-tracking-data">Example 2.8: Eye tracking data<a class="anchor" aria-label="anchor" href="#example-2-8-eye-tracking-data"></a>
+</h4>
+<p>[TODO]</p>
+</div>
+<div class="section level3">
+<h3 id="section-2-3-1-the-poisson-gamma-model">Section 2.3.1: The Poisson-Gamma model<a class="anchor" aria-label="anchor" href="#section-2-3-1-the-poisson-gamma-model"></a>
+</h3>
+<p>[no code]</p>
+</div>
+<div class="section level3">
+<h3 id="section-2-3-2-bayesian-learning-in-a-hierarchical-bayes-model">Section 2.3.2: Bayesian learning in a hierarchical Bayes model<a class="anchor" aria-label="anchor" href="#section-2-3-2-bayesian-learning-in-a-hierarchical-bayes-model"></a>
+</h3>
+<div class="section level4">
+<h4 id="example-2-9-eye-tracking-data">Example 2.9: Eye tracking data<a class="anchor" aria-label="anchor" href="#example-2-9-eye-tracking-data"></a>
+</h4>
+<p>[TODO]</p>
+</div>
+<div class="section level4">
+<h4 id="example-2-10-eye-tracking-data">Example 2.10: Eye tracking data<a class="anchor" aria-label="anchor" href="#example-2-10-eye-tracking-data"></a>
+</h4>
+<p>[TODO]</p>
+</div>
+<div class="section level4">
+<h4 id="example-2-11-eye-tracking-data">Example 2.11: Eye tracking data<a class="anchor" aria-label="anchor" href="#example-2-11-eye-tracking-data"></a>
+</h4>
+<p>[TODO]</p>
+</div>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
