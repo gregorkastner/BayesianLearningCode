@@ -290,6 +290,120 @@ knitr::kable(t(round(cbind(unif = probs_unif, penalized = probs_pen), 3)))
 
 ## Section 11.4.2: Bayesian unit root testing
 
+### Example 11.12: CHF exchange rate data: Exploring stationarity
+
+Let us check for stationarity of the exchange rate data. First, we load the
+data and visualize it as well as its empirical ACF. We do the same for the
+absolute returns.
+
+```{r, echo = -c(1:2), fig.width = 8, fig.height = 3}
+if (pdfplots) {
+  pdf("7-3_1.pdf", width = 8, height = 4)
+}
+par(mfrow = c(2, 2), mar = c(2.5, 2.5, 1.2, .5), mgp = c(1.5, .5, 0), lwd = 2)
+data("exrates", package = "stochvol")
+dat <- exrates$USD / exrates$CHF
+ret <- diff(dat)
+plot(dat, type = "l", main = "CHF-USD exchange rate", xlab = "Days",
+     ylab = "CHF in USD")
+plot(ret, type = "l", main = "CHF-USD daily returns", xlab = "Days",
+     ylab = "CHF-USD")
+acf(dat)
+acf(ret)
+```
+
+This clearly hints at non-stationarity of the exchange rate series and at
+(first order) stationarity of the returns.
+
+
+### Example 11.13: CHF exchange rate data: Exploring unit roots
+
+To check more formally, we fit AR(p) models to both.
+
+```{r}
+ardat <- arret <- list()
+for (p in 1:4) {
+  y <- tail(dat, -p)
+  Xy <- ARdesignmatrix(dat, p)
+  ardat[[p]] <- regression(y, Xy, prior = "improper")
+  y <- tail(ret, -p)
+  Xy <- ARdesignmatrix(ret, p)
+  arret[[p]] <- regression(y, Xy, prior = "improper")
+}
+```
+
+Now we can graphically investigate stationarity as above.
+
+```{r, echo = -c(1:2), fig.width = 8, fig.height = 3}
+if (pdfplots) {
+  pdf("7-3_2.pdf", width = 8, height = 4)
+}
+par(mfrow = c(2, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 2)
+draws <- list(ardat[[2]]$betas[, 2:3], arret[[2]]$betas[, 2:3])
+eigenvalues <- matrix(NA_complex_, nrow(draws[[1]]), ncol(draws[[1]]))
+mains <- c("AR(2) on the raw series", "AR(2) on the returns")
+for (i in seq_along(draws)) {
+  plot(draws[[i]], main = mains[i], xlab = bquote(phi[1]),
+     ylab = bquote(phi[2]), xlim = c(-2, 2), ylim = c(-1, 1),
+     col = rgb(0, 0, 0, .05), pch = 16)
+  polygon(c(-2, 0, 2, -2), c(-1, 1, -1, -1), border = 2)
+
+  for (m in seq_len(nrow(draws[[i]]))) {
+    Phi <- matrix(c(draws[[i]][m, ], c(1, 0)), byrow = TRUE, nrow = 2)
+    eigenvalues[m, ] <- eigen(Phi, only.values = TRUE)$values
+  }
+  plot(eigenvalues, xlim = c(-1, 1), ylim = c(-1, 1), asp = 1,
+       main = mains[i], col = rgb(0, 0, 0, .05), pch = 16)
+  symbols(0, 0, 1, add = TRUE, fg = 2, inches = FALSE)
+}
+```
+
+To explore whether the nonstationarity of the raw series could be caused by
+a unit root, we investigate the posterior of $1 - \phi_1 - \dots - \phi_p$ for
+$p = 1, \dots, 4$.
+
+```{r, echo = -c(1:2), fig.width = 8, fig.height = 3}
+if (pdfplots) {
+  pdf("7-3_3.pdf", width = 7, height = 2.5)
+}
+par(mfrow = c(1, 4), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 2)
+toplot <- matrix(NA_real_, ndraws, 4)
+for (p in 1:4)
+  toplot[, p] <- rowSums(ardat[[p]]$betas[, 2:(p + 1), drop = FALSE]) - 1
+for (p in 1:4) {
+  hist(toplot[, p], freq = FALSE,
+       breaks = seq(min(toplot), max(toplot), length.out = 20),
+       main = paste0("AR(", p, ")"), xlab = expression(delta), ylab = "")
+  abline(v = 0, lty = 2, col = 2)
+}
+```
+
+We do the same for the inflation data.
+
+```{r}
+ardat <- arret <- list()
+for (p in 1:4) {
+  y <- tail(inflation, -p)
+  Xy <- ARdesignmatrix(inflation, p)
+  ardat[[p]] <- regression(y, Xy, prior = "improper")
+}
+```
+
+```{r, echo = -c(1:2), fig.width = 8, fig.height = 3}
+if (pdfplots) {
+  pdf("7-3_4.pdf", width = 7, height = 2.5)
+}
+par(mfrow = c(1, 4), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 2)
+for (p in 1:4)
+  toplot[, p] <- rowSums(ardat[[p]]$betas[, 2:(p + 1), drop = FALSE]) - 1
+for (p in 1:4) {
+  hist(toplot[, p], freq = FALSE,
+       breaks = seq(min(toplot), max(toplot), length.out = 20),
+       main = paste0("AR(", p, ")"), xlab = expression(delta), ylab = "")
+  abline(v = 0, lty = 2, col = 2)
+}
+```
+
 ## Section 11.4.3: Bayesian testing for first-order Markov Chain models
 
 ## Example 11.18: Application to Austrian wage mobility data - homogeneity versus grouped model

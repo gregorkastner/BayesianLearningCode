@@ -1029,118 +1029,9 @@ knitr::kable(round(ess))
 knitr::kable(round(ndraws / ess, 2))
 ```
 
-# Section 7.3: Some Extensions
-## Section 7.3.1: AR Models with a Unit Root
+# Section 7.3: Bayesian learning of an MA(1) model
 
-Let us check for stationarity of the exchange rate data. First, we load the
-data and visualize it as well as its empirical ACF. We do the same for the
-absolute returns.
-
-```{r, echo = -c(1:2), fig.width = 8, fig.height = 3}
-if (pdfplots) {
-  pdf("7-3_1.pdf", width = 8, height = 4)
-}
-par(mfrow = c(2, 2), mar = c(2.5, 2.5, 1.2, .5), mgp = c(1.5, .5, 0), lwd = 2)
-data("exrates", package = "stochvol")
-dat <- exrates$USD / exrates$CHF
-ret <- diff(dat)
-plot(dat, type = "l", main = "CHF-USD exchange rate", xlab = "Days",
-     ylab = "CHF in USD")
-plot(ret, type = "l", main = "CHF-USD daily returns", xlab = "Days",
-     ylab = "CHF-USD")
-acf(dat)
-acf(ret)
-```
-
-This clearly hints at non-stationarity of the exchange rate series and at
-(first order) stationarity of the returns. To check more formally, we fit AR(p)
-models to both.
-
-```{r}
-ardat <- arret <- list()
-for (p in 1:4) {
-  y <- tail(dat, -p)
-  Xy <- ARdesignmatrix(dat, p)
-  ardat[[p]] <- regression(y, Xy, prior = "improper")
-  y <- tail(ret, -p)
-  Xy <- ARdesignmatrix(ret, p)
-  arret[[p]] <- regression(y, Xy, prior = "improper")
-}
-```
-
-Now we can graphically investigate stationarity as above.
-
-```{r, echo = -c(1:2), fig.width = 8, fig.height = 3}
-if (pdfplots) {
-  pdf("7-3_2.pdf", width = 8, height = 4)
-}
-par(mfrow = c(2, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 2)
-draws <- list(ardat[[2]]$betas[, 2:3], arret[[2]]$betas[, 2:3])
-eigenvalues <- matrix(NA_complex_, nrow(draws[[1]]), ncol(draws[[1]]))
-mains <- c("AR(2) on the raw series", "AR(2) on the returns")
-for (i in seq_along(draws)) {
-  plot(draws[[i]], main = mains[i], xlab = bquote(phi[1]),
-     ylab = bquote(phi[2]), xlim = c(-2, 2), ylim = c(-1, 1),
-     col = rgb(0, 0, 0, .05), pch = 16)
-  polygon(c(-2, 0, 2, -2), c(-1, 1, -1, -1), border = 2)
-
-  for (m in seq_len(nrow(draws[[i]]))) {
-    Phi <- matrix(c(draws[[i]][m, ], c(1, 0)), byrow = TRUE, nrow = 2)
-    eigenvalues[m, ] <- eigen(Phi, only.values = TRUE)$values
-  }
-  plot(eigenvalues, xlim = c(-1, 1), ylim = c(-1, 1), asp = 1,
-       main = mains[i], col = rgb(0, 0, 0, .05), pch = 16)
-  symbols(0, 0, 1, add = TRUE, fg = 2, inches = FALSE)
-}
-```
-
-To explore whether the nonstationarity of the raw series could be caused by
-a unit root, we investigate the posterior of $1 - \phi_1 - \dots - \phi_p$ for
-$p = 1, \dots, 4$.
-
-```{r, echo = -c(1:2), fig.width = 8, fig.height = 3}
-if (pdfplots) {
-  pdf("7-3_3.pdf", width = 7, height = 2.5)
-}
-par(mfrow = c(1, 4), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 2)
-toplot <- matrix(NA_real_, ndraws, 4)
-for (p in 1:4)
-  toplot[, p] <- rowSums(ardat[[p]]$betas[, 2:(p + 1), drop = FALSE]) - 1
-for (p in 1:4) {
-  hist(toplot[, p], freq = FALSE,
-       breaks = seq(min(toplot), max(toplot), length.out = 20),
-       main = paste0("AR(", p, ")"), xlab = expression(delta), ylab = "")
-  abline(v = 0, lty = 2, col = 2)
-}
-```
-
-We do the same for the inflation data.
-
-```{r}
-ardat <- arret <- list()
-for (p in 1:4) {
-  y <- tail(inflation, -p)
-  Xy <- ARdesignmatrix(inflation, p)
-  ardat[[p]] <- regression(y, Xy, prior = "improper")
-}
-```
-
-```{r, echo = -c(1:2), fig.width = 8, fig.height = 3}
-if (pdfplots) {
-  pdf("7-3_4.pdf", width = 7, height = 2.5)
-}
-par(mfrow = c(1, 4), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 2)
-for (p in 1:4)
-  toplot[, p] <- rowSums(ardat[[p]]$betas[, 2:(p + 1), drop = FALSE]) - 1
-for (p in 1:4) {
-  hist(toplot[, p], freq = FALSE,
-       breaks = seq(min(toplot), max(toplot), length.out = 20),
-       main = paste0("AR(", p, ")"), xlab = expression(delta), ylab = "")
-  abline(v = 0, lty = 2, col = 2)
-}
-```
-
-## Section 7.3.2: Bayesian Learning of an MA(1) Model
+### Example 7.13: Exchange rate data: Fitting an MA(1) model using a random walk MH
 
 We now implement the MCMC sampler for fitting an MA(1) model, where we treat the
 latent state $\epsilon_0 \sim \mathcal{N}(0, \sigma^2)$ as unknown. For the
@@ -1218,6 +1109,8 @@ for (i in seq_along(cthetas)) {
                IF == .(round(ndraws / coda::effectiveSize(thetas[, i]), 1)))))
 }
 ```
+
+### Example 7.14: Exchange rate data: Fitting an MA(1) model using a random walk MH
 
 We repeat the exercise above, but now use a truncated Gaussian proposal for
 the random walk MH algorithm.
@@ -1403,7 +1296,7 @@ knitr::kable(round(IF, 1))
 
 # Section 7.4: Markov modeling for a panel of categorical time series
 
-## Example 7.13: Wage mobility data
+### Example 7.15: Wage mobility data: Introduction
 
 We load the data and only consider workers from the birth cohort
 1946-1960.
@@ -1440,7 +1333,7 @@ for (i in index) {
 }
 ```
 
-## Example 7.14: Wage mobility data -- comparing wage mobility of men and women
+### Example 7.16: Wage mobility data: Comparing wage mobility of men and women
 
 We transform the data to obtain for each worker the matrix which
 contains the number of transitions from one class to the other, i.e.,
@@ -1538,7 +1431,7 @@ legend("topright", col = 1, lty = 1:2,
        legend = c("female", "male"))
 ```
 
-## Example 7.15: Wage mobility data -- long run
+### Example 7.17: Wage mobility data: Evaluating long run effects
 
 We assume that both men and women start out in the labor market with
 the same wage distribution, where 70% start in wage category 1 and 30%
