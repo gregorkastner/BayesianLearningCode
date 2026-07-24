@@ -1,6 +1,46 @@
 # Chapter 11: Bayesian Model Selection in Regression and Time Series Analysis
 
-## Section 11.4: Model Selection Problems in Time Series Analysis
+## Section 11.1: Marginal likelihood computations in regression analysis
+
+#### Example 11.1: Marginal likelihood estimation under a semi-conjugate prior
+
+\[no code\]
+
+## Section 11.2: Variable selection in standard regression analysis
+
+### Section 11.2.1: Bayesian variable selection
+
+#### Example 11.2: Movie data: Full enumeration marginal likelihoods
+
+### Section 11.2.2: Model space MCMC
+
+#### Example 11.3: Movie data: Model space MCMC
+
+### Section 11.2.3: Benchmark priors for comparing regression models
+
+#### Example 11.4: Movie data: Applying the g-prior
+
+### Section 11.2.4: Priors on the model space
+
+#### Example 2.5: Movie Data: Hierarchichal prior on the model space
+
+### Section 11.2.5: Bayesian model averaging
+
+#### Example 11.6: Movie data: Bayesian model averaging
+
+## Section 11.3: Model selection beyond standard regression analysis
+
+## Section 11.4: Model selection problems in time series analysis
+
+### Section 11.3.1: Marginal likelihoods under transformed outcome variables
+
+#### Example 11.7: Movie data: Model comparison under log transformations
+
+### Section 11.3.2: Bayesian variable selection for a probit model
+
+#### Example 11.8: Labor market data: Bayesian variable selection
+
+## Section 2.4: Model selection problems in time series analysis
 
 ### Section 11.4.1: Selecting the model order in an AR(p) model
 
@@ -111,7 +151,7 @@ ARdesignmatrix <- function(dat, p = 1, conditioninglength = p) {
 
 Now we are ready to reproduce the results in the book.
 
-### Example 11.9: US GDP data: Qualitative model-order selection
+#### Example 11.9: US GDP data: Qualitative model-order selection
 
 We obtain draws and parameters for four AR models under the
 semi-conjugate prior.
@@ -129,8 +169,6 @@ for (i in seq_along(res)) {
   res[[i]] <- regression(y, Xy, b0 = b0, B0 = B0, c0 = 2, C0 = 0.001)
 }
 ```
-
-### Figure 11.2: Graphical assessment of the Savage-Dickey density ratio
 
 Now we plot the draws for the leading coefficient, i.e., the coefficient
 corresponding to the highest lag in each of the models, along with the
@@ -154,7 +192,7 @@ for (i in 2:5) {
 
 ![](Chapter11_files/figure-html/unnamed-chunk-6-1.png)
 
-### Example 11.10: US GDP data: Quantitative model-order selection
+#### Example 11.10: US GDP data: Quantitative model-order selection
 
 After visualizing the Savage-Dickey density ratio, we now move towards
 computing its numerical value by Rao-Blackwellization. We first define a
@@ -268,7 +306,7 @@ round(pairwiselogML, 2)
 #> -35.97  -1.18   0.47   2.75
 ```
 
-### Example 11.11: US GDP data: Choosing the model order via marginal likelihoods
+#### Example 11.11: US GDP data: Choosing the model order via marginal likelihoods
 
 To compute model probabilities, we use the uniform and the penalty
 prior.
@@ -379,7 +417,8 @@ for (p in 1:4) {
 
 ![](Chapter11_files/figure-html/unnamed-chunk-17-1.png)
 
-We do the same for the inflation data.
+We do the same for the inflation data (currently not included in the
+book).
 
 ``` r
 
@@ -405,9 +444,15 @@ for (p in 1:4) {
 
 ![](Chapter11_files/figure-html/unnamed-chunk-19-1.png)
 
+#### Example 11.14: CHF exchange rate data: Testing for a unit root
+
+#### Example 11.15: Inflation data: Bayesian unit root testing with unknown model order
+
+#### Example 11.16: Inflation data: Marginal likelihoods with unknown model order
+
 ### Section 11.4.3: Bayesian testing for first-order Markov Chain models
 
-### Example 11.18: Application to Austrian wage mobility data - homogeneity versus grouped model
+#### Example 11.17: Austrian wage mobility data: Homogeneity versus grouped model
 
 We load the data and reduce the observations to workers from the birth
 cohort 1946-1960.
@@ -481,7 +526,7 @@ knitr::kable(res)
 | MH  | -13887.79 | -14030.63 |        NA |        NA |
 | MG  | -13833.11 | -14096.42 |  54.68241 | -65.79208 |
 
-### Example 11.19: Application to Austrian wage mobility data - restricted models
+#### Example 11.18: Austrian wage mobility data: Restricted models
 
 We continue to compare restricted models to the grouped model. We first
 calculate the log BFs for the restricted models.
