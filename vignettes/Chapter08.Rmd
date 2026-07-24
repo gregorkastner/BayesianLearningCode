@@ -1298,7 +1298,7 @@ $(0.5,2)$ and covariance matrix $0.2 \mathbf{I}$  and a Gamma prior with shape 5
 and rate 10 for the heterogeneity parameter $\alpha$. 
 
 ```{r}
-N <- 40
+N <- 100
 
 X <- cbind(rep(1, N), c(rep(0,N/2),rep(1,N/2)))
 e <- rep(1, N)
