@@ -1463,7 +1463,7 @@ with shape 5 and rate 10 for the heterogeneity parameter $`\alpha`$.
 
 ``` r
 
-N <- 40
+N <- 100
 
 X <- cbind(rep(1, N), c(rep(0,N/2),rep(1,N/2)))
 e <- rep(1, N)
@@ -1511,14 +1511,14 @@ res_partial <- negbin_check(X, e, b0, B0, pri_alpha, c_alpha,
 mu1=exp(res_partial$beta_post[,1])
 ov1<-((mu1^2)/res_partial$alpha_post)[thin]
 print(coda::effectiveSize(ov1))
-#> var1 
-#>   10
+#>     var1 
+#> 3.327857
 
 mu2=exp(res_partial$beta_post[,1]+res_partial$beta_post[,2])
 ov2<-((mu2^2)/res_partial$alpha_post)[thin]
 print(coda::effectiveSize(ov2))
 #>     var1 
-#> 22.22753
+#> 1.740775
 
 ks1<- ks.test(ov1_prior,ov1)
 qqplot(log(ov1_prior), log(ov1),xlab = "Prior",xlim=c(0,5), ylim=c(0,5),
