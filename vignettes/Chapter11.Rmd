@@ -325,10 +325,10 @@ ardat <- arret <- list()
 for (p in 1:4) {
   y <- tail(dat, -p)
   Xy <- ARdesignmatrix(dat, p)
-  ardat[[p]] <- regression(y, Xy, prior = "improper")
+  ardat[[p]] <- regression(y, Xy, b0 = 0, B0 = 1, c0 = 2, C0 = 0.001)
   y <- tail(ret, -p)
   Xy <- ARdesignmatrix(ret, p)
-  arret[[p]] <- regression(y, Xy, prior = "improper")
+  arret[[p]] <- regression(y, Xy, b0 = 0, B0 = 1, c0 = 2, C0 = 0.001)
 }
 ```
 
@@ -385,7 +385,7 @@ ardat <- arret <- list()
 for (p in 1:4) {
   y <- tail(inflation, -p)
   Xy <- ARdesignmatrix(inflation, p)
-  ardat[[p]] <- regression(y, Xy, prior = "improper")
+  ardat[[p]] <- regression(y, Xy, b0 = 0, B0 = 1, c0 = 2, C0 = 0.001)
 }
 ```
 
