@@ -111,7 +111,7 @@ ARdesignmatrix <- function(dat, p = 1, conditioninglength = p) {
 
 Now we are ready to reproduce the results in the book.
 
-### Example 11.8: US GDP data: Choosing the model order via Savage-Dickey density ratios
+### Example 11.9: US GDP data: Qualitative model-order selection
 
 We obtain draws and parameters for four AR models under the
 semi-conjugate prior.
@@ -153,6 +153,8 @@ for (i in 2:5) {
 ```
 
 ![](Chapter11_files/figure-html/unnamed-chunk-6-1.png)
+
+### Example 11.10: US GDP data: Quantitative model-order selection
 
 After visualizing the Savage-Dickey density ratio, we now move towards
 computing its numerical value by Rao-Blackwellization. We first define a
@@ -266,6 +268,8 @@ round(pairwiselogML, 2)
 #> -35.97  -1.18   0.47   2.75
 ```
 
+### Example 11.11: US GDP data: Choosing the model order via marginal likelihoods
+
 To compute model probabilities, we use the uniform and the penalty
 prior.
 
@@ -287,6 +291,119 @@ knitr::kable(t(round(cbind(unif = probs_unif, penalized = probs_pen), 3)))
 |:----------|----:|------:|------:|------:|------:|
 | unif      |   0 | 0.136 | 0.512 | 0.331 | 0.021 |
 | penalized |   0 | 0.275 | 0.516 | 0.200 | 0.009 |
+
+### Section 11.4.2: Bayesian unit root testing
+
+#### Example 11.12: CHF exchange rate data: Exploring stationarity
+
+Let us check for stationarity of the exchange rate data. First, we load
+the data and visualize it as well as its empirical ACF. We do the same
+for the absolute returns.
+
+``` r
+
+data("exrates", package = "stochvol")
+dat <- exrates$USD / exrates$CHF
+ret <- diff(dat)
+plot(dat, type = "l", main = "CHF-USD exchange rate", xlab = "Days",
+     ylab = "CHF in USD")
+plot(ret, type = "l", main = "CHF-USD daily returns", xlab = "Days",
+     ylab = "CHF-USD")
+acf(dat)
+acf(ret)
+```
+
+![](Chapter11_files/figure-html/unnamed-chunk-14-1.png)
+
+This clearly hints at non-stationarity of the exchange rate series and
+at (first order) stationarity of the returns.
+
+#### Example 11.13: CHF exchange rate data: Exploring unit roots
+
+To check more formally, we fit AR(p) models to both.
+
+``` r
+
+ardat <- arret <- list()
+for (p in 1:4) {
+  y <- tail(dat, -p)
+  Xy <- ARdesignmatrix(dat, p)
+  ardat[[p]] <- regression(y, Xy, b0 = 0, B0 = 1, c0 = 2, C0 = 0.001)
+  y <- tail(ret, -p)
+  Xy <- ARdesignmatrix(ret, p)
+  arret[[p]] <- regression(y, Xy, b0 = 0, B0 = 1, c0 = 2, C0 = 0.001)
+}
+```
+
+Now we can graphically investigate stationarity as above.
+
+``` r
+
+draws <- list(ardat[[2]]$betas[, 2:3], arret[[2]]$betas[, 2:3])
+eigenvalues <- matrix(NA_complex_, nrow(draws[[1]]), ncol(draws[[1]]))
+mains <- c("AR(2) on the raw series", "AR(2) on the returns")
+for (i in seq_along(draws)) {
+  plot(draws[[i]], main = mains[i], xlab = bquote(phi[1]),
+     ylab = bquote(phi[2]), xlim = c(-2, 2), ylim = c(-1, 1),
+     col = rgb(0, 0, 0, .05), pch = 16)
+  polygon(c(-2, 0, 2, -2), c(-1, 1, -1, -1), border = 2)
+
+  for (m in seq_len(nrow(draws[[i]]))) {
+    Phi <- matrix(c(draws[[i]][m, ], c(1, 0)), byrow = TRUE, nrow = 2)
+    eigenvalues[m, ] <- eigen(Phi, only.values = TRUE)$values
+  }
+  plot(eigenvalues, xlim = c(-1, 1), ylim = c(-1, 1), asp = 1,
+       main = mains[i], col = rgb(0, 0, 0, .05), pch = 16)
+  symbols(0, 0, 1, add = TRUE, fg = 2, inches = FALSE)
+}
+```
+
+![](Chapter11_files/figure-html/unnamed-chunk-16-1.png)
+
+To explore whether the nonstationarity of the raw series could be caused
+by a unit root, we investigate the posterior of
+$`1 - \phi_1 - \dots - \phi_p`$ for $`p = 1, \dots, 4`$.
+
+``` r
+
+toplot <- matrix(NA_real_, nrow(ardat[[1]]$betas), length(ardat))
+for (p in 1:4)
+  toplot[, p] <- rowSums(ardat[[p]]$betas[, 2:(p + 1), drop = FALSE]) - 1
+for (p in 1:4) {
+  hist(toplot[, p], freq = FALSE,
+       breaks = seq(min(toplot), max(toplot), length.out = 20),
+       main = paste0("AR(", p, ")"), xlab = expression(delta), ylab = "")
+  abline(v = 0, lty = 2, col = 2)
+}
+```
+
+![](Chapter11_files/figure-html/unnamed-chunk-17-1.png)
+
+We do the same for the inflation data.
+
+``` r
+
+ardat <- arret <- list()
+for (p in 1:4) {
+  y <- tail(inflation, -p)
+  Xy <- ARdesignmatrix(inflation, p)
+  ardat[[p]] <- regression(y, Xy, b0 = 0, B0 = 1, c0 = 2, C0 = 0.001)
+}
+```
+
+``` r
+
+for (p in 1:4)
+  toplot[, p] <- rowSums(ardat[[p]]$betas[, 2:(p + 1), drop = FALSE]) - 1
+for (p in 1:4) {
+  hist(toplot[, p], freq = FALSE,
+       breaks = seq(min(toplot), max(toplot), length.out = 20),
+       main = paste0("AR(", p, ")"), xlab = expression(delta), ylab = "")
+  abline(v = 0, lty = 2, col = 2)
+}
+```
+
+![](Chapter11_files/figure-html/unnamed-chunk-19-1.png)
 
 ### Section 11.4.3: Bayesian testing for first-order Markov Chain models
 

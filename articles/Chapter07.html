@@ -75,16 +75,11 @@
     
     
 <div class="section level2">
-<h2 id="section-7-2-bayesian-learning-of-stationary-autoregressive-models">Section 7.2: Bayesian Learning of (Stationary) Autoregressive
-Models<a class="anchor" aria-label="anchor" href="#section-7-2-bayesian-learning-of-stationary-autoregressive-models"></a>
+<h2 id="section-7-1-time-series-data-and-dynamic-models">Section 7.1: Time series data and dynamic models<a class="anchor" aria-label="anchor" href="#section-7-1-time-series-data-and-dynamic-models"></a>
 </h2>
-<div class="section level3">
-<h3 id="section-7-2-2-exploring-stationarity-during-post-processing">Section 7.2.2: Exploring stationarity during post-processing<a class="anchor" aria-label="anchor" href="#section-7-2-2-exploring-stationarity-during-post-processing"></a>
-</h3>
-</div>
-<div class="section level3">
-<h3 id="figure-7-1-u-s--gdp-data">Figure 7.1: U.S. GDP data<a class="anchor" aria-label="anchor" href="#figure-7-1-u-s--gdp-data"></a>
-</h3>
+<div class="section level4">
+<h4 id="example-7-1-introducing-the-u-s--gdp-data">Example 7.1: Introducing the U.S. GDP data<a class="anchor" aria-label="anchor" href="#example-7-1-introducing-the-u-s--gdp-data"></a>
+</h4>
 <p>First, we load the data. Because of the extreme outliers during the
 COVID pandemic, we restrict our analysis to the time before its
 outbreak.</p>
@@ -103,6 +98,14 @@ function.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/acf.html" class="external-link">acf</a></span><span class="op">(</span><span class="va">logret</span>, lag <span class="op">=</span> <span class="fl">8</span>, main <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/title.html" class="external-link">title</a></span><span class="op">(</span><span class="st">"Empirical autocorrelation function"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="Chapter07_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" alt="" width="768"></p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="section-7-2-bayesian-learning-of-autoregressive-models">Section 7.2: Bayesian learning of autoregressive models<a class="anchor" aria-label="anchor" href="#section-7-2-bayesian-learning-of-autoregressive-models"></a>
+</h2>
+<div class="section level3">
+<h3 id="section-7-2-1-bayesian-learning-without-imposing-stationarity">Section 7.2.1: Bayesian learning without imposing stationarity<a class="anchor" aria-label="anchor" href="#section-7-2-1-bayesian-learning-without-imposing-stationarity"></a>
+</h3>
 <p>Before we move on, we define a function yielding posterior draws
 under a standard regression model, using the tools developed in Chapter
 6.</p>
@@ -194,10 +197,9 @@ under a standard regression model, using the tools developed in Chapter
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>betas <span class="op">=</span> <span class="va">betas</span>, sigma2s <span class="op">=</span> <span class="va">sigma2s</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>Now we are ready to reproduce the results in the book.</p>
-</div>
-<div class="section level3">
-<h3 id="example-7-1-ar-modeling-of-the-u-s--gdp-data">Example 7.1: AR modeling of the U.S. GDP data<a class="anchor" aria-label="anchor" href="#example-7-1-ar-modeling-of-the-u-s--gdp-data"></a>
-</h3>
+<div class="section level4">
+<h4 id="example-7-2-ar-modeling-of-the-u-s--gdp-data">Example 7.2: AR modeling of the U.S. GDP data<a class="anchor" aria-label="anchor" href="#example-7-2-ar-modeling-of-the-u-s--gdp-data"></a>
+</h4>
 <p>We begin by writing a function that sets up the design matrix for an
 AR(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>)
 model.</p>
@@ -222,10 +224,6 @@ model.</p>
 <span>  <span class="va">Xy</span> <span class="op">&lt;-</span> <span class="fu">ARdesignmatrix</span><span class="op">(</span><span class="va">logret</span>, <span class="va">p</span><span class="op">)</span></span>
 <span>  <span class="va">res</span><span class="op">[[</span><span class="va">p</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu">regression</span><span class="op">(</span><span class="va">y</span>, <span class="va">Xy</span>, prior <span class="op">=</span> <span class="st">"improper"</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="figure-7-2-exploratory-model-selection">Figure 7.2: Exploratory model selection<a class="anchor" aria-label="anchor" href="#figure-7-2-exploratory-model-selection"></a>
-</h3>
 <p>Now we plot the draws for the leading coefficient, i.e., the
 coefficient corresponding to the highest lag in each of the models.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
@@ -235,6 +233,10 @@ coefficient corresponding to the highest lag in each of the models.</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>v <span class="op">=</span> <span class="fl">0</span>, lty <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p><img src="Chapter07_files/figure-html/unnamed-chunk-8-1.png" class="r-plt" alt="" width="768"></p>
+</div>
+<div class="section level4">
+<h4 id="example-7-3-u-s--gdp-data-comparing-priors-for-an-ar3-model">Example 7.3: U.S. GDP data: Comparing priors for an AR(3)-model<a class="anchor" aria-label="anchor" href="#example-7-3-u-s--gdp-data-comparing-priors-for-an-ar3-model"></a>
+</h4>
 <p>Next, we fit an AR(3) model with different priors.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="va">logret</span>, <span class="op">-</span><span class="fl">3</span><span class="op">)</span></span>
@@ -257,11 +259,6 @@ coefficient corresponding to the highest lag in each of the models.</p>
 <span><span class="va">res_semi_2</span> <span class="op">&lt;-</span> <span class="fu">regression</span><span class="op">(</span><span class="va">y</span>, <span class="va">Xy</span>, prior <span class="op">=</span> <span class="st">"semi-conjugate"</span>,</span>
 <span>                         b0 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">4</span><span class="op">)</span>, B0 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>                         c0 <span class="op">=</span> <span class="fl">2</span>, C0 <span class="op">=</span> <span class="fl">0.001</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="figure-7-3-ar3-models-with-improper-semi-conjugate-and-conjugate-priors">Figure 7.3: AR(3) models with improper, semi-conjugate, and
-conjugate priors<a class="anchor" aria-label="anchor" href="#figure-7-3-ar3-models-with-improper-semi-conjugate-and-conjugate-priors"></a>
-</h3>
 <p>We now visualize the posterior of the model parameters under all
 those priors.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
@@ -300,17 +297,18 @@ those priors.</p>
 <span><span class="op">}</span></span></code></pre></div>
 <p><img src="Chapter07_files/figure-html/unnamed-chunk-10-1.png" class="r-plt" alt="" width="768"></p>
 </div>
+</div>
 <div class="section level3">
-<h3 id="section-7-2-2-exploring-stationarity-during-post-processing-1">Section 7.2.2: Exploring stationarity during post-processing<a class="anchor" aria-label="anchor" href="#section-7-2-2-exploring-stationarity-during-post-processing-1"></a>
+<h3 id="section-7-2-2-exploring-stationarity-during-post-processing">Section 7.2.2: Exploring stationarity during post-processing<a class="anchor" aria-label="anchor" href="#section-7-2-2-exploring-stationarity-during-post-processing"></a>
 </h3>
 <p>We reuse the
 AR(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>)
 models under the improper prior from above to explore stationarity for
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>=</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">p = 1, 2, 3</annotation></semantics></math>.</p>
-</div>
-<div class="section level3">
-<h3 id="figure-7-4-checking-stationarity-conditions-for-the-gdp-data">Figure 7.4: Checking stationarity conditions for the GDP data<a class="anchor" aria-label="anchor" href="#figure-7-4-checking-stationarity-conditions-for-the-gdp-data"></a>
-</h3>
+<div class="section level4">
+<h4 id="example-7-4-u-s--gdp-data-exploring-stationarity-conditions-for-various-ar-models">Example 7.4: U.S. GDP data: Exploring stationarity conditions for
+various AR models<a class="anchor" aria-label="anchor" href="#example-7-4-u-s--gdp-data-exploring-stationarity-conditions-for-various-ar-models"></a>
+</h4>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">res</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">betas</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span>, breaks <span class="op">=</span> <span class="fl">20</span>, freq <span class="op">=</span> <span class="cn">FALSE</span>, main <span class="op">=</span> <span class="st">"AR(1)"</span>,</span>
 <span>     xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/bquote.html" class="external-link">bquote</a></span><span class="op">(</span><span class="va">phi</span><span class="op">)</span>, ylab <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
@@ -330,6 +328,11 @@ models under the improper prior from above to explore stationarity for
 <span>     main <span class="op">=</span> <span class="st">"AR(3)"</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/rgb.html" class="external-link">rgb</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">.05</span><span class="op">)</span>, pch <span class="op">=</span> <span class="fl">16</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/symbols.html" class="external-link">symbols</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, add <span class="op">=</span> <span class="cn">TRUE</span>, fg <span class="op">=</span> <span class="fl">2</span>, inches <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="Chapter07_files/figure-html/unnamed-chunk-11-1.png" class="r-plt" alt="" width="864"></p>
+</div>
+<div class="section level4">
+<h4 id="example-7-5-inflation-data-exploring-stationarity-conditions-for-various-ar-models">Example 7.5: Inflation data: Exploring stationarity conditions for
+various AR models<a class="anchor" aria-label="anchor" href="#example-7-5-inflation-data-exploring-stationarity-conditions-for-various-ar-models"></a>
+</h4>
 <p>We now move towards analyzing the Euro area inflation data.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"inflation"</span>, package <span class="op">=</span> <span class="st">"BayesianLearningCode"</span><span class="op">)</span></span>
@@ -337,10 +340,6 @@ models under the improper prior from above to explore stationarity for
 <span>                frequency <span class="op">=</span> <span class="fl">12</span><span class="op">)</span></span></code></pre></div>
 <p>First, we plot the data and its empirical autocorrelation
 function.</p>
-</div>
-<div class="section level3">
-<h3 id="figure-7-5-euro-area-inflation-data">Figure 7.5: Euro area inflation data<a class="anchor" aria-label="anchor" href="#figure-7-5-euro-area-inflation-data"></a>
-</h3>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/ts.plot.html" class="external-link">ts.plot</a></span><span class="op">(</span><span class="va">inflation</span>, main <span class="op">=</span> <span class="st">"Euro area inflation"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/acf.html" class="external-link">acf</a></span><span class="op">(</span><span class="va">inflation</span>, main <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
@@ -357,11 +356,6 @@ models under the improper prior to explore stationarity for
 <span>  <span class="va">Xy</span> <span class="op">&lt;-</span> <span class="fu">ARdesignmatrix</span><span class="op">(</span><span class="va">inflation</span>, <span class="va">p</span><span class="op">)</span></span>
 <span>  <span class="va">res2</span><span class="op">[[</span><span class="va">p</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu">regression</span><span class="op">(</span><span class="va">y</span>, <span class="va">Xy</span>, prior <span class="op">=</span> <span class="st">"improper"</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="figure-7-6-checking-stationarity-conditions-for-the-euro-area-inflation-data">Figure 7.6: Checking stationarity conditions for the Euro area
-inflation data<a class="anchor" aria-label="anchor" href="#figure-7-6-checking-stationarity-conditions-for-the-euro-area-inflation-data"></a>
-</h3>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ar1draws</span> <span class="op">&lt;-</span> <span class="va">res2</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">betas</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span></span>
 <span><span class="va">ar2draws</span> <span class="op">&lt;-</span> <span class="va">res2</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">betas</span><span class="op">[</span>, <span class="fl">2</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span></span>
@@ -399,10 +393,14 @@ draws outside of the stationarity region.</p>
 <span><span class="co">#&gt;      1      2      3 </span></span>
 <span><span class="co">#&gt; 0.0408 0.0107 0.0032</span></span></code></pre></div>
 </div>
+</div>
 <div class="section level3">
-<h3 id="section-7-2-3-recovering-missing-time-series-data-an-introduction-to-data-augmentation">Section 7.2.3: Recovering Missing Time Series Data – An Introduction
-to Data Augmentation<a class="anchor" aria-label="anchor" href="#section-7-2-3-recovering-missing-time-series-data-an-introduction-to-data-augmentation"></a>
+<h3 id="section-7-2-3-recovering-missing-time-series-data-an-introduction-to-data-augmentation">Section 7.2.3: Recovering missing time series data – an introduction
+to data augmentation<a class="anchor" aria-label="anchor" href="#section-7-2-3-recovering-missing-time-series-data-an-introduction-to-data-augmentation"></a>
 </h3>
+<div class="section level4">
+<h4 id="example-7-6-u-s--gdp-data-imputing-missing-data">Example 7.6: U.S. GDP data: Imputing missing data<a class="anchor" aria-label="anchor" href="#example-7-6-u-s--gdp-data-imputing-missing-data"></a>
+</h4>
 <p>Assume that the values at certain time points are missing. (Note that
 for our sampler, we require the missing time points to be far enough
 apart. This restriction is not substantial, though.)</p>
@@ -538,10 +536,14 @@ data are simply dropped.</p>
 <span><span class="op">}</span></span></code></pre></div>
 <p><img src="Chapter07_files/figure-html/unnamed-chunk-23-1.png" class="r-plt" alt="" width="768"></p>
 </div>
+</div>
 <div class="section level3">
-<h3 id="section-7-2-4-imposing-stationarity-via-an-independence-mh-algorithm">Section 7.2.4: Imposing Stationarity via an Independence MH
-Algorithm<a class="anchor" aria-label="anchor" href="#section-7-2-4-imposing-stationarity-via-an-independence-mh-algorithm"></a>
+<h3 id="section-7-2-4-imposing-stationarity-via-an-independence-mh-algorithm">Section 7.2.4: Imposing stationarity via an independence MH
+algorithm<a class="anchor" aria-label="anchor" href="#section-7-2-4-imposing-stationarity-via-an-independence-mh-algorithm"></a>
 </h3>
+<div class="section level4">
+<h4 id="example-7-7-u-s--gdp-data-the-stationary-distribution">Example 7.7: U.S. GDP data: The stationary distribution<a class="anchor" aria-label="anchor" href="#example-7-7-u-s--gdp-data-the-stationary-distribution"></a>
+</h4>
 <p>First, we fit an AR(0), i.e., an intercept-only, model, to the GDP
 data.</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
@@ -581,6 +583,10 @@ data.</p>
 <span>                     col <span class="op">=</span> <span class="va">p</span> <span class="op">+</span> <span class="fl">1</span>, lty <span class="op">=</span> <span class="va">p</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topright"</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"p = "</span>, <span class="fl">0</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span>, col <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, lty <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span></span></code></pre></div>
 <p><img src="Chapter07_files/figure-html/unnamed-chunk-25-1.png" class="r-plt" alt="" width="768"></p>
+</div>
+<div class="section level4">
+<h4 id="example-7-8-inflation-data-the-stationary-distribution">Example 7.8: Inflation data: The stationary distribution<a class="anchor" aria-label="anchor" href="#example-7-8-inflation-data-the-stationary-distribution"></a>
+</h4>
 <p>We continue by fitting an AR(0) model to the inflation data.</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">Xy</span> <span class="op">&lt;-</span> <span class="fu">ARdesignmatrix</span><span class="op">(</span><span class="va">inflation</span>, <span class="fl">0</span><span class="op">)</span> <span class="co"># Fill the N x 1 design matrix with 1s</span></span>
@@ -622,6 +628,10 @@ from that, we proceed as above.</p>
 <span>                     col <span class="op">=</span> <span class="va">p</span> <span class="op">+</span> <span class="fl">1</span>, lty <span class="op">=</span> <span class="va">p</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topright"</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"p = "</span>, <span class="fl">0</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span>, col <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, lty <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span></span></code></pre></div>
 <p><img src="Chapter07_files/figure-html/unnamed-chunk-27-1.png" class="r-plt" alt="" width="768"></p>
+</div>
+<div class="section level4">
+<h4 id="example-7-9-inflation-data-imposing-stationarity">Example 7.9: Inflation data: Imposing stationarity<a class="anchor" aria-label="anchor" href="#example-7-9-inflation-data-imposing-stationarity"></a>
+</h4>
 <p>We now move on to imposing stationarity through employing a
 non-conjugate transformed beta prior on
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϕ</mi><annotation encoding="application/x-tex">\phi</annotation></semantics></math>,
@@ -657,7 +667,7 @@ as well as the design matrix.</p>
 <span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="cn">NA_real_</span>, nrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="va">X</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
 <span><span class="va">X</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA_real_</span>, <span class="va">y</span><span class="op">[</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
-<p>Now we are ready to sample!</p>
+<p>Now we are ready to sample.</p>
 <div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Allocate some space for the posterior draws and initialize the parameters:</span></span>
 <span><span class="va">y0s</span> <span class="op">&lt;-</span> <span class="va">sigma2s</span> <span class="op">&lt;-</span> <span class="va">zetas</span> <span class="op">&lt;-</span> <span class="va">phis</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA_real_</span>, <span class="va">ndraws</span><span class="op">)</span></span>
@@ -791,15 +801,16 @@ stationary-enforcing shifted beta priors.</p>
 <span>                  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.3</span>, <span class="fl">.15</span>, <span class="fl">.2</span>, <span class="fl">.4</span><span class="op">)</span><span class="op">)</span>, border <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span></span></code></pre></div>
 <p><img src="Chapter07_files/figure-html/unnamed-chunk-32-1.png" class="r-plt" alt="" width="768"></p>
 </div>
+</div>
 <div class="section level3">
-<h3 id="section-7-2-5-evaluating-the-efficiency-of-an-mcmc-sampler">Section 7.2.5: Evaluating the Efficiency of an MCMC Sampler<a class="anchor" aria-label="anchor" href="#section-7-2-5-evaluating-the-efficiency-of-an-mcmc-sampler"></a>
+<h3 id="section-7-2-5-evaluating-the-efficiency-of-an-mcmc-sampler">Section 7.2.5: Evaluating the efficiency of an MCMC sampler<a class="anchor" aria-label="anchor" href="#section-7-2-5-evaluating-the-efficiency-of-an-mcmc-sampler"></a>
 </h3>
 <div class="section level4">
-<h4 id="example-7-11-improving-the-independence-mh-step">Example 7.11: Improving the independence MH step<a class="anchor" aria-label="anchor" href="#example-7-11-improving-the-independence-mh-step"></a>
+<h4 id="example-7-10-inflation-data-posterior-sampling-efficiency">Example 7.10: Inflation data: Posterior sampling efficiency<a class="anchor" aria-label="anchor" href="#example-7-10-inflation-data-posterior-sampling-efficiency"></a>
 </h4>
-<p>Let us investigate traceplots and empirical autocorrelation functions
-of the posterior draws under the informative stationarity-inducing
-prior.</p>
+<p>Let us investigate trace plots and empirical autocorrelation
+functions of the posterior draws under the informative
+stationarity-inducing prior.</p>
 <div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fl">2</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.5</span>, <span class="fl">2.8</span>, <span class="fl">1.5</span>, <span class="fl">.1</span><span class="op">)</span>, mgp <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.5</span>, <span class="fl">.5</span>, <span class="fl">0</span><span class="op">)</span>, lwd <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span></span>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">stationary2</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
@@ -809,6 +820,10 @@ prior.</p>
 <span>  <span class="kw">if</span> <span class="op">(</span><span class="va">i</span> <span class="op">==</span> <span class="fl">1</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/graphics/title.html" class="external-link">title</a></span><span class="op">(</span><span class="st">"Empirical ACF"</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p><img src="Chapter07_files/figure-html/unnamed-chunk-33-1.png" class="r-plt" alt="" width="768"></p>
+</div>
+<div class="section level4">
+<h4 id="example-7-11-inflation-data-if-and-ess">Example 7.11: Inflation data: IF and ESS<a class="anchor" aria-label="anchor" href="#example-7-11-inflation-data-if-and-ess"></a>
+</h4>
 <p>We now compute an estimate of the effective sample size (ESS) and the
 inefficiency factor (IF) use the coda package.</p>
 <div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
@@ -906,6 +921,11 @@ inefficiency factor (IF) use the coda package.</p>
 </tr>
 </tbody>
 </table>
+</div>
+<div class="section level4">
+<h4 id="example-7-12-inflation-data-assessing-equivalence-of-two-samplers">Example 7.12: Inflation data: Assessing equivalence of two
+samplers<a class="anchor" aria-label="anchor" href="#example-7-12-inflation-data-assessing-equivalence-of-two-samplers"></a>
+</h4>
 <p>We now repeat the above exercise, but use the conditional posterior
 resulting from an auxiliary moment-matched prior in Step (d).</p>
 <p>Note: Currently, three methods are implemented:</p>
@@ -1112,96 +1132,12 @@ optimized MH step.</p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="section-7-3-some-extensions">Section 7.3: Some Extensions<a class="anchor" aria-label="anchor" href="#section-7-3-some-extensions"></a>
+<h2 id="section-7-3-bayesian-learning-of-an-ma1-model">Section 7.3: Bayesian learning of an MA(1) model<a class="anchor" aria-label="anchor" href="#section-7-3-bayesian-learning-of-an-ma1-model"></a>
 </h2>
-<div class="section level3">
-<h3 id="section-7-3-1-ar-models-with-a-unit-root">Section 7.3.1: AR Models with a Unit Root<a class="anchor" aria-label="anchor" href="#section-7-3-1-ar-models-with-a-unit-root"></a>
-</h3>
-<p>Let us check for stationarity of the exchange rate data. First, we
-load the data and visualize it as well as its empirical ACF. We do the
-same for the absolute returns.</p>
-<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"exrates"</span>, package <span class="op">=</span> <span class="st">"stochvol"</span><span class="op">)</span></span>
-<span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="va">exrates</span><span class="op">$</span><span class="va">USD</span> <span class="op">/</span> <span class="va">exrates</span><span class="op">$</span><span class="va">CHF</span></span>
-<span><span class="va">ret</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/diff.html" class="external-link">diff</a></span><span class="op">(</span><span class="va">dat</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">dat</span>, type <span class="op">=</span> <span class="st">"l"</span>, main <span class="op">=</span> <span class="st">"CHF-USD exchange rate"</span>, xlab <span class="op">=</span> <span class="st">"Days"</span>,</span>
-<span>     ylab <span class="op">=</span> <span class="st">"CHF in USD"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ret</span>, type <span class="op">=</span> <span class="st">"l"</span>, main <span class="op">=</span> <span class="st">"CHF-USD daily returns"</span>, xlab <span class="op">=</span> <span class="st">"Days"</span>,</span>
-<span>     ylab <span class="op">=</span> <span class="st">"CHF-USD"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/stats/acf.html" class="external-link">acf</a></span><span class="op">(</span><span class="va">dat</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/stats/acf.html" class="external-link">acf</a></span><span class="op">(</span><span class="va">ret</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Chapter07_files/figure-html/unnamed-chunk-39-1.png" class="r-plt" alt="" width="768"></p>
-<p>This clearly hints at non-stationarity of the exchange rate series
-and at (first order) stationarity of the returns. To check more
-formally, we fit AR(p) models to both.</p>
-<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">ardat</span> <span class="op">&lt;-</span> <span class="va">arret</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="kw">for</span> <span class="op">(</span><span class="va">p</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="va">dat</span>, <span class="op">-</span><span class="va">p</span><span class="op">)</span></span>
-<span>  <span class="va">Xy</span> <span class="op">&lt;-</span> <span class="fu">ARdesignmatrix</span><span class="op">(</span><span class="va">dat</span>, <span class="va">p</span><span class="op">)</span></span>
-<span>  <span class="va">ardat</span><span class="op">[[</span><span class="va">p</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu">regression</span><span class="op">(</span><span class="va">y</span>, <span class="va">Xy</span>, prior <span class="op">=</span> <span class="st">"improper"</span><span class="op">)</span></span>
-<span>  <span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="va">ret</span>, <span class="op">-</span><span class="va">p</span><span class="op">)</span></span>
-<span>  <span class="va">Xy</span> <span class="op">&lt;-</span> <span class="fu">ARdesignmatrix</span><span class="op">(</span><span class="va">ret</span>, <span class="va">p</span><span class="op">)</span></span>
-<span>  <span class="va">arret</span><span class="op">[[</span><span class="va">p</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu">regression</span><span class="op">(</span><span class="va">y</span>, <span class="va">Xy</span>, prior <span class="op">=</span> <span class="st">"improper"</span><span class="op">)</span></span>
-<span><span class="op">}</span></span></code></pre></div>
-<p>Now we can graphically investigate stationarity as above.</p>
-<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">draws</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">ardat</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">betas</span><span class="op">[</span>, <span class="fl">2</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span>, <span class="va">arret</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">betas</span><span class="op">[</span>, <span class="fl">2</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span><span class="op">)</span></span>
-<span><span class="va">eigenvalues</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="cn">NA_complex_</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">draws</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">draws</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">mains</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"AR(2) on the raw series"</span>, <span class="st">"AR(2) on the returns"</span><span class="op">)</span></span>
-<span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">draws</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">draws</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span>, main <span class="op">=</span> <span class="va">mains</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/bquote.html" class="external-link">bquote</a></span><span class="op">(</span><span class="va">phi</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>,</span>
-<span>     ylab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/bquote.html" class="external-link">bquote</a></span><span class="op">(</span><span class="va">phi</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>,</span>
-<span>     col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/rgb.html" class="external-link">rgb</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">.05</span><span class="op">)</span>, pch <span class="op">=</span> <span class="fl">16</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/polygon.html" class="external-link">polygon</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">2</span>, <span class="fl">0</span>, <span class="fl">2</span>, <span class="op">-</span><span class="fl">2</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="op">-</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1</span><span class="op">)</span>, border <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span></span>
-<span>  <span class="kw">for</span> <span class="op">(</span><span class="va">m</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">draws</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="va">Phi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">draws</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="va">m</span>, <span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span>, nrow <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span>    <span class="va">eigenvalues</span><span class="op">[</span><span class="va">m</span>, <span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/eigen.html" class="external-link">eigen</a></span><span class="op">(</span><span class="va">Phi</span>, only.values <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">$</span><span class="va">values</span></span>
-<span>  <span class="op">}</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">eigenvalues</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>, asp <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>       main <span class="op">=</span> <span class="va">mains</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/rgb.html" class="external-link">rgb</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">.05</span><span class="op">)</span>, pch <span class="op">=</span> <span class="fl">16</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/symbols.html" class="external-link">symbols</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, add <span class="op">=</span> <span class="cn">TRUE</span>, fg <span class="op">=</span> <span class="fl">2</span>, inches <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="op">}</span></span></code></pre></div>
-<p><img src="Chapter07_files/figure-html/unnamed-chunk-41-1.png" class="r-plt" alt="" width="768"></p>
-<p>To explore whether the nonstationarity of the raw series could be
-caused by a unit root, we investigate the posterior of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>−</mo><msub><mi>ϕ</mi><mn>1</mn></msub><mo>−</mo><mi>…</mi><mo>−</mo><msub><mi>ϕ</mi><mi>p</mi></msub></mrow><annotation encoding="application/x-tex">1 - \phi_1 - \dots - \phi_p</annotation></semantics></math>
-for
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><mn>4</mn></mrow><annotation encoding="application/x-tex">p = 1, \dots, 4</annotation></semantics></math>.</p>
-<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">toplot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="cn">NA_real_</span>, <span class="va">ndraws</span>, <span class="fl">4</span><span class="op">)</span></span>
-<span><span class="kw">for</span> <span class="op">(</span><span class="va">p</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span></span>
-<span>  <span class="va">toplot</span><span class="op">[</span>, <span class="va">p</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="va">ardat</span><span class="op">[[</span><span class="va">p</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">betas</span><span class="op">[</span>, <span class="fl">2</span><span class="op">:</span><span class="op">(</span><span class="va">p</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span>, drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span></span>
-<span><span class="kw">for</span> <span class="op">(</span><span class="va">p</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">toplot</span><span class="op">[</span>, <span class="va">p</span><span class="op">]</span>, freq <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>       breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">toplot</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">toplot</span><span class="op">)</span>, length.out <span class="op">=</span> <span class="fl">20</span><span class="op">)</span>,</span>
-<span>       main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"AR("</span>, <span class="va">p</span>, <span class="st">")"</span><span class="op">)</span>, xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">delta</span><span class="op">)</span>, ylab <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>v <span class="op">=</span> <span class="fl">0</span>, lty <span class="op">=</span> <span class="fl">2</span>, col <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="op">}</span></span></code></pre></div>
-<p><img src="Chapter07_files/figure-html/unnamed-chunk-42-1.png" class="r-plt" alt="" width="768"></p>
-<p>We do the same for the inflation data.</p>
-<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">ardat</span> <span class="op">&lt;-</span> <span class="va">arret</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="kw">for</span> <span class="op">(</span><span class="va">p</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="va">inflation</span>, <span class="op">-</span><span class="va">p</span><span class="op">)</span></span>
-<span>  <span class="va">Xy</span> <span class="op">&lt;-</span> <span class="fu">ARdesignmatrix</span><span class="op">(</span><span class="va">inflation</span>, <span class="va">p</span><span class="op">)</span></span>
-<span>  <span class="va">ardat</span><span class="op">[[</span><span class="va">p</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu">regression</span><span class="op">(</span><span class="va">y</span>, <span class="va">Xy</span>, prior <span class="op">=</span> <span class="st">"improper"</span><span class="op">)</span></span>
-<span><span class="op">}</span></span></code></pre></div>
-<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw">for</span> <span class="op">(</span><span class="va">p</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span></span>
-<span>  <span class="va">toplot</span><span class="op">[</span>, <span class="va">p</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="va">ardat</span><span class="op">[[</span><span class="va">p</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">betas</span><span class="op">[</span>, <span class="fl">2</span><span class="op">:</span><span class="op">(</span><span class="va">p</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span>, drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span></span>
-<span><span class="kw">for</span> <span class="op">(</span><span class="va">p</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">toplot</span><span class="op">[</span>, <span class="va">p</span><span class="op">]</span>, freq <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>       breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">toplot</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">toplot</span><span class="op">)</span>, length.out <span class="op">=</span> <span class="fl">20</span><span class="op">)</span>,</span>
-<span>       main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"AR("</span>, <span class="va">p</span>, <span class="st">")"</span><span class="op">)</span>, xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">delta</span><span class="op">)</span>, ylab <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>v <span class="op">=</span> <span class="fl">0</span>, lty <span class="op">=</span> <span class="fl">2</span>, col <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="op">}</span></span></code></pre></div>
-<p><img src="Chapter07_files/figure-html/unnamed-chunk-44-1.png" class="r-plt" alt="" width="768"></p>
-</div>
-<div class="section level3">
-<h3 id="section-7-3-2-bayesian-learning-of-an-ma1-model">Section 7.3.2: Bayesian Learning of an MA(1) Model<a class="anchor" aria-label="anchor" href="#section-7-3-2-bayesian-learning-of-an-ma1-model"></a>
-</h3>
+<div class="section level4">
+<h4 id="example-7-13-exchange-rate-data-fitting-an-ma1-model-using-a-random-walk-mh">Example 7.13: Exchange rate data: Fitting an MA(1) model using a
+random walk MH<a class="anchor" aria-label="anchor" href="#example-7-13-exchange-rate-data-fitting-an-ma1-model-using-a-random-walk-mh"></a>
+</h4>
 <p>We now implement the MCMC sampler for fitting an MA(1) model, where
 we treat the latent state
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>ϵ</mi><mn>0</mn></msub><mo>∼</mo><mi>𝒩</mi><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><msup><mi>σ</mi><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\epsilon_0 \sim \mathcal{N}(0, \sigma^2)</annotation></semantics></math>
@@ -1210,7 +1146,7 @@ prior, and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>
 is assumed to be a priori uniform on
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mi>−</mi><mn>1</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[-1,1]</annotation></semantics></math>.</p>
-<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Specify prior hyperparameters</span></span>
 <span><span class="va">c0</span> <span class="op">&lt;-</span> <span class="va">C0</span> <span class="op">&lt;-</span> <span class="fl">0.01</span></span>
 <span></span>
@@ -1264,7 +1200,7 @@ is assumed to be a priori uniform on
 <span>  <span class="op">}</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>Now we plot traceplots and ACFs.</p>
-<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">cthetas</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/ts.plot.html" class="external-link">ts.plot</a></span><span class="op">(</span><span class="va">thetas</span><span class="op">[</span>, <span class="va">i</span><span class="op">]</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">thetas</span><span class="op">)</span>, ylab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">theta</span><span class="op">)</span>,</span>
 <span>          xlab <span class="op">=</span> <span class="st">"Iterations"</span><span class="op">)</span></span>
@@ -1273,10 +1209,15 @@ is assumed to be a priori uniform on
 <span>  <span class="fu"><a href="https://rdrr.io/r/graphics/title.html" class="external-link">title</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/bquote.html" class="external-link">bquote</a></span><span class="op">(</span><span class="va">ACF</span> <span class="op">~</span> <span class="op">(</span><span class="va">acceptance</span> <span class="op">==</span> <span class="fu">.</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">naccepts</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">/</span> <span class="va">ndraws</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span><span class="op">*</span><span class="st">","</span><span class="op">~</span>  </span>
 <span>               <span class="va">IF</span> <span class="op">==</span> <span class="fu">.</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">ndraws</span> <span class="op">/</span> <span class="fu">coda</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/coda/man/effectiveSize.html" class="external-link">effectiveSize</a></span><span class="op">(</span><span class="va">thetas</span><span class="op">[</span>, <span class="va">i</span><span class="op">]</span><span class="op">)</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p><img src="Chapter07_files/figure-html/unnamed-chunk-46-1.png" class="r-plt" alt="" width="768"></p>
+<p><img src="Chapter07_files/figure-html/unnamed-chunk-40-1.png" class="r-plt" alt="" width="768"></p>
+</div>
+<div class="section level4">
+<h4 id="example-7-14-exchange-rate-data-fitting-an-ma1-model-using-a-random-walk-mh">Example 7.14: Exchange rate data: Fitting an MA(1) model using a
+random walk MH<a class="anchor" aria-label="anchor" href="#example-7-14-exchange-rate-data-fitting-an-ma1-model-using-a-random-walk-mh"></a>
+</h4>
 <p>We repeat the exercise above, but now use a truncated Gaussian
 proposal for the random walk MH algorithm.</p>
-<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># standard deviation for random walk MH proposal</span></span>
 <span><span class="va">cthetas2</span> <span class="op">&lt;-</span> <span class="va">cthetas</span></span>
 <span></span>
@@ -1334,7 +1275,7 @@ proposal for the random walk MH algorithm.</p>
 <span>  <span class="op">}</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>We again plot traceplots and ACFs.</p>
-<div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">cthetas2</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/ts.plot.html" class="external-link">ts.plot</a></span><span class="op">(</span><span class="va">thetas2</span><span class="op">[</span>, <span class="va">i</span><span class="op">]</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">thetas2</span><span class="op">)</span>, ylab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">theta</span><span class="op">)</span>,</span>
 <span>          xlab <span class="op">=</span> <span class="st">"Iterations"</span><span class="op">)</span></span>
@@ -1343,11 +1284,11 @@ proposal for the random walk MH algorithm.</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/graphics/title.html" class="external-link">title</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/bquote.html" class="external-link">bquote</a></span><span class="op">(</span><span class="va">ACF</span> <span class="op">~</span> <span class="op">(</span><span class="va">acceptance</span> <span class="op">==</span> <span class="fu">.</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">naccepts2</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">/</span> <span class="va">ndraws</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span><span class="op">*</span><span class="st">","</span><span class="op">~</span>  </span>
 <span>               <span class="va">IF</span> <span class="op">==</span> <span class="fu">.</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">ndraws</span> <span class="op">/</span> <span class="fu">coda</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/coda/man/effectiveSize.html" class="external-link">effectiveSize</a></span><span class="op">(</span><span class="va">thetas2</span><span class="op">[</span>, <span class="va">i</span><span class="op">]</span><span class="op">)</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p><img src="Chapter07_files/figure-html/unnamed-chunk-48-1.png" class="r-plt" alt="" width="768"></p>
+<p><img src="Chapter07_files/figure-html/unnamed-chunk-42-1.png" class="r-plt" alt="" width="768"></p>
 <p>We repeat the exercise above once more, but now use a random walk
 proposal on
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>θ</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\log(1 + \theta) - \log(1 - \theta)</annotation></semantics></math>.</p>
-<div class="sourceCode" id="cb50"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Define the transformation and its inverse</span></span>
 <span><span class="va">trans</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">theta</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="va">theta</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">theta</span><span class="op">)</span></span>
 <span><span class="va">invtrans</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">thetatrans</span><span class="op">)</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">thetatrans</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">thetatrans</span><span class="op">)</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span></span>
@@ -1404,7 +1345,7 @@ proposal on
 <span>  <span class="op">}</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>We again plot traceplots and ACFs.</p>
-<div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">cthetas3</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/ts.plot.html" class="external-link">ts.plot</a></span><span class="op">(</span><span class="va">thetas3</span><span class="op">[</span>, <span class="va">i</span><span class="op">]</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">thetas3</span><span class="op">)</span>, ylab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">theta</span><span class="op">)</span>,</span>
 <span>          xlab <span class="op">=</span> <span class="st">"Iterations"</span><span class="op">)</span></span>
@@ -1413,16 +1354,16 @@ proposal on
 <span>  <span class="fu"><a href="https://rdrr.io/r/graphics/title.html" class="external-link">title</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/bquote.html" class="external-link">bquote</a></span><span class="op">(</span><span class="va">ACF</span> <span class="op">~</span> <span class="op">(</span><span class="va">acceptance</span> <span class="op">==</span> <span class="fu">.</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">naccepts3</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">/</span> <span class="va">ndraws</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span><span class="op">*</span><span class="st">","</span><span class="op">~</span>  </span>
 <span>               <span class="va">IF</span> <span class="op">==</span> <span class="fu">.</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">ndraws</span> <span class="op">/</span> <span class="fu">coda</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/coda/man/effectiveSize.html" class="external-link">effectiveSize</a></span><span class="op">(</span><span class="va">thetas3</span><span class="op">[</span>, <span class="va">i</span><span class="op">]</span><span class="op">)</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p><img src="Chapter07_files/figure-html/unnamed-chunk-50-1.png" class="r-plt" alt="" width="768"></p>
+<p><img src="Chapter07_files/figure-html/unnamed-chunk-44-1.png" class="r-plt" alt="" width="768"></p>
 <p>Let’s also check some QQ plots for equivalence.</p>
-<div class="sourceCode" id="cb52"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, col <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/qqnorm.html" class="external-link">qqplot</a></span><span class="op">(</span><span class="va">thetas</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span>, <span class="va">thetas3</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, col <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Chapter07_files/figure-html/unnamed-chunk-51-1.png" class="r-plt" alt="" width="768"></p>
+<p><img src="Chapter07_files/figure-html/unnamed-chunk-45-1.png" class="r-plt" alt="" width="768"></p>
 <p>Now, we compare acceptance rates and inefficiency factors for all 9
 samplers.</p>
-<div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">accepts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">naccepts</span>, <span class="va">naccepts2</span>, <span class="va">naccepts3</span><span class="op">)</span> <span class="op">/</span> <span class="va">ndraws</span>,</span>
 <span>                  nrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">naccepts</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fl">3</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">ESS</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu">coda</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/coda/man/effectiveSize.html" class="external-link">effectiveSize</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">thetas</span>, <span class="va">thetas2</span>, <span class="va">thetas3</span><span class="op">)</span><span class="op">)</span>,</span>
@@ -1442,25 +1383,25 @@ samplers.</p>
 <tbody>
 <tr class="odd">
 <td align="left">Gaussian RW</td>
-<td align="right">0.87</td>
-<td align="right">0.31</td>
-<td align="right">0.03</td>
+<td align="right">0.97</td>
+<td align="right">0.69</td>
+<td align="right">0.14</td>
 </tr>
 <tr class="even">
 <td align="left">truncated RW</td>
-<td align="right">0.87</td>
-<td align="right">0.35</td>
-<td align="right">0.06</td>
+<td align="right">0.97</td>
+<td align="right">0.77</td>
+<td align="right">0.23</td>
 </tr>
 <tr class="odd">
 <td align="left">transformed RW</td>
-<td align="right">0.94</td>
-<td align="right">0.52</td>
-<td align="right">0.07</td>
+<td align="right">0.98</td>
+<td align="right">0.81</td>
+<td align="right">0.22</td>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb54"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">IF</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
@@ -1472,21 +1413,21 @@ samplers.</p>
 <tbody>
 <tr class="odd">
 <td align="left">Gaussian RW</td>
-<td align="right">39.3</td>
-<td align="right">5.8</td>
-<td align="right">46.0</td>
+<td align="right">3211.9</td>
+<td align="right">29.8</td>
+<td align="right">18.8</td>
 </tr>
 <tr class="even">
 <td align="left">truncated RW</td>
-<td align="right">36.3</td>
-<td align="right">5.2</td>
-<td align="right">31.8</td>
+<td align="right">5764.0</td>
+<td align="right">27.7</td>
+<td align="right">11.7</td>
 </tr>
 <tr class="odd">
 <td align="left">transformed RW</td>
-<td align="right">143.1</td>
-<td align="right">4.7</td>
-<td align="right">20.5</td>
+<td align="right">656.1</td>
+<td align="right">18.4</td>
+<td align="right">8.8</td>
 </tr>
 </tbody>
 </table>
@@ -1496,25 +1437,25 @@ samplers.</p>
 <h2 id="section-7-4-markov-modeling-for-a-panel-of-categorical-time-series">Section 7.4: Markov modeling for a panel of categorical time
 series<a class="anchor" aria-label="anchor" href="#section-7-4-markov-modeling-for-a-panel-of-categorical-time-series"></a>
 </h2>
-<div class="section level3">
-<h3 id="example-7-13-wage-mobility-data">Example 7.13: Wage mobility data<a class="anchor" aria-label="anchor" href="#example-7-13-wage-mobility-data"></a>
-</h3>
+<div class="section level4">
+<h4 id="example-7-15-wage-mobility-data-introduction">Example 7.15: Wage mobility data: Introduction<a class="anchor" aria-label="anchor" href="#example-7-15-wage-mobility-data-introduction"></a>
+</h4>
 <p>We load the data and only consider workers from the birth cohort
 1946-1960.</p>
-<div class="sourceCode" id="cb55"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"labor"</span>, package <span class="op">=</span> <span class="st">"BayesianLearningCode"</span><span class="op">)</span></span>
 <span><span class="va">labor</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">labor</span>, <span class="va">birthyear</span> <span class="op">&gt;=</span> <span class="fl">1946</span> <span class="op">&amp;</span> <span class="va">birthyear</span> <span class="op">&lt;=</span> <span class="fl">1960</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">labor</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 1538</span></span></code></pre></div>
 <p>We extract the columns about the income over time:</p>
-<div class="sourceCode" id="cb56"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb50"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">income</span> <span class="op">&lt;-</span> <span class="va">labor</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"^income"</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">labor</span><span class="op">)</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="va">income</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">income</span>, <span class="va">as.integer</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">income</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">gsub</a></span><span class="op">(</span><span class="st">"income_"</span>, <span class="st">""</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">income</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>We plot individual wage mobility time series for three workers. The
 persistence of belonging to a certain wage class is obvious for any
 specific person.</p>
-<div class="sourceCode" id="cb57"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">index</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">income</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="va">index</span><span class="op">)</span> <span class="op">{</span></span>
@@ -1522,17 +1463,17 @@ specific person.</p>
 <span>         main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Person"</span>, <span class="va">i</span><span class="op">)</span>, pch <span class="op">=</span> <span class="fl">19</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">5</span><span class="op">)</span>,</span>
 <span>         xlab <span class="op">=</span> <span class="st">"Year"</span>, ylab <span class="op">=</span> <span class="st">"Income class"</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p><img src="Chapter07_files/figure-html/unnamed-chunk-55-1.png" class="r-plt" alt="" width="768"></p>
+<p><img src="Chapter07_files/figure-html/unnamed-chunk-49-1.png" class="r-plt" alt="" width="768"></p>
 </div>
-<div class="section level3">
-<h3 id="example-7-14-wage-mobility-data-comparing-wage-mobility-of-men-and-women">Example 7.14: Wage mobility data – comparing wage mobility of men
-and women<a class="anchor" aria-label="anchor" href="#example-7-14-wage-mobility-data-comparing-wage-mobility-of-men-and-women"></a>
-</h3>
+<div class="section level4">
+<h4 id="example-7-16-wage-mobility-data-comparing-wage-mobility-of-men-and-women">Example 7.16: Wage mobility data: Comparing wage mobility of men and
+women<a class="anchor" aria-label="anchor" href="#example-7-16-wage-mobility-data-comparing-wage-mobility-of-men-and-women"></a>
+</h4>
 <p>We transform the data to obtain for each worker the matrix which
 contains the number of transitions from one class to the other, i.e.,
 the matrix with values
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>N</mi><mrow><mi>i</mi><mo>,</mo><mi>h</mi><mi>k</mi></mrow></msub><annotation encoding="application/x-tex">N_{i,hk}</annotation></semantics></math>.</p>
-<div class="sourceCode" id="cb58"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb52"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">getTransitions</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">classes</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="va">transitions</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">classes</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">classes</span><span class="op">)</span><span class="op">)</span></span>
 <span>    <span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
@@ -1546,7 +1487,7 @@ the matrix with values
 <span>           <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span> <span class="fu">getTransitions</span><span class="op">(</span><span class="va">income</span><span class="op">[</span><span class="va">i</span>, <span class="op">]</span>, classes <span class="op">=</span> <span class="fl">0</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Based on the transition matrices, the total transitions between the
 wage categories for female and male workers can be obtained.</p>
-<div class="sourceCode" id="cb59"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">N_female</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/funprog.html" class="external-link">Reduce</a></span><span class="op">(</span><span class="st">"+"</span>, <span class="va">income_transitions</span><span class="op">[</span><span class="va">labor</span><span class="op">$</span><span class="va">female</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="va">N_male</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/funprog.html" class="external-link">Reduce</a></span><span class="op">(</span><span class="st">"+"</span>, <span class="va">income_transitions</span><span class="op">[</span><span class="op">!</span><span class="va">labor</span><span class="op">$</span><span class="va">female</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">N_female</span><span class="op">)</span></span></code></pre></div>
@@ -1617,7 +1558,7 @@ wage categories for female and male workers can be obtained.</p>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb60"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb54"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">N_male</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
@@ -1687,7 +1628,7 @@ wage categories for female and male workers can be obtained.</p>
 </tbody>
 </table>
 <p>We obtain posterior mean estimates based on a uniform prior.</p>
-<div class="sourceCode" id="cb61"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb55"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mean_xi_female</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="va">N_female</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="va">N_female</span><span class="op">)</span></span>
 <span><span class="va">mean_xi_male</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="va">N_male</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="va">N_male</span><span class="op">)</span></span>
 <span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">mean_xi_female</span>, digits <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
@@ -1758,7 +1699,7 @@ wage categories for female and male workers can be obtained.</p>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb62"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb56"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">mean_xi_male</span>, digits <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
@@ -1828,17 +1769,17 @@ wage categories for female and male workers can be obtained.</p>
 </tbody>
 </table>
 <p>We also visualize the posterior mean estimates for women and men.</p>
-<div class="sourceCode" id="cb63"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb57"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">corrplot</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/corrplot/man/corrplot.html" class="external-link">corrplot</a></span><span class="op">(</span><span class="va">mean_xi_female</span>, method <span class="op">=</span> <span class="st">"square"</span>, is.corr <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>                   col <span class="op">=</span> <span class="fl">1</span>, cl.pos <span class="op">=</span> <span class="st">"n"</span>, col.lim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1.5</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu">corrplot</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/corrplot/man/corrplot.html" class="external-link">corrplot</a></span><span class="op">(</span><span class="va">mean_xi_male</span>, method <span class="op">=</span> <span class="st">"square"</span>, is.corr <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>                   col <span class="op">=</span> <span class="fl">1</span>, cl.pos <span class="op">=</span> <span class="st">"n"</span>, col.lim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1.5</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Chapter07_files/figure-html/unnamed-chunk-59-1.png" class="r-plt" alt="" width="768"></p>
+<p><img src="Chapter07_files/figure-html/unnamed-chunk-53-1.png" class="r-plt" alt="" width="768"></p>
 <p>We compare the posterior densities of various transition
 probabilities
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>ξ</mi><mrow><mi>g</mi><mo>,</mo><mi>h</mi><mi>k</mi></mrow></msub><annotation encoding="application/x-tex">\xi_{g,hk}</annotation></semantics></math>
 for women and men.</p>
-<div class="sourceCode" id="cb64"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb58"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.52</span>, <span class="fl">0.95</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">100</span><span class="op">)</span>, type <span class="op">=</span> <span class="st">"n"</span>, xlab <span class="op">=</span> <span class="st">""</span>, ylab <span class="op">=</span> <span class="st">""</span>,</span>
 <span>     main <span class="op">=</span> <span class="st">"Posterior of persistence probabilities"</span><span class="op">)</span></span>
 <span><span class="va">pers_female</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="va">N_female</span><span class="op">)</span>,</span>
@@ -1873,11 +1814,11 @@ for women and men.</p>
 <span>           <span class="fu"><a href="https://rdrr.io/r/base/substitute.html" class="external-link">substitute</a></span><span class="op">(</span><span class="va">xi</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>i <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">01</span>, <span class="fl">12</span>, <span class="fl">23</span>, <span class="fl">34</span>, <span class="fl">45</span><span class="op">)</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topright"</span>, col <span class="op">=</span> <span class="fl">1</span>, lty <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span>,</span>
 <span>       legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"female"</span>, <span class="st">"male"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Chapter07_files/figure-html/unnamed-chunk-60-1.png" class="r-plt" alt="" width="768"></p>
+<p><img src="Chapter07_files/figure-html/unnamed-chunk-54-1.png" class="r-plt" alt="" width="768"></p>
 </div>
-<div class="section level3">
-<h3 id="example-7-15-wage-mobility-data-long-run">Example 7.15: Wage mobility data – long run<a class="anchor" aria-label="anchor" href="#example-7-15-wage-mobility-data-long-run"></a>
-</h3>
+<div class="section level4">
+<h4 id="example-7-17-wage-mobility-data-evaluating-long-run-effects">Example 7.17: Wage mobility data: Evaluating long run effects<a class="anchor" aria-label="anchor" href="#example-7-17-wage-mobility-data-evaluating-long-run-effects"></a>
+</h4>
 <p>We assume that both men and women start out in the labor market with
 the same wage distribution, where 70% start in wage category 1 and 30%
 in wage category 2, i.e.,
@@ -1886,7 +1827,7 @@ in wage category 2, i.e.,
 estimated wage distribution
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mover><mi>𝛈</mi><mo accent="true">̂</mo></mover><mrow><mi>g</mi><mo>,</mo><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">\hat{\mathbf{\eta}}_{g,t}</annotation></semantics></math>
 over the first ten years for females and males.</p>
-<div class="sourceCode" id="cb65"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb59"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">eta_0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.7</span>, <span class="fl">0.3</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span></span>
 <span><span class="va">eta_hat_male_t</span> <span class="op">&lt;-</span> <span class="va">eta_hat_female_t</span> <span class="op">&lt;-</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="cn">NA_real_</span>, nrow <span class="op">=</span> <span class="fl">6</span>, ncol <span class="op">=</span> <span class="fl">11</span>,</span>
@@ -1898,7 +1839,7 @@ over the first ten years for females and males.</p>
 <span><span class="op">}</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html" class="external-link">barplot</a></span><span class="op">(</span><span class="va">eta_hat_female_t</span>, main <span class="op">=</span> <span class="st">"Women"</span>, xlab <span class="op">=</span> <span class="st">"Year"</span>, ylab <span class="op">=</span> <span class="st">"Wage groups"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html" class="external-link">barplot</a></span><span class="op">(</span><span class="va">eta_hat_male_t</span>, main <span class="op">=</span> <span class="st">"Men"</span>, xlab <span class="op">=</span> <span class="st">"Year"</span>, ylab <span class="op">=</span> <span class="st">"Wage groups"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Chapter07_files/figure-html/unnamed-chunk-61-1.png" class="r-plt" alt="" width="768"></p>
+<p><img src="Chapter07_files/figure-html/unnamed-chunk-55-1.png" class="r-plt" alt="" width="768"></p>
 <p>We inspect the posterior distributions of
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>η</mi><mrow><mi>t</mi><mo>,</mo><mn>2</mn></mrow></msub><annotation encoding="application/x-tex">\eta_{t,2}</annotation></semantics></math>
 for wage category 2 (left-hand side) versus
@@ -1906,7 +1847,7 @@ for wage category 2 (left-hand side) versus
 for wage category 5 (right-hand side) in year
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><mn>10</mn></mrow><annotation encoding="application/x-tex">t = 10</annotation></semantics></math>
 for females and males.</p>
-<div class="sourceCode" id="cb66"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb60"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">M</span> <span class="op">&lt;-</span> <span class="fl">1000</span></span>
 <span><span class="va">xi_female</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">replicate</a></span><span class="op">(</span><span class="va">M</span>, <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="va">N_female</span>, <span class="fl">1</span>,</span>
 <span>                                <span class="kw">function</span><span class="op">(</span><span class="va">alpha</span><span class="op">)</span> <span class="fu"><a href="../reference/Dirichlet.html">rdirichlet</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">alpha</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
@@ -1933,7 +1874,7 @@ for females and males.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">eta_male_t</span><span class="op">[</span>, <span class="fl">6</span><span class="op">]</span>, breaks <span class="op">=</span> <span class="va">breaks</span>,</span>
 <span>     col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/rgb.html" class="external-link">rgb</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0.2</span><span class="op">)</span>, add <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topright"</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"female"</span>, <span class="st">"male"</span><span class="op">)</span>, fill <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/rgb.html" class="external-link">rgb</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0.2</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Chapter07_files/figure-html/unnamed-chunk-62-1.png" class="r-plt" alt="" width="768"></p>
+<p><img src="Chapter07_files/figure-html/unnamed-chunk-56-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

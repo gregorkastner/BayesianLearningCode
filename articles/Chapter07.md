@@ -1,10 +1,8 @@
 # Chapter 7: Introduction to Bayesian Time Series Analysis
 
-## Section 7.2: Bayesian Learning of (Stationary) Autoregressive Models
+## Section 7.1: Time series data and dynamic models
 
-### Section 7.2.2: Exploring stationarity during post-processing
-
-### Figure 7.1: U.S. GDP data
+#### Example 7.1: Introducing the U.S. GDP data
 
 First, we load the data. Because of the extreme outliers during the
 COVID pandemic, we restrict our analysis to the time before its
@@ -35,6 +33,10 @@ title("Empirical autocorrelation function")
 ```
 
 ![](Chapter07_files/figure-html/unnamed-chunk-4-1.png)
+
+## Section 7.2: Bayesian learning of autoregressive models
+
+### Section 7.2.1: Bayesian learning without imposing stationarity
 
 Before we move on, we define a function yielding posterior draws under a
 standard regression model, using the tools developed in Chapter 6.
@@ -131,7 +133,7 @@ regression <- function(y, X, prior = "improper", b0 = 0, B0 = 1, c0 = 0.01,
 
 Now we are ready to reproduce the results in the book.
 
-### Example 7.1: AR modeling of the U.S. GDP data
+#### Example 7.2: AR modeling of the U.S. GDP data
 
 We begin by writing a function that sets up the design matrix for an
 AR($`p`$) model.
@@ -164,8 +166,6 @@ for (p in 1:4) {
 }
 ```
 
-### Figure 7.2: Exploratory model selection
-
 Now we plot the draws for the leading coefficient, i.e., the coefficient
 corresponding to the highest lag in each of the models.
 
@@ -179,6 +179,8 @@ for (p in 1:4) {
 ```
 
 ![](Chapter07_files/figure-html/unnamed-chunk-8-1.png)
+
+#### Example 7.3: U.S. GDP data: Comparing priors for an AR(3)-model
 
 Next, we fit an AR(3) model with different priors.
 
@@ -205,8 +207,6 @@ res_semi_2 <- regression(y, Xy, prior = "semi-conjugate",
                          b0 = rep(0, 4), B0 = diag(rep(100, 4)),
                          c0 = 2, C0 = 0.001)
 ```
-
-### Figure 7.3: AR(3) models with improper, semi-conjugate, and conjugate priors
 
 We now visualize the posterior of the model parameters under all those
 priors.
@@ -255,7 +255,7 @@ for (i in 1:5) {
 We reuse the AR($`p`$) models under the improper prior from above to
 explore stationarity for $`p = 1, 2, 3`$.
 
-### Figure 7.4: Checking stationarity conditions for the GDP data
+#### Example 7.4: U.S. GDP data: Exploring stationarity conditions for various AR models
 
 ``` r
 
@@ -280,6 +280,8 @@ symbols(0, 0, 1, add = TRUE, fg = 2, inches = FALSE)
 
 ![](Chapter07_files/figure-html/unnamed-chunk-11-1.png)
 
+#### Example 7.5: Inflation data: Exploring stationarity conditions for various AR models
+
 We now move towards analyzing the Euro area inflation data.
 
 ``` r
@@ -290,8 +292,6 @@ inflation <- ts(inflation, start = c(1997, 2), end = c(2025, 6),
 ```
 
 First, we plot the data and its empirical autocorrelation function.
-
-### Figure 7.5: Euro area inflation data
 
 ``` r
 
@@ -314,8 +314,6 @@ for (p in 1:3) {
   res2[[p]] <- regression(y, Xy, prior = "improper")
 }
 ```
-
-### Figure 7.6: Checking stationarity conditions for the Euro area inflation data
 
 ``` r
 
@@ -361,7 +359,9 @@ colMeans(nonstationary)
 #> 0.0408 0.0107 0.0032
 ```
 
-### Section 7.2.3: Recovering Missing Time Series Data – An Introduction to Data Augmentation
+### Section 7.2.3: Recovering missing time series data – an introduction to data augmentation
+
+#### Example 7.6: U.S. GDP data: Imputing missing data
 
 Assume that the values at certain time points are missing. (Note that
 for our sampler, we require the missing time points to be far enough
@@ -527,7 +527,9 @@ for (i in 1:4) {
 
 ![](Chapter07_files/figure-html/unnamed-chunk-23-1.png)
 
-### Section 7.2.4: Imposing Stationarity via an Independence MH Algorithm
+### Section 7.2.4: Imposing stationarity via an independence MH algorithm
+
+#### Example 7.7: U.S. GDP data: The stationary distribution
 
 First, we fit an AR(0), i.e., an intercept-only, model, to the GDP data.
 
@@ -575,6 +577,8 @@ legend("topright", paste0("p = ", 0:2), col = 1:3, lty = 1:3)
 ```
 
 ![](Chapter07_files/figure-html/unnamed-chunk-25-1.png)
+
+#### Example 7.8: Inflation data: The stationary distribution
 
 We continue by fitting an AR(0) model to the inflation data.
 
@@ -626,6 +630,8 @@ legend("topright", paste0("p = ", 0:2), col = 1:3, lty = 1:3)
 
 ![](Chapter07_files/figure-html/unnamed-chunk-27-1.png)
 
+#### Example 7.9: Inflation data: Imposing stationarity
+
 We now move on to imposing stationarity through employing a
 non-conjugate transformed beta prior on $`\phi`$, i.e.,
 ``` math
@@ -665,7 +671,7 @@ X[, 1] <- 1
 X[, 2] <- c(NA_real_, y[-length(y)])
 ```
 
-Now we are ready to sample!
+Now we are ready to sample.
 
 ``` r
 
@@ -810,12 +816,13 @@ legend("topright",
 
 ![](Chapter07_files/figure-html/unnamed-chunk-32-1.png)
 
-### Section 7.2.5: Evaluating the Efficiency of an MCMC Sampler
+### Section 7.2.5: Evaluating the efficiency of an MCMC sampler
 
-#### Example 7.11: Improving the independence MH step
+#### Example 7.10: Inflation data: Posterior sampling efficiency
 
-Let us investigate traceplots and empirical autocorrelation functions of
-the posterior draws under the informative stationarity-inducing prior.
+Let us investigate trace plots and empirical autocorrelation functions
+of the posterior draws under the informative stationarity-inducing
+prior.
 
 ``` r
 
@@ -829,6 +836,8 @@ for (i in seq_along(stationary2)) {
 ```
 
 ![](Chapter07_files/figure-html/unnamed-chunk-33-1.png)
+
+#### Example 7.11: Inflation data: IF and ESS
 
 We now compute an estimate of the effective sample size (ESS) and the
 inefficiency factor (IF) use the coda package.
@@ -869,6 +878,8 @@ knitr::kable(round(ndraws / ess, 2))
 | postprocessed        |  1.09 |  1.04 |   1.04 |  NA |
 | betapriorflat        |  4.35 |  4.57 |   1.00 |   1 |
 | betapriorinformative | 15.77 | 29.55 |   1.61 |   1 |
+
+#### Example 7.12: Inflation data: Assessing equivalence of two samplers
 
 We now repeat the above exercise, but use the conditional posterior
 resulting from an auxiliary moment-matched prior in Step (d).
@@ -1052,117 +1063,9 @@ knitr::kable(round(ndraws / ess, 2))
 | Sampler 1 | 15.77 | 29.55 |   1.61 |   1 |
 | Sampler 2 | 10.35 | 19.85 |   1.39 |   1 |
 
-## Section 7.3: Some Extensions
+## Section 7.3: Bayesian learning of an MA(1) model
 
-### Section 7.3.1: AR Models with a Unit Root
-
-Let us check for stationarity of the exchange rate data. First, we load
-the data and visualize it as well as its empirical ACF. We do the same
-for the absolute returns.
-
-``` r
-
-data("exrates", package = "stochvol")
-dat <- exrates$USD / exrates$CHF
-ret <- diff(dat)
-plot(dat, type = "l", main = "CHF-USD exchange rate", xlab = "Days",
-     ylab = "CHF in USD")
-plot(ret, type = "l", main = "CHF-USD daily returns", xlab = "Days",
-     ylab = "CHF-USD")
-acf(dat)
-acf(ret)
-```
-
-![](Chapter07_files/figure-html/unnamed-chunk-39-1.png)
-
-This clearly hints at non-stationarity of the exchange rate series and
-at (first order) stationarity of the returns. To check more formally, we
-fit AR(p) models to both.
-
-``` r
-
-ardat <- arret <- list()
-for (p in 1:4) {
-  y <- tail(dat, -p)
-  Xy <- ARdesignmatrix(dat, p)
-  ardat[[p]] <- regression(y, Xy, prior = "improper")
-  y <- tail(ret, -p)
-  Xy <- ARdesignmatrix(ret, p)
-  arret[[p]] <- regression(y, Xy, prior = "improper")
-}
-```
-
-Now we can graphically investigate stationarity as above.
-
-``` r
-
-draws <- list(ardat[[2]]$betas[, 2:3], arret[[2]]$betas[, 2:3])
-eigenvalues <- matrix(NA_complex_, nrow(draws[[1]]), ncol(draws[[1]]))
-mains <- c("AR(2) on the raw series", "AR(2) on the returns")
-for (i in seq_along(draws)) {
-  plot(draws[[i]], main = mains[i], xlab = bquote(phi[1]),
-     ylab = bquote(phi[2]), xlim = c(-2, 2), ylim = c(-1, 1),
-     col = rgb(0, 0, 0, .05), pch = 16)
-  polygon(c(-2, 0, 2, -2), c(-1, 1, -1, -1), border = 2)
-
-  for (m in seq_len(nrow(draws[[i]]))) {
-    Phi <- matrix(c(draws[[i]][m, ], c(1, 0)), byrow = TRUE, nrow = 2)
-    eigenvalues[m, ] <- eigen(Phi, only.values = TRUE)$values
-  }
-  plot(eigenvalues, xlim = c(-1, 1), ylim = c(-1, 1), asp = 1,
-       main = mains[i], col = rgb(0, 0, 0, .05), pch = 16)
-  symbols(0, 0, 1, add = TRUE, fg = 2, inches = FALSE)
-}
-```
-
-![](Chapter07_files/figure-html/unnamed-chunk-41-1.png)
-
-To explore whether the nonstationarity of the raw series could be caused
-by a unit root, we investigate the posterior of
-$`1 - \phi_1 - \dots - \phi_p`$ for $`p = 1, \dots, 4`$.
-
-``` r
-
-toplot <- matrix(NA_real_, ndraws, 4)
-for (p in 1:4)
-  toplot[, p] <- rowSums(ardat[[p]]$betas[, 2:(p + 1), drop = FALSE]) - 1
-for (p in 1:4) {
-  hist(toplot[, p], freq = FALSE,
-       breaks = seq(min(toplot), max(toplot), length.out = 20),
-       main = paste0("AR(", p, ")"), xlab = expression(delta), ylab = "")
-  abline(v = 0, lty = 2, col = 2)
-}
-```
-
-![](Chapter07_files/figure-html/unnamed-chunk-42-1.png)
-
-We do the same for the inflation data.
-
-``` r
-
-ardat <- arret <- list()
-for (p in 1:4) {
-  y <- tail(inflation, -p)
-  Xy <- ARdesignmatrix(inflation, p)
-  ardat[[p]] <- regression(y, Xy, prior = "improper")
-}
-```
-
-``` r
-
-for (p in 1:4)
-  toplot[, p] <- rowSums(ardat[[p]]$betas[, 2:(p + 1), drop = FALSE]) - 1
-for (p in 1:4) {
-  hist(toplot[, p], freq = FALSE,
-       breaks = seq(min(toplot), max(toplot), length.out = 20),
-       main = paste0("AR(", p, ")"), xlab = expression(delta), ylab = "")
-  abline(v = 0, lty = 2, col = 2)
-}
-```
-
-![](Chapter07_files/figure-html/unnamed-chunk-44-1.png)
-
-### Section 7.3.2: Bayesian Learning of an MA(1) Model
+#### Example 7.13: Exchange rate data: Fitting an MA(1) model using a random walk MH
 
 We now implement the MCMC sampler for fitting an MA(1) model, where we
 treat the latent state $`\epsilon_0 \sim \mathcal{N}(0, \sigma^2)`$ as
@@ -1239,7 +1142,9 @@ for (i in seq_along(cthetas)) {
 }
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-46-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-40-1.png)
+
+#### Example 7.14: Exchange rate data: Fitting an MA(1) model using a random walk MH
 
 We repeat the exercise above, but now use a truncated Gaussian proposal
 for the random walk MH algorithm.
@@ -1318,7 +1223,7 @@ for (i in seq_along(cthetas2)) {
 }
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-48-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-42-1.png)
 
 We repeat the exercise above once more, but now use a random walk
 proposal on $`\log(1 + \theta) - \log(1 - \theta)`$.
@@ -1396,7 +1301,7 @@ for (i in seq_along(cthetas3)) {
 }
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-50-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-44-1.png)
 
 Let’s also check some QQ plots for equivalence.
 
@@ -1407,7 +1312,7 @@ qqplot(thetas[, 2], thetas3[, 2])
 abline(c(0, 1), col = 2)
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-51-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-45-1.png)
 
 Now, we compare acceptance rates and inefficiency factors for all 9
 samplers.
@@ -1427,24 +1332,24 @@ knitr::kable(round(accepts, 2))
 
 |                | tiny | medium | huge |
 |:---------------|-----:|-------:|-----:|
-| Gaussian RW    | 0.87 |   0.31 | 0.03 |
-| truncated RW   | 0.87 |   0.35 | 0.06 |
-| transformed RW | 0.94 |   0.52 | 0.07 |
+| Gaussian RW    | 0.97 |   0.69 | 0.14 |
+| truncated RW   | 0.97 |   0.77 | 0.23 |
+| transformed RW | 0.98 |   0.81 | 0.22 |
 
 ``` r
 
 knitr::kable(round(IF, 1))
 ```
 
-|                |  tiny | medium | huge |
-|:---------------|------:|-------:|-----:|
-| Gaussian RW    |  39.3 |    5.8 | 46.0 |
-| truncated RW   |  36.3 |    5.2 | 31.8 |
-| transformed RW | 143.1 |    4.7 | 20.5 |
+|                |   tiny | medium | huge |
+|:---------------|-------:|-------:|-----:|
+| Gaussian RW    | 3211.9 |   29.8 | 18.8 |
+| truncated RW   | 5764.0 |   27.7 | 11.7 |
+| transformed RW |  656.1 |   18.4 |  8.8 |
 
 ## Section 7.4: Markov modeling for a panel of categorical time series
 
-### Example 7.13: Wage mobility data
+#### Example 7.15: Wage mobility data: Introduction
 
 We load the data and only consider workers from the birth cohort
 1946-1960.
@@ -1481,9 +1386,9 @@ for (i in index) {
 }
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-55-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-49-1.png)
 
-### Example 7.14: Wage mobility data – comparing wage mobility of men and women
+#### Example 7.16: Wage mobility data: Comparing wage mobility of men and women
 
 We transform the data to obtain for each worker the matrix which
 contains the number of transitions from one class to the other, i.e.,
@@ -1579,7 +1484,7 @@ corrplot::corrplot(mean_xi_male, method = "square", is.corr = FALSE,
                    col = 1, cl.pos = "n", col.lim = c(0, 1.5))
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-59-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-53-1.png)
 
 We compare the posterior densities of various transition probabilities
 $`\xi_{g,hk}`$ for women and men.
@@ -1622,9 +1527,9 @@ legend("topright", col = 1, lty = 1:2,
        legend = c("female", "male"))
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-60-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-54-1.png)
 
-### Example 7.15: Wage mobility data – long run
+#### Example 7.17: Wage mobility data: Evaluating long run effects
 
 We assume that both men and women start out in the labor market with the
 same wage distribution, where 70% start in wage category 1 and 30% in
@@ -1648,7 +1553,7 @@ barplot(eta_hat_female_t, main = "Women", xlab = "Year", ylab = "Wage groups")
 barplot(eta_hat_male_t, main = "Men", xlab = "Year", ylab = "Wage groups")
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-61-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-55-1.png)
 
 We inspect the posterior distributions of $`\eta_{t,2}`$ for wage
 category 2 (left-hand side) versus $`\eta_{t,5}`$ for wage category 5
@@ -1684,4 +1589,4 @@ hist(eta_male_t[, 6], breaks = breaks,
 legend("topright", c("female", "male"), fill = rgb(c(0, 1), 0, 0, 0.2))
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-62-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-56-1.png)
