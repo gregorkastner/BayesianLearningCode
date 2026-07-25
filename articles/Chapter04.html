@@ -75,11 +75,11 @@
     
     
 <div class="section level2">
-<h2 id="swiss-franc-versus-us-dollar">Swiss franc versus US dollar<a class="anchor" aria-label="anchor" href="#swiss-franc-versus-us-dollar"></a>
+<h2 id="section-4-1-data-arising-from-a-normal-distribution">Section 4.1: Data arising from a normal distribution<a class="anchor" aria-label="anchor" href="#section-4-1-data-arising-from-a-normal-distribution"></a>
 </h2>
-<div class="section level3">
-<h3 id="example-4-1-the-data">Example 4.1: The data<a class="anchor" aria-label="anchor" href="#example-4-1-the-data"></a>
-</h3>
+<div class="section level4">
+<h4 id="example-4-1-chf-exchange-rate-data">Example 4.1: CHF exchange rate data<a class="anchor" aria-label="anchor" href="#example-4-1-chf-exchange-rate-data"></a>
+</h4>
 <p>We use daily exchange rate data contained in the package
 <em>stochvol</em>, covering the period from January 3, 2000, until April
 4, 2012. We are interested in the percentage log returns of the the
@@ -95,8 +95,22 @@ Swiss franc (CHF) against the US dollar (USD).</p>
 <p><img src="Chapter04_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 <div class="section level3">
-<h3 id="example-4-2-a-first-posterior">Example 4.2: A first posterior<a class="anchor" aria-label="anchor" href="#example-4-2-a-first-posterior"></a>
+<h3 id="section-4-1-1-learning-the-variance-when-the-mean-is-known">Section 4.1.1: Learning the variance when the mean is known<a class="anchor" aria-label="anchor" href="#section-4-1-1-learning-the-variance-when-the-mean-is-known"></a>
 </h3>
+<p>[no code]</p>
+</div>
+<div class="section level3">
+<h3 id="section-4-1-2-learning-the-mean-when-the-variance-is-known">Section 4.1.2: Learning the mean when the variance is known<a class="anchor" aria-label="anchor" href="#section-4-1-2-learning-the-mean-when-the-variance-is-known"></a>
+</h3>
+<p>[no code]</p>
+</div>
+<div class="section level3">
+<h3 id="section-4-1-3-learning-mean-and-variance-jointly-under-an-improper-prior">Section 4.1.3: Learning mean and variance jointly under an improper
+prior<a class="anchor" aria-label="anchor" href="#section-4-1-3-learning-mean-and-variance-jointly-under-an-improper-prior"></a>
+</h3>
+<div class="section level4">
+<h4 id="example-4-2-chf-exchange-rate-data">Example 4.2: CHF exchange rate data<a class="anchor" aria-label="anchor" href="#example-4-2-chf-exchange-rate-data"></a>
+</h4>
 <p>For a first joint inference on
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>μ</mi><annotation encoding="application/x-tex">\mu</annotation></semantics></math>
 and
@@ -187,9 +201,14 @@ deviation</em> (not mean and variance).</p>
 <span><span class="op">}</span></span></code></pre></div>
 <p><img src="Chapter04_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" alt="" width="768"></p>
 </div>
+</div>
 <div class="section level3">
-<h3 id="example-4-3-posterior-marginals">Example 4.3: Posterior marginals<a class="anchor" aria-label="anchor" href="#example-4-3-posterior-marginals"></a>
+<h3 id="section-4-1-4-learning-mean-and-variance-jointly-under-conjugate-priors">Section 4.1.4: Learning mean and variance jointly under conjugate
+priors<a class="anchor" aria-label="anchor" href="#section-4-1-4-learning-mean-and-variance-jointly-under-conjugate-priors"></a>
 </h3>
+<div class="section level4">
+<h4 id="example-4-3-chf-exchange-rate-data-ctd-">Example 4.3: CHF exchange rate data (ctd.)<a class="anchor" aria-label="anchor" href="#example-4-3-chf-exchange-rate-data-ctd-"></a>
+</h4>
 <p>We now want to visualize the univariate marginals of the bivariate
 posterior. Again, we need to do some preparations, as R does not
 natively cater for the generalized
@@ -296,11 +315,25 @@ are easily computed.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">HPD</span>, <span class="fl">4</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 0.5025 0.5548</span></span></code></pre></div>
 </div>
+</div>
+</div>
+<div class="section level2">
+<h2 id="section-4-2-data-arising-from-a-student-t-distribution">Section 4.2: Data arising from a Student-t distribution<a class="anchor" aria-label="anchor" href="#section-4-2-data-arising-from-a-student-t-distribution"></a>
+</h2>
 <div class="section level3">
-<h3 id="example-4-4-fitting-a-student-t-distribution-with-known-mean-and-known-degrees-of-freedom">Example 4.4: Fitting a
-Student-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
-distribution with known mean and known degrees of freedom<a class="anchor" aria-label="anchor" href="#example-4-4-fitting-a-student-t-distribution-with-known-mean-and-known-degrees-of-freedom"></a>
+<h3 id="section-4-2-1-bayesian-learning-under-the-student-t-distribution">Section 4.2.1: Bayesian learning under the Student-t
+distribution<a class="anchor" aria-label="anchor" href="#section-4-2-1-bayesian-learning-under-the-student-t-distribution"></a>
 </h3>
+<p>[no code]</p>
+</div>
+<div class="section level3">
+<h3 id="section-4-2-2-a-first-non-conjugate-analysis">Section 4.2.2: A first non-conjugate analysis<a class="anchor" aria-label="anchor" href="#section-4-2-2-a-first-non-conjugate-analysis"></a>
+</h3>
+<div class="section level4">
+<h4 id="example-4-4-chf-exchange-rate-data-fitting-a-student-t-distribution">Example 4.4: CHF exchange rate data: Fitting a
+Student-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
+distribution<a class="anchor" aria-label="anchor" href="#example-4-4-chf-exchange-rate-data-fitting-a-student-t-distribution"></a>
+</h4>
 <p>We first define <code>post_nonnormalized_nonvec</code>, a function
 evaluating the non-normalized posterior density of
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>σ</mi><mn>2</mn></msup><annotation encoding="application/x-tex">\sigma^2</annotation></semantics></math>.
@@ -361,9 +394,16 @@ standard deviation, again using the trapezoid rule.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">v</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 0.011</span></span></code></pre></div>
 </div>
-<div class="section level3">
-<h3 id="example-4-5-bayesian-learning-of-quantiles">Example 4.5: Bayesian learning of quantiles<a class="anchor" aria-label="anchor" href="#example-4-5-bayesian-learning-of-quantiles"></a>
-</h3>
+</div>
+</div>
+<div class="section level2">
+<h2 id="section-4-3-bayesian-learning-of-quantiles-under-an-assumed-distribution">Section 4.3: Bayesian learning of quantiles under an assumed
+distribution<a class="anchor" aria-label="anchor" href="#section-4-3-bayesian-learning-of-quantiles-under-an-assumed-distribution"></a>
+</h2>
+<div class="section level4">
+<h4 id="example-4-5-chf-exchange-rate-data-bayesian-learning-of-quantiles">Example 4.5: CHF exchange rate data: Bayesian learning of
+quantiles<a class="anchor" aria-label="anchor" href="#example-4-5-chf-exchange-rate-data-bayesian-learning-of-quantiles"></a>
+</h4>
 <p>To learn about the distribution of a certain low quantile, the
 Value-at-Risk (VaR), we can generate draws from it. For the Gaussian
 model with mean zero and
@@ -430,6 +470,21 @@ VaR.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">qtdraws</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.025</span>, <span class="fl">.975</span><span class="op">)</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   2.5%  97.5% </span></span>
 <span><span class="co">#&gt; -2.145 -2.022</span></span></code></pre></div>
+</div>
+</div>
+<div class="section level2">
+<h2 id="section-4-4-shrinkage-priors-for-the-normal-means-model">Section 4.4: Shrinkage priors for the normal-means model<a class="anchor" aria-label="anchor" href="#section-4-4-shrinkage-priors-for-the-normal-means-model"></a>
+</h2>
+<div class="section level3">
+<h3 id="section-4-4-1-a-hierarchical-prior-for-global-shrinkage">Section 4.4.1: A hierarchical prior for global shrinkage<a class="anchor" aria-label="anchor" href="#section-4-4-1-a-hierarchical-prior-for-global-shrinkage"></a>
+</h3>
+<p>[no code]</p>
+</div>
+<div class="section level3">
+<h3 id="section-4-4-2-local-global-shrinkage-priors-for-the-sparse-normal-means-model">Section 4.4.2: Local-global shrinkage priors for the sparse
+normal-means model<a class="anchor" aria-label="anchor" href="#section-4-4-2-local-global-shrinkage-priors-for-the-sparse-normal-means-model"></a>
+</h3>
+<p>[TODO]<br>[TODO]<br>[TODO]<br>[TODO]<br>[TODO]<br>[TODO]<br>[TODO]<br>[TODO]<br>[TODO]<br>[TODO]<br></p>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

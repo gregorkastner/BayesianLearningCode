@@ -2,7 +2,9 @@
 
 ## Section 3.1: Data arising from a homogeneous population: The beta-binomial model
 
-### Figure 3.1: Posteriors under the beta-binomial model
+### Section 3.1.1: Deriving the beta-binomial model
+
+#### Figure 3.1: Posteriors under the beta-binomial model
 
 To reproduce the posteriors in this figure, we simply need to plug in
 the respective counts into the expression for the posterior density and
@@ -26,7 +28,9 @@ for (p in trueprop) {
 
 ![](Chapter03_files/figure-html/unnamed-chunk-3-1.png)
 
-### Calibrating the Beta prior
+### Section 3.1.2: Calibrating the Beta prior
+
+#### Example currently not included in the book
 
 Let $`m_0 = \frac{a_0}{a_0 + b_0}`$ denote the prior mean and
 $`N_0 = a_0 + b_0`$ the strength of the prior information.
@@ -58,7 +62,9 @@ for (i in seq_along(SN)) {
 
 ![](Chapter03_files/figure-html/unnamed-chunk-4-1.png)![](Chapter03_files/figure-html/unnamed-chunk-4-2.png)
 
-### Example 3.1 / Figure 3.2: Uncertainty quantification for market shares
+### Section 3.1.3: Credible intervals and HPD regions
+
+#### Example 3.1: Uncertainty quantification for market shares
 
 In city A, 40 out of 400 questioned people would purchase a certain
 product, in a rural community, only 4 out of 400. Assuming a uniform
@@ -145,7 +151,7 @@ for (i in seq_along(aN)) {
 
 ![](Chapter03_files/figure-html/unnamed-chunk-6-1.png)
 
-### Example 3.2 / Table 3.1: Posterior credible intervals under the beta-binomial model
+#### Example 3.2: Credible intervals for market shares
 
 We now proceed to computing credible intervals for the synthetic
 example.
@@ -205,7 +211,9 @@ knitr::kable(round(res, 4))
 |   0.0590 |    0.0587 |
 |   0.0976 |    0.0976 |
 
-### Figure 3.3: One-sided hypothesis testing
+### Chapter 3.1.4: Learning beyond parameter estimation
+
+#### Example 3.3: Exploring hypotheses about an unknown probability
 
 We now move forward to assessing visualizing the posterior probability
 of $`\vartheta`$ (the proportion of defective items) being less than
@@ -232,7 +240,11 @@ for (i in seq_along(SN)) {
 
 ![](Chapter03_files/figure-html/unnamed-chunk-10-1.png)
 
-### Example 3.4: Labor market data
+## Section 3.2: Data arising from a heterogeneous population
+
+### Section 3.2.1: Bayesian learning under observed heterogeneity
+
+#### Example 3.4: Labor market data
 
 We load the dataset from the package and extract the data needed for the
 anlaysis:
@@ -298,6 +310,10 @@ aN1 / (aN1 + bN1)
 aN2 / (aN2 + bN2)
 #> [1] 0.1458333
 ```
+
+\[TODO: Figure 3.4\]
+
+#### Example 3.5: Labor market data: Exploring heterogeneity
 
 We visualize the joint posterior of $`(\vartheta_1, \vartheta_2)`$ using
 a contour plot as well as a density estimate of the difference
@@ -365,9 +381,32 @@ for (i in 1:3) {
 
 ![](Chapter03_files/figure-html/unnamed-chunk-17-1.png)
 
-### Example 3.5: Bag of words
+#### Example 3.6: Stomach cancer data: Exploring heterogeneity
 
-#### Preparing the data
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+
+## Section 3.3: Bayesian learning of a discrete probability distribution: The Dirichlet-multinomial model
+
+### Section 3.3.1: Data arising from a categorical variable
+
+\[no code\]
+
+### Section 3.3.2: Bayesian learning for a Dirichlet-multinomial model
+
+\[no code\]
+
+### Section 3.3.3: The bag of words model
+
+#### Example 3.7: Bag of words data
 
 After reading in the quote, we do some simple manipulation such as
 converting to lower case, getting rid of newlines, and splitting the

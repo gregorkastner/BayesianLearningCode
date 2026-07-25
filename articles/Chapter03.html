@@ -79,8 +79,11 @@
 beta-binomial model<a class="anchor" aria-label="anchor" href="#section-3-1-data-arising-from-a-homogeneous-population-the-beta-binomial-model"></a>
 </h2>
 <div class="section level3">
-<h3 id="figure-3-1-posteriors-under-the-beta-binomial-model">Figure 3.1: Posteriors under the beta-binomial model<a class="anchor" aria-label="anchor" href="#figure-3-1-posteriors-under-the-beta-binomial-model"></a>
+<h3 id="section-3-1-1-deriving-the-beta-binomial-model">Section 3.1.1: Deriving the beta-binomial model<a class="anchor" aria-label="anchor" href="#section-3-1-1-deriving-the-beta-binomial-model"></a>
 </h3>
+<div class="section level4">
+<h4 id="figure-3-1-posteriors-under-the-beta-binomial-model">Figure 3.1: Posteriors under the beta-binomial model<a class="anchor" aria-label="anchor" href="#figure-3-1-posteriors-under-the-beta-binomial-model"></a>
+</h4>
 <p>To reproduce the posteriors in this figure, we simply need to plug in
 the respective counts into the expression for the posterior density and
 visualize it accordingly.</p>
@@ -99,9 +102,13 @@ visualize it accordingly.</p>
 <span><span class="op">}</span></span></code></pre></div>
 <p><img src="Chapter03_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" alt="" width="768"></p>
 </div>
+</div>
 <div class="section level3">
-<h3 id="calibrating-the-beta-prior">Calibrating the Beta prior<a class="anchor" aria-label="anchor" href="#calibrating-the-beta-prior"></a>
+<h3 id="section-3-1-2-calibrating-the-beta-prior">Section 3.1.2: Calibrating the Beta prior<a class="anchor" aria-label="anchor" href="#section-3-1-2-calibrating-the-beta-prior"></a>
 </h3>
+<div class="section level4">
+<h4 id="example-currently-not-included-in-the-book">Example currently not included in the book<a class="anchor" aria-label="anchor" href="#example-currently-not-included-in-the-book"></a>
+</h4>
 <p>Let
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>m</mi><mn>0</mn></msub><mo>=</mo><mfrac><msub><mi>a</mi><mn>0</mn></msub><mrow><msub><mi>a</mi><mn>0</mn></msub><mo>+</mo><msub><mi>b</mi><mn>0</mn></msub></mrow></mfrac></mrow><annotation encoding="application/x-tex">m_0 = \frac{a_0}{a_0 + b_0}</annotation></semantics></math>
 denote the prior mean and
@@ -131,10 +138,13 @@ the strength of the prior information.</p>
 <span><span class="op">}</span></span></code></pre></div>
 <p><img src="Chapter03_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" alt="" width="768"><img src="Chapter03_files/figure-html/unnamed-chunk-4-2.png" class="r-plt" alt="" width="768"></p>
 </div>
+</div>
 <div class="section level3">
-<h3 id="example-3-1-figure-3-2-uncertainty-quantification-for-market-shares">Example 3.1 / Figure 3.2: Uncertainty quantification for market
-shares<a class="anchor" aria-label="anchor" href="#example-3-1-figure-3-2-uncertainty-quantification-for-market-shares"></a>
+<h3 id="section-3-1-3-credible-intervals-and-hpd-regions">Section 3.1.3: Credible intervals and HPD regions<a class="anchor" aria-label="anchor" href="#section-3-1-3-credible-intervals-and-hpd-regions"></a>
 </h3>
+<div class="section level4">
+<h4 id="example-3-1-uncertainty-quantification-for-market-shares">Example 3.1: Uncertainty quantification for market shares<a class="anchor" aria-label="anchor" href="#example-3-1-uncertainty-quantification-for-market-shares"></a>
+</h4>
 <p>In city A, 40 out of 400 questioned people would purchase a certain
 product, in a rural community, only 4 out of 400. Assuming a uniform
 prior, we now compute equal-tailed intervals and highest posterior
@@ -212,10 +222,9 @@ can compute the equal-tailed intervals without using a loop.</p>
 <span><span class="op">}</span></span></code></pre></div>
 <p><img src="Chapter03_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" alt="" width="768"></p>
 </div>
-<div class="section level3">
-<h3 id="example-3-2-table-3-1-posterior-credible-intervals-under-the-beta-binomial-model">Example 3.2 / Table 3.1: Posterior credible intervals under the
-beta-binomial model<a class="anchor" aria-label="anchor" href="#example-3-2-table-3-1-posterior-credible-intervals-under-the-beta-binomial-model"></a>
-</h3>
+<div class="section level4">
+<h4 id="example-3-2-credible-intervals-for-market-shares">Example 3.2: Credible intervals for market shares<a class="anchor" aria-label="anchor" href="#example-3-2-credible-intervals-for-market-shares"></a>
+</h4>
 <p>We now proceed to computing credible intervals for the synthetic
 example.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
@@ -299,9 +308,13 @@ example.</p>
 </tbody>
 </table>
 </div>
+</div>
 <div class="section level3">
-<h3 id="figure-3-3-one-sided-hypothesis-testing">Figure 3.3: One-sided hypothesis testing<a class="anchor" aria-label="anchor" href="#figure-3-3-one-sided-hypothesis-testing"></a>
+<h3 id="chapter-3-1-4-learning-beyond-parameter-estimation">Chapter 3.1.4: Learning beyond parameter estimation<a class="anchor" aria-label="anchor" href="#chapter-3-1-4-learning-beyond-parameter-estimation"></a>
 </h3>
+<div class="section level4">
+<h4 id="example-3-3-exploring-hypotheses-about-an-unknown-probability">Example 3.3: Exploring hypotheses about an unknown probability<a class="anchor" aria-label="anchor" href="#example-3-3-exploring-hypotheses-about-an-unknown-probability"></a>
+</h4>
 <p>We now move forward to assessing visualizing the posterior
 probability of
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϑ</mi><annotation encoding="application/x-tex">\vartheta</annotation></semantics></math>
@@ -329,9 +342,17 @@ and
 <span><span class="op">}</span></span></code></pre></div>
 <p><img src="Chapter03_files/figure-html/unnamed-chunk-10-1.png" class="r-plt" alt="" width="768"></p>
 </div>
+</div>
+</div>
+<div class="section level2">
+<h2 id="section-3-2-data-arising-from-a-heterogeneous-population">Section 3.2: Data arising from a heterogeneous population<a class="anchor" aria-label="anchor" href="#section-3-2-data-arising-from-a-heterogeneous-population"></a>
+</h2>
 <div class="section level3">
-<h3 id="example-3-4-labor-market-data">Example 3.4: Labor market data<a class="anchor" aria-label="anchor" href="#example-3-4-labor-market-data"></a>
+<h3 id="section-3-2-1-bayesian-learning-under-observed-heterogeneity">Section 3.2.1: Bayesian learning under observed heterogeneity<a class="anchor" aria-label="anchor" href="#section-3-2-1-bayesian-learning-under-observed-heterogeneity"></a>
 </h3>
+<div class="section level4">
+<h4 id="example-3-4-labor-market-data">Example 3.4: Labor market data<a class="anchor" aria-label="anchor" href="#example-3-4-labor-market-data"></a>
+</h4>
 <p>We load the dataset from the package and extract the data needed for
 the anlaysis:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
@@ -376,6 +397,11 @@ are given by:</p>
 <span><span class="co">#&gt; [1] 0.08633094</span></span>
 <span><span class="va">aN2</span> <span class="op">/</span> <span class="op">(</span><span class="va">aN2</span> <span class="op">+</span> <span class="va">bN2</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 0.1458333</span></span></code></pre></div>
+<p>[TODO: Figure 3.4]</p>
+</div>
+<div class="section level4">
+<h4 id="example-3-5-labor-market-data-exploring-heterogeneity">Example 3.5: Labor market data: Exploring heterogeneity<a class="anchor" aria-label="anchor" href="#example-3-5-labor-market-data-exploring-heterogeneity"></a>
+</h4>
 <p>We visualize the joint posterior of
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>ϑ</mi><mn>1</mn></msub><mo>,</mo><msub><mi>ϑ</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\vartheta_1, \vartheta_2)</annotation></semantics></math>
 using a contour plot as well as a density estimate of the difference
@@ -435,11 +461,33 @@ using a contour plot as well as a density estimate of the difference
 <span><span class="op">}</span></span></code></pre></div>
 <p><img src="Chapter03_files/figure-html/unnamed-chunk-17-1.png" class="r-plt" alt="" width="768"></p>
 </div>
+<div class="section level4">
+<h4 id="example-3-6-stomach-cancer-data-exploring-heterogeneity">Example 3.6: Stomach cancer data: Exploring heterogeneity<a class="anchor" aria-label="anchor" href="#example-3-6-stomach-cancer-data-exploring-heterogeneity"></a>
+</h4>
+<p>[TODO]<br>[TODO]<br>[TODO]<br>[TODO]<br>[TODO]<br>[TODO]<br>[TODO]<br>[TODO]<br>[TODO]<br>[TODO]<br></p>
+</div>
+</div>
+</div>
+<div class="section level2">
+<h2 id="section-3-3-bayesian-learning-of-a-discrete-probability-distribution-the-dirichlet-multinomial-model">Section 3.3: Bayesian learning of a discrete probability
+distribution: The Dirichlet-multinomial model<a class="anchor" aria-label="anchor" href="#section-3-3-bayesian-learning-of-a-discrete-probability-distribution-the-dirichlet-multinomial-model"></a>
+</h2>
 <div class="section level3">
-<h3 id="example-3-5-bag-of-words">Example 3.5: Bag of words<a class="anchor" aria-label="anchor" href="#example-3-5-bag-of-words"></a>
+<h3 id="section-3-3-1-data-arising-from-a-categorical-variable">Section 3.3.1: Data arising from a categorical variable<a class="anchor" aria-label="anchor" href="#section-3-3-1-data-arising-from-a-categorical-variable"></a>
+</h3>
+<p>[no code]</p>
+</div>
+<div class="section level3">
+<h3 id="section-3-3-2-bayesian-learning-for-a-dirichlet-multinomial-model">Section 3.3.2: Bayesian learning for a Dirichlet-multinomial
+model<a class="anchor" aria-label="anchor" href="#section-3-3-2-bayesian-learning-for-a-dirichlet-multinomial-model"></a>
+</h3>
+<p>[no code]</p>
+</div>
+<div class="section level3">
+<h3 id="section-3-3-3-the-bag-of-words-model">Section 3.3.3: The bag of words model<a class="anchor" aria-label="anchor" href="#section-3-3-3-the-bag-of-words-model"></a>
 </h3>
 <div class="section level4">
-<h4 id="preparing-the-data">Preparing the data<a class="anchor" aria-label="anchor" href="#preparing-the-data"></a>
+<h4 id="example-3-7-bag-of-words-data">Example 3.7: Bag of words data<a class="anchor" aria-label="anchor" href="#example-3-7-bag-of-words-data"></a>
 </h4>
 <p>After reading in the quote, we do some simple manipulation such as
 converting to lower case, getting rid of newlines, and splitting the

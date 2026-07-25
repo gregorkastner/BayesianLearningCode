@@ -44,7 +44,16 @@ mtext("Time", side = 1, line = 1.5, at = 1995.6)
 
 #### Example 2.2: Road safety data: Deriving the posterior distribution
 
-\[TODO\]
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
 
 ### Section 2.1.2: Reporting posterior inference
 
@@ -295,7 +304,16 @@ hist(delta2, breaks = 20, prob = TRUE, xlab = expression(delta[2]), ylab = "",
 
 #### Example 2.8: Eye tracking data
 
-\[TODO\]
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
 
 ### Section 2.3.1: The Poisson-Gamma model
 
@@ -305,12 +323,39 @@ hist(delta2, breaks = 20, prob = TRUE, xlab = expression(delta[2]), ylab = "",
 
 #### Example 2.9: Eye tracking data
 
-\[TODO\]
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
 
 #### Example 2.10: Eye tracking data
 
-\[TODO\]
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
 
 #### Example 2.11: Eye tracking data
 
-\[TODO\]
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  

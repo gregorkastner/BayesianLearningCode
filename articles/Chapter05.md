@@ -1,8 +1,14 @@
 # Chapter 5: Learning More About Bayesian Learning
 
-## Section 5.2: Conjugate or non-conjugate?
+## Section 5.1: What is probability?
 
-### Example 5.3 / Figure 5.1: The adaptive nature of Bayesian learning
+\[no code\]
+
+## Section 5.2: Conjugate or non-conjugate – that is the question!
+
+### Section 5.2.1: Conjugate Bayesian analysis
+
+#### Example 5.3: Online updating for the beta posterior
 
 We illustrate the adaptive nature of Bayesian learning (also referred to
 as *sequential updating* or *on-line learning*) via the Beta-Bernoulli
@@ -36,9 +42,21 @@ for (i in seq_along(thetatrue)) {
 
 ![](Chapter05_files/figure-html/unnamed-chunk-3-1.png)
 
-## Section 5.3.2: Uncertainty quantification
+### Section 5.2.2: Non-conjugate Bayesian analysis
 
-### Example 5.5: Quantifying and visualizing posterior uncertainty for the mean and the variance of a normal distribution
+\[no code\]
+
+## Section 5.3: What to report in posterior inference?
+
+### Section 5.3.1: Bayesian point estimators – reporting a single number
+
+#### Example 5.4: Estimators for the variance for continuous data
+
+\[no code\]
+
+### Section 5.3.2: Uncertainty quantification
+
+#### Example 5.5: Quantifying and visualizing posterior uncertainty for the mean and the variance of a normal distribution
 
 We re-use the posterior established in Chapter 4, where we modeled the
 CHF/USD exchange rate as a normal distribution with unknown mean and
@@ -160,7 +178,11 @@ for (i in seq_along(alpha)) {
 
 ![](Chapter05_files/figure-html/unnamed-chunk-9-1.png)
 
-### Example 5.6: The law of large numbers in a Bayesian context
+## Section 5.4: Viewing Bayesian learning through the lens of mathematical statistics
+
+### Section 5.4.1: Why is the law of large numbers important for a Bayesian?
+
+#### Example 5.6: Illustrating the impact of choosing the number of draws
 
 We again revisit the CHF-USD exchange rate data from the previous
 chapter. We assumed that
@@ -240,9 +262,9 @@ abline(h = e, lty = 2)
 
 ![](Chapter05_files/figure-html/unnamed-chunk-13-1.png)
 
-## Section 5.4
+### Section 5.4.2: Asymptotic normality of the posterior distribution
 
-### Figure 5.4: Bayesian asymptotics 1
+#### Example 5.7: Convergence of the posterior density of an unknown probability
 
 To reproduce this figure, we again re-use the theory from Chapter 3 (the
 Beta-Bernoulli model).
@@ -278,7 +300,7 @@ for (i in seq_along(N)) {
 
 ![](Chapter05_files/figure-html/unnamed-chunk-14-1.png)
 
-### Figure 5.5: Bayesian asymptotics 2
+#### Example 5.8: Posterior concentration for large sample size
 
 As above, just with higher sample size.
 
@@ -308,7 +330,7 @@ for (i in seq_along(thetatrue)) {
 
 ![](Chapter05_files/figure-html/unnamed-chunk-15-1.png)
 
-### Figure 5.6: Bayesian asymptotics 3
+#### Example 5.9: Asymptotic normality of the posterior density of an unknown probability
 
 We now want to approximate the log posteriors via quadratic polynomials
 and visualize these.
@@ -347,7 +369,9 @@ for (i in seq_along(N)) {
 
 ![](Chapter05_files/figure-html/unnamed-chunk-16-1.png)
 
-### Table 5.1: Point estimates
+### Section 5.4.3: Uncertainty quantification through the posterior or the sampling distribution?
+
+#### Example 5.10: Comparing frequentist and Bayesian uncertainty quantification
 
 We now compute various point estimates under several settings. Note that
 we use the same number of 1s ($`S_N`$) as before.
@@ -388,8 +412,6 @@ knitr::kable(round(res, 3))
 |           | 100 |  32 | 0.320 |   0.324 |   0.320 |   0.321 |   0.317 |
 |           | 400 | 110 | 0.275 |   0.276 |   0.275 |   0.276 |   0.275 |
 
-### Table 5.2: Interval estimates
-
 We now compute frequentist and Bayesian CIs.
 
 ``` r
@@ -424,8 +446,6 @@ knitr::kable(round(res, 3))
 |      0.25 |  25 |   4 |    0.016 |     0.304 |   0.054 |    0.331 |
 |           | 100 |  32 |    0.229 |     0.411 |   0.234 |    0.414 |
 |           | 400 | 110 |    0.231 |     0.319 |   0.233 |    0.320 |
-
-### Example 5.10 / Table 5.3: Coverage probabilities under the Beta-Bernoulli model
 
 For a (frequentist) estimate of the coverage probabilities, we simulate
 many data sets for each of the parameter configurations and check how
@@ -495,7 +515,7 @@ knitr::kable(round(res, 2))
 |           | 100 |      0.94 |      0.95 |        0.95 |    0.17 |    0.17 |      0.17 |
 |           | 400 |      0.94 |      0.95 |        0.94 |    0.08 |    0.08 |      0.08 |
 
-### Example 5.11: Coverage probabilities under the Poisson-Gamma model
+#### Example 5.11: Uncertainty quantification for simulated data
 
 As above, but for data from a $`\mathcal{P}(5)`$-distribution. We
 estimate the mean from $`N = 24`$ data points and construct CIs. Recall
@@ -565,7 +585,7 @@ knitr::kable(t(round(res, 2)))
 | equal_coverage    | 0.95 |
 | HPD_coverage      | 0.95 |
 
-### Example 5.12: Uncertainty quantification for various count data
+#### Example 5.12: Uncertainty quantification for various count data
 
 We revisit the accidents and the eye tracking data sets and compute
 means and variances.
@@ -618,7 +638,9 @@ knitr::kable(round(res, 3))
 
 ## Section 5.5: The Role of the Prior for Bayesian Learning
 
-### Example 5.13 / Figure 5.7: Prior (non-)invariance illustration
+### Section 5.5.1: Do flat priors capture ignorance?
+
+#### Example 5.13: Flat priors for logit-type models
 
 First, we define the function `dbetamod`, a modified version of the
 native `dbeta` to return the improper kernel if both parameters are 0
@@ -668,3 +690,94 @@ plot(eta, round(deta(eta, 0, 0), 10), type = "l", ylab = "",
 ```
 
 ![](Chapter05_files/figure-html/unnamed-chunk-28-1.png)
+
+### Section 5.5.2: Jeffreys’ prior
+
+#### Example 5.14: Jeffreys’ prior for the beta-bernoulli model
+
+\[no code, see above\]
+
+#### Example 5.15: Jeffreys’ prior for data from a normal distribution
+
+\[no code\]
+
+### Section 5.5.3: Reference priors – maximizing the impact of the data
+
+\[no code\]
+
+### Section 5.5.4: Do improper priors always lead to proper posteriors?
+
+#### Example 5.16: Potentially improper posteriors for a change point model
+
+\[no code\]
+
+#### Example 5.17: Risk of an improper posterior under a B(0,0)-prior
+
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+
+#### Figure 5.9: Vague priors
+
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+
+## Section 5.6: A first Bayesian analysis under a non-regular likelihood
+
+### Section 5.6.1: Non-regularity of the likelihood under the Student-t distribution
+
+#### Example 5.18: Non-regular likelihood for data from a Student-t distribution
+
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+
+### Section 5.6.2: Choosing the prior for the degrees of freedom
+
+#### Example 5.19: Improper posteriors under the flat prior
+
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+
+#### Example 5.20: Truncated uniform prior on the degrees of freedom parameter
+
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  

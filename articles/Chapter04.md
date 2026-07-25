@@ -1,8 +1,8 @@
 # Chapter 4: A First Bayesian Analysis of Continuous Data
 
-## Swiss franc versus US dollar
+## Section 4.1: Data arising from a normal distribution
 
-### Example 4.1: The data
+#### Example 4.1: CHF exchange rate data
 
 We use daily exchange rate data contained in the package *stochvol*,
 covering the period from January 3, 2000, until April 4, 2012. We are
@@ -22,7 +22,17 @@ ts.plot(y, main = "Time series plot", ylab = "CHF/USD percentage log returns",
 
 ![](Chapter04_files/figure-html/unnamed-chunk-3-1.png)
 
-### Example 4.2: A first posterior
+### Section 4.1.1: Learning the variance when the mean is known
+
+\[no code\]
+
+### Section 4.1.2: Learning the mean when the variance is known
+
+\[no code\]
+
+### Section 4.1.3: Learning mean and variance jointly under an improper prior
+
+#### Example 4.2: CHF exchange rate data
 
 For a first joint inference on $`\mu`$ and $`\sigma^2`$, we assume a
 Gaussian likelihood,
@@ -126,7 +136,9 @@ for (n in c(50, 100, 200, 500, 1000, N)) {
 
 ![](Chapter04_files/figure-html/unnamed-chunk-6-1.png)
 
-### Example 4.3: Posterior marginals
+### Section 4.1.4: Learning mean and variance jointly under conjugate priors
+
+#### Example 4.3: CHF exchange rate data (ctd.)
 
 We now want to visualize the univariate marginals of the bivariate
 posterior. Again, we need to do some preparations, as R does not
@@ -246,7 +258,15 @@ round(HPD, 4)
 #> [1] 0.5025 0.5548
 ```
 
-### Example 4.4: Fitting a Student-$`t`$ distribution with known mean and known degrees of freedom
+## Section 4.2: Data arising from a Student-t distribution
+
+### Section 4.2.1: Bayesian learning under the Student-t distribution
+
+\[no code\]
+
+### Section 4.2.2: A first non-conjugate analysis
+
+#### Example 4.4: CHF exchange rate data: Fitting a Student-$`t`$ distribution
 
 We first define `post_nonnormalized_nonvec`, a function evaluating the
 non-normalized posterior density of $`\sigma^2`$. This function is not
@@ -320,7 +340,9 @@ round(sqrt(v), 3)
 #> [1] 0.011
 ```
 
-### Example 4.5: Bayesian learning of quantiles
+## Section 4.3: Bayesian learning of quantiles under an assumed distribution
+
+#### Example 4.5: CHF exchange rate data: Bayesian learning of quantiles
 
 To learn about the distribution of a certain low quantile, the
 Value-at-Risk (VaR), we can generate draws from it. For the Gaussian
@@ -400,3 +422,22 @@ round(quantile(qtdraws, c(.025, .975)), 3)
 #>   2.5%  97.5% 
 #> -2.145 -2.022
 ```
+
+## Section 4.4: Shrinkage priors for the normal-means model
+
+### Section 4.4.1: A hierarchical prior for global shrinkage
+
+\[no code\]
+
+### Section 4.4.2: Local-global shrinkage priors for the sparse normal-means model
+
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
