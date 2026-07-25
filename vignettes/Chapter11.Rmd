@@ -34,21 +34,31 @@ seed <- 42
 
 ### Example 11.2: Movie data: Full enumeration marginal likelihoods
 
+[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />
+
 ## Section 11.2.2: Model space MCMC
 
 ### Example 11.3: Movie data: Model space MCMC
+
+[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />
 
 ## Section 11.2.3: Benchmark priors for comparing regression models
 
 ### Example 11.4: Movie data: Applying the g-prior
 
+[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />
+
 ## Section 11.2.4: Priors on the model space
 
 ### Example 11.5: Movie Data: Hierarchichal prior on the model space
 
+[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />
+
 ## Section 11.2.5: Bayesian model averaging
 
 ### Example 11.6: Movie data: Bayesian model averaging
+
+[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />
 
 # Section 11.3: Model selection beyond standard regression analysis
 
@@ -56,9 +66,13 @@ seed <- 42
 
 ### Example 11.7: Movie data: Model comparison under log transformations
 
+[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />
+
 ## Section 11.3.2: Bayesian variable selection for a probit model
 
 ### Example 11.8: Labor market data: Bayesian variable selection
+
+[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />
 
 # Section 11.4: Model selection problems in time series analysis
 
@@ -442,13 +456,21 @@ for (p in 1:4) {
 
 ### Example 11.14: CHF exchange rate data: Testing for a unit root 
 
+[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />
+
 ### Example 11.15: Inflation data: Bayesian unit root testing with unknown model order
 
+[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />
+
 ### Example 11.16: Inflation data: Marginal likelihoods with unknown model order
+
+[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />
 
 ## Section 11.4.3: Bayesian testing for first-order Markov Chain models
 
 ### Example 11.17: Austrian wage mobility data: Homogeneity versus grouped model
+
+[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />
 
 We load the data and reduce the observations to workers from the birth cohort
 1946-1960. 
