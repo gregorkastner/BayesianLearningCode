@@ -24,8 +24,15 @@ pdfplots <- FALSE # default: FALSE; set this to TRUE only if you like pdf figure
 par(mgp = c(1.6, .6, 0), mar = c(2.6, 2.6, 2.6, .4), lwd = 1)
 ```
 
-# Section 5.2: Conjugate or non-conjugate?
-## Example 5.3 / Figure 5.1: The adaptive nature of Bayesian learning
+# Section 5.1: What is probability?
+
+[no code]
+
+# Section 5.2: Conjugate or non-conjugate -- that is the question!
+
+## Section 5.2.1: Conjugate Bayesian analysis
+
+### Example 5.3: Online updating for the beta posterior
 
 We illustrate the adaptive nature of Bayesian learning (also referred to
 as *sequential updating* or *on-line learning*) via the Beta-Bernoulli model
@@ -61,8 +68,21 @@ for (i in seq_along(thetatrue)) {
 }
 ```
 
-# Section 5.3.2: Uncertainty quantification
-## Example 5.5: Quantifying and visualizing posterior uncertainty for the mean and the variance of a normal distribution
+## Section 5.2.2: Non-conjugate Bayesian analysis
+
+[no code]
+
+# Section 5.3: What to report in posterior inference?
+
+## Section 5.3.1: Bayesian point estimators -- reporting a single number
+
+### Example 5.4: Estimators for the variance for continuous data
+
+[no code]
+
+## Section 5.3.2: Uncertainty quantification
+
+### Example 5.5: Quantifying and visualizing posterior uncertainty for the mean and the variance of a normal distribution
 
 We re-use the posterior established in Chapter 4, where we modeled the CHF/USD
 exchange rate as a normal distribution with unknown mean and variance.
@@ -181,7 +201,11 @@ for (i in seq_along(alpha)) {
 
 ```
 
-## Example 5.6: The law of large numbers in a Bayesian context
+# Section 5.4: Viewing Bayesian learning through the lens of mathematical statistics
+
+## Section 5.4.1: Why is the law of large numbers important for a Bayesian?
+
+### Example 5.6: Illustrating the impact of choosing the number of draws
 
 We again revisit the CHF-USD exchange rate data from the previous chapter.
 We assumed that
@@ -260,8 +284,8 @@ for (i in seq_len(nlines)) {
 abline(h = e, lty = 2)
 ```
 
-# Section 5.4
-## Figure 5.4: Bayesian asymptotics 1
+## Section 5.4.2: Asymptotic normality of the posterior distribution
+### Example 5.7: Convergence of the posterior density of an unknown probability
 
 To reproduce this figure, we again re-use the theory from Chapter 3 (the
 Beta-Bernoulli model).
@@ -299,7 +323,8 @@ for (i in seq_along(N)) {
 }
 ```
 
-## Figure 5.5: Bayesian asymptotics 2
+### Example 5.8: Posterior concentration for large sample size
+
 As above, just with higher sample size.
 
 ```{r, echo=-(1:2)}
@@ -330,8 +355,8 @@ for (i in seq_along(thetatrue)) {
 }
 ```
 
+### Example 5.9: Asymptotic normality of the posterior density of an unknown probability
 
-## Figure 5.6: Bayesian asymptotics 3
 We now want to approximate the log posteriors via quadratic polynomials and
 visualize these.
 
@@ -371,7 +396,10 @@ for (i in seq_along(N)) {
 }
 ```
 
-## Table 5.1: Point estimates
+## Section 5.4.3: Uncertainty quantification through the posterior or the sampling distribution?
+
+### Example 5.10: Comparing frequentist and Bayesian uncertainty quantification
+
 We now compute various point estimates under several settings. Note that we
 use the same number of 1s ($S_N$) as before.
 
@@ -401,7 +429,6 @@ res <- cbind(thetatrue = c(thetatrue[1], NA, NA, thetatrue[2], NA, NA),
 knitr::kable(round(res, 3))
 ```
 
-## Table 5.2: Interval estimates
 We now compute frequentist and Bayesian CIs.
 
 ```{r}
@@ -427,7 +454,6 @@ res <- cbind(res[,1:3], leftconf, rightconf, leftHPD, rightHPD)
 knitr::kable(round(res, 3))
 ```
 
-## Example 5.10 / Table 5.3: Coverage probabilities under the Beta-Bernoulli model
 For a (frequentist) estimate of the coverage probabilities, we simulate
 many data sets for each of the parameter configurations and check how often
 the intervals contain the true parameter.
@@ -486,7 +512,7 @@ res <- cbind(res[,1:2],
 knitr::kable(round(res, 2))
 ```
 
-## Example 5.11: Coverage probabilities under the Poisson-Gamma model
+### Example 5.11: Uncertainty quantification for simulated data
 
 As above, but for data from a $\mathcal{P}(5)$-distribution. We
 estimate the mean from $N = 24$ data points and construct CIs.
@@ -542,7 +568,7 @@ res <- cbind(asy_mean_coverage = mean(inconf1),
 knitr::kable(t(round(res, 2)))
 ```
 
-## Example 5.12: Uncertainty quantification for various count data
+### Example 5.12: Uncertainty quantification for various count data
 
 We revisit the accidents and the eye tracking data sets and compute means
 and variances.
@@ -587,7 +613,9 @@ knitr::kable(round(res, 3))
 
 # Section 5.5: The Role of the Prior for Bayesian Learning
 
-## Example 5.13 / Figure 5.7: Prior (non-)invariance illustration
+## Section 5.5.1: Do flat priors capture ignorance?
+
+### Example 5.13: Flat priors for logit-type models
 
 First, we define the function `dbetamod`, a modified version of the
 native `dbeta` to return the improper kernel if both parameters are 0
@@ -637,5 +665,48 @@ plot(eta, round(deta(eta, 0, 0), 10), type = "l", ylab = "",
      xlab = expression(eta))
 ```
 
+## Section 5.5.2: Jeffreys' prior
 
+### Example 5.14: Jeffreys' prior for the beta-bernoulli model
 
+[no code, see above]
+
+### Example 5.15: Jeffreys' prior for data from a normal distribution
+
+[no code]
+
+## Section 5.5.3: Reference priors -- maximizing the impact of the data
+
+[no code]
+
+## Section 5.5.4: Do improper priors always lead to proper posteriors?
+
+### Example 5.16: Potentially improper posteriors for a change point model
+
+[no code]
+
+### Example 5.17: Risk of an improper posterior under a B(0,0)-prior
+
+[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />
+
+### Figure 5.9: Vague priors
+
+[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />
+
+# Section 5.6: A first Bayesian analysis under a non-regular likelihood
+
+## Section 5.6.1: Non-regularity of the likelihood under the Student-t distribution
+
+### Example 5.18: Non-regular likelihood for data from a Student-t distribution
+
+[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />
+
+## Section 5.6.2: Choosing the prior for the degrees of freedom
+
+### Example 5.19: Improper posteriors under the flat prior
+
+[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />
+
+### Example 5.20: Truncated uniform prior on the degrees of freedom parameter
+
+[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />
