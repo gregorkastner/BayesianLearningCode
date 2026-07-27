@@ -78,7 +78,7 @@
 <h2 id="section-7-1-time-series-data-and-dynamic-models">Section 7.1: Time series data and dynamic models<a class="anchor" aria-label="anchor" href="#section-7-1-time-series-data-and-dynamic-models"></a>
 </h2>
 <div class="section level4">
-<h4 id="example-7-1-introducing-the-u-s--gdp-data">Example 7.1: Introducing the U.S. GDP data<a class="anchor" aria-label="anchor" href="#example-7-1-introducing-the-u-s--gdp-data"></a>
+<h4 id="example-7-1-u-s--gdp-data-introduction">Example 7.1: U.S. GDP data: Introduction<a class="anchor" aria-label="anchor" href="#example-7-1-u-s--gdp-data-introduction"></a>
 </h4>
 <p>First, we load the data. Because of the extreme outliers during the
 COVID pandemic, we restrict our analysis to the time before its
@@ -198,7 +198,7 @@ under a standard regression model, using the tools developed in Chapter
 <span><span class="op">}</span></span></code></pre></div>
 <p>Now we are ready to reproduce the results in the book.</p>
 <div class="section level4">
-<h4 id="example-7-2-ar-modeling-of-the-u-s--gdp-data">Example 7.2: AR modeling of the U.S. GDP data<a class="anchor" aria-label="anchor" href="#example-7-2-ar-modeling-of-the-u-s--gdp-data"></a>
+<h4 id="example-7-2-u-s--gdp-data-ar-modeling">Example 7.2: U.S. GDP data: AR modeling<a class="anchor" aria-label="anchor" href="#example-7-2-u-s--gdp-data-ar-modeling"></a>
 </h4>
 <p>We begin by writing a function that sets up the design matrix for an
 AR(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>)
@@ -301,14 +301,14 @@ those priors.</p>
 <div class="section level3">
 <h3 id="section-7-2-2-exploring-stationarity-during-post-processing">Section 7.2.2: Exploring stationarity during post-processing<a class="anchor" aria-label="anchor" href="#section-7-2-2-exploring-stationarity-during-post-processing"></a>
 </h3>
-<p>We reuse the
-AR(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>)
-models under the improper prior from above to explore stationarity for
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>=</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">p = 1, 2, 3</annotation></semantics></math>.</p>
 <div class="section level4">
 <h4 id="example-7-4-u-s--gdp-data-exploring-stationarity-conditions-for-various-ar-models">Example 7.4: U.S. GDP data: Exploring stationarity conditions for
 various AR models<a class="anchor" aria-label="anchor" href="#example-7-4-u-s--gdp-data-exploring-stationarity-conditions-for-various-ar-models"></a>
 </h4>
+<p>We reuse the
+AR(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>)
+models under the improper prior from above to explore stationarity for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>=</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">p = 1, 2, 3</annotation></semantics></math>.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">res</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">betas</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span>, breaks <span class="op">=</span> <span class="fl">20</span>, freq <span class="op">=</span> <span class="cn">FALSE</span>, main <span class="op">=</span> <span class="st">"AR(1)"</span>,</span>
 <span>     xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/bquote.html" class="external-link">bquote</a></span><span class="op">(</span><span class="va">phi</span><span class="op">)</span>, ylab <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
@@ -1135,8 +1135,8 @@ optimized MH step.</p>
 <h2 id="section-7-3-bayesian-learning-of-an-ma1-model">Section 7.3: Bayesian learning of an MA(1) model<a class="anchor" aria-label="anchor" href="#section-7-3-bayesian-learning-of-an-ma1-model"></a>
 </h2>
 <div class="section level4">
-<h4 id="example-7-13-exchange-rate-data-fitting-an-ma1-model-using-a-random-walk-mh">Example 7.13: Exchange rate data: Fitting an MA(1) model using a
-random walk MH<a class="anchor" aria-label="anchor" href="#example-7-13-exchange-rate-data-fitting-an-ma1-model-using-a-random-walk-mh"></a>
+<h4 id="example-7-13-chf-exchange-rate-data-fitting-an-ma1-model-using-a-random-walk-mh">Example 7.13: CHF exchange rate data: Fitting an MA(1) model using a
+random walk MH<a class="anchor" aria-label="anchor" href="#example-7-13-chf-exchange-rate-data-fitting-an-ma1-model-using-a-random-walk-mh"></a>
 </h4>
 <p>We now implement the MCMC sampler for fitting an MA(1) model, where
 we treat the latent state
@@ -1212,8 +1212,8 @@ is assumed to be a priori uniform on
 <p><img src="Chapter07_files/figure-html/unnamed-chunk-40-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 <div class="section level4">
-<h4 id="example-7-14-exchange-rate-data-fitting-an-ma1-model-using-a-random-walk-mh">Example 7.14: Exchange rate data: Fitting an MA(1) model using a
-random walk MH<a class="anchor" aria-label="anchor" href="#example-7-14-exchange-rate-data-fitting-an-ma1-model-using-a-random-walk-mh"></a>
+<h4 id="example-7-14-chf-exchange-rate-data-fitting-an-ma1-model-using-a-random-walk-mh">Example 7.14: CHF Exchange rate data: Fitting an MA(1) model using a
+random walk MH<a class="anchor" aria-label="anchor" href="#example-7-14-chf-exchange-rate-data-fitting-an-ma1-model-using-a-random-walk-mh"></a>
 </h4>
 <p>We repeat the exercise above, but now use a truncated Gaussian
 proposal for the random walk MH algorithm.</p>

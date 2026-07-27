@@ -1,8 +1,32 @@
 # Chapter 10: Bayesian Model Selection
 
-## Section 10.1: The Foundations of Bayesian Model Selection
+## Section 10.1: The foundations of Bayesian model selection
 
-### Table 10.1: (Log) Bayes factor and model probabilities
+### Section 10.1.1: Comparing two models
+
+\[no code\]
+
+### Section 10.1.2: Computing marginal likelihoods
+
+#### Example 10.1: The marginal likelihood of a Poisson model, I
+
+\[no code\]
+
+#### Example 10.2: The marginal likelihood of i.i.d. Gaussian data, I
+
+\[no code\]
+
+#### Example 10.3: The marginal likelihood of a Poisson model, II
+
+\[no code\]
+
+#### Example 10.4: The marginal likelihood of i.i.d. Gaussian data, I
+
+\[no code\]
+
+### Section 10.1.3: The Bayes factor
+
+#### Table 10.1: (Log) Bayes factor and model probabilities
 
 ``` r
 
@@ -32,7 +56,7 @@ knitr::kable(cbind(BF, logBF, PrM1, PrM2))
 |  403.4287935 |     6 | 0.9975274 | 0.0024726 |
 | 1096.6331584 |     7 | 0.9990889 | 0.0009111 |
 
-### Example 10.5: CHF exchange rate data - Testing for zero mean
+#### Example 10.5: CHF exchange rate data: Testing the zero mean null hypothesis
 
 Before producing Figure 10.1, we begin with a concrete example. We load
 the data, compute the required parameters, and evaluate the two marginal
@@ -99,9 +123,11 @@ title("Log Bayes factor in favor of the zero-mean model")
 
 ![](Chapter10_files/figure-html/unnamed-chunk-5-1.png)
 
-## Section 10.2: Bayesian Testing of Hypotheses
+## Section 10.2: Bayesian testing of hypotheses
 
-### Example 10.6: Labor market data - Testing for heterogeneity of the no-income risk
+### Section 10.2.1: Revisiting various testing problems from a Bayesian perspective
+
+#### Example 10.6: Labor market data: Testing for heterogeneity of the no-income risk via marginal likelihoods
 
 First, we re-load the data from Chapter 3.
 
@@ -172,7 +198,7 @@ knitr::kable(res <- cbind(logmarglikM1, logmarglikM2, logBF, PrM1, PrM2))
 |    -387.2933 |    -385.3980 | -1.895305 | 0.1306408 | 0.8693592 |
 |    -386.2587 |    -383.4054 | -2.853317 | 0.0545101 | 0.9454899 |
 
-### Example 10.7: Stomach cancer data - Testing for heterogeneity of the mortality rate
+#### Example 10.7: Stomach cancer data: Testing for heterogeneity of the mortality rate via marginal likelihoods
 
 We proceed exactly as above, just with different data.
 
@@ -235,7 +261,7 @@ knitr::kable(res <- cbind(logmarglikM1, logmarglikM2, logBF, PrM1, PrM2))
 |    -28.40707 |    -33.09584 | 4.688776 | 0.9908859 | 0.0091141 |
 |    -26.84585 |    -29.97906 | 3.133212 | 0.9582421 | 0.0417579 |
 
-### Example 10.8: Testing for a structural break in the road safety data
+#### Example 10.8: Road safety data: Testing for a structural break
 
 We load the data.
 
@@ -322,7 +348,7 @@ knitr::kable(round(rbind(PrM1, PrM2), 3))
 | PrM1 | 0.701 | 0.228 | 0.086 | 0.059 | 0.042 |
 | PrM2 | 0.299 | 0.772 | 0.914 | 0.941 | 0.958 |
 
-### Example 10.9: CHF exchange rate data - Testing normal versus Student t
+#### Example 10.9: CHF exchange rate data: Testing normal versus Student t
 
 After loading the data, we define the degrees of freedom $`\nu`$ and the
 prior hyperparameters.
@@ -403,7 +429,7 @@ knitr::kable(cbind(logML1 = logmarglikM1, logML3 = logmarglikM3,
 |----------:|----------:|----:|----------:|----:|----:|
 | -3456.384 | -3305.694 |   0 | -150.6898 |   0 |   1 |
 
-### Example 10.10: Eye tracking data - Testing homogeneity against unobserved heterogeneity
+#### Example 10.10: Eye tracking data: Testing homogeneity against unobserved heterogeneity
 
 We begin by loading the data and specifying the hyperparameters.
 
@@ -463,7 +489,7 @@ knitr::kable(resM2, digits = 2)
 | 1   | -316.77 | -241.38 | -245.87 | -276.12 | -324.87 |
 | 2   | -381.56 | -273.80 | -281.39 | -335.39 | -426.86 |
 
-### Example 10.11: Eye tracking data - Testing Poisson vs. negative binomial
+#### Example 10.11: Eye tracking data: Testing Poisson vs. negative binomial
 
 In the negative binomial case, if $`a_0`$ is fixed and $`b_0`$ follows a
 beta prime prior, we have a closed-form expression for the marginal
@@ -497,7 +523,9 @@ knitr::kable(resM3, digits = 2)
 | 1   | -245.75 | -242.92 | -242.88 | -245.01 | -252.11 |
 | 2   | -278.03 | -275.68 | -275.62 | -277.48 | -284.21 |
 
-### Example 10.12: CHF exchange rate data - Savage-Dickey density ratio
+### Section 10.2.2: The Savage-Dickey density ratio
+
+#### Example 10.12: CHF exchange rate data: Testing for zero mean via the Savage-Dickey density ratio
 
 ``` r
 
@@ -596,7 +624,7 @@ abline(h = logSD[length(logSD)], lty = 2)
 #> [1] 1.551925
 ```
 
-### Example 10.13: Labor market data - Savage-Dickey density ratio for the no-income-risk homogeneity test
+#### Example 10.13: Labor market data: Testing for heterogeneity of the no-income risk via the Savage-Dickey density ratio
 
 We only need to re-estimate the heterogeneity model which we use to
 simulate the prior and the posterior of the no-income-risk difference.
@@ -653,7 +681,7 @@ dprior <- 1
 #> [1] -1.657269
 ```
 
-### Example 10.14: Stomach cancer data - Savage-Dickey density ratio for the mortality rate homogeneity test
+#### Example 10.14: Stomach cancer data: Testing for heterogeneity of the mortality rate via the Savage-Dickey density ratio
 
 As above, with different data.
 
@@ -699,7 +727,9 @@ dprior <- 1
 #> [1] 5.218816
 ```
 
-### Example 10.15: Road safety data - Lindley’s paradoxon
+## Section 10.3: Priors for Bayesian model comparison
+
+#### Example 10.15: Road safety data: Lindley’s paradoxon
 
 ``` r
 
@@ -713,7 +743,15 @@ knitr::kable(res)
 |---------:|---------:|---------:|----:|----:|----:|----:|----:|
 | 99.43259 | 9.513508 | 1.772454 |   1 |   1 |   2 |   6 |  24 |
 
-## Section 10.4: Addressing Model Uncertainty
+#### Example 10.16: The unit-information prior when testing the mean of a Gaussian distribution
+
+\[no code\]
+
+## Section 10.4: Addressing model uncertainty
+
+### Section 10.4.1: Comparing multiple models
+
+#### Example 10.17: Eye tracking data: Posterior distribution over a model pool
 
 We re-use the marginal likelihoods from above to compute posterior
 probabilities under a uniform prior for the individual models.
@@ -738,8 +776,18 @@ knitr::kable(probs, digits = 2)
 | 1   | 0.00 | 0.00 | 0.00 | 0.00 |   0 |
 | 2   | 0.00 | 0.00 | 0.00 | 0.00 |   0 |
 
-We now evaluate the posteriors for $`\xi`$ for the different
-hyperparameter values.
+### Section 10.4.2: Bayesian model selection
+
+#### Example 10.18: Eye tracking data: Bayesian model selection over a model pool
+
+\[no code\]
+
+### Section 10.4.3: Bayesian model averaging
+
+#### Example 10.19: Eye tracking data: Bayesian model averaging over a model pool
+
+We evaluate the posteriors for $`\xi`$ for the different hyperparameter
+values.
 
 ``` r
 

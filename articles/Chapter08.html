@@ -77,8 +77,21 @@
 <div class="section level2">
 <h2 id="section-8-1-binary-response-variables">Section 8.1: Binary response variables<a class="anchor" aria-label="anchor" href="#section-8-1-binary-response-variables"></a>
 </h2>
+<div class="section level4">
+<h4 id="example-8-1-labor-market-data-introduction">Example 8.1: Labor market data: Introduction<a class="anchor" aria-label="anchor" href="#example-8-1-labor-market-data-introduction"></a>
+</h4>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://gregorkastner.github.io/BayesianLearningCode/">"BayesianLearningCode"</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"labor"</span>, package <span class="op">=</span> <span class="st">"BayesianLearningCode"</span><span class="op">)</span></span></code></pre></div>
+</div>
 <div class="section level3">
-<h3 id="section-8-1-1-probit-model">Section 8.1.1: Probit model<a class="anchor" aria-label="anchor" href="#section-8-1-1-probit-model"></a>
+<h3 id="section-8-1-1-regression-analysis-for-binary-response-variables">Section 8.1.1: Regression analysis for binary response
+variables<a class="anchor" aria-label="anchor" href="#section-8-1-1-regression-analysis-for-binary-response-variables"></a>
+</h3>
+<p>[no code]</p>
+</div>
+<div class="section level3">
+<h3 id="section-8-1-2-bayesian-learning-for-a-probit-model">Section 8.1.2: Bayesian learning for a probit model<a class="anchor" aria-label="anchor" href="#section-8-1-2-bayesian-learning-for-a-probit-model"></a>
 </h3>
 <div class="section level4">
 <h4 id="figure-8-1-latent-utility-and-outcome-in-the-probit-model">Figure 8.1: Latent utility and outcome in the probit model<a class="anchor" aria-label="anchor" href="#figure-8-1-latent-utility-and-outcome-in-the-probit-model"></a>
@@ -86,7 +99,7 @@
 <p>We start by visualizing a latent utility for a linear predictor
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝐱</mi><mi>𝛃</mi></mrow><annotation encoding="application/x-tex">\mathbf{x}\boldsymbol{\beta}</annotation></semantics></math>
 with a value of 1.</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/curve.html" class="external-link">curve</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">dnorm</a></span><span class="op">(</span><span class="va">x</span>, mean <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>, from <span class="op">=</span> <span class="op">-</span><span class="fl">3</span>, to <span class="op">=</span> <span class="fl">5</span>, col <span class="op">=</span> <span class="st">"blue"</span>, </span>
 <span>      xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">z</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span>, ylab <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>v <span class="op">=</span> <span class="fl">0</span>, col <span class="op">=</span> <span class="st">"red"</span><span class="op">)</span></span>
@@ -102,16 +115,11 @@ with a value of 1.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>v <span class="op">=</span> <span class="fl">0</span>, col <span class="op">=</span> <span class="st">"red"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/polygon.html" class="external-link">polygon</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">dens</span><span class="op">$</span><span class="va">x</span><span class="op">[</span><span class="va">dens</span><span class="op">$</span><span class="va">x</span> <span class="op">&gt;=</span> <span class="fl">0</span><span class="op">]</span>, <span class="fl">0</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">dens</span><span class="op">$</span><span class="va">y</span><span class="op">[</span><span class="va">dens</span><span class="op">$</span><span class="va">x</span> <span class="op">&gt;=</span> <span class="fl">0</span><span class="op">]</span>, <span class="fl">0</span><span class="op">)</span>,</span>
 <span>        col <span class="op">=</span> <span class="st">"red"</span>, border <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Chapter08_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" alt="" width="768"></p>
+<p><img src="Chapter08_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 <div class="section level4">
-<h4 id="example-8-1-labor-market-data">Example 8.1: Labor market data<a class="anchor" aria-label="anchor" href="#example-8-1-labor-market-data"></a>
+<h4 id="example-8-2-labor-market-data-fitting-a-probit-model">Example 8.2: Labor market data: Fitting a probit model<a class="anchor" aria-label="anchor" href="#example-8-2-labor-market-data-fitting-a-probit-model"></a>
 </h4>
-<p>We now perform probit regression analysis for the labor market
-data.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://gregorkastner.github.io/BayesianLearningCode/">"BayesianLearningCode"</a></span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"labor"</span>, package <span class="op">=</span> <span class="st">"BayesianLearningCode"</span><span class="op">)</span></span></code></pre></div>
 <p>We model the income in 1998, binarized into unemployed (zero income)
 and employed, as dependent variable, and use as covariates the variables
 female (binary), age18 (quantitative, centered at 18 years), wcollar
@@ -125,10 +133,6 @@ an 18 year old male blue collar worker who was employed in 1997.</p>
 <span>                             age18 <span class="op">=</span> <span class="fl">1998</span> <span class="op">-</span> <span class="va">birthyear</span> <span class="op">-</span> <span class="fl">18</span>,</span>
 <span>                             wcollar <span class="op">=</span> <span class="va">wcollar_1997</span>,</span>
 <span>                             unemp97 <span class="op">=</span> <span class="va">income_1997</span> <span class="op">==</span> <span class="st">"zero"</span><span class="op">)</span><span class="op">)</span> <span class="co"># regressor matrix</span></span></code></pre></div>
-</div>
-<div class="section level4">
-<h4 id="example-8-2-fitting-a-probit-model-to-the-labor-market-data">Example 8.2: Fitting a probit model to the labor market data<a class="anchor" aria-label="anchor" href="#example-8-2-fitting-a-probit-model-to-the-labor-market-data"></a>
-</h4>
 <p>The regression coefficients are estimated using data augmentation and
 Gibbs sampling. We define a function yielding posterior draws using the
 algorithm detailed in Section 8.1.1.</p>
@@ -312,7 +316,7 @@ when the response variable contains either only very few or very many
 successes.</p>
 </div>
 <div class="section level4">
-<h4 id="example-8-3-imbalanced-data">Example 8.3: Imbalanced data<a class="anchor" aria-label="anchor" href="#example-8-3-imbalanced-data"></a>
+<h4 id="example-8-3-probit-analysis-with-imbalanced-data">Example 8.3: Probit analysis with imbalanced data<a class="anchor" aria-label="anchor" href="#example-8-3-probit-analysis-with-imbalanced-data"></a>
 </h4>
 <p>To illustrate this issue, we use data where in
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>=</mo><mn>500</mn></mrow><annotation encoding="application/x-tex">N = 500</annotation></semantics></math>
@@ -366,7 +370,7 @@ quasi-complete separation means that only either successes or failures
 can be predicted perfectly.</p>
 </div>
 <div class="section level4">
-<h4 id="example-8-4-complete-separation">Example 8.4: Complete separation<a class="anchor" aria-label="anchor" href="#example-8-4-complete-separation"></a>
+<h4 id="example-8-4-probit-analysis-with-complete-separation">Example 8.4: Probit analysis with complete separation<a class="anchor" aria-label="anchor" href="#example-8-4-probit-analysis-with-complete-separation"></a>
 </h4>
 <p>To illustrate the effect of complete separation on the estimates, we
 generate
@@ -426,7 +430,7 @@ autocorrelations are close to 1 even at lag 40.</p>
 resulting in estimated IFs of about 500.</p>
 </div>
 <div class="section level4">
-<h4 id="example-8-5-quasi-complete-separation">Example 8.5: Quasi-complete separation<a class="anchor" aria-label="anchor" href="#example-8-5-quasi-complete-separation"></a>
+<h4 id="example-8-5-probit-analysis-with-quasi-complete-separation">Example 8.5: Probit analysis with quasi-complete separation<a class="anchor" aria-label="anchor" href="#example-8-5-probit-analysis-with-quasi-complete-separation"></a>
 </h4>
 <p>To illustrate quasi-separation we use the same responses as in
 Example 8.4, but now set
@@ -515,8 +519,7 @@ of separation and with a tighter prior we can shrink coefficients to
 zero.</p>
 </div>
 <div class="section level4">
-<h4 id="example-8-6-complete-separation-analysis-under-an-informative-prior">Example 8.6: Complete separation: analysis under an informative
-prior<a class="anchor" aria-label="anchor" href="#example-8-6-complete-separation-analysis-under-an-informative-prior"></a>
+<h4 id="example-8-6-complete-separation-under-an-informative-prior">Example 8.6: Complete separation under an informative prior<a class="anchor" aria-label="anchor" href="#example-8-6-complete-separation-under-an-informative-prior"></a>
 </h4>
 <p>We now analyze the data of example 8.4. under the more informative
 prior
@@ -625,10 +628,10 @@ the tighter prior.</p>
 </div>
 </div>
 <div class="section level3">
-<h3 id="section-8-1-2-logit-model">Section 8.1.2: Logit model<a class="anchor" aria-label="anchor" href="#section-8-1-2-logit-model"></a>
+<h3 id="section-8-1-3-bayesian-learning-for-a-logit-model">Section 8.1.3: Bayesian learning for a logit model<a class="anchor" aria-label="anchor" href="#section-8-1-3-bayesian-learning-for-a-logit-model"></a>
 </h3>
 <div class="section level4">
-<h4 id="example-8-7-labor-market-data">Example 8.7: Labor market data<a class="anchor" aria-label="anchor" href="#example-8-7-labor-market-data"></a>
+<h4 id="example-8-7-labor-market-data-fitting-a-logit-model">Example 8.7: Labor market data: Fitting a logit model<a class="anchor" aria-label="anchor" href="#example-8-7-labor-market-data-fitting-a-logit-model"></a>
 </h4>
 <p>We now estimate a logistic regression model for the labor market data
 using the two-block Polya-Gamma sampler.</p>
@@ -809,7 +812,8 @@ there is not much difference.</p>
 <h3 id="section-8-2-1-poisson-regression-models">Section 8.2.1: Poisson regression models<a class="anchor" aria-label="anchor" href="#section-8-2-1-poisson-regression-models"></a>
 </h3>
 <div class="section level4">
-<h4 id="example-8-8-road-safety-data">Example 8.8: Road safety data<a class="anchor" aria-label="anchor" href="#example-8-8-road-safety-data"></a>
+<h4 id="example-8-8-road-safety-data-fitting-a-poisson-regression-model">Example 8.8: Road safety data: Fitting a poisson regression
+model<a class="anchor" aria-label="anchor" href="#example-8-8-road-safety-data-fitting-a-poisson-regression-model"></a>
 </h4>
 <p>We will fit two different Poisson regression models to the series of
 monthly deadly and seriously injured children aged 6-10 in Linz
@@ -933,9 +937,9 @@ a short program for the MH step for sampling the regression effects.</p>
 <span>  <span class="op">}</span></span>
 <span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span>res <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>beta <span class="op">=</span> <span class="va">beta</span>, acc <span class="op">=</span> <span class="va">acc</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>Next we combine the determination of the proposal and the MH-sampling
-step in a program to sample from the posterior of a Poisson regression
-model.</p>
+<p>Next, we combine the determination of the proposal and the
+MH-sampling step in a program to sample from the posterior of a Poisson
+regression model.</p>
 <div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">poisson</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">y</span>, <span class="va">X</span>, <span class="va">e</span>, <span class="va">b0</span> <span class="op">=</span> <span class="fl">0</span>, <span class="va">B0</span> <span class="op">=</span> <span class="fl">100</span>, <span class="va">burnin</span> <span class="op">=</span> <span class="fl">1000L</span>,</span>
 <span>                    <span class="va">M</span> <span class="op">=</span> <span class="fl">10000L</span> <span class="op">/</span> <span class="va">mcmcspeedup</span><span class="op">)</span> <span class="op">{</span></span>
@@ -1162,7 +1166,8 @@ parameters have to be estimated.</p>
 <h3 id="section-8-2-2-negative-binomial-regression">Section 8.2.2: Negative binomial regression<a class="anchor" aria-label="anchor" href="#section-8-2-2-negative-binomial-regression"></a>
 </h3>
 <div class="section level4">
-<h4 id="example-8-9-road-safety-data">Example 8.9: Road safety data<a class="anchor" aria-label="anchor" href="#example-8-9-road-safety-data"></a>
+<h4 id="example-8-9-road-safety-data-fitting-a-negative-binomial-regression">Example 8.9: Road safety data: Fitting a negative binomial
+regression<a class="anchor" aria-label="anchor" href="#example-8-9-road-safety-data-fitting-a-negative-binomial-regression"></a>
 </h4>
 <p>Now we re-analyze the road safety data allowing for unobserved
 heterogeneity. We will first set up the two versions of the three-block
@@ -1230,7 +1235,7 @@ and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϕ</mi><annotation encoding="application/x-tex">\phi</annotation></semantics></math>
 in a gibbs sampler.</p>
 <div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">negbin</span><span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">y</span>,<span class="va">X</span>,<span class="va">e</span>, <span class="va">b0</span>,<span class="va">B0</span>, <span class="va">pri_alpha</span>,<span class="va">c_alpha</span>,</span>
+<code class="sourceCode R"><span><span class="va">negbin</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">y</span>,<span class="va">X</span>,<span class="va">e</span>, <span class="va">b0</span>,<span class="va">B0</span>, <span class="va">pri_alpha</span>,<span class="va">c_alpha</span>,</span>
 <span>                  <span class="va">full_gibbs</span> <span class="op">=</span> <span class="cn">TRUE</span>, <span class="va">burnin</span> <span class="op">=</span> <span class="fl">1000L</span>, <span class="va">M</span> <span class="op">=</span> <span class="fl">10000L</span> <span class="op">/</span> <span class="va">mcmcspeedup</span><span class="op">)</span><span class="op">{</span></span>
 <span></span>
 <span>  <span class="va">N</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span></span>
@@ -1290,11 +1295,11 @@ We first run the full Gibbs sampler for
 iterations after a burn-in of 1000.</p>
 <div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span></span>
-<span><span class="va">b0</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>,<span class="va">d</span><span class="op">)</span></span>
-<span><span class="va">B0</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fl">100</span>,<span class="va">d</span><span class="op">)</span></span>
+<span><span class="va">b0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>,<span class="va">d</span><span class="op">)</span></span>
+<span><span class="va">B0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fl">100</span>,<span class="va">d</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">pri_alpha</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>shape <span class="op">=</span> <span class="fl">2</span>, rate <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span>
-<span><span class="va">c_alpha</span><span class="op">=</span><span class="fl">0.3</span></span>
+<span><span class="va">c_alpha</span> <span class="op">&lt;-</span> <span class="fl">0.3</span></span>
 <span>                                                    </span>
 <span><span class="va">M</span> <span class="op">&lt;-</span> <span class="fl">50000L</span> <span class="op">/</span> <span class="va">mcmcspeedup</span></span>
 <span>                                                    </span>
@@ -1353,11 +1358,11 @@ iterations after a burn-in of 1000.</p>
 <code class="sourceCode R"><span>                                                    </span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">res1</span><span class="op">$</span><span class="va">acc_beta</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">res1</span><span class="op">$</span><span class="va">acc_alpha</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 0.9374 0.3806</span></span></code></pre></div>
-<p>Next we run the partially marginalized Gibbs sampler under the same
+<p>Next, we run the partially marginalized Gibbs sampler under the same
 prior.</p>
 <div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1234</span><span class="op">)</span>               </span>
-<span><span class="va">res2</span> <span class="op">&lt;-</span> <span class="fu">negbin</span><span class="op">(</span><span class="va">y</span>,<span class="va">X</span>,<span class="va">e</span>, <span class="va">b0</span>,<span class="va">B0</span>, <span class="va">pri_alpha</span>,<span class="va">c_alpha</span>, full_gibbs <span class="op">=</span> <span class="cn">FALSE</span>, M<span class="op">=</span><span class="va">M</span> <span class="op">)</span></span>
+<span><span class="va">res2</span> <span class="op">&lt;-</span> <span class="fu">negbin</span><span class="op">(</span><span class="va">y</span>,<span class="va">X</span>,<span class="va">e</span>, <span class="va">b0</span>,<span class="va">B0</span>, <span class="va">pri_alpha</span>,<span class="va">c_alpha</span>, full_gibbs <span class="op">=</span> <span class="cn">FALSE</span>, M <span class="op">=</span> <span class="va">M</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">res_negbin_partial</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">res2</span><span class="op">$</span><span class="va">beta_post</span>, <span class="fl">2</span>, <span class="va">res.mcmc</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>                            alpha <span class="op">=</span> <span class="fu">res.mcmc</span><span class="op">(</span><span class="va">res2</span><span class="op">$</span><span class="va">alpha_post</span><span class="op">)</span><span class="op">)</span></span>
@@ -1425,10 +1430,11 @@ value of 48.18 for the partially marginalized Gibbs sampler.</p>
 </div>
 </div>
 <div class="section level3">
-<h3 id="section-8-2-3-evaluating-mcmc-samplers">Section 8.2.3: Evaluating MCMC samplers<a class="anchor" aria-label="anchor" href="#section-8-2-3-evaluating-mcmc-samplers"></a>
+<h3 id="section-8-2-3-getting-it-right-checking-correctness-of-an-mcmc-sampler">Section 8.2.3: Getting it right – checking correctness of an MCMC
+sampler<a class="anchor" aria-label="anchor" href="#section-8-2-3-getting-it-right-checking-correctness-of-an-mcmc-sampler"></a>
 </h3>
 <div class="section level4">
-<h4 id="example-8-10-testing-correctness-of-a-wrongfully-implemented-mh-within-gibbs-sampler">Example 8.10 Testing correctness of a wrongfully implemented
+<h4 id="example-8-10-testing-correctness-of-a-wrongfully-implemented-mh-within-gibbs-sampler">Example 8.10: Testing correctness of a wrongfully implemented
 MH-within Gibbs sampler<a class="anchor" aria-label="anchor" href="#example-8-10-testing-correctness-of-a-wrongfully-implemented-mh-within-gibbs-sampler"></a>
 </h4>
 <p>To check the MCMC algorithm for correctness, we extend the sampler by
@@ -1488,7 +1494,7 @@ adding sampling the data from the prior as a further sampling step.</p>
 <span>                      alpha_post <span class="op">=</span> <span class="va">alpha_post</span>, acc_alpha <span class="op">=</span> <span class="va">acc_alpha</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>We use tighter priors for the model parameters and a sample size of
-N=100 observations.</p>
+100.</p>
 <div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">N</span> <span class="op">&lt;-</span> <span class="fl">100</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1234</span><span class="op">)</span></span>
@@ -1520,7 +1526,7 @@ of the regression effects and the heterogeneity parameter.</p>
 <span>    <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">qnorm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/ppoints.html" class="external-link">ppoints</a></span><span class="op">(</span><span class="va">M</span><span class="op">)</span>, mean <span class="op">=</span> <span class="va">b0</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, sd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">B0</span><span class="op">[</span><span class="va">i</span>, <span class="va">i</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">alpha_prior</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html" class="external-link">qgamma</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/ppoints.html" class="external-link">ppoints</a></span><span class="op">(</span><span class="va">M</span><span class="op">)</span>, shape <span class="op">=</span> <span class="va">pri_alpha</span><span class="op">$</span><span class="va">shape</span>,</span>
 <span>                      rate <span class="op">=</span> <span class="va">pri_alpha</span><span class="op">$</span><span class="va">rate</span><span class="op">)</span></span></code></pre></div>
-<p>Next we thin the sampled values by a factor of 100 to get (almost)
+<p>Next, we thin the sampled values by a factor of 100 to get (almost)
 uncorrelated draws and make a QQ-plot of the values from the prior and
 the thinned draws from posterior.</p>
 <div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
@@ -1669,11 +1675,10 @@ regression coefficients and the heterogeneity parameter.</p>
 0.001 for the heterogeneity parameter which indicates that the sampler
 is erroneous.</p>
 </div>
-</div>
-<div class="section level3">
-<h3 id="example-8-11-testing-correctness-of-an-invalid-partially-collapsed-sampler">Example 8.11: Testing correctness of an invalid partially collapsed
+<div class="section level4">
+<h4 id="example-8-11-testing-correctness-of-an-invalid-partially-collapsed-sampler">Example 8.11: Testing correctness of an invalid partially collapsed
 sampler<a class="anchor" aria-label="anchor" href="#example-8-11-testing-correctness-of-an-invalid-partially-collapsed-sampler"></a>
-</h3>
+</h4>
 <p>In this example we check whether changing the order of the sampling
 steps to (c)- (b)-(a) (instead of (a)-(b)-(c) ) still yields a correct
 Gibbs sampler. We first set up the sampler.</p>
@@ -1752,9 +1757,9 @@ parameter
 overdispersion
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mfrac><msubsup><mi>μ</mi><mi>i</mi><mn>2</mn></msubsup><mi>α</mi></mfrac><annotation encoding="application/x-tex">\frac{\mu_i^2}{\alpha}</annotation></semantics></math>
 for
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mi>i</mi></msub><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">x_i=0</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mi>i</mi></msub><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">x_i = 0</annotation></semantics></math>
 and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><mo>−</mo><mi>i</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">x-i=1</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><mo>−</mo><mi>i</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">x-i = 1</annotation></semantics></math>,
 which we compute from the draws of the augmented MCMC sampler as well as
 from draws of the prior distribution.</p>
 <p>We run first the correct partially collapsed Gibbs sampler.</p>
@@ -1861,14 +1866,19 @@ versus the heterogeneity parameter
 <span>      xlab<span class="op">=</span><span class="st">"beta2"</span>, ylab<span class="op">=</span><span class="st">"alpha"</span>,main<span class="op">=</span><span class="st">"correct partial"</span>,xlim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>,<span class="fl">3.5</span><span class="op">)</span>, ylim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1.4</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">res_check_partial</span><span class="op">$</span><span class="va">beta_post</span><span class="op">[</span><span class="va">thin</span>,<span class="fl">2</span><span class="op">]</span>,<span class="va">res_check_partial</span><span class="op">$</span><span class="va">alpha_post</span><span class="op">[</span><span class="va">thin</span><span class="op">]</span>,</span>
 <span>        xlab<span class="op">=</span><span class="st">"beta2"</span>, ylab<span class="op">=</span><span class="st">"alpha"</span>,main<span class="op">=</span><span class="st">"incorrect partial"</span>,xlim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>,<span class="fl">3.5</span><span class="op">)</span>, ylim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1.4</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Chapter08_files/figure-html/unnamed-chunk-51-1.png" class="r-plt" alt="" width="768">
-# Section 8.3: Beyond i.i.d. Gaussian error distributions</p>
+<p><img src="Chapter08_files/figure-html/unnamed-chunk-51-1.png" class="r-plt" alt="" width="768"></p>
 </div>
+</div>
+</div>
+<div class="section level2">
+<h2 id="section-8-3-beyond-i-i-d--gaussian-error-distributions">Section 8.3: Beyond i.i.d. Gaussian error distributions<a class="anchor" aria-label="anchor" href="#section-8-3-beyond-i-i-d--gaussian-error-distributions"></a>
+</h2>
 <div class="section level3">
 <h3 id="section-8-3-1-regression-analysis-with-heteroskedastic-errors">Section 8.3.1: Regression analysis with heteroskedastic errors<a class="anchor" aria-label="anchor" href="#section-8-3-1-regression-analysis-with-heteroskedastic-errors"></a>
 </h3>
 <div class="section level4">
-<h4 id="example-8-12-star-cluster-data">Example 8.12: Star cluster data<a class="anchor" aria-label="anchor" href="#example-8-12-star-cluster-data"></a>
+<h4 id="example-8-12-star-cluster-data-homoskedastic-regression-analysis">Example 8.12: Star cluster data: Homoskedastic regression
+analysis<a class="anchor" aria-label="anchor" href="#example-8-12-star-cluster-data-homoskedastic-regression-analysis"></a>
 </h4>
 <p>The bivariate data set of the star cluster CYG OB1 is available in
 package <em>robustbase</em> and we load it from this package and
@@ -1916,11 +1926,6 @@ estimation.</p>
 <p>We compare the expected values (full lines) and the pointwise 95%-HPD
 regions in the following figure for the model fit using all data (left)
 and only the subset without the giant stars (right).</p>
-</div>
-</div>
-<div class="section level3">
-<h3 id="figure-8-9-star-cluster-data">Figure 8.9: Star cluster data<a class="anchor" aria-label="anchor" href="#figure-8-9-star-cluster-data"></a>
-</h3>
 <div class="sourceCode" id="cb63"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">starsCYG</span>, pch <span class="op">=</span> <span class="fl">19</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">5</span><span class="op">)</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">7</span><span class="op">)</span>,</span>
 <span>     xlab <span class="op">=</span> <span class="st">"log temperature"</span>, ylab <span class="op">=</span> <span class="st">"log light intensity"</span><span class="op">)</span></span>
@@ -1933,9 +1938,10 @@ and only the subset without the giant stars (right).</p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">xnew</span>, <span class="va">preds_subset</span><span class="op">[</span>, <span class="st">"lwr"</span><span class="op">]</span>, lty <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">xnew</span>, <span class="va">preds_subset</span><span class="op">[</span>, <span class="st">"upr"</span><span class="op">]</span>, lty <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <p><img src="Chapter08_files/figure-html/unnamed-chunk-55-1.png" class="r-plt" alt="" width="768"></p>
+</div>
 <div class="section level4">
-<h4 id="example-8-13-star-cluster-data---heteroskedastic-regression-analysis-with-known-outliers">Example 8.13: Star cluster data - heteroskedastic regression
-analysis with known outliers<a class="anchor" aria-label="anchor" href="#example-8-13-star-cluster-data---heteroskedastic-regression-analysis-with-known-outliers"></a>
+<h4 id="example-8-13-star-cluster-data-heteroskedastic-regression-analysis-with-known-outliers">Example 8.13: Star cluster data: Heteroskedastic regression analysis
+with known outliers<a class="anchor" aria-label="anchor" href="#example-8-13-star-cluster-data-heteroskedastic-regression-analysis-with-known-outliers"></a>
 </h4>
 <p>We define the binary indicator indicating outlying observations,
 i.e., in this case observations corresponding to giant stars.</p>
@@ -2023,8 +2029,8 @@ from the predictive distributions for new observations with
 mixture<a class="anchor" aria-label="anchor" href="#section-8-3-2-regression-analysis-with-errors-following-a-gaussian-mixture"></a>
 </h3>
 <div class="section level4">
-<h4 id="example-8-14-star-cluster-data---regression-analysis-with-gaussian-two-component-mixture-errors">Example 8.14: Star cluster data - regression analysis with Gaussian
-two-component mixture errors<a class="anchor" aria-label="anchor" href="#example-8-14-star-cluster-data---regression-analysis-with-gaussian-two-component-mixture-errors"></a>
+<h4 id="example-8-14-star-cluster-data-regression-analysis-with-gaussian-two-component-mixture-errors">Example 8.14: Star cluster data: Regression analysis with Gaussian
+two-component mixture errors<a class="anchor" aria-label="anchor" href="#example-8-14-star-cluster-data-regression-analysis-with-gaussian-two-component-mixture-errors"></a>
 </h4>
 <p>We now assume that the indices of the giant stars are not known. We
 only assume that a two-component mixture is used as weight distribution
@@ -2199,9 +2205,8 @@ that is robust to the outlying observations.</p>
 <h3 id="section-8-3-3-regression-analysis-with-student-t-errors">Section 8.3.3 Regression analysis with Student-t errors<a class="anchor" aria-label="anchor" href="#section-8-3-3-regression-analysis-with-student-t-errors"></a>
 </h3>
 <div class="section level4">
-<h4 id="example-8-15-star-cluster-data---student-t-regression-analysis">Example 8.15: Star cluster data -
-Student-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
-regression analysis<a class="anchor" aria-label="anchor" href="#example-8-15-star-cluster-data---student-t-regression-analysis"></a>
+<h4 id="example-8-15-star-cluster-data-student-t-regression-analysis-with-known-degrees-of-freedom">Example 8.15: Star cluster data: Student-t regression analysis with
+known degrees of freedom<a class="anchor" aria-label="anchor" href="#example-8-15-star-cluster-data-student-t-regression-analysis-with-known-degrees-of-freedom"></a>
 </h4>
 <p>Now we analyze the Star cluster data assuming a
 Student-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
@@ -2269,11 +2274,8 @@ regression parameters as used for the mixture distribution.</p>
 <p><img src="Chapter08_files/figure-html/unnamed-chunk-72-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 <div class="section level4">
-<h4 id="example-8-16-chf-exchange-rate-data---fitting-a-student-t-with-nu-unknown">Example 8.16: CHF exchange rate data - Fitting a
-Student-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
-with
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ν</mi><annotation encoding="application/x-tex">\nu</annotation></semantics></math>
-unknown<a class="anchor" aria-label="anchor" href="#example-8-16-chf-exchange-rate-data---fitting-a-student-t-with-nu-unknown"></a>
+<h4 id="example-8-16-chf-exchange-rate-data-fitting-a-student-t-with-the-degrees-of-freedom-unknown">Example 8.16: CHF exchange rate data: Fitting a Student-t with the
+degrees of freedom unknown<a class="anchor" aria-label="anchor" href="#example-8-16-chf-exchange-rate-data-fitting-a-student-t-with-the-degrees-of-freedom-unknown"></a>
 </h4>
 <p>We begin with loading the data.</p>
 <div class="sourceCode" id="cb81"><pre class="downlit sourceCode r">
@@ -2391,6 +2393,9 @@ in this case, so the design matrix is simply a vector of ones.</p>
 <div class="section level3">
 <h3 id="section-8-3-4-regression-analysis-with-autocorrelated-errors">Section 8.3.4 Regression analysis with autocorrelated errors<a class="anchor" aria-label="anchor" href="#section-8-3-4-regression-analysis-with-autocorrelated-errors"></a>
 </h3>
+<div class="section level4">
+<h4 id="example-8-17-new-cars-registration-data-introduction">Example 8.17: New cars registration data: Introduction<a class="anchor" aria-label="anchor" href="#example-8-17-new-cars-registration-data-introduction"></a>
+</h4>
 <p>We begin by loading the data and visualizing them as a time series
 plot. In what is to follow, we restrict our analysis to the years 2003
 through 2012, i.e., a time span of 10 years or 120 observations.</p>
@@ -2399,12 +2404,18 @@ through 2012, i.e., a time span of 10 years or 120 observations.</p>
 <span><span class="va">newcars</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/window.html" class="external-link">window</a></span><span class="op">(</span><span class="va">newcars</span>, start <span class="op">=</span> <span class="fl">2003</span>, end <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2012</span>, <span class="fl">12</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">newcars</span><span class="op">)</span></span></code></pre></div>
 <p><img src="Chapter08_files/figure-html/unnamed-chunk-77-1.png" class="r-plt" alt="" width="768"></p>
-<p>Seasonal patterns are evident, as is a trend. To model this, we set
-up an appropriate design matrix. Leveraging the fact the the data is a
-<code>ts</code> object, we can do this very easily using
-<code>time</code> and <code>cycle</code>. Note that
-<code>model.matrix</code> will, by default, use the first month
-(January) as a baseline and automatically include an intercept.</p>
+<p>Seasonal patterns are evident, as is a trend.</p>
+</div>
+<div class="section level4">
+<h4 id="example-8-18-new-cars-registration-data-standard-regression-model">Example 8.18: New cars registration data: Standard regression
+model<a class="anchor" aria-label="anchor" href="#example-8-18-new-cars-registration-data-standard-regression-model"></a>
+</h4>
+<p>To model trend and seasonality, we set up an appropriate design
+matrix. Leveraging the fact the the data is a <code>ts</code> object, we
+can do this very easily using <code>time</code> and <code>cycle</code>.
+Note that <code>model.matrix</code> will, by default, use the first
+month (January) as a baseline and automatically include an
+intercept.</p>
 <div class="sourceCode" id="cb86"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">degree</span> <span class="op">&lt;-</span> <span class="fl">2</span></span>
 <span><span class="va">tim</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/time.html" class="external-link">time</a></span><span class="op">(</span><span class="va">newcars</span><span class="op">)</span></span>
@@ -2486,8 +2497,14 @@ values as well as the mean of the residuals and their estimated ACF.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>h <span class="op">=</span> <span class="fl">0</span>, lty <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
 <p><img src="Chapter08_files/figure-html/unnamed-chunk-81-1.png" class="r-plt" alt="" width="768"></p>
 <p>We see a generally good fit but also notice some potential
-autocorrelation. Thus, we move forward by including an autoregressive
-coefficient.</p>
+autocorrelation.</p>
+</div>
+<div class="section level4">
+<h4 id="example-8-19-new-cars-registration-data-regression-analysis-with-autocorrelated-errors">Example 8.19: New cars registration data: Regression analysis with
+autocorrelated errors<a class="anchor" aria-label="anchor" href="#example-8-19-new-cars-registration-data-regression-analysis-with-autocorrelated-errors"></a>
+</h4>
+<p>We move forward by including an autoregressive coefficient in our
+regression setup.</p>
 <div class="sourceCode" id="cb90"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Define the prior parameters for phi (the other ones stay the same)</span></span>
 <span><span class="va">phiMean</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
@@ -2576,6 +2593,7 @@ residuals.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/acf.html" class="external-link">acf</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="va">epss</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/title.html" class="external-link">title</a></span><span class="op">(</span><span class="st">"Estimated ACF"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="Chapter08_files/figure-html/unnamed-chunk-83-1.png" class="r-plt" alt="" width="768"></p>
+</div>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

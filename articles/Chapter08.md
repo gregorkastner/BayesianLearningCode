@@ -2,7 +2,19 @@
 
 ## Section 8.1: Binary response variables
 
-### Section 8.1.1: Probit model
+#### Example 8.1: Labor market data: Introduction
+
+``` r
+
+library("BayesianLearningCode")
+data("labor", package = "BayesianLearningCode")
+```
+
+### Section 8.1.1: Regression analysis for binary response variables
+
+\[no code\]
+
+### Section 8.1.2: Bayesian learning for a probit model
 
 #### Figure 8.1: Latent utility and outcome in the probit model
 
@@ -28,17 +40,9 @@ polygon(c(dens$x[dens$x >= 0], 0), c(dens$y[dens$x >= 0], 0),
         col = "red", border = NA)
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-3-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-4-1.png)
 
-#### Example 8.1: Labor market data
-
-We now perform probit regression analysis for the labor market data.
-
-``` r
-
-library("BayesianLearningCode")
-data("labor", package = "BayesianLearningCode")
-```
+#### Example 8.2: Labor market data: Fitting a probit model
 
 We model the income in 1998, binarized into unemployed (zero income) and
 employed, as dependent variable, and use as covariates the variables
@@ -56,8 +60,6 @@ X_unemp <- with(labor, cbind(intercept = rep(1, N_unemp),
                              wcollar = wcollar_1997,
                              unemp97 = income_1997 == "zero")) # regressor matrix
 ```
-
-#### Example 8.2: Fitting a probit model to the labor market data
 
 The regression coefficients are estimated using data augmentation and
 Gibbs sampling. We define a function yielding posterior draws using the
@@ -219,7 +221,7 @@ The sampler is easy to implement, however there might be problems when
 the response variable contains either only very few or very many
 successes.
 
-#### Example 8.3: Imbalanced data
+#### Example 8.3: Probit analysis with imbalanced data
 
 To illustrate this issue, we use data where in $`N = 500`$ trials only 1
 failure or only 1 success is observed.
@@ -284,7 +286,7 @@ and failures can be perfectly predicted by a covariate, whereas
 quasi-complete separation means that only either successes or failures
 can be predicted perfectly.
 
-#### Example 8.4: Complete separation
+#### Example 8.4: Probit analysis with complete separation
 
 To illustrate the effect of complete separation on the estimates, we
 generate $`N = 500`$ observations where half of them are successes and
@@ -343,7 +345,7 @@ acf(betas_sep[, 2], ylab = "empirical ACF")
 Hence the estimated ESSs are very low with a value of around 5,
 resulting in estimated IFs of about 500.
 
-#### Example 8.5: Quasi-complete separation
+#### Example 8.5: Probit analysis with quasi-complete separation
 
 To illustrate quasi-separation we use the same responses as in Example
 8.4, but now set $`x=1`$ for all successes and additionally for 100
@@ -444,7 +446,7 @@ Hence, a proper prior is required to avoid improper posteriors in case
 of separation and with a tighter prior we can shrink coefficients to
 zero.
 
-#### Example 8.6: Complete separation: analysis under an informative prior
+#### Example 8.6: Complete separation under an informative prior
 
 We now analyze the data of example 8.4. under the more informative prior
 $`\mathcal{N}(\mathbf{0}, \mathbf{I})`$. This prior distribution encodes
@@ -511,9 +513,9 @@ acf(betas_sep1[, 2], ylab = "empirical ACF")
 Correspondingly the autocorrelation of the draws are much lower under
 the tighter prior.
 
-### Section 8.1.2: Logit model
+### Section 8.1.3: Bayesian learning for a logit model
 
-#### Example 8.7: Labor market data
+#### Example 8.7: Labor market data: Fitting a logit model
 
 We now estimate a logistic regression model for the labor market data
 using the two-block Polya-Gamma sampler.
@@ -636,7 +638,7 @@ knitr::kable(round(res_probit_labor * pi / sqrt(3), 3))
 
 ### Section 8.2.1: Poisson regression models
 
-#### Example 8.8: Road safety data
+#### Example 8.8: Road safety data: Fitting a poisson regression model
 
 We will fit two different Poisson regression models to the series of
 monthly deadly and seriously injured children aged 6-10 in Linz
@@ -778,7 +780,7 @@ sample_beta <- function(y, X, e, b0, B0, qmean, qvar, beta_old) {
 }
 ```
 
-Next we combine the determination of the proposal and the MH-sampling
+Next, we combine the determination of the proposal and the MH-sampling
 step in a program to sample from the posterior of a Poisson regression
 model.
 
@@ -919,7 +921,7 @@ parameters have to be estimated.
 
 ### Section 8.2.2: Negative binomial regression
 
-#### Example 8.9: Road safety data
+#### Example 8.9: Road safety data: Fitting a negative binomial regression
 
 Now we re-analyze the road safety data allowing for unobserved
 heterogeneity. We will first set up the two versions of the three-block
@@ -987,7 +989,7 @@ and $`\phi`$ in a gibbs sampler.
 
 ``` r
 
-negbin<- function(y,X,e, b0,B0, pri_alpha,c_alpha,
+negbin <- function(y,X,e, b0,B0, pri_alpha,c_alpha,
                   full_gibbs = TRUE, burnin = 1000L, M = 10000L / mcmcspeedup){
 
   N <- nrow(X)
@@ -1045,11 +1047,11 @@ sampler for $`M = 50,000`$ iterations after a burn-in of 1000.
 ``` r
 
 d <- ncol(X)
-b0=rep(0,d)
-B0=diag(100,d)
+b0 <- rep(0,d)
+B0 <- diag(100,d)
 
 pri_alpha <- data.frame(shape = 2, rate = 0.5)
-c_alpha=0.3
+c_alpha <- 0.3
                                                     
 M <- 50000L / mcmcspeedup
                                                     
@@ -1081,13 +1083,13 @@ c(mean(res1$acc_beta), mean(res1$acc_alpha))
 #> [1] 0.9374 0.3806
 ```
 
-Next we run the partially marginalized Gibbs sampler under the same
+Next, we run the partially marginalized Gibbs sampler under the same
 prior.
 
 ``` r
 
 set.seed(1234)               
-res2 <- negbin(y,X,e, b0,B0, pri_alpha,c_alpha, full_gibbs = FALSE, M=M )
+res2 <- negbin(y,X,e, b0,B0, pri_alpha,c_alpha, full_gibbs = FALSE, M = M)
 
 res_negbin_partial <- rbind(t(apply(res2$beta_post, 2, res.mcmc)),
                             alpha = res.mcmc(res2$alpha_post))
@@ -1123,9 +1125,9 @@ of $`\alpha`$ which has a value of 73.78 in the full sampler, but is
 smaller with a value of 48.18 for the partially marginalized Gibbs
 sampler.
 
-### Section 8.2.3: Evaluating MCMC samplers
+### Section 8.2.3: Getting it right – checking correctness of an MCMC sampler
 
-#### Example 8.10 Testing correctness of a wrongfully implemented MH-within Gibbs sampler
+#### Example 8.10: Testing correctness of a wrongfully implemented MH-within Gibbs sampler
 
 To check the MCMC algorithm for correctness, we extend the sampler by
 adding sampling the data from the prior as a further sampling step.
@@ -1187,8 +1189,7 @@ negbin_check <- function(X, e, b0, B0, pri_alpha, c_alpha, full_gibbs = TRUE,
 }
 ```
 
-We use tighter priors for the model parameters and a sample size of
-N=100 observations.
+We use tighter priors for the model parameters and a sample size of 100.
 
 ``` r
 
@@ -1228,7 +1229,7 @@ alpha_prior <- qgamma(ppoints(M), shape = pri_alpha$shape,
                       rate = pri_alpha$rate)
 ```
 
-Next we thin the sampled values by a factor of 100 to get (almost)
+Next, we thin the sampled values by a factor of 100 to get (almost)
 uncorrelated draws and make a QQ-plot of the values from the prior and
 the thinned draws from posterior.
 
@@ -1396,7 +1397,7 @@ We see very a clear deviation from the identity line and a p-value of
 0.001 for the heterogeneity parameter which indicates that the sampler
 is erroneous.
 
-### Example 8.11: Testing correctness of an invalid partially collapsed sampler
+#### Example 8.11: Testing correctness of an invalid partially collapsed sampler
 
 In this example we check whether changing the order of the sampling
 steps to (c)- (b)-(a) (instead of (a)-(b)-(c) ) still yields a correct
@@ -1477,9 +1478,9 @@ c_alpha <- 0.35
 ```
 
 To check the correctness of the Gibbs sampler we focus on the
-overdispersion $`\frac{\mu_i^2}{\alpha}`$ for $`x_i=0`$ and $`x-i=1`$
-which we compute from the draws of the augmented MCMC sampler as well as
-from draws of the prior distribution.
+overdispersion $`\frac{\mu_i^2}{\alpha}`$ for $`x_i = 0`$ and
+$`x-i = 1`$, which we compute from the draws of the augmented MCMC
+sampler as well as from draws of the prior distribution.
 
 We run first the correct partially collapsed Gibbs sampler.
 
@@ -1594,12 +1595,13 @@ plot(res_check_partial$beta_post[thin,2],res_check_partial$alpha_post[thin],
         xlab="beta2", ylab="alpha",main="incorrect partial",xlim=c(0.5,3.5), ylim=c(0,1.4))
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-51-1.png) \# Section 8.3:
-Beyond i.i.d. Gaussian error distributions
+![](Chapter08_files/figure-html/unnamed-chunk-51-1.png)
+
+## Section 8.3: Beyond i.i.d. Gaussian error distributions
 
 ### Section 8.3.1: Regression analysis with heteroskedastic errors
 
-#### Example 8.12: Star cluster data
+#### Example 8.12: Star cluster data: Homoskedastic regression analysis
 
 The bivariate data set of the star cluster CYG OB1 is available in
 package *robustbase* and we load it from this package and visualize it
@@ -1650,8 +1652,6 @@ We compare the expected values (full lines) and the pointwise 95%-HPD
 regions in the following figure for the model fit using all data (left)
 and only the subset without the giant stars (right).
 
-### Figure 8.9: Star cluster data
-
 ``` r
 
 plot(starsCYG, pch = 19, xlim = c(3, 5), ylim = c(3, 7),
@@ -1668,7 +1668,7 @@ lines(xnew, preds_subset[, "upr"], lty = 2)
 
 ![](Chapter08_files/figure-html/unnamed-chunk-55-1.png)
 
-#### Example 8.13: Star cluster data - heteroskedastic regression analysis with known outliers
+#### Example 8.13: Star cluster data: Heteroskedastic regression analysis with known outliers
 
 We define the binary indicator indicating outlying observations, i.e.,
 in this case observations corresponding to giant stars.
@@ -1770,7 +1770,7 @@ lines(xnew, apply(pred_hetero, 1, quantile, 0.975), lty = 2)
 
 ### Section 8.3.2 Regression analysis with errors following a Gaussian mixture
 
-#### Example 8.14: Star cluster data - regression analysis with Gaussian two-component mixture errors
+#### Example 8.14: Star cluster data: Regression analysis with Gaussian two-component mixture errors
 
 We now assume that the indices of the giant stars are not known. We only
 assume that a two-component mixture is used as weight distribution where
@@ -1973,7 +1973,7 @@ that is robust to the outlying observations.
 
 ### Section 8.3.3 Regression analysis with Student-t errors
 
-#### Example 8.15: Star cluster data - Student-$`t`$ regression analysis
+#### Example 8.15: Star cluster data: Student-t regression analysis with known degrees of freedom
 
 Now we analyze the Star cluster data assuming a Student-$`t`$
 distribution for the errors. We fix the degrees of freedom to a low
@@ -2050,7 +2050,7 @@ boxplot(ws, col = 2 * (1:ncol(ws) %in% index))
 
 ![](Chapter08_files/figure-html/unnamed-chunk-72-1.png)
 
-#### Example 8.16: CHF exchange rate data - Fitting a Student-$`t`$ with $`\nu`$ unknown
+#### Example 8.16: CHF exchange rate data: Fitting a Student-t with the degrees of freedom unknown
 
 We begin with loading the data.
 
@@ -2181,6 +2181,8 @@ title(paste0("Empirical ACF (IF: ", round(IF), ")"))
 
 ### Section 8.3.4 Regression analysis with autocorrelated errors
 
+#### Example 8.17: New cars registration data: Introduction
+
 We begin by loading the data and visualizing them as a time series plot.
 In what is to follow, we restrict our analysis to the years 2003 through
 2012, i.e., a time span of 10 years or 120 observations.
@@ -2194,11 +2196,15 @@ plot(newcars)
 
 ![](Chapter08_files/figure-html/unnamed-chunk-77-1.png)
 
-Seasonal patterns are evident, as is a trend. To model this, we set up
-an appropriate design matrix. Leveraging the fact the the data is a `ts`
-object, we can do this very easily using `time` and `cycle`. Note that
-`model.matrix` will, by default, use the first month (January) as a
-baseline and automatically include an intercept.
+Seasonal patterns are evident, as is a trend.
+
+#### Example 8.18: New cars registration data: Standard regression model
+
+To model trend and seasonality, we set up an appropriate design matrix.
+Leveraging the fact the the data is a `ts` object, we can do this very
+easily using `time` and `cycle`. Note that `model.matrix` will, by
+default, use the first month (January) as a baseline and automatically
+include an intercept.
 
 ``` r
 
@@ -2296,8 +2302,12 @@ abline(h = 0, lty = 3)
 ![](Chapter08_files/figure-html/unnamed-chunk-81-1.png)
 
 We see a generally good fit but also notice some potential
-autocorrelation. Thus, we move forward by including an autoregressive
-coefficient.
+autocorrelation.
+
+#### Example 8.19: New cars registration data: Regression analysis with autocorrelated errors
+
+We move forward by including an autoregressive coefficient in our
+regression setup.
 
 ``` r
 

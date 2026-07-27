@@ -1,43 +1,20 @@
 # Chapter 9: Bayesian Predictive Analysis
 
-## Section 9.1: From Bayesian Posterior to Bayesian Predictive Inference
+## Section 9.1: The posterior predictive distribution
 
-### Example 9.1: Road safety data - single predictions
+### Section 9.1.1: From Bayesian posterior to Bayesian predictive inference
 
-We load the data and extract the observations for the senior people in
-Linz. We then plot the pdf and cdf for the predictive distribution which
-corresponds under the flat prior to
-``` math
-y_f|\mathbf{y} \sim \mathcal NB(N\bar y + 1, N).
-```
+#### Example 9.1: Road safety data: Predictive analysis
 
-``` r
+\[no code\]
 
-data("accidents", package = "BayesianLearningCode")
-y <- accidents[, "seniors_accidents"]
-(aN <- sum(y) + 1)
-#> [1] 1009
-(bN <- length(y))
-#> [1] 192
-mu <- aN / bN
-yf <- 0:20
-plot(yf, dnbinom(yf, size = aN, mu = mu),
-     type = "h", xlab = bquote(y[f]), ylab = "", lwd = 2)
-plot(yf, pnbinom(yf, size = aN, mu = mu),
-     type = "h", xlab = bquote(y[f]), ylab = "", lwd = 2)
-probs <- c(0.025, 0.975)
-abline(h = probs, lty = 3)
-mtext(probs, side = 2, at = probs, adj = c(0, 1), cex = .8, col = "dimgrey")
-```
-
-![](Chapter09_files/figure-html/unnamed-chunk-3-1.png)
-
-### Example 9.2: CHF exchange rate data - single predictions
+#### Example 9.2: CHF exchange rate data: Single predictions
 
 We load the data and then plot the pdf and cdf for the predictive
 distribution which corresponds under the improper prior to
 ``` math
-y_f|\mathbf{y} \sim \mathcal t_{2c_N}\left(\bar y, \frac{N s_y^2}{N-1}\left(1 + \frac{1}{N}\right)\right).
+y_f|\mathbf{y} \sim \mathcal t_{2c_N}\left(\bar y,
+\frac{N s_y^2}{N-1}\left(1 + \frac{1}{N}\right)\right).
 ```
 
 ``` r
@@ -66,7 +43,7 @@ abline(h = probs, lty = 3)
 mtext(probs, side = 2, at = probs, adj = c(0, 1), cex = .8, col = "dimgrey")
 ```
 
-![](Chapter09_files/figure-html/unnamed-chunk-4-1.png)
+![](Chapter09_files/figure-html/unnamed-chunk-3-1.png)
 
 We inspect the parameters of the Student-t distribution.
 
@@ -77,7 +54,37 @@ round(c(mu = bN, sigma2 = scale^2, df = 2 * cN), digits = 3)
 #>    0.018    0.528 3138.000
 ```
 
-### Example 9.3: CHF exchange rate data - plug-in versus Bayesian forecasting
+#### Example 9.3: Road safety data: Single predictions
+
+We load the data and extract the observations for the senior people in
+Linz. We then plot the pdf and cdf for the predictive distribution which
+corresponds under the flat prior to
+``` math
+y_f|\mathbf{y} \sim \mathcal NB(N\bar y + 1, N).
+```
+
+``` r
+
+data("accidents", package = "BayesianLearningCode")
+y <- accidents[, "seniors_accidents"]
+(aN <- sum(y) + 1)
+#> [1] 1009
+(bN <- length(y))
+#> [1] 192
+mu <- aN / bN
+yf <- 0:20
+plot(yf, dnbinom(yf, size = aN, mu = mu),
+     type = "h", xlab = bquote(y[f]), ylab = "", lwd = 2)
+plot(yf, pnbinom(yf, size = aN, mu = mu),
+     type = "h", xlab = bquote(y[f]), ylab = "", lwd = 2)
+probs <- c(0.025, 0.975)
+abline(h = probs, lty = 3)
+mtext(probs, side = 2, at = probs, adj = c(0, 1), cex = .8, col = "dimgrey")
+```
+
+![](Chapter09_files/figure-html/unnamed-chunk-5-1.png)
+
+#### Example 9.3: CHF exchange rate data: Plug-in versus Bayesian forecasting
 
 To compare with a method that ignores parameter uncertainty, we now plot
 the posterior predictive alongside the “classical” forecasting
@@ -85,6 +92,7 @@ distribution for varying $`N`$.
 
 ``` r
 
+y <- 100 * diff(log(exrates$USD / exrates$CHF))
 Ns <- c(5, 10, 30, N)
 
 for (i in seq_along(Ns)) {
@@ -104,7 +112,9 @@ for (i in seq_along(Ns)) {
 
 ![](Chapter09_files/figure-html/unnamed-chunk-6-1.png)
 
-### Example 9.4: Road safety data - posterior predictive credible interval
+### Section 9.1.2: Reporting posterior predictive inference
+
+#### Example 9.5: Road safety data: Posterior predictive interval
 
 We verify that a 95% posterior predictive interval is given by \[1, 9\]
 using the cdf and compute the effective coverage.
@@ -115,7 +125,7 @@ pnbinom(9, size = aN, mu = mu) - pnbinom(0, size = aN, mu = mu)
 #> [1] 0.9522248
 ```
 
-### Example 9.5: CHF exchange rate data - posterior predictive credible interval
+#### Example 9.6: CHF exchange rate data: Posterior predictive interval
 
 We determine the 95% posterior predictive interval using the quantile
 function.
@@ -147,9 +157,24 @@ knitr::kable(t(round(coverage, 4)))
 |-------:|-------:|-------:|-------:|
 | 0.8519 | 0.9055 | 0.9363 | 0.9499 |
 
-## Section 9.3: A Sampling-Based Approach to Prediction
+### Section 9.1.3: Simultaneous prediction of multiple outcomes
 
-### Example 9.8: CHF exchange rate data - sampling-based prediction
+#### Example 9.7: Simultaneous predictions for a Gaussian model
+
+\[no code\]
+
+#### Example 9.8: Simultaneous predictions for a Poisson model
+
+\[no code\]
+
+Section 9.1.4: Predictive analysis as a foundation for the Bayesian
+paradigm
+
+## Section 9.2: A sampling-based approach to prediction
+
+### Section 9.2.1: Sampling future realizations through data augmentation
+
+#### Example 9.9: CHF exchange rate data: Sampling-based prediction
 
 We proceed exactly as in Chapter 4. For the Gaussian distribution, the
 posterior of $`\sigma^2`$ is inverse gamma, and we can easily generate
@@ -232,7 +257,7 @@ hist(y, freq = FALSE, breaks = grid, border = NA,
 lines(density(yf_normal, adjust = 2), col = 4, lty = 1, lwd = 1.5)
 lines(density(yf_t, adjust = 2), col = 2, lty = 2, lwd = 1.5)
 legend("topleft", c("Normal", "Student t"), lty = 1:2, col = c(4, 2), lwd = 1.5)
-ts.plot(y, main = "Time series plot and some predictive quantiles")
+ts.plot(y, main = "Time series and predictive quantiles")
 abline(h = q_normal, col = 4, lty = 1, lwd = 1.5)
 abline(h = q_t, col = 2, lty = 2, lwd = 1.5)
 legend("topleft", c("Normal", "Student t"), lty = 1:2, col = c(4, 2), lwd = 1.5)
@@ -240,7 +265,7 @@ legend("topleft", c("Normal", "Student t"), lty = 1:2, col = c(4, 2), lwd = 1.5)
 
 ![](Chapter09_files/figure-html/unnamed-chunk-14-1.png)
 
-### Example 9.9: Road safety data - sampling-based prediction
+#### Example 9.10: Road safety data: Sampling-based prediction
 
 We use a sampling-based approach to obtain draws from the posterior
 predictive by first drawing from the posterior
@@ -275,7 +300,13 @@ mtext(probs, side = 2, at = probs, adj = c(0, 1), cex = .8, col = "dimgrey")
 
 ![](Chapter09_files/figure-html/unnamed-chunk-16-1.png)
 
-### Example 9.11: Predicting the probability of future successes
+### Section 9.2.2: Variance reduction through Rao-Blackwellization
+
+#### Example 9.11: Variance reduction for point forecasts
+
+\[no code\]
+
+#### Example 9.12: Predicting the probability of future successes
 
 We illustrate the variance of the purely sampling-based estimator versus
 the Rao-Blackwellized version by running several experiments.
@@ -345,9 +376,15 @@ points(pk3, col = 3, cex = 1.5, pch = 16)
 
 ![](Chapter09_files/figure-html/unnamed-chunk-20-1.png)
 
-## Section 9.4 Posterior Predictive Distributions in Regression Analysis
+## Section 9.3: Posterior predictive distributions in regression analysis
 
-### Example 9.12: Road Safety Data; potential outcome analysis
+### Section 9.3.1: Prediction for a standard regression model
+
+\[no code\]
+
+### Section 9.3.2: Prediction beyond standard regression analysis
+
+#### Example 9.13: Road safety data: Potential outcome analysis
 
 We are now interested in predicting the number of children who would
 have been killed or seriously injured without the legal intervention on
@@ -527,9 +564,11 @@ this model is constant the predicted mean number of killed and seriously
 injured children decreases from 1994 due to the decreasing number of
 exposures in that time period.
 
-## Section 9.5: Bayesian Forecasting of Time Series
+## Section 9.4: Bayesian forecasting of time series
 
-### Example 9.13: US GDP data - one-step-ahead forecasting
+### Section 9.4.1: One-step and multi-step ahead forecasting
+
+#### Example 9.14: US GDP data: One-step-ahead forecasting
 
 For creating the design matrix for an AR model, we re-use the function
 from Chapter 7.
@@ -597,7 +636,13 @@ for (p in 2:4) {
 
 ![](Chapter09_files/figure-html/unnamed-chunk-28-1.png)
 
-### Example 9.15: US GDP data - multi-step forecasting
+#### Example 9.15: Two-step forecasting for an AR(2)-model
+
+\[no code\]
+
+### Section 9.4.2: Sampling the future
+
+#### Example 9.16: US GDP data: Multi-step forecasting
 
 Now, we want to “sample the future” up to 12 steps ahead for $`p = 2`$.
 
@@ -685,7 +730,7 @@ abline(h = 0, lty = 3)
 
 ![](Chapter09_files/figure-html/unnamed-chunk-31-1.png)
 
-### Example 9.16: US GDP data - forecasting non-linear functionals
+### Example 9.17: US GDP data: Forecasting non-linear functionals
 
 Let us compute the probability of seeing negative growth rates a least
 once in eight quarters. Not that this is highly nonlinear.
@@ -697,7 +742,7 @@ mins <- apply(yfs, 1, min)
 #> [1] 0.394
 ```
 
-### Example 9.17: US GDP data - forecasting the level
+### Example 9.18: US GDP data: Forecasting the level
 
 Another example of a nonlinear function of the predicted log returns is
 the level, which, given our simulation-based approach, is easy to
@@ -732,7 +777,13 @@ abline(h = 0, lty = 3)
 
 ![](Chapter09_files/figure-html/unnamed-chunk-34-1.png)
 
-### Section 10.5.3: Forecasting Volatility via GARCH(1,1) Models
+#### Example 9.19: Forecasting an AR(1)-model
+
+\[no code\]
+
+### Section 9.4.3: Forecasting volatility via GARCH(1,1) models
+
+#### Example 9.20: CHF exchange rate data: Fitting a GARCH(1,1) model
 
 We start by defining the parameter transformation.
 
@@ -866,6 +917,8 @@ myhist(res$para$gamma1, xlab = expression(gamma[1]))
 
 ![](Chapter09_files/figure-html/unnamed-chunk-39-1.png)
 
+#### Example 9.21: CHF exchange rate data: Short and long-term forecasting
+
 We now turn towards prediction, which can be done iteratively. We define
 a function that predicts a number of steps ahead.
 
@@ -904,14 +957,16 @@ ytrain <- head(y, cutoff)
 restrain <- sampler(ytrain)
 
 # Visually check convergence
-plot.ts(restrain$theta, main = paste("Acceptance Rate:", round(restrain$acceptrate, 2)))
+plot.ts(restrain$theta)
+title(paste("Acceptance Rate:", round(restrain$acceptrate, 2)))
 ```
 
 ![](Chapter09_files/figure-html/unnamed-chunk-41-1.png)
 
 ``` r
 
-plot.ts(restrain$para, main = paste("Acceptance Rate:", round(restrain$acceptrate, 2)))
+plot.ts(restrain$para)
+title(paste("Acceptance Rate:", round(restrain$acceptrate, 2)))
 ```
 
 ![](Chapter09_files/figure-html/unnamed-chunk-41-2.png)
@@ -934,6 +989,8 @@ predstaticquants <- apply(predstatic$y, 2, quantile, thesequants)
 (sd((restrain$para$alpha1 + restrain$para$gamma1)^nahead))
 #> [1] 0.07437182
 ```
+
+#### Example 9.22: CHF exchange rate data: Expanding window forecast
 
 Alternatively, we might want to do sequential one-step-ahead
 predictions. Note that this amounts to re-estimating the model very
