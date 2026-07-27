@@ -1,6 +1,6 @@
 # Chapter 6: The Bayesian Approach to Standard Regression Analysis
 
-## Section 6.1 The Standard Linear Regression Model
+## Section 6.1: The standard linear regression model
 
 #### Example 6.1: Movie data
 
@@ -14,11 +14,19 @@ library("BayesianLearningCode")
 data("movies", package = "BayesianLearningCode")
 ```
 
-## Section 6.2 Bayesian Learning for a Standard Linear Regression Model
+### Section 6.1.1: Model definition
 
-### Section 6.2.1 Bayesian Learning Under Improper Priors
+\[no code\]
 
-#### Example 6.2: Movie data - Analysis under improper prior
+### Section 6.1.2: Learning the variance from known innovations
+
+\[no code\]
+
+## Section 6.2: Bayesian learning for a standard linear regression model
+
+### Section 6.2.1: Bayesian learning under improper priors
+
+#### Example 6.2: Movie data: Regression analysis under an improper prior
 
 We use as response `y` the variable *OpenBoxOffice*, which contains the
 box office sales at the opening weekend in Mio.\$, and as covariates the
@@ -156,7 +164,7 @@ knitr::kable(round(cbind(qinvgamma(0.025, a = cN, b = reg.improp$CN),
 |--------------:|---------------:|---------------:|
 |        178.38 |         239.07 |         319.96 |
 
-#### Example 6.3: Movie data - Prediction
+#### Example 6.3: Movie data: Box office sales prediction
 
 We are now interested in predicting the box office sales on the opening
 weekend. We compute the predicted box office sales for a film with an
@@ -206,10 +214,12 @@ abline(a = 0, b = 1)
 abline(h = 0, lty = 2)
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-11-1.png) The prediction
-interval is symmetric around the posterior mean, but obviously the model
-is not adequate, as the lower limit of the 80% prediction interval is
-negative for a budget below approximately Mio.\$ 55.
+![](Chapter06_files/figure-html/unnamed-chunk-11-1.png)
+
+The prediction interval is symmetric around the posterior mean, but
+obviously the model is not adequate, as the lower limit of the 80%
+prediction interval is negative for a budget below approximately Mio.\$
+55.
 
 We can take into account that box office sales are always positive by
 fitting a linear regression model on the log transformed sales.
@@ -277,7 +287,9 @@ predicted values from the regression model on the logarithm of the box
 office sales are slightly better, but the observed box office sales of
 Mio.\$ 152 are still predicted much too low.
 
-### Section 6.2.2 Bayesian Learning under Conjugate Priors
+### Section 6.2.2: Bayesian learning under conjugate priors
+
+#### Example 6.4: Movie data: Regression analysis under a conjugate prior
 
 We next consider regression analysis under a conjugate prior. For this,
 we first define a function that yields the parameters of the posterior
@@ -311,8 +323,6 @@ regression_conjugate <- function(y, X, b0 = 0, B0 = 10, c0 = 0.01, C0 = 0.01) {
   list(bN = bN, BN = BN, cN = cN, CN = CN)
 }
 ```
-
-#### Example 6.4: Movie data - Analysis under conjugate prior
 
 We specify a normal prior with mean zero and $`\mathbf{B}_0=\lambda^2
 \mathbf{I}`$ with $`\lambda^2=10`$ on the regression effects and an
@@ -392,10 +402,11 @@ for (i in seq_len(nrow(beta.hat))) {
 }
 ```
 
-![](Chapter06_files/figure-html/unnamed-chunk-18-1.png) There is little
-difference to the improper prior for the effects of *Budget* and
-*Screens*, however the intercept is shrunk to zero for $`\lambda^2=1`$
-and even more for $`\lambda^2=0.1`$.
+![](Chapter06_files/figure-html/unnamed-chunk-18-1.png)
+
+There is little difference to the improper prior for the effects of
+*Budget* and *Screens*, however the intercept is shrunk to zero for
+$`\lambda^2=1`$ and even more for $`\lambda^2=0.1`$.
 
 To illustrate the effect of the prior we compute the weight matrix
 $`\textbf{W}`$ for the conjugate prior with mean $`\textbf{0}`$ and
@@ -417,7 +428,15 @@ value of the posterior mean of the intercept this explains the
 considerable shrinkage to zero of the intercept, whereas the effects of
 the two covariates are almost unshrunk.
 
-### 6.3 Regression Analysis under the Semi-Conjugate Prior
+## Section 6.3: Regression analysis under a semi-conjugate prior
+
+### Section 6.3.1: The semi-conjugate prior
+
+\[no code\]
+
+### Section 6.3.2: Introducing Gibbs sampling
+
+#### Example 6.5: Movie data: Illustrating two-block Gibbs sampling
 
 First, we set up the Gibbs sampler to estimate the parameters of the
 regression model under a semi-conjugate prior.
@@ -467,8 +486,6 @@ reg_semiconj <- function(y, X, b0 = 0, B0 = 10000, c0 = 2.5, C0 = 1.5,
 }                              
 ```
 
-#### Example 6.5: Movie data - Traceplots of the Gibbs sampler
-
 We run the sampler two times for 1000 draws and to show convergence to
 the posterior distribution we start from extreme values for the
 innovation variance, once from a very large (10^6) and once from a very
@@ -500,9 +517,9 @@ lines(post.draws2$sigma2s, col="red")
 
 ![](Chapter06_files/figure-html/unnamed-chunk-22-1.png) Even though the
 starting value for the error variance is far from the posterior
-distribution the burn-in phase of the sampler is very short.
+distribution, the burn-in phase of the sampler is very short.
 
-#### Example 6.6: Movie data - Analysis under the semi-conjugate prior
+#### Example 6.6: Movie data: Regression analysis under a semi-conjugate prior
 
 We now include all available covariates in the regression analysis. As
 there is only one film with MPAA rating “G”, we merge the two ratings
@@ -616,7 +633,15 @@ round(sum(res_beta.sc[c("Vol-4-6", "Vol-1-3"), "Posterior mean"]),
 #> [1] 5.629
 ```
 
-## 6.4 Regression Analysis Based on the Horseshoe Prior
+## Section 6.4: Regression analysis under a horseshoe prior
+
+### Section 6.4.1: Gibbs sampling for a known global shrinkage parameter
+
+\[no code\]
+
+### Section 6.4.2: Full conditional Gibbs sampling
+
+#### Example 6.7: Movie data: Regression analysis under a horseshoe prior
 
 A comparison of the normal and the horseshoe prior shows that the latter
 has much more mass close to zero and fatter tails.
@@ -705,8 +730,6 @@ reg_hs <- function(y, X,  b0 = 0, B0 = 10000, c0 = 2.5, C0 = 1.5,
 }    
 ```
 
-#### Example 6.7: Movie data - Analysis under the horseshoe prior
-
 We estimate the parameters in the regression model with the same prior
 on intercept and error variance as in the semi-conjugate prior, but a
 horseshoe prior on the covariate effects.
@@ -746,9 +769,10 @@ knitr::kable(round(res_beta.hs, 3))
 
 Estimation results are very similar to those under the semi-conjugate
 prior for the effects of Budget, Weeks, Screens, Vol-4-6 and Vol-1-3.
-For all other covariates the posterior means of their effects are closer
-to zero and the 95% posterior intervals are tighter under the horseshoe
-than under the semi-conjugate prior, indicating shrinkage to zero.
+For all other covariates, the posterior means of their effects are
+closer to zero and the 95% posterior intervals are tighter under the
+horseshoe than under the semi-conjugate prior, indicating shrinkage to
+zero.
 
 However, the estimation results on the error variance are very similar
 to those under the semi-conjugate prior.
@@ -864,7 +888,7 @@ for (i in seq_len(ncol(beta.hs))) {
 
 ![](Chapter06_files/figure-html/unnamed-chunk-39-1.png)
 
-#### Example 6.8: Movie data - Check convergence by a second MCMC run
+#### Example 6.8: Movie data: Convergence of Gibbs sampling under the horseshoe prior
 
 We verify convergence of the sampler by doing a second run of the six
 block sampler in Algorithm 6.2. In the QQ plots of the draws of the
@@ -879,18 +903,20 @@ par(mfrow = c(1, 2),mar = c(2.0, 2.0, 2.0, .1), mgp = c(1, .2, 0))
 qqplot(post.draws.hs$betas[, 1], post.draws.hs2$betas[, 1], 
        xlim = range(post.draws.hs$betas[, 1], post.draws.hs2$betas[, 1]),
        ylim = range(post.draws.hs$betas[, 1], post.draws.hs2$betas[, 1]),
-       main = "QQ plot for the intercept", xlab = "First run", ylab = "Second run")
+       main = "QQ plot for the intercept", xlab = "First run",
+       ylab = "Second run")
 abline(a = 0, b = 1)
 qqplot(post.draws.hs$sigma2s, post.draws.hs2$sigma2s,
        xlim = range(post.draws.hs$sigma2s, post.draws.hs2$sigma2s),
        ylim = range(post.draws.hs$sigma2s, post.draws.hs2$sigma2s),
-       main = "QQ plot for the error variance", xlab = "First run", ylab = "Second run")
+       main = "QQ plot for the error variance", xlab = "First run",
+       ylab = "Second run")
 abline(a = 0, b = 1)
 ```
 
 ![](Chapter06_files/figure-html/unnamed-chunk-40-1.png)
 
-#### Example 6.9: Movie data - Predictions
+#### Example 6.9: Movie data: Prediction under the horseshoe prior
 
 We predict the box office sales for different movies: a film with
 reference values in all covariates (A), a film with reference values in
@@ -930,25 +956,29 @@ equal-tailed 95% predictive interval.
 
 matplot(x = t(matrix(1:nf, ncol = 3, nrow = nf)),
         y = pred.int.sc, col = "blue", type = "l", pch = 16, lty = 1,
-        ylim = c(0, 40), xlim = c(0.5, nf+0.5),
+        ylim = c(0, 40), xlim = c(0.5, nf + 0.5),
         xlab = "Scenarios", ylab = "Predicted box office sales", xaxt = "n")
 points(x = 1:nf, y = pred.int.sc[2, ], pch = 19, col = "blue", cex = 1.2)
 points(x = 1:nf, y = pred.mean.sc, pch = 16, col = "red")
 
-matplot(x = t(matrix((1:nf)+0.2, ncol = 3, nrow = nf)),
-        y = pred.int.hs, col = "blue", type = "l", pch = 16, lty = 1, add = TRUE) 
+matplot(x = t(matrix((1:nf) + 0.2, ncol = 3, nrow = nf)),
+        y = pred.int.hs, col = "blue", type = "l", pch = 16, lty = 1,
+        add = TRUE)
 
-points(x = (1:nf)+0.2, y = pred.int.hs[2, ], pch = 19, col = "blue", cex = 1.2)
-points(x = (1:nf)+0.2, y = pred.mean.hs, pch = 16, col = "red")     
+points(x = (1:nf) + 0.2, y = pred.int.hs[2, ], pch = 19, col = "blue",
+       cex = 1.2)
+points(x = (1:nf) + 0.2, y = pred.mean.hs, pch = 16, col = "red")     
 
 axis(1, at = 1:nf, labels = c("A", "B", "C", "D"))
 ```
 
 ![](Chapter06_files/figure-html/unnamed-chunk-42-1.png)
 
-## Section 6.5: Shrinkage beyond the Horseshoe Prior
+## Section 6.5: Shrinkage beyond the horseshoe prior
 
-#### Figure 6.11
+### Section 6.5.1: More about global-local shrinkage priors
+
+#### Figure 6.11: Densitites of various shrinkage priors
 
 We next investigate different shrinkage priors and plot the marginal
 prior on a regression coefficient for various choices of the
@@ -1025,6 +1055,8 @@ legend(x = "top",  inset = 0,
 
 ![](Chapter06_files/figure-html/unnamed-chunk-43-1.png)
 
+#### Figure 6.12: Shrinkage profiles of various shrinkage priors
+
 The shrinkage profiles of these priors are visualized in the following
 plot.
 
@@ -1073,7 +1105,17 @@ legend(x = 1.05, y = 3,
 
 ![](Chapter06_files/figure-html/unnamed-chunk-44-1.png)
 
-#### Example 6.11: A hierarchical Bayesian lasso prior
+### Section 6.5.2: Comparing shrinkage profiles in the normal-means model
+
+\[no code\]
+
+### Section 6.5.3: Hierarchical shrinkage priors
+
+#### Example 6.10: Discussing the hierarchical noraml gamma prior
+
+\[no code\]
+
+#### Example 6.11: Discussing the hierarchical Bayesian lasso prior
 
 ``` r
 
