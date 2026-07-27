@@ -254,8 +254,8 @@ We conclude by visualizing the data and the predictive distributions.
 
 ```{r, echo = -c(1:2)}
 if (pdfplots) {
-  pdf("9-2_1.pdf", width = 10, height = 4)
-  par(mar = c(2.7, 2, 1.5, .5), mgp = c(1.6, .6, 0))
+  pdf("9-2_1.pdf", width = 8, height = 3.5)
+  par(mar = c(2.6, 2.6, 1.5, .1), mgp = c(1.6, .6, 0))
 }
 par(mfrow = c(1, 2))
 minmax <- ceiling(10 * max(abs(y))) / 10
@@ -265,7 +265,7 @@ hist(y, freq = FALSE, breaks = grid, border = NA,
 lines(density(yf_normal, adjust = 2), col = 4, lty = 1, lwd = 1.5)
 lines(density(yf_t, adjust = 2), col = 2, lty = 2, lwd = 1.5)
 legend("topleft", c("Normal", "Student t"), lty = 1:2, col = c(4, 2), lwd = 1.5)
-ts.plot(y, main = "Time series plot and some predictive quantiles")
+ts.plot(y, main = "Time series and predictive quantiles")
 abline(h = q_normal, col = 4, lty = 1, lwd = 1.5)
 abline(h = q_t, col = 2, lty = 2, lwd = 1.5)
 legend("topleft", c("Normal", "Student t"), lty = 1:2, col = c(4, 2), lwd = 1.5)
@@ -546,7 +546,7 @@ prediction intervals.
 ```{r, echo = -c(1:2)}
 if (pdfplots) {
   pdf("9-3_1.pdf", width = 8, height = 4)
-  par(mar = c(2.7, 2, 1.5, .5), mgp = c(1.6, .6, 0))
+  par(mar = c(1.5, 1.5, 1.5, .1), mgp = c(1.6, .6, 0))
 }
 par(mfrow = c(1, 1))
 plot(time(accidents), accidents[, "children_accidents"], type = "p", ylim = c(0, 7),
