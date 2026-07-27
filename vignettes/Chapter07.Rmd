@@ -22,7 +22,7 @@ pdfplots <- FALSE # default: FALSE; set this to TRUE only if you like pdf figure
 
 # Section 7.1: Time series data and dynamic models
 
-### Example 7.1: Introducing the U.S. GDP data
+### Example 7.1: U.S. GDP data: Introduction
 
 First, we load the data. Because of the extreme outliers during the COVID
 pandemic, we restrict our analysis to the time before its outbreak.
@@ -150,7 +150,7 @@ regression <- function(y, X, prior = "improper", b0 = 0, B0 = 1, c0 = 0.01,
 
 Now we are ready to reproduce the results in the book.
 
-### Example 7.2: AR modeling of the U.S. GDP data
+### Example 7.2: U.S. GDP data: AR modeling
 
 We begin by writing a function that sets up the design matrix for an AR($p$)
 model.
@@ -267,10 +267,10 @@ for (i in 1:5) {
 
 ## Section 7.2.2: Exploring stationarity during post-processing
 
+### Example 7.4: U.S. GDP data: Exploring stationarity conditions for various AR models
+
 We reuse the AR($p$) models under the improper prior from above to explore
 stationarity for $p = 1, 2, 3$.
-
-### Example 7.4: U.S. GDP data: Exploring stationarity conditions for various AR models
 
 ```{r, echo = -c(1:2), fig.width = 9, fig.height = 3}
 if (pdfplots) {
@@ -1031,7 +1031,7 @@ knitr::kable(round(ndraws / ess, 2))
 
 # Section 7.3: Bayesian learning of an MA(1) model
 
-### Example 7.13: Exchange rate data: Fitting an MA(1) model using a random walk MH
+### Example 7.13: CHF exchange rate data: Fitting an MA(1) model using a random walk MH
 
 We now implement the MCMC sampler for fitting an MA(1) model, where we treat the
 latent state $\epsilon_0 \sim \mathcal{N}(0, \sigma^2)$ as unknown. For the
@@ -1110,7 +1110,7 @@ for (i in seq_along(cthetas)) {
 }
 ```
 
-### Example 7.14: Exchange rate data: Fitting an MA(1) model using a random walk MH
+### Example 7.14: CHF Exchange rate data: Fitting an MA(1) model using a random walk MH
 
 We repeat the exercise above, but now use a truncated Gaussian proposal for
 the random walk MH algorithm.
