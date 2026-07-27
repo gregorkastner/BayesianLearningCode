@@ -928,7 +928,7 @@ axis(1, at = 1:nf, labels = c("A", "B", "C", "D"))
 
 ## Section 6.5.1: More about global-local shrinkage priors
 
-### Figure 6.11: Densitites of various shrinkage priors
+### Figure 6.11: Densities of various shrinkage priors
 
 We next investigate different shrinkage priors and plot the marginal
 prior on a regression coefficient for various choices of the
