@@ -1043,7 +1043,7 @@ to be a priori uniform on $[-1,1]$.
 c0 <- C0 <- 0.01
 
 # standard deviation for random walk MH proposal
-cthetas <- c(.0005, .005, .05)
+cthetas <- c(.0025, .025, .25)
 
 # Allocate space for the draws
 eps0s <- sigma2s <- thetas <- matrix(NA_real_, ndraws, length(cthetas))
@@ -1075,13 +1075,13 @@ for (i in seq_along(cthetas)) {
     # Now we accept/reject. Note that because we have a uniform prior on
     # (-1, 1), it suffices to check whether the proposed value is in that
     # interval and we do not need to include the prior in the acceptance ratio
-    if (abs(thetaprop) < 1) {
+ #   if (abs(thetaprop) < 1) {
       logR <- -0.5 / sigma2 * (sum(epsprop^2) - sum(eps^2))
       if (log(runif(1)) < logR) {
         theta <- thetaprop
         if (m > nburn) naccepts[i] <- naccepts[i] + 1L
       }
-    }
+  #  }
   
     # Store the results
     if (m > nburn) {
