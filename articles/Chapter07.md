@@ -1078,7 +1078,7 @@ and $`\theta`$ is assumed to be a priori uniform on $`[-1,1]`$.
 c0 <- C0 <- 0.01
 
 # standard deviation for random walk MH proposal
-cthetas <- c(.0005, .005, .05)
+cthetas <- c(.0025, .025, .25)
 
 # Allocate space for the draws
 eps0s <- sigma2s <- thetas <- matrix(NA_real_, ndraws, length(cthetas))
@@ -1110,13 +1110,13 @@ for (i in seq_along(cthetas)) {
     # Now we accept/reject. Note that because we have a uniform prior on
     # (-1, 1), it suffices to check whether the proposed value is in that
     # interval and we do not need to include the prior in the acceptance ratio
-    if (abs(thetaprop) < 1) {
+ #   if (abs(thetaprop) < 1) {
       logR <- -0.5 / sigma2 * (sum(epsprop^2) - sum(eps^2))
       if (log(runif(1)) < logR) {
         theta <- thetaprop
         if (m > nburn) naccepts[i] <- naccepts[i] + 1L
       }
-    }
+  #  }
   
     # Store the results
     if (m > nburn) {
@@ -1332,20 +1332,20 @@ knitr::kable(round(accepts, 2))
 
 |                | tiny | medium | huge |
 |:---------------|-----:|-------:|-----:|
-| Gaussian RW    | 0.97 |   0.69 | 0.14 |
-| truncated RW   | 0.97 |   0.77 | 0.23 |
-| transformed RW | 0.98 |   0.81 | 0.22 |
+| Gaussian RW    | 0.83 |   0.26 | 0.03 |
+| truncated RW   | 0.87 |   0.37 | 0.05 |
+| transformed RW | 0.91 |   0.40 | 0.05 |
 
 ``` r
 
 knitr::kable(round(IF, 1))
 ```
 
-|                |   tiny | medium | huge |
-|:---------------|-------:|-------:|-----:|
-| Gaussian RW    | 3211.9 |   29.8 | 18.8 |
-| truncated RW   | 5764.0 |   27.7 | 11.7 |
-| transformed RW |  656.1 |   18.4 |  8.8 |
+|                |  tiny | medium |  huge |
+|:---------------|------:|-------:|------:|
+| Gaussian RW    | 140.3 |   27.4 | 143.8 |
+| truncated RW   |  92.9 |    9.1 |  41.2 |
+| transformed RW |  45.4 |    6.0 |  40.4 |
 
 ## Section 7.4: Markov modeling for a panel of categorical time series
 

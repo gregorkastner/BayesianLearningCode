@@ -1151,7 +1151,7 @@ is assumed to be a priori uniform on
 <span><span class="va">c0</span> <span class="op">&lt;-</span> <span class="va">C0</span> <span class="op">&lt;-</span> <span class="fl">0.01</span></span>
 <span></span>
 <span><span class="co"># standard deviation for random walk MH proposal</span></span>
-<span><span class="va">cthetas</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.0005</span>, <span class="fl">.005</span>, <span class="fl">.05</span><span class="op">)</span></span>
+<span><span class="va">cthetas</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.0025</span>, <span class="fl">.025</span>, <span class="fl">.25</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Allocate space for the draws</span></span>
 <span><span class="va">eps0s</span> <span class="op">&lt;-</span> <span class="va">sigma2s</span> <span class="op">&lt;-</span> <span class="va">thetas</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="cn">NA_real_</span>, <span class="va">ndraws</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">cthetas</span><span class="op">)</span><span class="op">)</span></span>
@@ -1183,13 +1183,13 @@ is assumed to be a priori uniform on
 <span>    <span class="co"># Now we accept/reject. Note that because we have a uniform prior on</span></span>
 <span>    <span class="co"># (-1, 1), it suffices to check whether the proposed value is in that</span></span>
 <span>    <span class="co"># interval and we do not need to include the prior in the acceptance ratio</span></span>
-<span>    <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">thetaprop</span><span class="op">)</span> <span class="op">&lt;</span> <span class="fl">1</span><span class="op">)</span> <span class="op">{</span></span>
+<span> <span class="co">#   if (abs(thetaprop) &lt; 1) {</span></span>
 <span>      <span class="va">logR</span> <span class="op">&lt;-</span> <span class="op">-</span><span class="fl">0.5</span> <span class="op">/</span> <span class="va">sigma2</span> <span class="op">*</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">epsprop</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">eps</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
 <span>      <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span> <span class="op">&lt;</span> <span class="va">logR</span><span class="op">)</span> <span class="op">{</span></span>
 <span>        <span class="va">theta</span> <span class="op">&lt;-</span> <span class="va">thetaprop</span></span>
 <span>        <span class="kw">if</span> <span class="op">(</span><span class="va">m</span> <span class="op">&gt;</span> <span class="va">nburn</span><span class="op">)</span> <span class="va">naccepts</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">naccepts</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">+</span> <span class="fl">1L</span></span>
 <span>      <span class="op">}</span></span>
-<span>    <span class="op">}</span></span>
+<span>  <span class="co">#  }</span></span>
 <span>  </span>
 <span>    <span class="co"># Store the results</span></span>
 <span>    <span class="kw">if</span> <span class="op">(</span><span class="va">m</span> <span class="op">&gt;</span> <span class="va">nburn</span><span class="op">)</span> <span class="op">{</span></span>
@@ -1383,21 +1383,21 @@ samplers.</p>
 <tbody>
 <tr class="odd">
 <td align="left">Gaussian RW</td>
-<td align="right">0.97</td>
-<td align="right">0.69</td>
-<td align="right">0.14</td>
+<td align="right">0.83</td>
+<td align="right">0.26</td>
+<td align="right">0.03</td>
 </tr>
 <tr class="even">
 <td align="left">truncated RW</td>
-<td align="right">0.97</td>
-<td align="right">0.77</td>
-<td align="right">0.23</td>
+<td align="right">0.87</td>
+<td align="right">0.37</td>
+<td align="right">0.05</td>
 </tr>
 <tr class="odd">
 <td align="left">transformed RW</td>
-<td align="right">0.98</td>
-<td align="right">0.81</td>
-<td align="right">0.22</td>
+<td align="right">0.91</td>
+<td align="right">0.40</td>
+<td align="right">0.05</td>
 </tr>
 </tbody>
 </table>
@@ -1413,21 +1413,21 @@ samplers.</p>
 <tbody>
 <tr class="odd">
 <td align="left">Gaussian RW</td>
-<td align="right">3211.9</td>
-<td align="right">29.8</td>
-<td align="right">18.8</td>
+<td align="right">140.3</td>
+<td align="right">27.4</td>
+<td align="right">143.8</td>
 </tr>
 <tr class="even">
 <td align="left">truncated RW</td>
-<td align="right">5764.0</td>
-<td align="right">27.7</td>
-<td align="right">11.7</td>
+<td align="right">92.9</td>
+<td align="right">9.1</td>
+<td align="right">41.2</td>
 </tr>
 <tr class="odd">
 <td align="left">transformed RW</td>
-<td align="right">656.1</td>
-<td align="right">18.4</td>
-<td align="right">8.8</td>
+<td align="right">45.4</td>
+<td align="right">6.0</td>
+<td align="right">40.4</td>
 </tr>
 </tbody>
 </table>

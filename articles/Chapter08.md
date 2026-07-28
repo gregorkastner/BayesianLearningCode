@@ -1764,7 +1764,7 @@ lines(xnew, apply(pred_hetero, 1, quantile, 0.975), lty = 2)
 
 ![](Chapter08_files/figure-html/unnamed-chunk-60-1.png)
 
-### Section 8.3.2 Regression analysis with errors following a Gaussian mixture
+### Section 8.3.2: Regression analysis with errors following a Gaussian mixture
 
 #### Example 8.14: Star cluster data: Regression analysis with Gaussian two-component mixture errors
 
@@ -1967,7 +1967,7 @@ lines(xnew, apply(preds_mix_2, 1, quantile, 0.975), lty = 2)
 The plot indicates that all three modeling approaches result in a fit
 that is robust to the outlying observations.
 
-### Section 8.3.3 Regression analysis with Student-t errors
+### Section 8.3.3: Regression analysis with Student-t errors
 
 #### Example 8.15: Star cluster data: Student-t regression analysis with known degrees of freedom
 
@@ -2175,7 +2175,7 @@ title(paste0("Empirical ACF (IF: ", round(IF), ")"))
 
 ![](Chapter08_files/figure-html/unnamed-chunk-76-1.png)
 
-### Section 8.3.4 Regression analysis with autocorrelated errors
+### Section 8.3.4: Regression analysis with autocorrelated errors
 
 #### Example 8.17: New cars registration data: Introduction
 
