@@ -1107,16 +1107,12 @@ for (i in seq_along(cthetas)) {
     thetaprop <- rnorm(1, theta, cthetas[i])
     epsprop <- filter(dat, -thetaprop, "recursive", init = eps0)
     
-    # Now we accept/reject. Note that because we have a uniform prior on
-    # (-1, 1), it suffices to check whether the proposed value is in that
-    # interval and we do not need to include the prior in the acceptance ratio
- #   if (abs(thetaprop) < 1) {
-      logR <- -0.5 / sigma2 * (sum(epsprop^2) - sum(eps^2))
-      if (log(runif(1)) < logR) {
-        theta <- thetaprop
-        if (m > nburn) naccepts[i] <- naccepts[i] + 1L
-      }
-  #  }
+    # Now we accept/reject.
+    logR <- -0.5 / sigma2 * (sum(epsprop^2) - sum(eps^2))
+    if (log(runif(1)) < logR) {
+      theta <- thetaprop
+      if (m > nburn) naccepts[i] <- naccepts[i] + 1L
+    }
   
     # Store the results
     if (m > nburn) {
