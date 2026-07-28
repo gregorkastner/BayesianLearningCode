@@ -1471,7 +1471,7 @@ e <- rep(1, N)
 
 d <- ncol(X)
 b0 <- c(0.5,2)
-B0 <- matrix(c(0.2, 0.15, 0.15, 0.2),nrow=2) # diag(0.2, d)
+B0 <- diag(0.2, d)
 
 pri_alpha <- data.frame(shape = 5, rate = 10)
 c_alpha <- 0.35
@@ -1486,24 +1486,18 @@ We run first the correct partially collapsed Gibbs sampler.
 
 ``` r
 
-h=200
+h=1000
 thin=seq(from=1, to=M,by=h)
-
-par(mfrow = c(1, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
-
 
 set.seed(1234)
 beta_prior <- t(mvtnorm::rmvnorm(M/h, mean = b0, sigma = B0))
 alpha_prior <- rgamma(M/h, shape = pri_alpha$shape,rate = pri_alpha$rate)
 ov1_prior<- exp(beta_prior[1,])^2/alpha_prior
 ov2_prior<- exp(beta_prior[1,]+beta_prior[2,])^2/alpha_prior
-print(coda::effectiveSize(ov2_prior))
-#> var1 
-#>   10
-print(coda::effectiveSize(ov1_prior))
-#> var1 
-#>   10
+#print(coda::effectiveSize(ov2_prior))
+#print(coda::effectiveSize(ov1_prior))
 
+par(mfrow = c(1, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
 
 set.seed(1234)
 res_partial <- negbin_check(X, e, b0, B0, pri_alpha, c_alpha,
@@ -1512,29 +1506,30 @@ res_partial <- negbin_check(X, e, b0, B0, pri_alpha, c_alpha,
 mu1=exp(res_partial$beta_post[,1])
 ov1<-((mu1^2)/res_partial$alpha_post)[thin]
 print(coda::effectiveSize(ov1))
-#>     var1 
-#> 3.327857
+#> var1 
+#>    0
 
 mu2=exp(res_partial$beta_post[,1]+res_partial$beta_post[,2])
 ov2<-((mu2^2)/res_partial$alpha_post)[thin]
 print(coda::effectiveSize(ov2))
-#>     var1 
-#> 1.740775
+#> var1 
+#>    0
 
 ks1<- ks.test(ov1_prior,ov1)
-qqplot(log(ov1_prior), log(ov1),xlab = "Prior",xlim=c(0,5), ylim=c(0,5),
-       ylab = "Posterior", main = "Overdispersion for X=0")
+qqplot(log(ov1_prior), log(ov1),xlab = "Prior",xlim=c(-2,6), ylim=c(-2,6),
+       ylab = "Posterior", main = "Log(overdispersion) for X=0")
 abline(a = 0, b = 1)
-text(3,0.1, paste0('KS-test: p-value= ', round(ks1$p.value,4)))
+text(2,-1.9, paste0('KS-test: p-value= ', round(ks1$p.value,4)))
 
 ks2<- ks.test(ov2_prior,ov2)
-qqplot(log(ov2_prior),log(ov2), xlab = "Prior",xlim=c(0,10), ylim=c(0,10),
-       ylab = "Posterior", main = "Overdispersion for X=1")
+qqplot(log(ov2_prior),log(ov2), xlab = "Prior",xlim=c(0,12), ylim=c(0,12),
+       ylab = "Posterior", main = "Log(overdispersion) for X=1")
 abline(a = 0, b = 1)
-text(5,0.1, paste0('KS-test: p-value= ', round(ks2$p.value,4))) 
+text(5,0.1, paste0('KS-test: p-value= ', round(ks2$p.value,4)))
 ```
 
-![](Chapter08_files/figure-html/unnamed-chunk-49-1.png)
+![](Chapter08_files/figure-html/unnamed-chunk-49-1.png) There is no
+evidence that the sampler is incorrect.
 
 We next run the invalid partially collapsed Gibbs sampler.
 
@@ -1548,23 +1543,23 @@ mu1=exp(res_check_partial$beta_post[,1])
 ov1<-((mu1^2)/res_check_partial$alpha_post)[thin]
 print(coda::effectiveSize(ov1))
 #> var1 
-#>   10
+#>    0
 
 mu2=exp(res_check_partial$beta_post[,1]+res_check_partial$beta_post[,2])
 ov2<-((mu2^2)/res_check_partial$alpha_post)[thin]
 print(coda::effectiveSize(ov2))
 #> var1 
-#>   10
+#>    0
 
 ks1<- ks.test(ov1_prior,ov1)
-qqplot(log(ov1_prior), log(ov1),xlab = "Prior",xlim=c(0,5), ylim=c(0,5),
-       ylab = "Posterior", main = "Overdispersion for X=0")
+qqplot(log(ov1_prior), log(ov1),xlab = "Prior",xlim=c(-2,6), ylim=c(-2,6),
+       ylab = "Posterior", main = "Log(overdispersion) for X=0")
 abline(a = 0, b = 1)
-text(3,0.1, paste0('KS-test: p-value= ', round(ks1$p.value,4)))
+text(2,-1.9, paste0('KS-test: p-value= ', round(ks1$p.value,4)))
 
 ks2<- ks.test(ov2_prior,ov2)
-qqplot(log(ov2_prior),log(ov2), xlab = "Prior",xlim=c(0,10), ylim=c(0,10),
-       ylab = "Posterior", main = "Overdispersion for X=1")
+qqplot(log(ov2_prior),log(ov2), xlab = "Prior",xlim=c(0,12), ylim=c(0,12),
+       ylab = "Posterior", main = "Log(overdispersion) for X=1")
 abline(a = 0, b = 1)
 text(5,0.1, paste0('KS-test: p-value= ', round(ks2$p.value,4))) 
 ```
@@ -1573,8 +1568,9 @@ text(5,0.1, paste0('KS-test: p-value= ', round(ks2$p.value,4)))
 partially marginalised Gibbs sampler both p-values are larger than 0.05
 and hence we fail to detect that this sampler is wrong.
 
-We compare the scatterplots of the regression effects $`\beta_0`$ and
-$`\beta_1`$ versus the heterogeneity parameter $`\alpha`$
+We finally compare bivariate scatterplots of the regression effects
+$`\beta_0`$ and $`\beta_1`$ and the heterogeneity parameter $`\alpha`$
+for both samplers.
 
 ``` r
 
