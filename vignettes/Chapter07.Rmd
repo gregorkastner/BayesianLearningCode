@@ -1036,7 +1036,7 @@ knitr::kable(round(ndraws / ess, 2))
 We now implement the MCMC sampler for fitting an MA(1) model, where we treat the
 latent state $\epsilon_0 \sim \mathcal{N}(0, \sigma^2)$ as unknown. For the
 innovation variance, we assume an inverse gamma prior, and $\theta$ is assumed
-to be a priori uniform on $[-1,1]$.
+to be a priori flat on the real line.
 
 ```{r}
 # Specify prior hyperparameters
@@ -1072,16 +1072,12 @@ for (i in seq_along(cthetas)) {
     thetaprop <- rnorm(1, theta, cthetas[i])
     epsprop <- filter(dat, -thetaprop, "recursive", init = eps0)
     
-    # Now we accept/reject. Note that because we have a uniform prior on
-    # (-1, 1), it suffices to check whether the proposed value is in that
-    # interval and we do not need to include the prior in the acceptance ratio
- #   if (abs(thetaprop) < 1) {
-      logR <- -0.5 / sigma2 * (sum(epsprop^2) - sum(eps^2))
-      if (log(runif(1)) < logR) {
-        theta <- thetaprop
-        if (m > nburn) naccepts[i] <- naccepts[i] + 1L
-      }
-  #  }
+    # Now we accept/reject.
+    logR <- -0.5 / sigma2 * (sum(epsprop^2) - sum(eps^2))
+    if (log(runif(1)) < logR) {
+      theta <- thetaprop
+      if (m > nburn) naccepts[i] <- naccepts[i] + 1L
+    }
   
     # Store the results
     if (m > nburn) {
@@ -1110,10 +1106,84 @@ for (i in seq_along(cthetas)) {
 }
 ```
 
-### Example 7.14: CHF Exchange rate data: Fitting an MA(1) model using a random walk MH
+### Example 7.14: CHF Exchange rate data: Using a random walk MH with alternative proposals
 
-We repeat the exercise above, but now use a truncated Gaussian proposal for
-the random walk MH algorithm.
+We repeat the exercise above, but now use a uniform prior on $[-1, 1]$ for
+$\theta$.
+
+```{r}
+# Specify prior hyperparameters
+c0 <- C0 <- 0.01
+
+# standard deviation for random walk MH proposal
+cthetas <- c(.0005, .005, .05)
+
+# Allocate space for the draws
+eps0s <- sigma2s <- thetas <- matrix(NA_real_, ndraws, length(cthetas))
+naccepts <- rep(0L, length(cthetas))
+
+for (i in seq_along(cthetas)) {
+  # Set the starting values
+  theta <- 0.9
+  sigma2 <- var(dat) / 2
+
+  # MCMC loop
+  for (m in seq_len(ndraws + nburn)) {
+    # Sample epsilon_0
+    bs <- (-theta)^seq_along(dat)
+    as <- filter(dat, -theta, "recursive")
+    tmp <- 1 + sum(bs^2)
+    eps0 <- rnorm(1, -sum(as * bs) / tmp, sqrt(sigma2 / tmp))
+    
+    # Sample sigma^2
+    eps <- filter(dat, -theta, "recursive", init = eps0)
+    cN <- c0 + (length(dat) + 1) / 2
+    CN <- C0 + 0.5 * (eps0^2 + sum(eps^2))
+    sigma2 <- rinvgamma(1, cN, CN)
+  
+    # Sample theta via RW-MH
+    thetaprop <- rnorm(1, theta, cthetas[i])
+    epsprop <- filter(dat, -thetaprop, "recursive", init = eps0)
+    
+    # Now we accept/reject. Note that because we have a uniform prior on
+    # (-1, 1), it suffices to check whether the proposed value is in that
+    # interval and we do not need to include the prior in the acceptance ratio
+    if (abs(thetaprop) < 1) {
+      logR <- -0.5 / sigma2 * (sum(epsprop^2) - sum(eps^2))
+      if (log(runif(1)) < logR) {
+        theta <- thetaprop
+        if (m > nburn) naccepts[i] <- naccepts[i] + 1L
+      }
+    }
+  
+    # Store the results
+    if (m > nburn) {
+      eps0s[m - nburn, i] <- eps0
+      sigma2s[m - nburn, i] <- sigma2
+      thetas[m - nburn, i] <- theta
+    }
+  }
+}
+```
+
+We plot traceplots and ACFs.
+
+```{r, echo = -c(1:2), fig.width = 8, fig.height = 3}
+if (pdfplots) {
+  pdf("7-3_6.pdf", width = 8, height = 5)
+}
+par(mfcol = c(2, 3), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 2)
+for (i in seq_along(cthetas)) {
+  ts.plot(thetas[, i], ylim = range(thetas), ylab = expression(theta),
+          xlab = "Iterations")
+  title(bquote(Traceplot ~ (c[theta] == .(cthetas[i]))))
+  acf(thetas[, i], ylab = "")
+  title(bquote(ACF ~ (acceptance == .(round(naccepts[i] / ndraws, 3))*","~  
+               IF == .(round(ndraws / coda::effectiveSize(thetas[, i]), 1)))))
+}
+```
+
+As above, now with a truncated Gaussian proposal for the random walk MH algorithm.
 
 ```{r}
 # standard deviation for random walk MH proposal
