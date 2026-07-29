@@ -1043,7 +1043,7 @@ to be a priori flat on the real line.
 c0 <- C0 <- 0.01
 
 # standard deviation for random walk MH proposal
-cthetas <- c(.0025, .025, .25)
+cthetas <- c(.0027, .027, .27)
 
 # Allocate space for the draws
 eps0s <- sigma2s <- thetas <- matrix(NA_real_, ndraws, length(cthetas))
@@ -1051,7 +1051,7 @@ naccepts <- rep(0L, length(cthetas))
 
 for (i in seq_along(cthetas)) {
   # Set the starting values
-  theta <- 0.9
+  theta <- 0.95
   sigma2 <- var(dat) / 2
 
   # MCMC loop
@@ -1112,19 +1112,13 @@ We repeat the exercise above, but now use a uniform prior on $[-1, 1]$ for
 $\theta$.
 
 ```{r}
-# Specify prior hyperparameters
-c0 <- C0 <- 0.01
-
-# standard deviation for random walk MH proposal
-cthetas <- c(.0005, .005, .05)
-
 # Allocate space for the draws
 eps0s <- sigma2s <- thetas <- matrix(NA_real_, ndraws, length(cthetas))
 naccepts <- rep(0L, length(cthetas))
 
 for (i in seq_along(cthetas)) {
   # Set the starting values
-  theta <- 0.9
+  theta <- 0.95
   sigma2 <- var(dat) / 2
 
   # MCMC loop
@@ -1278,7 +1272,7 @@ naccepts3 <- rep(0L, length(cthetas3))
 
 for (i in seq_along(cthetas3)) {
   # Set the starting values
-  theta <- 0.9
+  theta <- 0.95
   sigma2 <- var(dat) / 2
 
   # MCMC loop
