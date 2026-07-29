@@ -1150,7 +1150,7 @@ is assumed to be a priori flat on the real line.</p>
 <span><span class="va">c0</span> <span class="op">&lt;-</span> <span class="va">C0</span> <span class="op">&lt;-</span> <span class="fl">0.01</span></span>
 <span></span>
 <span><span class="co"># standard deviation for random walk MH proposal</span></span>
-<span><span class="va">cthetas</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.0025</span>, <span class="fl">.025</span>, <span class="fl">.25</span><span class="op">)</span></span>
+<span><span class="va">cthetas</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.0027</span>, <span class="fl">.027</span>, <span class="fl">.27</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Allocate space for the draws</span></span>
 <span><span class="va">eps0s</span> <span class="op">&lt;-</span> <span class="va">sigma2s</span> <span class="op">&lt;-</span> <span class="va">thetas</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="cn">NA_real_</span>, <span class="va">ndraws</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">cthetas</span><span class="op">)</span><span class="op">)</span></span>
@@ -1158,7 +1158,7 @@ is assumed to be a priori flat on the real line.</p>
 <span></span>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">cthetas</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="co"># Set the starting values</span></span>
-<span>  <span class="va">theta</span> <span class="op">&lt;-</span> <span class="fl">0.9</span></span>
+<span>  <span class="va">theta</span> <span class="op">&lt;-</span> <span class="fl">0.95</span></span>
 <span>  <span class="va">sigma2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">var</a></span><span class="op">(</span><span class="va">dat</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span></span>
 <span></span>
 <span>  <span class="co"># MCMC loop</span></span>
@@ -1215,19 +1215,13 @@ alternative proposals<a class="anchor" aria-label="anchor" href="#example-7-14-c
 for
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>.</p>
 <div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Specify prior hyperparameters</span></span>
-<span><span class="va">c0</span> <span class="op">&lt;-</span> <span class="va">C0</span> <span class="op">&lt;-</span> <span class="fl">0.01</span></span>
-<span></span>
-<span><span class="co"># standard deviation for random walk MH proposal</span></span>
-<span><span class="va">cthetas</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.0005</span>, <span class="fl">.005</span>, <span class="fl">.05</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Allocate space for the draws</span></span>
+<code class="sourceCode R"><span><span class="co"># Allocate space for the draws</span></span>
 <span><span class="va">eps0s</span> <span class="op">&lt;-</span> <span class="va">sigma2s</span> <span class="op">&lt;-</span> <span class="va">thetas</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="cn">NA_real_</span>, <span class="va">ndraws</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">cthetas</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">naccepts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0L</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">cthetas</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">cthetas</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="co"># Set the starting values</span></span>
-<span>  <span class="va">theta</span> <span class="op">&lt;-</span> <span class="fl">0.9</span></span>
+<span>  <span class="va">theta</span> <span class="op">&lt;-</span> <span class="fl">0.95</span></span>
 <span>  <span class="va">sigma2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">var</a></span><span class="op">(</span><span class="va">dat</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span></span>
 <span></span>
 <span>  <span class="co"># MCMC loop</span></span>
@@ -1365,7 +1359,7 @@ proposal on
 <span></span>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">cthetas3</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="co"># Set the starting values</span></span>
-<span>  <span class="va">theta</span> <span class="op">&lt;-</span> <span class="fl">0.9</span></span>
+<span>  <span class="va">theta</span> <span class="op">&lt;-</span> <span class="fl">0.95</span></span>
 <span>  <span class="va">sigma2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">var</a></span><span class="op">(</span><span class="va">dat</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span></span>
 <span></span>
 <span>  <span class="co"># MCMC loop</span></span>
@@ -1446,21 +1440,21 @@ samplers.</p>
 <tbody>
 <tr class="odd">
 <td align="left">Gaussian RW</td>
-<td align="right">0.97</td>
-<td align="right">0.70</td>
-<td align="right">0.14</td>
+<td align="right">0.81</td>
+<td align="right">0.25</td>
+<td align="right">0.03</td>
 </tr>
 <tr class="even">
 <td align="left">truncated RW</td>
-<td align="right">0.98</td>
-<td align="right">0.77</td>
-<td align="right">0.22</td>
+<td align="right">0.87</td>
+<td align="right">0.35</td>
+<td align="right">0.05</td>
 </tr>
 <tr class="odd">
 <td align="left">transformed RW</td>
-<td align="right">0.98</td>
-<td align="right">0.81</td>
-<td align="right">0.23</td>
+<td align="right">0.90</td>
+<td align="right">0.37</td>
+<td align="right">0.04</td>
 </tr>
 </tbody>
 </table>
@@ -1476,21 +1470,21 @@ samplers.</p>
 <tbody>
 <tr class="odd">
 <td align="left">Gaussian RW</td>
-<td align="right">6997.7</td>
-<td align="right">40.7</td>
-<td align="right">17.9</td>
+<td align="right">44.4</td>
+<td align="right">12.8</td>
+<td align="right">55.1</td>
 </tr>
 <tr class="even">
 <td align="left">truncated RW</td>
-<td align="right">3794.1</td>
-<td align="right">25.5</td>
-<td align="right">11.1</td>
+<td align="right">39.8</td>
+<td align="right">9.5</td>
+<td align="right">50.6</td>
 </tr>
 <tr class="odd">
 <td align="left">transformed RW</td>
-<td align="right">499.5</td>
-<td align="right">18.0</td>
-<td align="right">8.4</td>
+<td align="right">42.7</td>
+<td align="right">6.0</td>
+<td align="right">46.8</td>
 </tr>
 </tbody>
 </table>

@@ -1078,7 +1078,7 @@ and $`\theta`$ is assumed to be a priori flat on the real line.
 c0 <- C0 <- 0.01
 
 # standard deviation for random walk MH proposal
-cthetas <- c(.0025, .025, .25)
+cthetas <- c(.0027, .027, .27)
 
 # Allocate space for the draws
 eps0s <- sigma2s <- thetas <- matrix(NA_real_, ndraws, length(cthetas))
@@ -1086,7 +1086,7 @@ naccepts <- rep(0L, length(cthetas))
 
 for (i in seq_along(cthetas)) {
   # Set the starting values
-  theta <- 0.9
+  theta <- 0.95
   sigma2 <- var(dat) / 2
 
   # MCMC loop
@@ -1147,19 +1147,13 @@ for $`\theta`$.
 
 ``` r
 
-# Specify prior hyperparameters
-c0 <- C0 <- 0.01
-
-# standard deviation for random walk MH proposal
-cthetas <- c(.0005, .005, .05)
-
 # Allocate space for the draws
 eps0s <- sigma2s <- thetas <- matrix(NA_real_, ndraws, length(cthetas))
 naccepts <- rep(0L, length(cthetas))
 
 for (i in seq_along(cthetas)) {
   # Set the starting values
-  theta <- 0.9
+  theta <- 0.95
   sigma2 <- var(dat) / 2
 
   # MCMC loop
@@ -1314,7 +1308,7 @@ naccepts3 <- rep(0L, length(cthetas3))
 
 for (i in seq_along(cthetas3)) {
   # Set the starting values
-  theta <- 0.9
+  theta <- 0.95
   sigma2 <- var(dat) / 2
 
   # MCMC loop
@@ -1403,20 +1397,20 @@ knitr::kable(round(accepts, 2))
 
 |                | tiny | medium | huge |
 |:---------------|-----:|-------:|-----:|
-| Gaussian RW    | 0.97 |   0.70 | 0.14 |
-| truncated RW   | 0.98 |   0.77 | 0.22 |
-| transformed RW | 0.98 |   0.81 | 0.23 |
+| Gaussian RW    | 0.81 |   0.25 | 0.03 |
+| truncated RW   | 0.87 |   0.35 | 0.05 |
+| transformed RW | 0.90 |   0.37 | 0.04 |
 
 ``` r
 
 knitr::kable(round(IF, 1))
 ```
 
-|                |   tiny | medium | huge |
-|:---------------|-------:|-------:|-----:|
-| Gaussian RW    | 6997.7 |   40.7 | 17.9 |
-| truncated RW   | 3794.1 |   25.5 | 11.1 |
-| transformed RW |  499.5 |   18.0 |  8.4 |
+|                | tiny | medium | huge |
+|:---------------|-----:|-------:|-----:|
+| Gaussian RW    | 44.4 |   12.8 | 55.1 |
+| truncated RW   | 39.8 |    9.5 | 50.6 |
+| transformed RW | 42.7 |    6.0 | 46.8 |
 
 ## Section 7.4: Markov modeling for a panel of categorical time series
 
