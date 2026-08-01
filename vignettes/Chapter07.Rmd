@@ -1033,6 +1033,11 @@ knitr::kable(round(ndraws / ess, 2))
 
 ### Example 7.13: CHF exchange rate data: Fitting an MA(1) model using a random walk MH
 
+```{r}
+data("exrates", package = "stochvol")
+dat <- exrates$USD / exrates$CHF
+```
+
 We now implement the MCMC sampler for fitting an MA(1) model, where we treat the
 latent state $\epsilon_0 \sim \mathcal{N}(0, \sigma^2)$ as unknown. For the
 innovation variance, we assume an inverse gamma prior, and $\theta$ is assumed
