@@ -495,6 +495,18 @@ abline(v = 0, lty = 3)
 abline(h = 0, lty = 3)
 ```
 
+To compute the numerical value of the SD density ratio, we again use
+Rao-Blackwellization.
+
+```{r}
+means <- res$paras$bN[, 1]
+sds <- sqrt(res$paras$BN[, 1, 1])
+logSD <- logmeanexp(dnorm(0, means, sds, log = TRUE)) -
+  dnorm(0, 0, sqrt(D0), log = TRUE)
+(round(exp(logSD), 2))
+```
+
+
 ### Example 11.XX: Inflation data: Bayesian unit root testing with unknown model order
 
 [TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />
