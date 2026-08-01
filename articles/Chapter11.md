@@ -568,9 +568,11 @@ Rao-Blackwellization.
 
 means <- res$paras$bN[, 1]
 sds <- sqrt(res$paras$BN[, 1, 1])
-logSD <- logmeanexp(dnorm(0, means, sds, log = TRUE)) -
-  dnorm(0, b0[1], sqrt(B0[1, 1]), log = TRUE)
+logpostordinate <- logmeanexp(dnorm(0, means, sds, log = TRUE))
+logSD <- logpostordinate - dnorm(0, b0[1], sqrt(B0[1, 1]), log = TRUE)
 (round(exp(logSD), 2))
+#> [1] 10.37
+(round(sqrt(2 * pi * B0[1, 1]) * exp(logpostordinate), 2)) # equivalent
 #> [1] 10.37
 ```
 
