@@ -456,21 +456,21 @@ for (p in 1:4) {
 }
 ```
 
-### Example 11.14: CHF exchange rate data: Testing for a unit root 
+### Example 11.XX: CHF exchange rate data: Testing for a unit root using the Savage-Dickey density ratio
 
 [TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />
 
-### Example 11.15: Inflation data: Bayesian unit root testing with unknown model order
+### Example 11.XX: Inflation data: Bayesian unit root testing with unknown model order
 
 [TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />
 
-### Example 11.16: Inflation data: Marginal likelihoods with unknown model order
+### Example 11.XX: Inflation data: Marginal likelihoods with unknown model order
 
 [TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />
 
 ## Section 11.4.3: Bayesian testing for first-order Markov Chain models
 
-### Example 11.17: Austrian wage mobility data: Homogeneity versus grouped model
+### Example 11.XX: Austrian wage mobility data: Homogeneity versus grouped model
 
 [TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />
 
@@ -538,7 +538,7 @@ colnames(res) <- c("gamma = 1", "gamma = 4",
 knitr::kable(res)
 ```
 
-### Example 11.18: Austrian wage mobility data: Restricted models
+### Example 11.XX: Austrian wage mobility data: Restricted models
 
 We continue to compare restricted models to the grouped model. We
 first calculate the log BFs for the restricted models.
