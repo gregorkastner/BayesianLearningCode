@@ -554,12 +554,25 @@ breaks <- seq(0.001 * floor(1000 * min(res$beta[,1])),
 hist(res$betas[,1], probability = TRUE, breaks = breaks,
      xlab = expression(delta), ylab = "", border = NA,
      main = "Augmented Dickey Fuller regression")
-lines(breaks, dnorm(breaks, 0, sqrt(D0)), lwd = 1.5)
+lines(breaks, dnorm(breaks, b0[1], sqrt(B0[1, 1])), lwd = 1.5)
 abline(v = 0, lty = 3)
 abline(h = 0, lty = 3)
 ```
 
 ![](Chapter11_files/figure-html/unnamed-chunk-21-1.png)
+
+To compute the numerical value of the SD density ratio, we again use
+Rao-Blackwellization.
+
+``` r
+
+means <- res$paras$bN[, 1]
+sds <- sqrt(res$paras$BN[, 1, 1])
+logSD <- logmeanexp(dnorm(0, means, sds, log = TRUE)) -
+  dnorm(0, b0[1], sqrt(B0[1, 1]), log = TRUE)
+(round(exp(logSD), 2))
+#> [1] 10.37
+```
 
 #### Example 11.XX: Inflation data: Bayesian unit root testing with unknown model order
 
