@@ -480,8 +480,9 @@ $`1 - \phi_1 - \dots - \phi_p`$ for $`p = 1, \dots, 4`$.
 ``` r
 
 toplot <- matrix(NA_real_, nrow(ardat[[1]]$betas), length(ardat))
-for (p in 1:4)
+for (p in 1:4) {
   toplot[, p] <- rowSums(ardat[[p]]$betas[, 2:(p + 1), drop = FALSE]) - 1
+}
 for (p in 1:4) {
   hist(toplot[, p], freq = FALSE,
        breaks = seq(min(toplot), max(toplot), length.out = 20),
@@ -507,8 +508,9 @@ for (p in 1:4) {
 
 ``` r
 
-for (p in 1:4)
+for (p in 1:4) {
   toplot[, p] <- rowSums(ardat[[p]]$betas[, 2:(p + 1), drop = FALSE]) - 1
+}
 for (p in 1:4) {
   hist(toplot[, p], freq = FALSE,
        breaks = seq(min(toplot), max(toplot), length.out = 20),
@@ -519,7 +521,47 @@ for (p in 1:4) {
 
 ![](Chapter11_files/figure-html/unnamed-chunk-19-1.png)
 
-#### Example 11.14: CHF exchange rate data: Testing for a unit root
+#### Example 11.XX: CHF exchange rate data: Testing for a unit root using the Savage-Dickey density ratio
+
+We start by defining covariates and response, running the regression
+thereafter.
+
+``` r
+
+set.seed(123)
+deltay <- tail(diff(dat), -1)       # remove delta y_1
+ylagged <- head(tail(dat, -1), -1)  # remove y_1 and y_T
+deltaylagged <- head(diff(dat), -1) # remove delta y_T
+Xy <- matrix(c(ylagged, deltaylagged, rep(1, length(ylagged))), ncol = 3)
+
+c0 <- 2
+C0 <- 0.001
+b0 <- rep(0, 3)
+A0 <- F0 <- 1
+D0 <- 0.01^2
+B0 <- diag(c(D0, F0, A0))
+
+res <- regression(deltay, Xy, b0 = b0, B0 = B0, c0 = c0, C0 = C0)
+```
+
+Now we can visualize the Savage-Dickey density ratio.
+
+``` r
+
+breaks <- seq(0.001 * floor(1000 * min(res$beta[,1])),
+              0.001 * ceiling(1000 * max(res$beta[,1])),
+              length.out = 40)
+hist(res$betas[,1], probability = TRUE, breaks = breaks,
+     xlab = expression(delta), ylab = "", border = NA,
+     main = "Augmented Dickey Fuller regression")
+lines(breaks, dnorm(breaks, 0, sqrt(D0)), lwd = 1.5)
+abline(v = 0, lty = 3)
+abline(h = 0, lty = 3)
+```
+
+![](Chapter11_files/figure-html/unnamed-chunk-21-1.png)
+
+#### Example 11.XX: Inflation data: Bayesian unit root testing with unknown model order
 
 \[TODO\]  
 \[TODO\]  
@@ -532,20 +574,7 @@ for (p in 1:4) {
 \[TODO\]  
 \[TODO\]  
 
-#### Example 11.15: Inflation data: Bayesian unit root testing with unknown model order
-
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-
-#### Example 11.16: Inflation data: Marginal likelihoods with unknown model order
+#### Example 11.XX: Inflation data: Marginal likelihoods with unknown model order
 
 \[TODO\]  
 \[TODO\]  
@@ -560,7 +589,7 @@ for (p in 1:4) {
 
 ### Section 11.4.3: Bayesian testing for first-order Markov Chain models
 
-#### Example 11.17: Austrian wage mobility data: Homogeneity versus grouped model
+#### Example 11.XX: Austrian wage mobility data: Homogeneity versus grouped model
 
 \[TODO\]  
 \[TODO\]  
@@ -645,7 +674,7 @@ knitr::kable(res)
 | MH  | -13887.79 | -14030.63 |        NA |        NA |
 | MG  | -13833.11 | -14096.42 |  54.68241 | -65.79208 |
 
-#### Example 11.18: Austrian wage mobility data: Restricted models
+#### Example 11.XX: Austrian wage mobility data: Restricted models
 
 We continue to compare restricted models to the grouped model. We first
 calculate the log BFs for the restricted models.

@@ -1067,6 +1067,12 @@ knitr::kable(round(ndraws / ess, 2))
 
 #### Example 7.13: CHF exchange rate data: Fitting an MA(1) model using a random walk MH
 
+``` r
+
+data("exrates", package = "stochvol")
+dat <- exrates$USD / exrates$CHF
+```
+
 We now implement the MCMC sampler for fitting an MA(1) model, where we
 treat the latent state $`\epsilon_0 \sim \mathcal{N}(0, \sigma^2)`$ as
 unknown. For the innovation variance, we assume an inverse gamma prior,
@@ -1138,7 +1144,7 @@ for (i in seq_along(cthetas)) {
 }
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-40-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-41-1.png)
 
 #### Example 7.14: CHF Exchange rate data: Using a random walk MH with alternative proposals
 
@@ -1209,7 +1215,7 @@ for (i in seq_along(cthetas)) {
 }
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-42-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-43-1.png)
 
 As above, now with a truncated Gaussian proposal for the random walk MH
 algorithm.
@@ -1288,7 +1294,7 @@ for (i in seq_along(cthetas2)) {
 }
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-44-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-45-1.png)
 
 We repeat the exercise above once more, but now use a random walk
 proposal on $`\log(1 + \theta) - \log(1 - \theta)`$.
@@ -1366,7 +1372,7 @@ for (i in seq_along(cthetas3)) {
 }
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-46-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-47-1.png)
 
 Let’s also check some QQ plots for equivalence.
 
@@ -1377,7 +1383,7 @@ qqplot(thetas[, 2], thetas3[, 2])
 abline(c(0, 1), col = 2)
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-47-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-48-1.png)
 
 Now, we compare acceptance rates and inefficiency factors for all 9
 samplers.
@@ -1397,20 +1403,20 @@ knitr::kable(round(accepts, 2))
 
 |                | tiny | medium | huge |
 |:---------------|-----:|-------:|-----:|
-| Gaussian RW    | 0.81 |   0.25 | 0.03 |
-| truncated RW   | 0.87 |   0.35 | 0.05 |
-| transformed RW | 0.90 |   0.37 | 0.04 |
+| Gaussian RW    | 0.48 |   0.06 | 0.01 |
+| truncated RW   | 0.51 |   0.10 | 0.01 |
+| transformed RW | 0.69 |   0.12 | 0.01 |
 
 ``` r
 
 knitr::kable(round(IF, 1))
 ```
 
-|                | tiny | medium | huge |
-|:---------------|-----:|-------:|-----:|
-| Gaussian RW    | 44.4 |   12.8 | 55.1 |
-| truncated RW   | 39.8 |    9.5 | 50.6 |
-| transformed RW | 42.7 |    6.0 | 46.8 |
+|                | tiny | medium |  huge |
+|:---------------|-----:|-------:|------:|
+| Gaussian RW    |  5.1 |   30.2 | 283.1 |
+| truncated RW   |  5.3 |   16.4 | 163.3 |
+| transformed RW |  8.2 |   13.2 | 110.3 |
 
 ## Section 7.4: Markov modeling for a panel of categorical time series
 
@@ -1451,7 +1457,7 @@ for (i in index) {
 }
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-51-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-52-1.png)
 
 #### Example 7.16: Wage mobility data: Comparing wage mobility of men and women
 
@@ -1549,7 +1555,7 @@ corrplot::corrplot(mean_xi_male, method = "square", is.corr = FALSE,
                    col = 1, cl.pos = "n", col.lim = c(0, 1.5))
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-55-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-56-1.png)
 
 We compare the posterior densities of various transition probabilities
 $`\xi_{g,hk}`$ for women and men.
@@ -1592,7 +1598,7 @@ legend("topright", col = 1, lty = 1:2,
        legend = c("female", "male"))
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-56-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-57-1.png)
 
 #### Example 7.17: Wage mobility data: Evaluating long run effects
 
@@ -1618,7 +1624,7 @@ barplot(eta_hat_female_t, main = "Women", xlab = "Year", ylab = "Wage groups")
 barplot(eta_hat_male_t, main = "Men", xlab = "Year", ylab = "Wage groups")
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-57-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-58-1.png)
 
 We inspect the posterior distributions of $`\eta_{t,2}`$ for wage
 category 2 (left-hand side) versus $`\eta_{t,5}`$ for wage category 5
@@ -1654,4 +1660,4 @@ hist(eta_male_t[, 6], breaks = breaks,
 legend("topright", c("female", "male"), fill = rgb(c(0, 1), 0, 0, 0.2))
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-58-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-59-1.png)
