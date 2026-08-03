@@ -512,10 +512,6 @@ logSD <- logpostordinate - dnorm(0, b0[1], sqrt(B0[1, 1]), log = TRUE)
 
 [TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />
 
-### Example 11.XX: Inflation data: Marginal likelihoods with unknown model order
-
-[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />
-
 ## Section 11.4.3: Bayesian testing for first-order Markov Chain models
 
 ### Example 11.XX: Austrian wage mobility data: Homogeneity versus grouped model
