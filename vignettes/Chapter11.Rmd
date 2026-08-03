@@ -519,7 +519,43 @@ logSD <- logpostordinate - dnorm(0, b0[1], sqrt(B0[1, 1]), log = TRUE)
 
 ### Example 11.XX: Inflation data: Bayesian unit root testing with unknown model order
 
-[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />
+To compare all models, we need to condition on the same set of initial
+observations.
+
+```{r}
+set.seed(seed - 123)
+pu <- 4
+D0 <- 0.01^2
+A0 <- F0 <- 1
+resG <- resDF <- vector("list", pu)
+
+# Set up response and covariates:
+deltay <- tail(diff(inflation), -(pu - 1))        # rm dy1 ... dy(pu - 1)
+ylagged <- head(tail(inflation, -(pu - 1)), -1)   # rm y1 ... y(pu - 1), yT
+for (p in seq_len(pu)) {
+  deltaylagged <- matrix(NA_real_, nrow = length(deltay), ncol = p - 1)
+  # if p == 1:  empty
+  # if p == 2:  keep              dy(pu - 2) ... dy(T - 1)
+  # if p == 3:  keep additionally dy(pu - 3) ... dy(T - 2)
+  #      ...
+  # if p == pu: keep additionally dy1        ... dy(T - pu - 1)
+  for (j in seq_len(p - 1)) {
+    deltaylagged[, j] <- diff(inflation)[seq(pu - j, length(inflation) - 1 - j)]
+  }
+  
+  # Restricted model MG:
+  Xy <- matrix(c(deltaylagged, rep(1, length(ylagged))), ncol = p)
+  b0 <- rep(0, p)
+  B0 <- diag(c(rep(F0, p - 1), A0))
+  resG[[p]] <- regression(deltay, Xy, b0 = b0, B0 = B0, c0 = 2, C0 = 0.001)
+  
+  # Unrestricted model MDF:
+  Xy <- matrix(c(ylagged, deltaylagged, rep(1, length(ylagged))), ncol = p + 1)
+  b0 <- rep(0, p + 1)
+  B0 <- diag(c(D0, rep(F0, p - 1), A0))
+  resDF[[p]] <- regression(deltay, Xy, b0 = b0, B0 = B0, c0 = 2, C0 = 0.001)
+}
+```
 
 ## Section 11.4.3: Bayesian testing for first-order Markov Chain models
 
