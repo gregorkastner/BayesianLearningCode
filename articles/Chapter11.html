@@ -111,7 +111,18 @@ analysis<a class="anchor" aria-label="anchor" href="#section-11-2-variable-selec
 <span><span class="va">B0</span><span class="op">=</span><span class="fl">10</span></span>
 <span><span class="va">c0</span> <span class="op">=</span> <span class="fl">2.5</span></span>
 <span><span class="va">C0</span> <span class="op">=</span> <span class="fl">1.5</span></span></code></pre></div>
-<p>We write a function for computing the marginal likelihoods</p>
+<p>We write a function for computing the marginal likelihoods
+logmarlik_reg&lt;-function(y,X, a0, A0, B0, c0, C0){ N&lt;-length(y)</p>
+<p>B0.inv &lt;- diag(c(1/A0,1/B0)) BN.inv &lt;- B0.inv +
+crossprod(X)</p>
+<p>BN &lt;- solve(BN.inv) bN &lt;- BN %<em>% (B0.inv %</em>% b0 +
+crossprod(X, y))</p>
+<p>SS.eps &lt;- as.numeric(crossprod(y) + t(b0) %<em>% B0.inv %</em>% b0
+- t(bN) %<em>% BN.inv %</em>% bN) CN &lt;- C0 + SS.eps / 2 cN=c0 + N /
+2</p>
+<p>ldet &lt;- N / 2 * log(2<em>pi) + lgamma(cN) - lgamma(c0) + c0 </em>
+log(C0) - cN * log(CN) + 0.5 * det(BN, logarithm=TRUE) - 0.5*det(B0,
+logarithm=TRUE) }</p>
 <pre><code>## Section 11.2.2: Model space MCMC
 
 ### Example 11.3: Movie data: Model space MCMC

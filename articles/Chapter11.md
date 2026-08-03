@@ -32,6 +32,18 @@ C0 = 1.5
 ```
 
 We write a function for computing the marginal likelihoods
+logmarlik_reg\<-function(y,X, a0, A0, B0, c0, C0){ N\<-length(y)
+
+B0.inv \<- diag(c(1/A0,1/B0)) BN.inv \<- B0.inv + crossprod(X)
+
+BN \<- solve(BN.inv) bN \<- BN %*% (B0.inv %*% b0 + crossprod(X, y))
+
+SS.eps \<- as.numeric(crossprod(y) + t(b0) %*% B0.inv %*% b0 - t(bN) %*%
+BN.inv %*% bN) CN \<- C0 + SS.eps / 2 cN=c0 + N / 2
+
+ldet \<- N / 2 \* log(2*pi) + lgamma(cN) - lgamma(c0) + c0* log(C0) - cN
+\* log(CN) + 0.5 \* det(BN, logarithm=TRUE) - 0.5\*det(B0,
+logarithm=TRUE) }
 
     ## Section 11.2.2: Model space MCMC
 
