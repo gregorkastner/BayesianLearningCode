@@ -579,17 +579,14 @@ for (i in seq_along(allres)) {
       logmeanexp(dinvgamma(sigma2_med, myres$paras$cN, myres$paras$CN, log = TRUE))
   }
 }
-dimnames(logML) <- list("Model" = c("restricted", "unrestricted"),
-                        "Lag order" = seq_len(ncol(logML)))
 ```
-
 
 Now we can compute and print the table.
 
 ```{r}
 prob <- logML2post(logML)
 tab <- cbind(logML[1, ], prob[1, ], logML[2, ], prob[2, ])
-dimnames(tab) <- list("Lag order" = 1:4, NULL)
+dimnames(tab) <- list("Lag order" = seq_len(ncol(logML)), NULL)
 knitr::kable(tab, digits = 2)
 ```
 
