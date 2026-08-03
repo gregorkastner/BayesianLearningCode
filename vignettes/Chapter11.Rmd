@@ -557,6 +557,43 @@ for (p in seq_len(pu)) {
 }
 ```
 
+We now compute Chib's estimator, evaluated at the posterior median, exactly
+as before.
+
+```{r}
+allres <- list(resG, resDF)
+logML <- matrix(NA_real_, length(allres), length(resG))
+for (i in seq_along(allres)) {
+  for (j in seq_len(length(resG))) {
+    myres <- allres[[i]][[j]]
+    beta_med <- apply(myres$betas, 2, median)
+    sigma2_med <- median(myres$sigma2s)
+    BN_med <- solve(solve(myres$B0) + crossprod(myres$X) / sigma2_med)
+    bN_med <- BN_med %*% (solve(myres$B0) %*% myres$b0 + 
+                            crossprod(myres$X, myres$y) / sigma2_med)
+    logML[i, j] <-
+      sum(dnorm(myres$y, myres$X %*% beta_med, sqrt(sigma2_med), log = TRUE)) +
+      dmvnorm(beta_med, myres$b0, myres$B0, log = TRUE) +
+      dinvgamma(sigma2_med, myres$c0, myres$C0, log = TRUE) -
+      dmvnorm(beta_med, bN_med, BN_med, log = TRUE) -
+      logmeanexp(dinvgamma(sigma2_med, myres$paras$cN, myres$paras$CN, log = TRUE))
+  }
+}
+dimnames(logML) <- list("Model" = c("restricted", "unrestricted"),
+                        "Lag order" = seq_len(ncol(logML)))
+```
+
+
+
+Now we can compute and print the table.
+
+```{r}
+prob <- logML2prob(logML)
+tab <- cbind(logML[1, ], prob[1, ], logML[2, ], prob[2, ])
+dimnames(tab) <- list("Lag order" = 1:4, NULL)
+knitr::kable(tab, digits = 2)
+```
+
 ## Section 11.4.3: Bayesian testing for first-order Markov Chain models
 
 ### Example 11.XX: Austrian wage mobility data: Homogeneity versus grouped model
