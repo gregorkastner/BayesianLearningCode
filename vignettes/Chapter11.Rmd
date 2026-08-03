@@ -341,7 +341,7 @@ To compute model probabilities, we use the uniform and the penalty prior.
 probs_unif <- logML2post(logML[3, ])
 
 # Penalty prior:
-prior <- 1 / (seq_along(stableML) * (seq_along(stableML) + 1))
+prior <- 1 / (seq_along(logML[3, ]) * (seq_along(logML[3, ]) + 1))
 probs_pen <- logML2post(logML[3, ], prior)
 
 knitr::kable(t(round(cbind(unif = probs_unif, penalized = probs_pen), 3)))
@@ -584,11 +584,10 @@ dimnames(logML) <- list("Model" = c("restricted", "unrestricted"),
 ```
 
 
-
 Now we can compute and print the table.
 
 ```{r}
-prob <- logML2prob(logML)
+prob <- logML2post(logML)
 tab <- cbind(logML[1, ], prob[1, ], logML[2, ], prob[2, ])
 dimnames(tab) <- list("Lag order" = 1:4, NULL)
 knitr::kable(tab, digits = 2)
