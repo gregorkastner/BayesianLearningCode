@@ -525,7 +525,7 @@ observations.
 ```{r}
 set.seed(seed - 123)
 pu <- 4
-D0 <- 0.01^2
+D0 <- 1
 A0 <- F0 <- 1
 resG <- resDF <- vector("list", pu)
 
