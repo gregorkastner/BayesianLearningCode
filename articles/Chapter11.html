@@ -623,7 +623,7 @@ initial observations.</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="va">seed</span> <span class="op">-</span> <span class="fl">123</span><span class="op">)</span></span>
 <span><span class="va">pu</span> <span class="op">&lt;-</span> <span class="fl">4</span></span>
-<span><span class="va">D0</span> <span class="op">&lt;-</span> <span class="fl">0.01</span><span class="op">^</span><span class="fl">2</span></span>
+<span><span class="va">D0</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
 <span><span class="va">A0</span> <span class="op">&lt;-</span> <span class="va">F0</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
 <span><span class="va">resG</span> <span class="op">&lt;-</span> <span class="va">resDF</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/vector.html" class="external-link">vector</a></span><span class="op">(</span><span class="st">"list"</span>, <span class="va">pu</span><span class="op">)</span></span>
 <span></span>
@@ -673,39 +673,37 @@ exactly as before.</p>
 <span>      <span class="fu"><a href="https://rdrr.io/pkg/mvtnorm/man/Mvnorm.html" class="external-link">dmvnorm</a></span><span class="op">(</span><span class="va">beta_med</span>, <span class="va">bN_med</span>, <span class="va">BN_med</span>, log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">-</span></span>
 <span>      <span class="fu"><a href="../reference/Logsumexp.html">logmeanexp</a></span><span class="op">(</span><span class="fu"><a href="../reference/InvGammaDist.html">dinvgamma</a></span><span class="op">(</span><span class="va">sigma2_med</span>, <span class="va">myres</span><span class="op">$</span><span class="va">paras</span><span class="op">$</span><span class="va">cN</span>, <span class="va">myres</span><span class="op">$</span><span class="va">paras</span><span class="op">$</span><span class="va">CN</span>, log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="op">}</span></span>
-<span><span class="op">}</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/dimnames.html" class="external-link">dimnames</a></span><span class="op">(</span><span class="va">logML</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"Model"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"restricted"</span>, <span class="st">"unrestricted"</span><span class="op">)</span>,</span>
-<span>                        <span class="st">"Lag order"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">logML</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="op">}</span></span></code></pre></div>
 <p>Now we can compute and print the table.</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">prob</span> <span class="op">&lt;-</span> <span class="fu">logML2post</span><span class="op">(</span><span class="va">logML</span><span class="op">)</span></span>
 <span><span class="va">tab</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">logML</span><span class="op">[</span><span class="fl">1</span>, <span class="op">]</span>, <span class="va">prob</span><span class="op">[</span><span class="fl">1</span>, <span class="op">]</span>, <span class="va">logML</span><span class="op">[</span><span class="fl">2</span>, <span class="op">]</span>, <span class="va">prob</span><span class="op">[</span><span class="fl">2</span>, <span class="op">]</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/dimnames.html" class="external-link">dimnames</a></span><span class="op">(</span><span class="va">tab</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"Lag order"</span> <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">4</span>, <span class="cn">NULL</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/dimnames.html" class="external-link">dimnames</a></span><span class="op">(</span><span class="va">tab</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"Lag order"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">logML</span><span class="op">)</span><span class="op">)</span>, <span class="cn">NULL</span><span class="op">)</span></span>
 <span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">tab</span>, digits <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <table class="table"><tbody>
 <tr class="odd">
 <td align="right">-115.90</td>
 <td align="right">0.00</td>
-<td align="right">-115.47</td>
+<td align="right">-118.94</td>
 <td align="right">0.00</td>
 </tr>
 <tr class="even">
 <td align="right">-106.14</td>
-<td align="right">0.02</td>
-<td align="right">-105.13</td>
-<td align="right">0.04</td>
+<td align="right">0.06</td>
+<td align="right">-108.08</td>
+<td align="right">0.01</td>
 </tr>
 <tr class="odd">
 <td align="right">-103.90</td>
-<td align="right">0.14</td>
-<td align="right">-102.28</td>
-<td align="right">0.73</td>
+<td align="right">0.59</td>
+<td align="right">-104.67</td>
+<td align="right">0.27</td>
 </tr>
 <tr class="even">
 <td align="right">-106.58</td>
-<td align="right">0.01</td>
-<td align="right">-104.79</td>
-<td align="right">0.06</td>
+<td align="right">0.04</td>
+<td align="right">-106.97</td>
+<td align="right">0.03</td>
 </tr>
 </tbody></table>
 </div>

@@ -595,7 +595,7 @@ observations.
 
 set.seed(seed - 123)
 pu <- 4
-D0 <- 0.01^2
+D0 <- 1
 A0 <- F0 <- 1
 resG <- resDF <- vector("list", pu)
 
@@ -650,8 +650,6 @@ for (i in seq_along(allres)) {
       logmeanexp(dinvgamma(sigma2_med, myres$paras$cN, myres$paras$CN, log = TRUE))
   }
 }
-dimnames(logML) <- list("Model" = c("restricted", "unrestricted"),
-                        "Lag order" = seq_len(ncol(logML)))
 ```
 
 Now we can compute and print the table.
@@ -660,16 +658,16 @@ Now we can compute and print the table.
 
 prob <- logML2post(logML)
 tab <- cbind(logML[1, ], prob[1, ], logML[2, ], prob[2, ])
-dimnames(tab) <- list("Lag order" = 1:4, NULL)
+dimnames(tab) <- list("Lag order" = seq_len(ncol(logML)), NULL)
 knitr::kable(tab, digits = 2)
 ```
 
 |         |      |         |      |
 |--------:|-----:|--------:|-----:|
-| -115.90 | 0.00 | -115.47 | 0.00 |
-| -106.14 | 0.02 | -105.13 | 0.04 |
-| -103.90 | 0.14 | -102.28 | 0.73 |
-| -106.58 | 0.01 | -104.79 | 0.06 |
+| -115.90 | 0.00 | -118.94 | 0.00 |
+| -106.14 | 0.06 | -108.08 | 0.01 |
+| -103.90 | 0.59 | -104.67 | 0.27 |
+| -106.58 | 0.04 | -106.97 | 0.03 |
 
 ### Section 11.4.3: Bayesian testing for first-order Markov Chain models
 
