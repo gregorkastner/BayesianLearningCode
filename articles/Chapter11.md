@@ -383,19 +383,29 @@ round(pairwiselogML, 2)
 
 #### Example 11.11: US GDP data: Choosing the model order via marginal likelihoods
 
+For convenience, we write a small function which converts log marginal
+likelihoods to posterior model probabilities.
+
+``` r
+
+logML2post <- function(logML, prior = rep(1, length(logML))) {
+  logpost_unnorm <- logML + log(prior)
+  post_unnorm <- exp(logpost_unnorm - max(logpost_unnorm))
+  post_unnorm / sum(post_unnorm)
+}
+```
+
 To compute model probabilities, we use the uniform and the penalty
 prior.
 
 ``` r
 
 # Uniform prior:
-stableML <- exp(logML[3, ] - max(logML[3, ]))
-probs_unif <- stableML / sum(stableML)
+probs_unif <- logML2post(logML[3, ])
 
 # Penalty prior:
-tmp <- logML[3, ] - log(seq_along(stableML)) - log(seq_along(stableML) + 1)
-stablepost <- exp(tmp - max(tmp))
-probs_pen <- stablepost / sum(stablepost)
+prior <- 1 / (seq_along(logML[3, ]) * (seq_along(logML[3, ]) + 1))
+probs_pen <- logML2post(logML[3, ], prior)
 
 knitr::kable(t(round(cbind(unif = probs_unif, penalized = probs_pen), 3)))
 ```
@@ -426,7 +436,7 @@ acf(dat)
 acf(ret)
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-14-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-15-1.png)
 
 This clearly hints at non-stationarity of the exchange rate series and
 at (first order) stationarity of the returns.
@@ -471,7 +481,7 @@ for (i in seq_along(draws)) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-16-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-17-1.png)
 
 To explore whether the nonstationarity of the raw series could be caused
 by a unit root, we investigate the posterior of
@@ -491,7 +501,7 @@ for (p in 1:4) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-17-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-18-1.png)
 
 We do the same for the inflation data (currently not included in the
 book).
@@ -519,7 +529,7 @@ for (p in 1:4) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-19-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-20-1.png)
 
 #### Example 11.XX: CHF exchange rate data: Testing for a unit root using the Savage-Dickey density ratio
 
@@ -528,7 +538,7 @@ thereafter.
 
 ``` r
 
-set.seed(123)
+set.seed(seed + 123)
 deltay <- tail(diff(dat), -1)       # remove delta y_1
 ylagged <- head(tail(dat, -1), -1)  # remove y_1 and y_T
 deltaylagged <- head(diff(dat), -1) # remove delta y_T
@@ -559,7 +569,7 @@ abline(v = 0, lty = 3)
 abline(h = 0, lty = 3)
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-21-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-22-1.png)
 
 To compute the numerical value of the SD density ratio, we again use
 Rao-Blackwellization.
@@ -578,29 +588,88 @@ logSD <- logpostordinate - dnorm(0, b0[1], sqrt(B0[1, 1]), log = TRUE)
 
 #### Example 11.XX: Inflation data: Bayesian unit root testing with unknown model order
 
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
+To compare all models, we need to condition on the same set of initial
+observations.
 
-#### Example 11.XX: Inflation data: Marginal likelihoods with unknown model order
+``` r
 
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
+set.seed(seed - 123)
+pu <- 4
+D0 <- 0.01^2
+A0 <- F0 <- 1
+resG <- resDF <- vector("list", pu)
+
+# Set up response and covariates:
+deltay <- tail(diff(inflation), -(pu - 1))        # rm dy1 ... dy(pu - 1)
+ylagged <- head(tail(inflation, -(pu - 1)), -1)   # rm y1 ... y(pu - 1), yT
+for (p in seq_len(pu)) {
+  deltaylagged <- matrix(NA_real_, nrow = length(deltay), ncol = p - 1)
+  # if p == 1:  empty
+  # if p == 2:  keep              dy(pu - 2) ... dy(T - 1)
+  # if p == 3:  keep additionally dy(pu - 3) ... dy(T - 2)
+  #      ...
+  # if p == pu: keep additionally dy1        ... dy(T - pu - 1)
+  for (j in seq_len(p - 1)) {
+    deltaylagged[, j] <- diff(inflation)[seq(pu - j, length(inflation) - 1 - j)]
+  }
+  
+  # Restricted model MG:
+  Xy <- matrix(c(deltaylagged, rep(1, length(ylagged))), ncol = p)
+  b0 <- rep(0, p)
+  B0 <- diag(c(rep(F0, p - 1), A0))
+  resG[[p]] <- regression(deltay, Xy, b0 = b0, B0 = B0, c0 = 2, C0 = 0.001)
+  
+  # Unrestricted model MDF:
+  Xy <- matrix(c(ylagged, deltaylagged, rep(1, length(ylagged))), ncol = p + 1)
+  b0 <- rep(0, p + 1)
+  B0 <- diag(c(D0, rep(F0, p - 1), A0))
+  resDF[[p]] <- regression(deltay, Xy, b0 = b0, B0 = B0, c0 = 2, C0 = 0.001)
+}
+```
+
+We now compute Chib’s estimator, evaluated at the posterior median,
+exactly as before.
+
+``` r
+
+allres <- list(resG, resDF)
+logML <- matrix(NA_real_, length(allres), length(resG))
+for (i in seq_along(allres)) {
+  for (j in seq_len(length(resG))) {
+    myres <- allres[[i]][[j]]
+    beta_med <- apply(myres$betas, 2, median)
+    sigma2_med <- median(myres$sigma2s)
+    BN_med <- solve(solve(myres$B0) + crossprod(myres$X) / sigma2_med)
+    bN_med <- BN_med %*% (solve(myres$B0) %*% myres$b0 + 
+                            crossprod(myres$X, myres$y) / sigma2_med)
+    logML[i, j] <-
+      sum(dnorm(myres$y, myres$X %*% beta_med, sqrt(sigma2_med), log = TRUE)) +
+      dmvnorm(beta_med, myres$b0, myres$B0, log = TRUE) +
+      dinvgamma(sigma2_med, myres$c0, myres$C0, log = TRUE) -
+      dmvnorm(beta_med, bN_med, BN_med, log = TRUE) -
+      logmeanexp(dinvgamma(sigma2_med, myres$paras$cN, myres$paras$CN, log = TRUE))
+  }
+}
+dimnames(logML) <- list("Model" = c("restricted", "unrestricted"),
+                        "Lag order" = seq_len(ncol(logML)))
+```
+
+Now we can compute and print the table.
+
+``` r
+
+prob <- logML2post(logML)
+tab <- cbind(logML[1, ], prob[1, ], logML[2, ], prob[2, ])
+dimnames(tab) <- list("Lag order" = 1:4, NULL)
+knitr::kable(tab, digits = 2)
+```
+
+|         |      |         |      |
+|--------:|-----:|--------:|-----:|
+| -115.90 | 0.00 | -115.47 | 0.00 |
+| -106.14 | 0.02 | -105.13 | 0.04 |
+| -103.90 | 0.14 | -102.28 | 0.73 |
+| -106.58 | 0.01 | -104.79 | 0.06 |
 
 ### Section 11.4.3: Bayesian testing for first-order Markov Chain models
 
