@@ -470,7 +470,7 @@ for (p in 1:4) {
 We start by defining covariates and response, running the regression thereafter.
 
 ```{r}
-set.seed(123)
+set.seed(seed + 123)
 deltay <- tail(diff(dat), -1)       # remove delta y_1
 ylagged <- head(tail(dat, -1), -1)  # remove y_1 and y_T
 deltaylagged <- head(diff(dat), -1) # remove delta y_T
