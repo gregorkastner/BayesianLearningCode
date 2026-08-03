@@ -12,124 +12,79 @@
 
 #### Example 11.2: Movie data: Full enumeration marginal likelihoods
 
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-
-### Section 11.2.2: Model space MCMC
-
-#### Example 11.3: Movie data: Model space MCMC
-
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-
-### Section 11.2.3: Benchmark priors for comparing regression models
-
-#### Example 11.4: Movie data: Applying the g-prior
-
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-
-### Section 11.2.4: Priors on the model space
-
-#### Example 11.5: Movie Data: Hierarchichal prior on the model space
-
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-
-### Section 11.2.5: Bayesian model averaging
-
-#### Example 11.6: Movie data: Bayesian model averaging
-
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-
-## Section 11.3: Model selection beyond standard regression analysis
-
-### Section 11.3.1: Marginal likelihoods under transformed outcome variables
-
-#### Example 11.7: Movie data: Model comparison under log transformations
-
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-
-### Section 11.3.2: Bayesian variable selection for a probit model
-
-#### Example 11.8: Labor market data: Bayesian variable selection
-
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-
-## Section 11.4: Model selection problems in time series analysis
-
-### Section 11.4.1: Selecting the model order in an AR(p) model
-
-Akin to Chapter 7, we load the US GDP data, restrict our analysis to the
-time before the COVID outbreak, and compute log returns.
-
 ``` r
 
-data("gdp", package = "BayesianLearningCode")
-dat <- gdp[1:which(names(gdp) == "2019-10-01")]
-logret <- log(dat[-1]) - log(dat[-length(dat)])
-logret <- ts(logret, start = c(1947, 2), end = c(2019, 4),
-             frequency = 4)
+library("BayesianLearningCode")
+data("movies", package = "BayesianLearningCode")
+y <- movies[, "OpenBoxOffice"]
+covs <- c("Budget", "Screens","PG")
+covs.cen <- scale(movies[, covs], scale = FALSE) # center the covariates
+N <- length(y)  # number of observations
+
+X <- as.matrix(cbind("Intercept" = rep(1, N), covs.cen)) # regressor matrix
+d <- dim(X)[2] # number of regression effects
+
+a0 = 0
+A0 = 10
+B0=10
+c0 = 2.5
+C0 = 1.5
 ```
+
+We write a function for computing the marginal likelihoods
+
+    ## Section 11.2.2: Model space MCMC
+
+    ### Example 11.3: Movie data: Model space MCMC
+
+    [TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />
+
+    ## Section 11.2.3: Benchmark priors for comparing regression models
+
+    ### Example 11.4: Movie data: Applying the g-prior
+
+    [TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />
+
+    ## Section 11.2.4: Priors on the model space
+
+    ### Example 11.5: Movie Data: Hierarchichal prior on the model space
+
+    [TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />
+
+    ## Section 11.2.5: Bayesian model averaging
+
+    ### Example 11.6: Movie data: Bayesian model averaging
+
+    [TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />
+
+    # Section 11.3: Model selection beyond standard regression analysis
+
+    ## Section 11.3.1: Marginal likelihoods under transformed outcome variables
+
+    ### Example 11.7: Movie data: Model comparison under log transformations
+
+    [TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />
+
+    ## Section 11.3.2: Bayesian variable selection for a probit model
+
+    ### Example 11.8: Labor market data: Bayesian variable selection
+
+    [TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />
+
+    # Section 11.4: Model selection problems in time series analysis
+
+    ## Section 11.4.1: Selecting the model order in an AR(p) model
+
+    Akin to Chapter 7, we load the US GDP data, restrict our analysis to the time
+    before the COVID outbreak, and compute log returns.
+
+
+    ``` r
+    data("gdp", package = "BayesianLearningCode")
+    dat <- gdp[1:which(names(gdp) == "2019-10-01")]
+    logret <- log(dat[-1]) - log(dat[-length(dat)])
+    logret <- ts(logret, start = c(1947, 2), end = c(2019, 4),
+                 frequency = 4)
 
 We re-use the regression function defined in Chapter 7, again using the
 tools developed in Chapter 6. In addition, we store the parameters of
@@ -265,7 +220,7 @@ for (i in 2:5) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-6-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-7-1.png)
 
 #### Example 11.10: US GDP data: Quantitative model-order selection
 
@@ -436,7 +391,7 @@ acf(dat)
 acf(ret)
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-15-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-16-1.png)
 
 This clearly hints at non-stationarity of the exchange rate series and
 at (first order) stationarity of the returns.
@@ -481,7 +436,7 @@ for (i in seq_along(draws)) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-17-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-18-1.png)
 
 To explore whether the nonstationarity of the raw series could be caused
 by a unit root, we investigate the posterior of
@@ -501,7 +456,7 @@ for (p in 1:4) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-18-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-19-1.png)
 
 We do the same for the inflation data (currently not included in the
 book).
@@ -529,7 +484,7 @@ for (p in 1:4) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-20-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-21-1.png)
 
 #### Example 11.XX: CHF exchange rate data: Testing for a unit root using the Savage-Dickey density ratio
 
@@ -569,7 +524,7 @@ abline(v = 0, lty = 3)
 abline(h = 0, lty = 3)
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-22-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-23-1.png)
 
 To compute the numerical value of the SD density ratio, we again use
 Rao-Blackwellization.
