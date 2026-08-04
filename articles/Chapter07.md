@@ -11,23 +11,26 @@ outbreak.
 ``` r
 
 data("gdp", package = "BayesianLearningCode")
-dat <- gdp[1:which(names(gdp) == "2019-10-01")]
+loglevgdp <- log(gdp[1:which(names(gdp) == "2019-10-01")])
+loglev <- ts(loglevgdp, start = c(1947, 1), end = c(2019, 4), frequency = 4)
 ```
 
 Next, we compute the log returns.
 
 ``` r
 
-logret <- log(dat[-1]) - log(dat[-length(dat)])
-logret <- ts(logret, start = c(1947, 2), end = c(2019, 4),
-             frequency = 4)
+logretgdp <- loglev[-1] - loglev[-length(loglev)]
+logret <- ts(logretgdp, start = c(1947, 2), end = c(2019, 4), frequency = 4)
 ```
 
 Now we can plot the data and its empirical autocorrelation function.
 
 ``` r
 
-ts.plot(logret, main = "U.S. GDP log returns")
+ts.plot(loglev, main = "U.S. GDP log levels", ylab = "")
+acf(loglev, main = "")
+title("Empirical autocorrelation function")
+ts.plot(logret, main = "U.S. GDP log returns", ylab = "")
 acf(logret, lag = 8, main = "")
 title("Empirical autocorrelation function")
 ```
@@ -47,7 +50,7 @@ library("BayesianLearningCode")
 library("mvtnorm")
 
 regression <- function(y, X, prior = "improper", b0 = 0, B0 = 1, c0 = 0.01,
-                       C0 = 0.01, nburn = 1000L, M = 10000L) {
+                       C0 = 0.01, nburn = 1000L, M = 10000L / mcmcspeedup) {
   
   N <- nrow(X)
   d <- ncol(X)
@@ -355,8 +358,8 @@ nonstationary[, 2] <- ar2draws[, 1] + ar2draws[, 2] > 1 |
     ar2draws[, 2] > 1 + ar2draws[, 1]
 nonstationary[, 3] <- apply(Mod(eigenvalues) > 1, 1, any)
 colMeans(nonstationary)
-#>      1      2      3 
-#> 0.0408 0.0107 0.0032
+#>     1     2     3 
+#> 0.042 0.007 0.003
 ```
 
 ### Section 7.2.3: Recovering missing time series data – an introduction to data augmentation
@@ -388,7 +391,7 @@ For simplicity, we employ our improper prior and sample iteratively.
 
 ``` r
 
-ndraws <- 10000
+ndraws <- 10000 / mcmcspeedup
 nburn <- 1000
 ind <- missing - 2
 
@@ -860,12 +863,12 @@ ess <- rbind(unrestricted = c(ess1, y0 = NA),
 knitr::kable(round(ess))
 ```
 
-|                      | zeta |   phi | sigma2 |    y0 |
-|:---------------------|-----:|------:|-------:|------:|
-| unrestricted         | 9562 | 10000 |  10000 |    NA |
-| postprocessed        | 9184 |  9592 |   9592 |    NA |
-| betapriorflat        | 2301 |  2189 |  10000 | 10000 |
-| betapriorinformative |  634 |   338 |   6211 | 10000 |
+|                      | zeta |  phi | sigma2 |   y0 |
+|:---------------------|-----:|-----:|-------:|-----:|
+| unrestricted         | 1000 | 1000 |    830 |   NA |
+| postprocessed        |  958 |  958 |    889 |   NA |
+| betapriorflat        |  254 |  186 |   1000 | 1000 |
+| betapriorinformative |   77 |   29 |   1000 |  911 |
 
 ``` r
 
@@ -874,10 +877,10 @@ knitr::kable(round(ndraws / ess, 2))
 
 |                      |  zeta |   phi | sigma2 |  y0 |
 |:---------------------|------:|------:|-------:|----:|
-| unrestricted         |  1.05 |  1.00 |   1.00 |  NA |
-| postprocessed        |  1.09 |  1.04 |   1.04 |  NA |
-| betapriorflat        |  4.35 |  4.57 |   1.00 |   1 |
-| betapriorinformative | 15.77 | 29.55 |   1.61 |   1 |
+| unrestricted         |  1.00 |  1.00 |   1.20 |  NA |
+| postprocessed        |  1.04 |  1.04 |   1.13 |  NA |
+| betapriorflat        |  3.94 |  5.37 |   1.00 | 1.0 |
+| betapriorinformative | 12.96 | 34.53 |   1.00 | 1.1 |
 
 #### Example 7.12: Inflation data: Assessing equivalence of two samplers
 
@@ -1034,7 +1037,7 @@ abline(0, 1, col = 2)
 ![](Chapter07_files/figure-html/unnamed-chunk-37-1.png)
 
 We can see that the draws appear to come from the same distribution.
-Note, however, that the first sampler gets “stuck” slightly below 0.93
+Note, however, that the first sampler gets “stuck” slightly below 0.95
 for a few draws, which isn’t the case for the second sampler.
 
 To conclude, we compute ESSs and IFs for the sampler utilizing the
@@ -1048,10 +1051,10 @@ ess <- rbind(`Sampler 1` = ess1, `Sampler 2` = ess2)
 knitr::kable(round(ess))
 ```
 
-|           | zeta | phi | sigma2 |    y0 |
-|:----------|-----:|----:|-------:|------:|
-| Sampler 1 |  634 | 338 |   6211 | 10000 |
-| Sampler 2 |  966 | 504 |   7172 | 10000 |
+|           | zeta | phi | sigma2 |   y0 |
+|:----------|-----:|----:|-------:|-----:|
+| Sampler 1 |   77 |  29 |   1000 |  911 |
+| Sampler 2 |   72 |  38 |    765 | 1000 |
 
 ``` r
 
@@ -1060,18 +1063,12 @@ knitr::kable(round(ndraws / ess, 2))
 
 |           |  zeta |   phi | sigma2 |  y0 |
 |:----------|------:|------:|-------:|----:|
-| Sampler 1 | 15.77 | 29.55 |   1.61 |   1 |
-| Sampler 2 | 10.35 | 19.85 |   1.39 |   1 |
+| Sampler 1 | 12.96 | 34.53 |   1.00 | 1.1 |
+| Sampler 2 | 13.91 | 26.13 |   1.31 | 1.0 |
 
 ## Section 7.3: Bayesian learning of an MA(1) model
 
-#### Example 7.13: CHF exchange rate data: Fitting an MA(1) model using a random walk MH
-
-``` r
-
-data("exrates", package = "stochvol")
-dat <- exrates$USD / exrates$CHF
-```
+#### Example 7.13: U.S. GDP data: Fitting an MA(1) model using a random walk MH
 
 We now implement the MCMC sampler for fitting an MA(1) model, where we
 treat the latent state $`\epsilon_0 \sim \mathcal{N}(0, \sigma^2)`$ as
@@ -1079,6 +1076,8 @@ unknown. For the innovation variance, we assume an inverse gamma prior,
 and $`\theta`$ is assumed to be a priori flat on the real line.
 
 ``` r
+
+set.seed(123)
 
 # Specify prior hyperparameters
 c0 <- C0 <- 0.01
@@ -1093,25 +1092,25 @@ naccepts <- rep(0L, length(cthetas))
 for (i in seq_along(cthetas)) {
   # Set the starting values
   theta <- 0.95
-  sigma2 <- var(dat) / 2
+  sigma2 <- var(loglev) / 2
 
   # MCMC loop
   for (m in seq_len(ndraws + nburn)) {
     # Sample epsilon_0
-    bs <- (-theta)^seq_along(dat)
-    as <- filter(dat, -theta, "recursive")
+    bs <- (-theta)^seq_along(loglev)
+    as <- filter(loglev, -theta, "recursive")
     tmp <- 1 + sum(bs^2)
     eps0 <- rnorm(1, -sum(as * bs) / tmp, sqrt(sigma2 / tmp))
     
     # Sample sigma^2
-    eps <- filter(dat, -theta, "recursive", init = eps0)
-    cN <- c0 + (length(dat) + 1) / 2
+    eps <- filter(loglev, -theta, "recursive", init = eps0)
+    cN <- c0 + (length(loglev) + 1) / 2
     CN <- C0 + 0.5 * (eps0^2 + sum(eps^2))
     sigma2 <- rinvgamma(1, cN, CN)
   
     # Sample theta via RW-MH
     thetaprop <- rnorm(1, theta, cthetas[i])
-    epsprop <- filter(dat, -thetaprop, "recursive", init = eps0)
+    epsprop <- filter(loglev, -thetaprop, "recursive", init = eps0)
     
     # Now we accept/reject.
     logR <- -0.5 / sigma2 * (sum(epsprop^2) - sum(eps^2))
@@ -1144,9 +1143,9 @@ for (i in seq_along(cthetas)) {
 }
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-41-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-40-1.png)
 
-#### Example 7.14: CHF Exchange rate data: Using a random walk MH with alternative proposals
+#### Example 7.14: U.S. GDP data: Using a random walk MH with alternative proposals
 
 We repeat the exercise above, but now use a uniform prior on $`[-1, 1]`$
 for $`\theta`$.
@@ -1160,25 +1159,25 @@ naccepts <- rep(0L, length(cthetas))
 for (i in seq_along(cthetas)) {
   # Set the starting values
   theta <- 0.95
-  sigma2 <- var(dat) / 2
+  sigma2 <- var(loglev) / 2
 
   # MCMC loop
   for (m in seq_len(ndraws + nburn)) {
     # Sample epsilon_0
-    bs <- (-theta)^seq_along(dat)
-    as <- filter(dat, -theta, "recursive")
+    bs <- (-theta)^seq_along(loglev)
+    as <- filter(loglev, -theta, "recursive")
     tmp <- 1 + sum(bs^2)
     eps0 <- rnorm(1, -sum(as * bs) / tmp, sqrt(sigma2 / tmp))
     
     # Sample sigma^2
-    eps <- filter(dat, -theta, "recursive", init = eps0)
-    cN <- c0 + (length(dat) + 1) / 2
+    eps <- filter(loglev, -theta, "recursive", init = eps0)
+    cN <- c0 + (length(loglev) + 1) / 2
     CN <- C0 + 0.5 * (eps0^2 + sum(eps^2))
     sigma2 <- rinvgamma(1, cN, CN)
   
     # Sample theta via RW-MH
     thetaprop <- rnorm(1, theta, cthetas[i])
-    epsprop <- filter(dat, -thetaprop, "recursive", init = eps0)
+    epsprop <- filter(loglev, -thetaprop, "recursive", init = eps0)
     
     # Now we accept/reject. Note that because we have a uniform prior on
     # (-1, 1), it suffices to check whether the proposed value is in that
@@ -1215,7 +1214,7 @@ for (i in seq_along(cthetas)) {
 }
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-43-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-42-1.png)
 
 As above, now with a truncated Gaussian proposal for the random walk MH
 algorithm.
@@ -1232,19 +1231,19 @@ naccepts2 <- rep(0L, length(cthetas2))
 for (i in seq_along(cthetas2)) {
   # Set the starting values
   theta <- 0.9
-  sigma2 <- var(dat) / 2
+  sigma2 <- var(loglev) / 2
 
   # MCMC loop
   for (m in seq_len(ndraws + nburn)) {
     # Sample epsilon_0
-    bs <- (-theta)^seq_along(dat)
-    as <- filter(dat, -theta, "recursive")
+    bs <- (-theta)^seq_along(loglev)
+    as <- filter(loglev, -theta, "recursive")
     tmp <- 1 + sum(bs^2)
     eps0 <- rnorm(1, -sum(as * bs) / tmp, sqrt(sigma2 / tmp))
     
     # Sample sigma^2
-    eps <- filter(dat, -theta, "recursive", init = eps0)
-    cN <- c0 + (length(dat) + 1) / 2
+    eps <- filter(loglev, -theta, "recursive", init = eps0)
+    cN <- c0 + (length(loglev) + 1) / 2
     CN <- C0 + 0.5 * (eps0^2 + sum(eps^2))
     sigma2 <- rinvgamma(1, cN, CN)
   
@@ -1255,7 +1254,7 @@ for (i in seq_along(cthetas2)) {
     norm <- pU - pL
     U <- runif(1)
     thetaprop <- qnorm(pL + U * norm, theta, cthetas2[i])
-    epsprop <- filter(dat, -thetaprop, "recursive", init = eps0)
+    epsprop <- filter(loglev, -thetaprop, "recursive", init = eps0)
     normprop <- diff(pnorm(c(-1, 1), thetaprop, cthetas2[i]))
     
     # Now we accept/reject. Note that because we have a uniform prior on
@@ -1294,7 +1293,7 @@ for (i in seq_along(cthetas2)) {
 }
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-45-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-44-1.png)
 
 We repeat the exercise above once more, but now use a random walk
 proposal on $`\log(1 + \theta) - \log(1 - \theta)`$.
@@ -1315,26 +1314,26 @@ naccepts3 <- rep(0L, length(cthetas3))
 for (i in seq_along(cthetas3)) {
   # Set the starting values
   theta <- 0.95
-  sigma2 <- var(dat) / 2
+  sigma2 <- var(loglev) / 2
 
   # MCMC loop
   for (m in seq_len(ndraws + nburn)) {
     # Sample epsilon_0
-    bs <- (-theta)^seq_along(dat)
-    as <- filter(dat, -theta, "recursive")
+    bs <- (-theta)^seq_along(loglev)
+    as <- filter(loglev, -theta, "recursive")
     tmp <- 1 + sum(bs^2)
     eps0 <- rnorm(1, -sum(as * bs) / tmp, sqrt(sigma2 / tmp))
     
     # Sample sigma^2
-    eps <- filter(dat, -theta, "recursive", init = eps0)
-    cN <- c0 + (length(dat) + 1) / 2
+    eps <- filter(loglev, -theta, "recursive", init = eps0)
+    cN <- c0 + (length(loglev) + 1) / 2
     CN <- C0 + 0.5 * (eps0^2 + sum(eps^2))
     sigma2 <- rinvgamma(1, cN, CN)
   
     # Sample theta via RW-MH on a trans(theta)
     thetatransprop <- rnorm(1, trans(theta), cthetas3[i])
     thetaprop <- invtrans(thetatransprop)
-    epsprop <- filter(dat, -thetaprop, "recursive", init = eps0)
+    epsprop <- filter(loglev, -thetaprop, "recursive", init = eps0)
     
     # Now we accept/reject. Note that because we have a uniform prior on
     # (-1, 1) and, due to the transformation, we can be sure that a
@@ -1372,18 +1371,18 @@ for (i in seq_along(cthetas3)) {
 }
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-47-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-46-1.png)
 
 Let’s also check some QQ plots for equivalence.
 
 ``` r
 
 abline(c(0, 1), col = 2)
-qqplot(thetas[, 2], thetas3[, 2])
+qqplot(thetas2[, 2], thetas3[, 2])
 abline(c(0, 1), col = 2)
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-48-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-47-1.png)
 
 Now, we compare acceptance rates and inefficiency factors for all 9
 samplers.
@@ -1403,9 +1402,9 @@ knitr::kable(round(accepts, 2))
 
 |                | tiny | medium | huge |
 |:---------------|-----:|-------:|-----:|
-| Gaussian RW    | 0.48 |   0.06 | 0.01 |
-| truncated RW   | 0.51 |   0.10 | 0.01 |
-| transformed RW | 0.69 |   0.12 | 0.01 |
+| Gaussian RW    | 0.81 |   0.24 | 0.02 |
+| truncated RW   | 0.84 |   0.34 | 0.03 |
+| transformed RW | 0.90 |   0.41 | 0.03 |
 
 ``` r
 
@@ -1414,9 +1413,9 @@ knitr::kable(round(IF, 1))
 
 |                | tiny | medium |  huge |
 |:---------------|-----:|-------:|------:|
-| Gaussian RW    |  5.1 |   30.2 | 283.1 |
-| truncated RW   |  5.3 |   16.4 | 163.3 |
-| transformed RW |  8.2 |   13.2 | 110.3 |
+| Gaussian RW    | 34.2 |   11.4 | 285.8 |
+| truncated RW   | 28.0 |    6.7 |  56.3 |
+| transformed RW | 35.7 |    4.8 |  65.7 |
 
 ## Section 7.4: Markov modeling for a panel of categorical time series
 
@@ -1457,7 +1456,7 @@ for (i in index) {
 }
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-52-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-51-1.png)
 
 #### Example 7.16: Wage mobility data: Comparing wage mobility of men and women
 
@@ -1555,7 +1554,7 @@ corrplot::corrplot(mean_xi_male, method = "square", is.corr = FALSE,
                    col = 1, cl.pos = "n", col.lim = c(0, 1.5))
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-56-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-55-1.png)
 
 We compare the posterior densities of various transition probabilities
 $`\xi_{g,hk}`$ for women and men.
@@ -1598,7 +1597,7 @@ legend("topright", col = 1, lty = 1:2,
        legend = c("female", "male"))
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-57-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-56-1.png)
 
 #### Example 7.17: Wage mobility data: Evaluating long run effects
 
@@ -1624,7 +1623,7 @@ barplot(eta_hat_female_t, main = "Women", xlab = "Year", ylab = "Wage groups")
 barplot(eta_hat_male_t, main = "Men", xlab = "Year", ylab = "Wage groups")
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-58-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-57-1.png)
 
 We inspect the posterior distributions of $`\eta_{t,2}`$ for wage
 category 2 (left-hand side) versus $`\eta_{t,5}`$ for wage category 5
@@ -1660,4 +1659,4 @@ hist(eta_male_t[, 6], breaks = breaks,
 legend("topright", c("female", "male"), fill = rgb(c(0, 1), 0, 0, 0.2))
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-59-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-58-1.png)
