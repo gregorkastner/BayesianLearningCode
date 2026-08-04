@@ -30,26 +30,29 @@ pandemic, we restrict our analysis to the time before its outbreak.
 
 ```{r}
 data("gdp", package = "BayesianLearningCode")
-dat <- gdp[1:which(names(gdp) == "2019-10-01")]
+loglevgdp <- log(gdp[1:which(names(gdp) == "2019-10-01")])
+loglev <- ts(loglevgdp, start = c(1947, 1), end = c(2019, 4), frequency = 4)
 ```
 
 Next, we compute the log returns.
 
 ```{r}
-logret <- log(dat[-1]) - log(dat[-length(dat)])
-logret <- ts(logret, start = c(1947, 2), end = c(2019, 4),
-             frequency = 4)
+logretgdp <- loglev[-1] - loglev[-length(loglev)]
+logret <- ts(logretgdp, start = c(1947, 2), end = c(2019, 4), frequency = 4)
 ```
 
 Now we can plot the data and its empirical autocorrelation function.
 
 ```{r, echo = -c(1:2)}
 if (pdfplots) {
-  pdf("7-1_1.pdf", width = 12, height = 5)
+  pdf("7-1_1.pdf", width = 10, height = 4)
   par(mar = c(2.6, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 2)
 }
-par(mfrow = c(1, 2))
-ts.plot(logret, main = "U.S. GDP log returns")
+par(mfrow = c(2, 2))
+ts.plot(loglev, main = "U.S. GDP log levels", ylab = "")
+acf(loglev, main = "")
+title("Empirical autocorrelation function")
+ts.plot(logret, main = "U.S. GDP log returns", ylab = "")
 acf(logret, lag = 8, main = "")
 title("Empirical autocorrelation function")
 ```
