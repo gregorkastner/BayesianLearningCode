@@ -108,7 +108,7 @@ h <- exp(logmarlik-logmarlik[ind.max])
 cM <- p*sum(h)
 model.prob <- p*h/cM
 ```
-TO DO: Print ^results nicely
+TO DO: Print results nicely
 
 ## Section 11.2.2: Model space MCMC
 
