@@ -18,6 +18,7 @@ knitr::opts_chunk$set(
 )
 knitr::opts_knit$set(global.par = TRUE)
 pdfplots <- FALSE # default: FALSE; set this to TRUE only if you like pdf figures
+mcmcspeedup <- 10L # default: 1; set this to something higher for fewer draws
 ```
 
 # Section 7.1: Time series data and dynamic models
@@ -29,28 +30,31 @@ pandemic, we restrict our analysis to the time before its outbreak.
 
 ```{r}
 data("gdp", package = "BayesianLearningCode")
-dat <- gdp[1:which(names(gdp) == "2019-10-01")]
+loglevgdp <- log(gdp[1:which(names(gdp) == "2019-10-01")])
+loglev <- ts(loglevgdp, start = c(1947, 1), end = c(2019, 4), frequency = 4)
 ```
 
 Next, we compute the log returns.
 
 ```{r}
-logret <- log(dat[-1]) - log(dat[-length(dat)])
-logret <- ts(logret, start = c(1947, 2), end = c(2019, 4),
-             frequency = 4)
+logretgdp <- loglev[-1] - loglev[-length(loglev)]
+logret <- ts(logretgdp, start = c(1947, 2), end = c(2019, 4), frequency = 4)
 ```
 
 Now we can plot the data and its empirical autocorrelation function.
 
 ```{r, echo = -c(1:2)}
 if (pdfplots) {
-  pdf("7-1_1.pdf", width = 12, height = 5)
+  pdf("7-1_1.pdf", width = 9, height = 4.5)
   par(mar = c(2.6, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 2)
 }
-par(mfrow = c(1, 2))
-ts.plot(logret, main = "U.S. GDP log returns")
+par(mfrow = c(2, 2))
+ts.plot(loglev, main = "U.S. GDP log levels", ylab = "")
+ts.plot(logret, main = "U.S. GDP log returns", ylab = "")
+acf(loglev, main = "")
+title("Empirical ACF for log levels")
 acf(logret, lag = 8, main = "")
-title("Empirical autocorrelation function")
+title("Empirical ACF for log returns")
 ```
 
 # Section 7.2: Bayesian learning of autoregressive models
@@ -64,7 +68,7 @@ library("BayesianLearningCode")
 library("mvtnorm")
 
 regression <- function(y, X, prior = "improper", b0 = 0, B0 = 1, c0 = 0.01,
-                       C0 = 0.01, nburn = 1000L, M = 10000L) {
+                       C0 = 0.01, nburn = 1000L, M = 10000L / mcmcspeedup) {
   
   N <- nrow(X)
   d <- ncol(X)
@@ -399,7 +403,7 @@ names(ymiss) <- names(logret)[missing]
 For simplicity, we employ our improper prior and sample iteratively.
 
 ```{r}
-ndraws <- 10000
+ndraws <- 10000 / mcmcspeedup
 nburn <- 1000
 ind <- missing - 2
 
@@ -1031,12 +1035,7 @@ knitr::kable(round(ndraws / ess, 2))
 
 # Section 7.3: Bayesian learning of an MA(1) model
 
-### Example 7.13: CHF exchange rate data: Fitting an MA(1) model using a random walk MH
-
-```{r}
-data("exrates", package = "stochvol")
-dat <- exrates$USD / exrates$CHF
-```
+### Example 7.13: U.S. GDP data: Fitting an MA(1) model using a random walk MH
 
 We now implement the MCMC sampler for fitting an MA(1) model, where we treat the
 latent state $\epsilon_0 \sim \mathcal{N}(0, \sigma^2)$ as unknown. For the
@@ -1044,6 +1043,8 @@ innovation variance, we assume an inverse gamma prior, and $\theta$ is assumed
 to be a priori flat on the real line.
 
 ```{r}
+set.seed(123)
+
 # Specify prior hyperparameters
 c0 <- C0 <- 0.01
 
@@ -1057,25 +1058,25 @@ naccepts <- rep(0L, length(cthetas))
 for (i in seq_along(cthetas)) {
   # Set the starting values
   theta <- 0.95
-  sigma2 <- var(dat) / 2
+  sigma2 <- var(loglev) / 2
 
   # MCMC loop
   for (m in seq_len(ndraws + nburn)) {
     # Sample epsilon_0
-    bs <- (-theta)^seq_along(dat)
-    as <- filter(dat, -theta, "recursive")
+    bs <- (-theta)^seq_along(loglev)
+    as <- filter(loglev, -theta, "recursive")
     tmp <- 1 + sum(bs^2)
     eps0 <- rnorm(1, -sum(as * bs) / tmp, sqrt(sigma2 / tmp))
     
     # Sample sigma^2
-    eps <- filter(dat, -theta, "recursive", init = eps0)
-    cN <- c0 + (length(dat) + 1) / 2
+    eps <- filter(loglev, -theta, "recursive", init = eps0)
+    cN <- c0 + (length(loglev) + 1) / 2
     CN <- C0 + 0.5 * (eps0^2 + sum(eps^2))
     sigma2 <- rinvgamma(1, cN, CN)
   
     # Sample theta via RW-MH
     thetaprop <- rnorm(1, theta, cthetas[i])
-    epsprop <- filter(dat, -thetaprop, "recursive", init = eps0)
+    epsprop <- filter(loglev, -thetaprop, "recursive", init = eps0)
     
     # Now we accept/reject.
     logR <- -0.5 / sigma2 * (sum(epsprop^2) - sum(eps^2))
@@ -1111,7 +1112,7 @@ for (i in seq_along(cthetas)) {
 }
 ```
 
-### Example 7.14: CHF Exchange rate data: Using a random walk MH with alternative proposals
+### Example 7.14: U.S. GDP data: Using a random walk MH with alternative proposals
 
 We repeat the exercise above, but now use a uniform prior on $[-1, 1]$ for
 $\theta$.
@@ -1124,25 +1125,25 @@ naccepts <- rep(0L, length(cthetas))
 for (i in seq_along(cthetas)) {
   # Set the starting values
   theta <- 0.95
-  sigma2 <- var(dat) / 2
+  sigma2 <- var(loglev) / 2
 
   # MCMC loop
   for (m in seq_len(ndraws + nburn)) {
     # Sample epsilon_0
-    bs <- (-theta)^seq_along(dat)
-    as <- filter(dat, -theta, "recursive")
+    bs <- (-theta)^seq_along(loglev)
+    as <- filter(loglev, -theta, "recursive")
     tmp <- 1 + sum(bs^2)
     eps0 <- rnorm(1, -sum(as * bs) / tmp, sqrt(sigma2 / tmp))
     
     # Sample sigma^2
-    eps <- filter(dat, -theta, "recursive", init = eps0)
-    cN <- c0 + (length(dat) + 1) / 2
+    eps <- filter(loglev, -theta, "recursive", init = eps0)
+    cN <- c0 + (length(loglev) + 1) / 2
     CN <- C0 + 0.5 * (eps0^2 + sum(eps^2))
     sigma2 <- rinvgamma(1, cN, CN)
   
     # Sample theta via RW-MH
     thetaprop <- rnorm(1, theta, cthetas[i])
-    epsprop <- filter(dat, -thetaprop, "recursive", init = eps0)
+    epsprop <- filter(loglev, -thetaprop, "recursive", init = eps0)
     
     # Now we accept/reject. Note that because we have a uniform prior on
     # (-1, 1), it suffices to check whether the proposed value is in that
@@ -1195,19 +1196,19 @@ naccepts2 <- rep(0L, length(cthetas2))
 for (i in seq_along(cthetas2)) {
   # Set the starting values
   theta <- 0.9
-  sigma2 <- var(dat) / 2
+  sigma2 <- var(loglev) / 2
 
   # MCMC loop
   for (m in seq_len(ndraws + nburn)) {
     # Sample epsilon_0
-    bs <- (-theta)^seq_along(dat)
-    as <- filter(dat, -theta, "recursive")
+    bs <- (-theta)^seq_along(loglev)
+    as <- filter(loglev, -theta, "recursive")
     tmp <- 1 + sum(bs^2)
     eps0 <- rnorm(1, -sum(as * bs) / tmp, sqrt(sigma2 / tmp))
     
     # Sample sigma^2
-    eps <- filter(dat, -theta, "recursive", init = eps0)
-    cN <- c0 + (length(dat) + 1) / 2
+    eps <- filter(loglev, -theta, "recursive", init = eps0)
+    cN <- c0 + (length(loglev) + 1) / 2
     CN <- C0 + 0.5 * (eps0^2 + sum(eps^2))
     sigma2 <- rinvgamma(1, cN, CN)
   
@@ -1218,7 +1219,7 @@ for (i in seq_along(cthetas2)) {
     norm <- pU - pL
     U <- runif(1)
     thetaprop <- qnorm(pL + U * norm, theta, cthetas2[i])
-    epsprop <- filter(dat, -thetaprop, "recursive", init = eps0)
+    epsprop <- filter(loglev, -thetaprop, "recursive", init = eps0)
     normprop <- diff(pnorm(c(-1, 1), thetaprop, cthetas2[i]))
     
     # Now we accept/reject. Note that because we have a uniform prior on
@@ -1278,26 +1279,26 @@ naccepts3 <- rep(0L, length(cthetas3))
 for (i in seq_along(cthetas3)) {
   # Set the starting values
   theta <- 0.95
-  sigma2 <- var(dat) / 2
+  sigma2 <- var(loglev) / 2
 
   # MCMC loop
   for (m in seq_len(ndraws + nburn)) {
     # Sample epsilon_0
-    bs <- (-theta)^seq_along(dat)
-    as <- filter(dat, -theta, "recursive")
+    bs <- (-theta)^seq_along(loglev)
+    as <- filter(loglev, -theta, "recursive")
     tmp <- 1 + sum(bs^2)
     eps0 <- rnorm(1, -sum(as * bs) / tmp, sqrt(sigma2 / tmp))
     
     # Sample sigma^2
-    eps <- filter(dat, -theta, "recursive", init = eps0)
-    cN <- c0 + (length(dat) + 1) / 2
+    eps <- filter(loglev, -theta, "recursive", init = eps0)
+    cN <- c0 + (length(loglev) + 1) / 2
     CN <- C0 + 0.5 * (eps0^2 + sum(eps^2))
     sigma2 <- rinvgamma(1, cN, CN)
   
     # Sample theta via RW-MH on a trans(theta)
     thetatransprop <- rnorm(1, trans(theta), cthetas3[i])
     thetaprop <- invtrans(thetatransprop)
-    epsprop <- filter(dat, -thetaprop, "recursive", init = eps0)
+    epsprop <- filter(loglev, -thetaprop, "recursive", init = eps0)
     
     # Now we accept/reject. Note that because we have a uniform prior on
     # (-1, 1) and, due to the transformation, we can be sure that a
@@ -1344,7 +1345,7 @@ Let's also check some QQ plots for equivalence.
 par(mfcol = c(1, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 2)
 qqplot(thetas[, 2], thetas2[, 2])
 abline(c(0, 1), col = 2)
-qqplot(thetas[, 2], thetas3[, 2])
+qqplot(thetas2[, 2], thetas3[, 2])
 abline(c(0, 1), col = 2)
 ```
 
