@@ -28,11 +28,11 @@ Now we can plot the data and its empirical autocorrelation function.
 ``` r
 
 ts.plot(loglev, main = "U.S. GDP log levels", ylab = "")
-acf(loglev, main = "")
-title("Empirical autocorrelation function")
 ts.plot(logret, main = "U.S. GDP log returns", ylab = "")
+acf(loglev, main = "")
+title("Empirical ACF for log levels")
 acf(logret, lag = 8, main = "")
-title("Empirical autocorrelation function")
+title("Empirical ACF for log returns")
 ```
 
 ![](Chapter07_files/figure-html/unnamed-chunk-4-1.png)
