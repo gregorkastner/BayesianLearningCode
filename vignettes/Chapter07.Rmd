@@ -1048,6 +1048,8 @@ innovation variance, we assume an inverse gamma prior, and $\theta$ is assumed
 to be a priori flat on the real line.
 
 ```{r}
+set.seed(123)
+
 # Specify prior hyperparameters
 c0 <- C0 <- 0.01
 
