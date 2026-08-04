@@ -94,6 +94,7 @@ We choose the prior parameters and compute the log marginal likelihoods.
 ```{r}
 a0=0
 A0=100
+
 B0=10
 c0 = 2.5
 C0 = 1.5
