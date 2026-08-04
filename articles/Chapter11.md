@@ -16,87 +16,200 @@
 
 library("BayesianLearningCode")
 data("movies", package = "BayesianLearningCode")
+
 y <- movies[, "OpenBoxOffice"]
+
 covs <- c("Budget", "Screens","PG")
 covs.cen <- scale(movies[, covs], scale = FALSE) # center the covariates
-N <- length(y)  # number of observations
+```
 
-X <- as.matrix(cbind("Intercept" = rep(1, N), covs.cen)) # regressor matrix
-d <- dim(X)[2] # number of regression effects
+We write a function that computes the marginal likelihoods for models
+defined by indicator vectors.
 
-a0 = 0
-A0 = 10
+``` r
+
+logmarlik_reg <- function(y,covs.cen, a0, A0, B0, c0, C0, gammas){
+  
+  N <- length(y)
+  nmod <- dim(gammas)[1]
+  p <- dim(gammas)[2]
+  
+  lmarlik <- rep(NA,nmod)
+  
+  for (i in 1:nmod){
+       
+       gamma <- gammas[i,]
+       dmod <- sum(gamma)
+       index <- (1:3)*gamma
+       
+       if (dmod==0){
+          X <-  as.matrix(rep(1, N))
+          B0.inv <- as.matrix(1/A0)
+       }else{  
+          X <- as.matrix(cbind(rep(1, N), covs.cen[,index] ))
+          B0.inv <- diag(c(1/A0,rep(1/B0,dmod)) )
+       }
+      
+      BN.inv <- B0.inv + crossprod(X)
+  
+      BN <- solve(BN.inv)
+      bN <- BN %*% (crossprod(X, y))
+  
+      SS.eps <- as.numeric(crossprod(y) - t(bN) %*% BN.inv %*% bN)
+      CN <- C0 + SS.eps / 2
+      cN=c0 + N / 2
+  
+      lmarlik[i]  <- N / 2 * log(2*pi) + lgamma(cN) - lgamma(c0) + 
+                     c0 * log(C0) - cN * log(CN) +
+                     0.5 * log(det(BN)) + 0.5*log(det(B0.inv))
+     
+  }
+  return(lmarlik)
+}
+```
+
+Next we define a matrix where each row contains the includion indicator
+of one of the models.
+
+``` r
+
+gammas <- cbind(c(rep(0,4),rep(1,4)),rep(c(rep(0,2), rep(1,2)),2),
+                rep(c(0,1),4)) 
+```
+
+We choose the prior parameters and compute the log marginal likelihoods.
+
+``` r
+
+a0=0
+A0=100
+
 B0=10
 c0 = 2.5
 C0 = 1.5
+logmarlik <- logmarlik_reg(y,covs.cen, a0, A0, B0, c0, C0, gammas) 
 ```
 
-We write a function for computing the marginal likelihoods
-logmarlik_reg\<-function(y,X, a0, A0, B0, c0, C0){ N\<-length(y)
+Finally we compute the model probabilities
 
-B0.inv \<- diag(c(1/A0,1/B0)) BN.inv \<- B0.inv + crossprod(X)
+``` r
 
-BN \<- solve(BN.inv) bN \<- BN %*% (B0.inv %*% b0 + crossprod(X, y))
+p <- 1/dim(gammas)[1]
+ind.max <- which.max(logmarlik)
+h <- exp(logmarlik-logmarlik[ind.max])
+cM <- p*sum(h)
+model.prob <- p*h/cM
+```
 
-SS.eps \<- as.numeric(crossprod(y) + t(b0) %*% B0.inv %*% b0 - t(bN) %*%
-BN.inv %*% bN) CN \<- C0 + SS.eps / 2 cN=c0 + N / 2
+TO DO: Print results nicely
 
-ldet \<- N / 2 \* log(2*pi) + lgamma(cN) - lgamma(c0) + c0* log(C0) - cN
-\* log(CN) + 0.5 \* det(BN, logarithm=TRUE) - 0.5\*det(B0,
-logarithm=TRUE) }
+### Section 11.2.2: Model space MCMC
 
-    ## Section 11.2.2: Model space MCMC
+#### Example 11.3: Movie data: Model space MCMC
 
-    ### Example 11.3: Movie data: Model space MCMC
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
 
-    [TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />
+### Section 11.2.3: Benchmark priors for comparing regression models
 
-    ## Section 11.2.3: Benchmark priors for comparing regression models
+#### Example 11.4: Movie data: Applying the g-prior
 
-    ### Example 11.4: Movie data: Applying the g-prior
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
 
-    [TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />
+### Section 11.2.4: Priors on the model space
 
-    ## Section 11.2.4: Priors on the model space
+#### Example 11.5: Movie Data: Hierarchichal prior on the model space
 
-    ### Example 11.5: Movie Data: Hierarchichal prior on the model space
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
 
-    [TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />
+### Section 11.2.5: Bayesian model averaging
 
-    ## Section 11.2.5: Bayesian model averaging
+#### Example 11.6: Movie data: Bayesian model averaging
 
-    ### Example 11.6: Movie data: Bayesian model averaging
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
 
-    [TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />
+## Section 11.3: Model selection beyond standard regression analysis
 
-    # Section 11.3: Model selection beyond standard regression analysis
+### Section 11.3.1: Marginal likelihoods under transformed outcome variables
 
-    ## Section 11.3.1: Marginal likelihoods under transformed outcome variables
+#### Example 11.7: Movie data: Model comparison under log transformations
 
-    ### Example 11.7: Movie data: Model comparison under log transformations
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
 
-    [TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />
+### Section 11.3.2: Bayesian variable selection for a probit model
 
-    ## Section 11.3.2: Bayesian variable selection for a probit model
+#### Example 11.8: Labor market data: Bayesian variable selection
 
-    ### Example 11.8: Labor market data: Bayesian variable selection
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
+\[TODO\]  
 
-    [TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />
+## Section 11.4: Model selection problems in time series analysis
 
-    # Section 11.4: Model selection problems in time series analysis
+### Section 11.4.1: Selecting the model order in an AR(p) model
 
-    ## Section 11.4.1: Selecting the model order in an AR(p) model
+Akin to Chapter 7, we load the US GDP data, restrict our analysis to the
+time before the COVID outbreak, and compute log returns.
 
-    Akin to Chapter 7, we load the US GDP data, restrict our analysis to the time
-    before the COVID outbreak, and compute log returns.
+``` r
 
-
-    ``` r
-    data("gdp", package = "BayesianLearningCode")
-    dat <- gdp[1:which(names(gdp) == "2019-10-01")]
-    logret <- log(dat[-1]) - log(dat[-length(dat)])
-    logret <- ts(logret, start = c(1947, 2), end = c(2019, 4),
-                 frequency = 4)
+data("gdp", package = "BayesianLearningCode")
+dat <- gdp[1:which(names(gdp) == "2019-10-01")]
+logret <- log(dat[-1]) - log(dat[-length(dat)])
+logret <- ts(logret, start = c(1947, 2), end = c(2019, 4),
+             frequency = 4)
+```
 
 We re-use the regression function defined in Chapter 7, again using the
 tools developed in Chapter 6. In addition, we store the parameters of
@@ -232,7 +345,7 @@ for (i in 2:5) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-7-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-11-1.png)
 
 #### Example 11.10: US GDP data: Quantitative model-order selection
 
@@ -403,7 +516,7 @@ acf(dat)
 acf(ret)
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-16-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-20-1.png)
 
 This clearly hints at non-stationarity of the exchange rate series and
 at (first order) stationarity of the returns.
@@ -448,7 +561,7 @@ for (i in seq_along(draws)) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-18-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-22-1.png)
 
 To explore whether the nonstationarity of the raw series could be caused
 by a unit root, we investigate the posterior of
@@ -468,7 +581,7 @@ for (p in 1:4) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-19-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-23-1.png)
 
 We do the same for the inflation data (currently not included in the
 book).
@@ -496,7 +609,7 @@ for (p in 1:4) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-21-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-25-1.png)
 
 #### Example 11.XX: CHF exchange rate data: Testing for a unit root using the Savage-Dickey density ratio
 
@@ -536,7 +649,7 @@ abline(v = 0, lty = 3)
 abline(h = 0, lty = 3)
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-23-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-27-1.png)
 
 To compute the numerical value of the SD density ratio, we again use
 Rao-Blackwellization.
