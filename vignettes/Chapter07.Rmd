@@ -45,16 +45,16 @@ Now we can plot the data and its empirical autocorrelation function.
 
 ```{r, echo = -c(1:2)}
 if (pdfplots) {
-  pdf("7-1_1.pdf", width = 10, height = 4)
+  pdf("7-1_1.pdf", width = 9, height = 4.5)
   par(mar = c(2.6, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 2)
 }
 par(mfrow = c(2, 2))
 ts.plot(loglev, main = "U.S. GDP log levels", ylab = "")
-acf(loglev, main = "")
-title("Empirical autocorrelation function")
 ts.plot(logret, main = "U.S. GDP log returns", ylab = "")
+acf(loglev, main = "")
+title("Empirical ACF for log levels")
 acf(logret, lag = 8, main = "")
-title("Empirical autocorrelation function")
+title("Empirical ACF for log returns")
 ```
 
 # Section 7.2: Bayesian learning of autoregressive models
