@@ -728,7 +728,8 @@ for (m in seq_len(ndraws + nburn)) {
   }
 }
 stationary1 <- data.frame(zeta = zetas, phi = phis, sigma2 = sigma2s, y0 = y0s)
-naccepts1 <- naccepts
+(naccepts1 <- naccepts)
+#> [1] 825
 ```
 
 We repeat the exercise with a more informative beta prior.
@@ -788,7 +789,8 @@ for (m in seq_len(ndraws + nburn)) {
   }
 }
 stationary2 <- data.frame(zeta = zetas, phi = phis, sigma2 = sigma2s, y0 = y0s)
-naccepts2 <- naccepts
+(naccepts2 <- naccepts)
+#> [1] 237
 ```
 
 To conclude, we compare the posteriors of $`\phi`$ under the improper

@@ -722,7 +722,8 @@ as well as the design matrix.</p>
 <span>  <span class="op">}</span></span>
 <span><span class="op">}</span></span>
 <span><span class="va">stationary1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>zeta <span class="op">=</span> <span class="va">zetas</span>, phi <span class="op">=</span> <span class="va">phis</span>, sigma2 <span class="op">=</span> <span class="va">sigma2s</span>, y0 <span class="op">=</span> <span class="va">y0s</span><span class="op">)</span></span>
-<span><span class="va">naccepts1</span> <span class="op">&lt;-</span> <span class="va">naccepts</span></span></code></pre></div>
+<span><span class="op">(</span><span class="va">naccepts1</span> <span class="op">&lt;-</span> <span class="va">naccepts</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 825</span></span></code></pre></div>
 <p>We repeat the exercise with a more informative beta prior.</p>
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">aphi</span> <span class="op">&lt;-</span> <span class="fl">10</span></span>
@@ -778,7 +779,8 @@ as well as the design matrix.</p>
 <span>  <span class="op">}</span></span>
 <span><span class="op">}</span></span>
 <span><span class="va">stationary2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>zeta <span class="op">=</span> <span class="va">zetas</span>, phi <span class="op">=</span> <span class="va">phis</span>, sigma2 <span class="op">=</span> <span class="va">sigma2s</span>, y0 <span class="op">=</span> <span class="va">y0s</span><span class="op">)</span></span>
-<span><span class="va">naccepts2</span> <span class="op">&lt;-</span> <span class="va">naccepts</span></span></code></pre></div>
+<span><span class="op">(</span><span class="va">naccepts2</span> <span class="op">&lt;-</span> <span class="va">naccepts</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 237</span></span></code></pre></div>
 <p>To conclude, we compare the posteriors of
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϕ</mi><annotation encoding="application/x-tex">\phi</annotation></semantics></math>
 under the improper prior, the posterior obtained after post-processing
