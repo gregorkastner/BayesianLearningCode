@@ -780,16 +780,16 @@ exactly as before.</p>
 </div>
 </div>
 <div class="section level3">
-<h3 id="section-11-4-3-bayesian-testing-for-first-order-markov-chain-models">Section 11.4.3: Bayesian testing for first-order Markov Chain
+<h3 id="section-11-4-3-bayesian-testing-for-first-order-markov-chain-models">Section 11.4.3: Bayesian testing for first-order Markov chain
 models<a class="anchor" aria-label="anchor" href="#section-11-4-3-bayesian-testing-for-first-order-markov-chain-models"></a>
 </h3>
 <div class="section level4">
-<h4 id="example-11-xx-austrian-wage-mobility-data-homogeneity-versus-grouped-model">Example 11.XX: Austrian wage mobility data: Homogeneity versus
-grouped model<a class="anchor" aria-label="anchor" href="#example-11-xx-austrian-wage-mobility-data-homogeneity-versus-grouped-model"></a>
+<h4 id="example-11-19-wage-mobility-data-two-group-versus-homogeneous-markov-chain-model">Example 11.19: Wage mobility data: two-group versus homogeneous
+Markov chain model<a class="anchor" aria-label="anchor" href="#example-11-19-wage-mobility-data-two-group-versus-homogeneous-markov-chain-model"></a>
 </h4>
-<p>[TODO]<br>[TODO]<br>[TODO]<br>[TODO]<br>[TODO]<br>[TODO]<br>[TODO]<br>[TODO]<br>[TODO]<br>[TODO]<br></p>
-<p>We load the data and reduce the observations to workers from the
-birth cohort 1946-1960.</p>
+<p>We return to the wage mobility data considered in Example 7.16 and
+prepare the data analogously. We load the data and reduce the
+observations to workers from the birth cohort 1946-1960.</p>
 <div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"labor"</span>, package <span class="op">=</span> <span class="st">"BayesianLearningCode"</span><span class="op">)</span></span>
 <span><span class="va">labor</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">labor</span>, <span class="va">birthyear</span> <span class="op">&gt;=</span> <span class="fl">1946</span> <span class="op">&amp;</span> <span class="va">birthyear</span> <span class="op">&lt;=</span> <span class="fl">1960</span><span class="op">)</span></span></code></pre></div>
@@ -812,13 +812,26 @@ class to the other, i.e., the matrix with values
 <span><span class="va">income_transitions</span> <span class="op">&lt;-</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">income</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>           <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span> <span class="fu">getTransitions</span><span class="op">(</span><span class="va">income</span><span class="op">[</span><span class="va">i</span>, <span class="op">]</span>, classes <span class="op">=</span> <span class="fl">0</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>We determine the marginal likelihood of the first-order Markov chain
-model assuming homogeneity and grouping by gender.</p>
+<p>We determine the aggregate transition matrix across all workers as
+well as separate transition matrices for male and female workers.</p>
 <div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">N_hk</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/funprog.html" class="external-link">Reduce</a></span><span class="op">(</span><span class="st">"+"</span>, <span class="va">income_transitions</span><span class="op">)</span></span>
 <span><span class="va">Ng_hk</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>male <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/funprog.html" class="external-link">Reduce</a></span><span class="op">(</span><span class="st">"+"</span>, <span class="va">income_transitions</span><span class="op">[</span><span class="op">!</span><span class="va">labor</span><span class="op">$</span><span class="va">female</span><span class="op">]</span><span class="op">)</span>,</span>
-<span>              female <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/funprog.html" class="external-link">Reduce</a></span><span class="op">(</span><span class="st">"+"</span>, <span class="va">income_transitions</span><span class="op">[</span><span class="va">labor</span><span class="op">$</span><span class="va">female</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">gammas</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">4</span><span class="op">)</span></span>
+<span>              female <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/funprog.html" class="external-link">Reduce</a></span><span class="op">(</span><span class="st">"+"</span>, <span class="va">income_transitions</span><span class="op">[</span><span class="va">labor</span><span class="op">$</span><span class="va">female</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>We want to compare the following two models: the homogeneous Markov
+chain model
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>ℳ</mi><mi>H</mi></msub><annotation encoding="application/x-tex">\mathcal{M}_H</annotation></semantics></math>
+and the two-group Markov chain model
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>ℳ</mi><mi>G</mi></msub><annotation encoding="application/x-tex">\mathcal{M}_G</annotation></semantics></math>
+where we assume that the wage mobility of male and female workers
+differs in the Austrian labor market.</p>
+<p>We determine the marginal likelihoods of the two models, considering
+also two different prior choices, namely
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>γ</mi><mrow><mn>0</mn><mo>,</mo><mi>h</mi><mi>k</mi></mrow></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\gamma_{0,hk} = 1</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>γ</mi><mrow><mn>0</mn><mo>,</mo><mi>h</mi><mi>k</mi></mrow></msub><mo>=</mo><mn>4</mn></mrow><annotation encoding="application/x-tex">\gamma_{0,hk} = 4</annotation></semantics></math>.</p>
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">gammas</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">4</span><span class="op">)</span></span>
 <span><span class="va">K</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">N_hk</span><span class="op">)</span></span>
 <span><span class="va">G</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">Ng_hk</span><span class="op">)</span></span>
 <span><span class="va">logmarglikMH</span> <span class="op">&lt;-</span> <span class="va">logmarglikMG</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span>
@@ -833,51 +846,69 @@ model assuming homogeneity and grouping by gender.</p>
 <span>        <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Special.html" class="external-link">lgamma</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="va">gamma</span> <span class="op">+</span> <span class="va">Ng_hk</span><span class="op">[[</span><span class="st">"male"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">-</span></span>
 <span>        <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Special.html" class="external-link">lgamma</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="va">gamma</span> <span class="op">+</span> <span class="va">Ng_hk</span><span class="op">[[</span><span class="st">"female"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>We also calculate the log BF and summarize results.</p>
-<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span>MH <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">logmarglikMH</span>, <span class="cn">NA</span>, <span class="cn">NA</span><span class="op">)</span>,</span>
-<span>             MG <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">logmarglikMG</span>, <span class="va">logmarglikMG</span> <span class="op">-</span> <span class="va">logmarglikMH</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"gamma = 1"</span>, <span class="st">"gamma = 4"</span>,</span>
-<span>                   <span class="st">"gamma = 1"</span>, <span class="st">"gamma = 4"</span><span class="op">)</span></span>
-<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span></code></pre></div>
-<table class="table">
-<thead><tr class="header">
-<th align="left"></th>
-<th align="right">gamma = 1</th>
-<th align="right">gamma = 4</th>
-<th align="right">gamma = 1</th>
-<th align="right">gamma = 4</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td align="left">MH</td>
-<td align="right">-13887.79</td>
-<td align="right">-14030.63</td>
-<td align="right">NA</td>
-<td align="right">NA</td>
-</tr>
-<tr class="even">
-<td align="left">MG</td>
-<td align="right">-13833.11</td>
-<td align="right">-14096.42</td>
-<td align="right">54.68241</td>
-<td align="right">-65.79208</td>
-</tr>
-</tbody>
-</table>
+<p>We also calculate the log Bayes factor and summarize results.</p>
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span>MG <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">logmarglikMG</span>, <span class="cn">NA</span>, <span class="cn">NA</span><span class="op">)</span>,</span>
+<span>             MH <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">logmarglikMH</span>, <span class="va">logmarglikMH</span> <span class="op">-</span> <span class="va">logmarglikMG</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"gamma ="</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">gammas</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">res</span></span>
+<span><span class="co">#&gt;    gamma = 1 gamma = 4 gamma = 1 gamma = 4</span></span>
+<span><span class="co">#&gt; MG -13833.11 -14096.42        NA        NA</span></span>
+<span><span class="co">#&gt; MH -13887.79 -14030.63 -54.68241  65.79208</span></span></code></pre></div>
+<p>There is evidence for the two-group Markov chain model when using
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>γ</mi><mrow><mn>0</mn><mo>,</mo><mi>h</mi><mi>k</mi></mrow></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\gamma_{0,hk} = 1</annotation></semantics></math>,
+whereas the homogeneous model is preferred for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>γ</mi><mrow><mn>0</mn><mo>,</mo><mi>h</mi><mi>k</mi></mrow></msub><mo>=</mo><mn>4</mn></mrow><annotation encoding="application/x-tex">\gamma_{0,hk} = 4</annotation></semantics></math>.</p>
 </div>
 <div class="section level4">
-<h4 id="example-11-xx-austrian-wage-mobility-data-restricted-models">Example 11.XX: Austrian wage mobility data: Restricted models<a class="anchor" aria-label="anchor" href="#example-11-xx-austrian-wage-mobility-data-restricted-models"></a>
+<h4 id="example-11-20-wage-mobility-data-testing-low-income-male-workers">Example 11.20: Wage mobility data: testing low-income male
+workers<a class="anchor" aria-label="anchor" href="#example-11-20-wage-mobility-data-testing-low-income-male-workers"></a>
 </h4>
-<p>We continue to compare restricted models to the grouped model. We
-first calculate the log BFs for the restricted models.</p>
-<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">logBF_R1G</span> <span class="op">&lt;-</span> <span class="va">logBF_R2G</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span>
+<p>We impose the restriction
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>ξ</mi><mrow><mi>g</mi><mo>,</mo><mn>10</mn></mrow></msub><mo>=</mo><msub><mi>ξ</mi><mrow><mi>g</mi><mo>,</mo><mn>12</mn></mrow></msub></mrow><annotation encoding="application/x-tex">\xi_{g,10} = \xi_{g,12}</annotation></semantics></math>
+for group
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>g</mi><annotation encoding="application/x-tex">g</annotation></semantics></math>
+equal to male workers and determine the log Bayes factor to the
+unrestricted two-group model using the two priors for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>γ</mi><mrow><mn>0</mn><mo>,</mo><mi>h</mi><mi>k</mi></mrow></msub><annotation encoding="application/x-tex">\gamma_{0,hk}</annotation></semantics></math>.</p>
+<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">logBF_R1G</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="va">gamma</span> <span class="op">&lt;-</span> <span class="va">gammas</span><span class="op">[</span><span class="va">i</span><span class="op">]</span></span>
 <span>    <span class="va">logBF_R1G</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Special.html" class="external-link">lbeta</a></span><span class="op">(</span><span class="va">gamma</span>, <span class="va">gamma</span><span class="op">)</span> <span class="op">-</span></span>
 <span>        <span class="fu"><a href="https://rdrr.io/r/base/Special.html" class="external-link">lbeta</a></span><span class="op">(</span><span class="va">gamma</span> <span class="op">+</span> <span class="va">Ng_hk</span><span class="op">[[</span><span class="st">"male"</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="st">"1"</span>, <span class="st">"0"</span><span class="op">]</span>,</span>
 <span>              <span class="va">gamma</span> <span class="op">+</span> <span class="va">Ng_hk</span><span class="op">[[</span><span class="st">"male"</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="st">"1"</span>, <span class="st">"2"</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+<p>We obtain the log marginal likelihood of the restricted model by
+adding the log Bayes factor to the log marginal likelihood of the
+unrestricted two-group model:</p>
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">logmarglikR1</span> <span class="op">&lt;-</span> <span class="va">logmarglikMG</span> <span class="op">+</span> <span class="va">logBF_R1G</span></span>
+<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">res</span>,</span>
+<span>             MR1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">logmarglikR1</span>, <span class="va">logBF_R1G</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">res</span><span class="op">[</span><span class="st">"MR1"</span>, <span class="op">]</span></span>
+<span><span class="co">#&gt;   gamma = 1   gamma = 4   gamma = 1   gamma = 4 </span></span>
+<span><span class="co">#&gt; -13708.7613 -13972.8418    124.3463    123.5805</span></span></code></pre></div>
+<p>Results suggest overwhelming evidence for the restricted model,
+regardless of the prior on
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>γ</mi><mrow><mn>0</mn><mo>,</mo><mi>h</mi><mi>k</mi></mrow></msub><annotation encoding="application/x-tex">\gamma_{0,hk}</annotation></semantics></math>.</p>
+</div>
+<div class="section level4">
+<h4 id="example-11-20-wage-mobility-data-comparing-no-income-risk-for-male-and-female-workers">Example 11.20: Wage mobility data: comparing no-income risk for male
+and female workers<a class="anchor" aria-label="anchor" href="#example-11-20-wage-mobility-data-comparing-no-income-risk-for-male-and-female-workers"></a>
+</h4>
+<p>We continue to compare another restricted model to the two-group
+model. In particular, we assume under the restricted model that the risk
+of moving to the no-income class is the same for male and female workers
+in the lowest income class.</p>
+<p>We first calculate the log Bayes factor for this restricted model
+compared to the unrestricted two-group model for the two different
+priors on
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>γ</mi><mrow><mn>0</mn><mo>,</mo><mi>h</mi><mi>k</mi></mrow></msub><annotation encoding="application/x-tex">\gamma_{0,hk}</annotation></semantics></math>.</p>
+<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">logBF_R2G</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">gamma</span> <span class="op">&lt;-</span> <span class="va">gammas</span><span class="op">[</span><span class="va">i</span><span class="op">]</span></span>
 <span>    <span class="va">aN1</span> <span class="op">&lt;-</span> <span class="va">gamma</span> <span class="op">+</span> <span class="va">Ng_hk</span><span class="op">[[</span><span class="st">"male"</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="st">"1"</span>, <span class="st">"0"</span><span class="op">]</span></span>
 <span>    <span class="va">aN2</span> <span class="op">&lt;-</span> <span class="va">gamma</span> <span class="op">+</span> <span class="va">Ng_hk</span><span class="op">[[</span><span class="st">"female"</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="st">"1"</span>, <span class="st">"0"</span><span class="op">]</span></span>
 <span>    <span class="va">bN1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">gamma</span> <span class="op">+</span> <span class="va">Ng_hk</span><span class="op">[[</span><span class="st">"male"</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="st">"1"</span>, <span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></span>
@@ -887,17 +918,22 @@ first calculate the log BFs for the restricted models.</p>
 <span>        <span class="fu"><a href="https://rdrr.io/r/base/Special.html" class="external-link">lbeta</a></span><span class="op">(</span><span class="va">aN1</span>, <span class="va">bN1</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Special.html" class="external-link">lbeta</a></span><span class="op">(</span><span class="va">aN2</span>, <span class="va">bN2</span><span class="op">)</span> <span class="op">-</span></span>
 <span>        <span class="fu"><a href="https://rdrr.io/r/base/Special.html" class="external-link">lbeta</a></span><span class="op">(</span><span class="fl">2</span> <span class="op">*</span> <span class="va">gamma</span> <span class="op">-</span> <span class="fl">1</span>, <span class="fl">2</span> <span class="op">*</span> <span class="op">(</span><span class="va">K</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">*</span> <span class="va">gamma</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>We obtain the log marginal likelihoods for the restricted models from
-the log marginal likelihoods of the grouped models and the log BFs. We
-then also summarize the results.</p>
-<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">logmarglikR1</span> <span class="op">&lt;-</span> <span class="va">logmarglikMG</span> <span class="op">+</span> <span class="va">logBF_R1G</span></span>
-<span><span class="va">logmarglikR2</span> <span class="op">&lt;-</span> <span class="va">logmarglikMG</span> <span class="op">+</span> <span class="va">logBF_R2G</span></span>
-<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span>MR1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">logmarglikR1</span>, <span class="va">logBF_R1G</span><span class="op">)</span>,</span>
+<p>We obtain the log marginal likelihoods for the restricted model from
+the log marginal likelihood of the two-group model and the log Bayes
+factor.</p>
+<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">logmarglikR2</span> <span class="op">&lt;-</span> <span class="va">logmarglikMG</span> <span class="op">+</span> <span class="va">logBF_R2G</span></span>
+<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">res</span>,</span>
 <span>             MR2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">logmarglikR2</span>, <span class="va">logBF_R2G</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"gamma = 1"</span>, <span class="st">"gamma = 4"</span>,</span>
-<span>                   <span class="st">"gamma = 1"</span>, <span class="st">"gamma = 4"</span><span class="op">)</span></span>
-<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">res</span><span class="op">[</span><span class="st">"MR2"</span>, <span class="op">]</span></span>
+<span><span class="co">#&gt;     gamma = 1     gamma = 4     gamma = 1     gamma = 4 </span></span>
+<span><span class="co">#&gt; -13838.721495 -14102.412473     -5.613901     -5.990161</span></span></code></pre></div>
+<p>Results suggest that the unrestricted model is preferred, regardless
+of the prior on
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>γ</mi><mrow><mn>0</mn><mo>,</mo><mi>h</mi><mi>k</mi></mrow></msub><annotation encoding="application/x-tex">\gamma_{0,hk}</annotation></semantics></math>.</p>
+<p>We also summarize the results.</p>
+<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
 <th align="left"></th>
@@ -908,17 +944,31 @@ then also summarize the results.</p>
 </tr></thead>
 <tbody>
 <tr class="odd">
+<td align="left">MG</td>
+<td align="right">-13833.11</td>
+<td align="right">-14096.42</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="even">
+<td align="left">MH</td>
+<td align="right">-13887.79</td>
+<td align="right">-14030.63</td>
+<td align="right">-54.68241</td>
+<td align="right">65.792076</td>
+</tr>
+<tr class="odd">
 <td align="left">MR1</td>
 <td align="right">-13708.76</td>
 <td align="right">-13972.84</td>
-<td align="right">124.3463</td>
+<td align="right">124.34630</td>
 <td align="right">123.580533</td>
 </tr>
 <tr class="even">
 <td align="left">MR2</td>
 <td align="right">-13838.72</td>
 <td align="right">-14102.41</td>
-<td align="right">-5.6139</td>
+<td align="right">-5.61390</td>
 <td align="right">-5.990161</td>
 </tr>
 </tbody>

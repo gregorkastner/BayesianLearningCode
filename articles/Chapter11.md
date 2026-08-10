@@ -749,23 +749,13 @@ knitr::kable(tab, digits = 2)
 | -103.90 | 0.59 | -104.67 | 0.27 |
 | -106.58 | 0.04 | -106.97 | 0.03 |
 
-### Section 11.4.3: Bayesian testing for first-order Markov Chain models
+### Section 11.4.3: Bayesian testing for first-order Markov chain models
 
-#### Example 11.XX: Austrian wage mobility data: Homogeneity versus grouped model
+#### Example 11.19: Wage mobility data: two-group versus homogeneous Markov chain model
 
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-
-We load the data and reduce the observations to workers from the birth
-cohort 1946-1960.
+We return to the wage mobility data considered in Example 7.16 and
+prepare the data analogously. We load the data and reduce the
+observations to workers from the birth cohort 1946-1960.
 
 ``` r
 
@@ -795,14 +785,27 @@ income_transitions <-
            function(i) getTransitions(income[i, ], classes = 0:5))
 ```
 
-We determine the marginal likelihood of the first-order Markov chain
-model assuming homogeneity and grouping by gender.
+We determine the aggregate transition matrix across all workers as well
+as separate transition matrices for male and female workers.
 
 ``` r
 
 N_hk <- Reduce("+", income_transitions)
 Ng_hk <- list(male = Reduce("+", income_transitions[!labor$female]),
               female = Reduce("+", income_transitions[labor$female]))
+```
+
+We want to compare the following two models: the homogeneous Markov
+chain model $`\mathcal{M}_H`$ and the two-group Markov chain model
+$`\mathcal{M}_G`$ where we assume that the wage mobility of male and
+female workers differs in the Austrian labor market.
+
+We determine the marginal likelihoods of the two models, considering
+also two different prior choices, namely $`\gamma_{0,hk} = 1`$ and
+$`\gamma_{0,hk} = 4`$.
+
+``` r
+
 gammas <- c(1, 4)
 K <- nrow(N_hk)
 G <- length(Ng_hk)
@@ -820,35 +823,73 @@ for (i in 1:2) {
 }
 ```
 
-We also calculate the log BF and summarize results.
+We also calculate the log Bayes factor and summarize results.
 
 ``` r
 
-res <- rbind(MH = c(logmarglikMH, NA, NA),
-             MG = c(logmarglikMG, logmarglikMG - logmarglikMH))
-colnames(res) <- c("gamma = 1", "gamma = 4",
-                   "gamma = 1", "gamma = 4")
-knitr::kable(res)
+res <- rbind(MG = c(logmarglikMG, NA, NA),
+             MH = c(logmarglikMH, logmarglikMH - logmarglikMG))
+colnames(res) <- paste("gamma =", rep(gammas, 2))
+res
+#>    gamma = 1 gamma = 4 gamma = 1 gamma = 4
+#> MG -13833.11 -14096.42        NA        NA
+#> MH -13887.79 -14030.63 -54.68241  65.79208
 ```
 
-|     | gamma = 1 | gamma = 4 | gamma = 1 | gamma = 4 |
-|:----|----------:|----------:|----------:|----------:|
-| MH  | -13887.79 | -14030.63 |        NA |        NA |
-| MG  | -13833.11 | -14096.42 |  54.68241 | -65.79208 |
+There is evidence for the two-group Markov chain model when using
+$`\gamma_{0,hk} = 1`$, whereas the homogeneous model is preferred for
+$`\gamma_{0,hk} = 4`$.
 
-#### Example 11.XX: Austrian wage mobility data: Restricted models
+#### Example 11.20: Wage mobility data: testing low-income male workers
 
-We continue to compare restricted models to the grouped model. We first
-calculate the log BFs for the restricted models.
+We impose the restriction $`\xi_{g,10} = \xi_{g,12}`$ for group $`g`$
+equal to male workers and determine the log Bayes factor to the
+unrestricted two-group model using the two priors for $`\gamma_{0,hk}`$.
 
 ``` r
 
-logBF_R1G <- logBF_R2G <- numeric(2)
+logBF_R1G <- numeric(2)
 for (i in 1:2) {
     gamma <- gammas[i]
     logBF_R1G[i] <- lbeta(gamma, gamma) -
         lbeta(gamma + Ng_hk[["male"]]["1", "0"],
               gamma + Ng_hk[["male"]]["1", "2"])
+}
+```
+
+We obtain the log marginal likelihood of the restricted model by adding
+the log Bayes factor to the log marginal likelihood of the unrestricted
+two-group model:
+
+``` r
+
+logmarglikR1 <- logmarglikMG + logBF_R1G
+res <- rbind(res,
+             MR1 = c(logmarglikR1, logBF_R1G))
+res["MR1", ]
+#>   gamma = 1   gamma = 4   gamma = 1   gamma = 4 
+#> -13708.7613 -13972.8418    124.3463    123.5805
+```
+
+Results suggest overwhelming evidence for the restricted model,
+regardless of the prior on $`\gamma_{0,hk}`$.
+
+#### Example 11.20: Wage mobility data: comparing no-income risk for male and female workers
+
+We continue to compare another restricted model to the two-group model.
+In particular, we assume under the restricted model that the risk of
+moving to the no-income class is the same for male and female workers in
+the lowest income class.
+
+We first calculate the log Bayes factor for this restricted model
+compared to the unrestricted two-group model for the two different
+priors on $`\gamma_{0,hk}`$.
+
+``` r
+
+logBF_R2G <- numeric(2)
+for (i in 1:2) {
+    gamma <- gammas[i]
     aN1 <- gamma + Ng_hk[["male"]]["1", "0"]
     aN2 <- gamma + Ng_hk[["female"]]["1", "0"]
     bN1 <- sum(gamma + Ng_hk[["male"]]["1", -1])
@@ -860,22 +901,32 @@ for (i in 1:2) {
 }
 ```
 
-We obtain the log marginal likelihoods for the restricted models from
-the log marginal likelihoods of the grouped models and the log BFs. We
-then also summarize the results.
+We obtain the log marginal likelihoods for the restricted model from the
+log marginal likelihood of the two-group model and the log Bayes factor.
 
 ``` r
 
-logmarglikR1 <- logmarglikMG + logBF_R1G
 logmarglikR2 <- logmarglikMG + logBF_R2G
-res <- rbind(MR1 = c(logmarglikR1, logBF_R1G),
+res <- rbind(res,
              MR2 = c(logmarglikR2, logBF_R2G))
-colnames(res) <- c("gamma = 1", "gamma = 4",
-                   "gamma = 1", "gamma = 4")
+res["MR2", ]
+#>     gamma = 1     gamma = 4     gamma = 1     gamma = 4 
+#> -13838.721495 -14102.412473     -5.613901     -5.990161
+```
+
+Results suggest that the unrestricted model is preferred, regardless of
+the prior on $`\gamma_{0,hk}`$.
+
+We also summarize the results.
+
+``` r
+
 knitr::kable(res)
 ```
 
 |     | gamma = 1 | gamma = 4 | gamma = 1 |  gamma = 4 |
 |:----|----------:|----------:|----------:|-----------:|
-| MR1 | -13708.76 | -13972.84 |  124.3463 | 123.580533 |
-| MR2 | -13838.72 | -14102.41 |   -5.6139 |  -5.990161 |
+| MG  | -13833.11 | -14096.42 |        NA |         NA |
+| MH  | -13887.79 | -14030.63 | -54.68241 |  65.792076 |
+| MR1 | -13708.76 | -13972.84 | 124.34630 | 123.580533 |
+| MR2 | -13838.72 | -14102.41 |  -5.61390 |  -5.990161 |
