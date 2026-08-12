@@ -1070,12 +1070,43 @@ knitr::kable(round(ndraws / ess, 2))
 
 ## Section 7.3: Bayesian learning of an MA(1) model
 
-#### Example 7.13: U.S. GDP data: Fitting an MA(1) model using a random walk MH
+#### Example 7.13: CHF exchange rate data: Fitting an MA(1) model using a random walk MH
+
+First, we load the data and compute the (absolute) growth of the squared
+log returns.
+
+``` r
+
+data("exrates", package = "stochvol")
+daily <- exrates$USD / exrates$CHF
+
+# Identify week
+#week <- format(exrates$date, "%Y-%U")
+# Keep last observation in each week
+#weekly <- daily[!duplicated(week, fromLast = TRUE)]
+
+# Define y as the (absolute) growth rate of the squared log returns
+y <- diff(diff(log(daily))^2)
+
+#y <- head(exrates$USD / exrates$CHF, 2000)
+#y <- 100 * diff(diff(log(exrates$USD / exrates$CHF))^2)
+#data(inflation)
+#ytmp <- diff(window(inflation, end = c(2019, 12)))
+#ytmp <- diff(inflation)
+#y <- ytmp - mean(ytmp)
+#y <- diff(ts(ukdat[,2], start = 1989, end = 2025))
+#y <- diff(ts(usdat[,2], start = usdat$year[1], end = tail(usdat$year, 1)))
+ts.plot(y)
+acf(y)
+pacf(y)
+```
+
+![](Chapter07_files/figure-html/unnamed-chunk-39-1.png)
 
 We now implement the MCMC sampler for fitting an MA(1) model, where we
 treat the latent state $`\epsilon_0 \sim \mathcal{N}(0, \sigma^2)`$ as
 unknown. For the innovation variance, we assume an inverse gamma prior,
-and $`\theta`$ is assumed to be a priori flat on the real line.
+and $`\theta`$ is chosen to be a priori uniform on $`[-1, 1]`$.
 
 ``` r
 
@@ -1085,7 +1116,7 @@ set.seed(123)
 c0 <- C0 <- 0.01
 
 # standard deviation for random walk MH proposal
-cthetas <- c(.0027, .027, .27)
+cthetas <- c(.09, .9, 9)
 
 # Allocate space for the draws
 eps0s <- sigma2s <- thetas <- matrix(NA_real_, ndraws, length(cthetas))
@@ -1093,32 +1124,36 @@ naccepts <- rep(0L, length(cthetas))
 
 for (i in seq_along(cthetas)) {
   # Set the starting values
-  theta <- 0.95
-  sigma2 <- var(loglev) / 2
+  theta <- 0
+  sigma2 <- var(y) / 2
 
   # MCMC loop
   for (m in seq_len(ndraws + nburn)) {
     # Sample epsilon_0
-    bs <- (-theta)^seq_along(loglev)
-    as <- filter(loglev, -theta, "recursive")
+    bs <- (-theta)^seq_along(y)
+    as <- filter(y, -theta, "recursive")
     tmp <- 1 + sum(bs^2)
     eps0 <- rnorm(1, -sum(as * bs) / tmp, sqrt(sigma2 / tmp))
     
     # Sample sigma^2
-    eps <- filter(loglev, -theta, "recursive", init = eps0)
-    cN <- c0 + (length(loglev) + 1) / 2
+    eps <- filter(y, -theta, "recursive", init = eps0)
+    cN <- c0 + (length(y) + 1) / 2
     CN <- C0 + 0.5 * (eps0^2 + sum(eps^2))
     sigma2 <- rinvgamma(1, cN, CN)
   
     # Sample theta via RW-MH
     thetaprop <- rnorm(1, theta, cthetas[i])
-    epsprop <- filter(loglev, -thetaprop, "recursive", init = eps0)
+    epsprop <- filter(y, -thetaprop, "recursive", init = eps0)
     
-    # Now we accept/reject.
-    logR <- -0.5 / sigma2 * (sum(epsprop^2) - sum(eps^2))
-    if (log(runif(1)) < logR) {
-      theta <- thetaprop
-      if (m > nburn) naccepts[i] <- naccepts[i] + 1L
+    # Now we accept/reject. Note that because we have a uniform prior on
+    # (-1, 1), it suffices to check whether the proposed value is in that
+    # interval and we do not need to include the prior in the acceptance ratio
+    if (abs(thetaprop) < 1) {
+      logR <- -0.5 / sigma2 * (sum(epsprop^2) - sum(eps^2))
+      if (log(runif(1)) < logR) {
+        theta <- thetaprop
+        if (m > nburn) naccepts[i] <- naccepts[i] + 1L
+      }
     }
   
     # Store the results
@@ -1145,78 +1180,9 @@ for (i in seq_along(cthetas)) {
 }
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-40-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-41-1.png)
 
-#### Example 7.14: U.S. GDP data: Using a random walk MH with alternative proposals
-
-We repeat the exercise above, but now use a uniform prior on $`[-1, 1]`$
-for $`\theta`$.
-
-``` r
-
-# Allocate space for the draws
-eps0s <- sigma2s <- thetas <- matrix(NA_real_, ndraws, length(cthetas))
-naccepts <- rep(0L, length(cthetas))
-
-for (i in seq_along(cthetas)) {
-  # Set the starting values
-  theta <- 0.95
-  sigma2 <- var(loglev) / 2
-
-  # MCMC loop
-  for (m in seq_len(ndraws + nburn)) {
-    # Sample epsilon_0
-    bs <- (-theta)^seq_along(loglev)
-    as <- filter(loglev, -theta, "recursive")
-    tmp <- 1 + sum(bs^2)
-    eps0 <- rnorm(1, -sum(as * bs) / tmp, sqrt(sigma2 / tmp))
-    
-    # Sample sigma^2
-    eps <- filter(loglev, -theta, "recursive", init = eps0)
-    cN <- c0 + (length(loglev) + 1) / 2
-    CN <- C0 + 0.5 * (eps0^2 + sum(eps^2))
-    sigma2 <- rinvgamma(1, cN, CN)
-  
-    # Sample theta via RW-MH
-    thetaprop <- rnorm(1, theta, cthetas[i])
-    epsprop <- filter(loglev, -thetaprop, "recursive", init = eps0)
-    
-    # Now we accept/reject. Note that because we have a uniform prior on
-    # (-1, 1), it suffices to check whether the proposed value is in that
-    # interval and we do not need to include the prior in the acceptance ratio
-    if (abs(thetaprop) < 1) {
-      logR <- -0.5 / sigma2 * (sum(epsprop^2) - sum(eps^2))
-      if (log(runif(1)) < logR) {
-        theta <- thetaprop
-        if (m > nburn) naccepts[i] <- naccepts[i] + 1L
-      }
-    }
-  
-    # Store the results
-    if (m > nburn) {
-      eps0s[m - nburn, i] <- eps0
-      sigma2s[m - nburn, i] <- sigma2
-      thetas[m - nburn, i] <- theta
-    }
-  }
-}
-```
-
-We plot traceplots and ACFs.
-
-``` r
-
-for (i in seq_along(cthetas)) {
-  ts.plot(thetas[, i], ylim = range(thetas), ylab = expression(theta),
-          xlab = "Iterations")
-  title(bquote(Traceplot ~ (c[theta] == .(cthetas[i]))))
-  acf(thetas[, i], ylab = "")
-  title(bquote(ACF ~ (acceptance == .(round(naccepts[i] / ndraws, 3))*","~  
-               IF == .(round(ndraws / coda::effectiveSize(thetas[, i]), 1)))))
-}
-```
-
-![](Chapter07_files/figure-html/unnamed-chunk-42-1.png)
+#### Example 7.14: CHF exchange rate data: Using a random walk MH with alternative proposals
 
 As above, now with a truncated Gaussian proposal for the random walk MH
 algorithm.
@@ -1232,20 +1198,20 @@ naccepts2 <- rep(0L, length(cthetas2))
 
 for (i in seq_along(cthetas2)) {
   # Set the starting values
-  theta <- 0.9
-  sigma2 <- var(loglev) / 2
+  theta <- 0
+  sigma2 <- var(y) / 2
 
   # MCMC loop
   for (m in seq_len(ndraws + nburn)) {
     # Sample epsilon_0
-    bs <- (-theta)^seq_along(loglev)
-    as <- filter(loglev, -theta, "recursive")
+    bs <- (-theta)^seq_along(y)
+    as <- filter(y, -theta, "recursive")
     tmp <- 1 + sum(bs^2)
     eps0 <- rnorm(1, -sum(as * bs) / tmp, sqrt(sigma2 / tmp))
     
     # Sample sigma^2
-    eps <- filter(loglev, -theta, "recursive", init = eps0)
-    cN <- c0 + (length(loglev) + 1) / 2
+    eps <- filter(y, -theta, "recursive", init = eps0)
+    cN <- c0 + (length(y) + 1) / 2
     CN <- C0 + 0.5 * (eps0^2 + sum(eps^2))
     sigma2 <- rinvgamma(1, cN, CN)
   
@@ -1256,7 +1222,7 @@ for (i in seq_along(cthetas2)) {
     norm <- pU - pL
     U <- runif(1)
     thetaprop <- qnorm(pL + U * norm, theta, cthetas2[i])
-    epsprop <- filter(loglev, -thetaprop, "recursive", init = eps0)
+    epsprop <- filter(y, -thetaprop, "recursive", init = eps0)
     normprop <- diff(pnorm(c(-1, 1), thetaprop, cthetas2[i]))
     
     # Now we accept/reject. Note that because we have a uniform prior on
@@ -1295,7 +1261,7 @@ for (i in seq_along(cthetas2)) {
 }
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-44-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-43-1.png)
 
 We repeat the exercise above once more, but now use a random walk
 proposal on $`\log(1 + \theta) - \log(1 - \theta)`$.
@@ -1307,7 +1273,7 @@ trans <- function(theta) log(1 + theta) - log(1 - theta)
 invtrans <- function(thetatrans) (exp(thetatrans) - 1) / (exp(thetatrans) + 1)
 
 # standard deviation for random walk MH proposal
-cthetas3 <- 100 * cthetas2
+cthetas3 <- 3 * cthetas2
 
 # Allocate space for the draws
 eps0s3 <- sigma2s3 <- thetas3 <- matrix(NA_real_, ndraws, length(cthetas3))
@@ -1315,27 +1281,27 @@ naccepts3 <- rep(0L, length(cthetas3))
 
 for (i in seq_along(cthetas3)) {
   # Set the starting values
-  theta <- 0.95
-  sigma2 <- var(loglev) / 2
+  theta <- 0
+  sigma2 <- var(y) / 2
 
   # MCMC loop
   for (m in seq_len(ndraws + nburn)) {
     # Sample epsilon_0
-    bs <- (-theta)^seq_along(loglev)
-    as <- filter(loglev, -theta, "recursive")
+    bs <- (-theta)^seq_along(y)
+    as <- filter(y, -theta, "recursive")
     tmp <- 1 + sum(bs^2)
     eps0 <- rnorm(1, -sum(as * bs) / tmp, sqrt(sigma2 / tmp))
     
     # Sample sigma^2
-    eps <- filter(loglev, -theta, "recursive", init = eps0)
-    cN <- c0 + (length(loglev) + 1) / 2
+    eps <- filter(y, -theta, "recursive", init = eps0)
+    cN <- c0 + (length(y) + 1) / 2
     CN <- C0 + 0.5 * (eps0^2 + sum(eps^2))
     sigma2 <- rinvgamma(1, cN, CN)
   
     # Sample theta via RW-MH on a trans(theta)
     thetatransprop <- rnorm(1, trans(theta), cthetas3[i])
     thetaprop <- invtrans(thetatransprop)
-    epsprop <- filter(loglev, -thetaprop, "recursive", init = eps0)
+    epsprop <- filter(y, -thetaprop, "recursive", init = eps0)
     
     # Now we accept/reject. Note that because we have a uniform prior on
     # (-1, 1) and, due to the transformation, we can be sure that a
@@ -1373,7 +1339,7 @@ for (i in seq_along(cthetas3)) {
 }
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-46-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-45-1.png)
 
 Let’s also check some QQ plots for equivalence.
 
@@ -1384,7 +1350,7 @@ qqplot(thetas2[, 2], thetas3[, 2])
 abline(c(0, 1), col = 2)
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-47-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-46-1.png)
 
 Now, we compare acceptance rates and inefficiency factors for all 9
 samplers.
@@ -1404,20 +1370,20 @@ knitr::kable(round(accepts, 2))
 
 |                | tiny | medium | huge |
 |:---------------|-----:|-------:|-----:|
-| Gaussian RW    | 0.81 |   0.24 | 0.02 |
-| truncated RW   | 0.84 |   0.34 | 0.03 |
-| transformed RW | 0.90 |   0.41 | 0.03 |
+| Gaussian RW    | 0.84 |   0.23 | 0.03 |
+| truncated RW   | 0.88 |   0.37 | 0.29 |
+| transformed RW | 0.89 |   0.36 | 0.03 |
 
 ``` r
 
 knitr::kable(round(IF, 1))
 ```
 
-|                | tiny | medium |  huge |
-|:---------------|-----:|-------:|------:|
-| Gaussian RW    | 34.2 |   11.4 | 285.8 |
-| truncated RW   | 28.0 |    6.7 |  56.3 |
-| transformed RW | 35.7 |    4.8 |  65.7 |
+|                | tiny | medium | huge |
+|:---------------|-----:|-------:|-----:|
+| Gaussian RW    | 15.6 |    8.7 | 60.0 |
+| truncated RW   | 30.1 |    5.3 |  5.9 |
+| transformed RW | 30.7 |    5.3 | 63.7 |
 
 ## Section 7.4: Markov modeling for a panel of categorical time series
 
@@ -1458,7 +1424,7 @@ for (i in index) {
 }
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-51-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-50-1.png)
 
 #### Example 7.16: Wage mobility data: Comparing wage mobility of men and women
 
@@ -1556,7 +1522,7 @@ corrplot::corrplot(mean_xi_male, method = "square", is.corr = FALSE,
                    col = 1, cl.pos = "n", col.lim = c(0, 1.5))
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-55-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-54-1.png)
 
 We compare the posterior densities of various transition probabilities
 $`\xi_{g,hk}`$ for women and men.
@@ -1599,7 +1565,7 @@ legend("topright", col = 1, lty = 1:2,
        legend = c("female", "male"))
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-56-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-55-1.png)
 
 #### Example 7.17: Wage mobility data: Evaluating long run effects
 
@@ -1625,7 +1591,7 @@ barplot(eta_hat_female_t, main = "Women", xlab = "Year", ylab = "Wage groups")
 barplot(eta_hat_male_t, main = "Men", xlab = "Year", ylab = "Wage groups")
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-57-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-56-1.png)
 
 We inspect the posterior distributions of $`\eta_{t,2}`$ for wage
 category 2 (left-hand side) versus $`\eta_{t,5}`$ for wage category 5
@@ -1661,4 +1627,4 @@ hist(eta_male_t[, 6], breaks = breaks,
 legend("topright", c("female", "male"), fill = rgb(c(0, 1), 0, 0, 0.2))
 ```
 
-![](Chapter07_files/figure-html/unnamed-chunk-58-1.png)
+![](Chapter07_files/figure-html/unnamed-chunk-57-1.png)
