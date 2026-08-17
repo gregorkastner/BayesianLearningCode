@@ -2163,11 +2163,11 @@ us <- as.numeric(y) - preds
 epss <- us[-1, ] - t(phis * t(us[-nrow(us), ]))
 myylim <- range(rowMeans(us), rowMeans(epss))
 plot(as.numeric(tim), rowMeans(us), type = "l", xlab = "Time",
-     main = "Mean residuals", ylim = myylim)
+     main = "Mean errors", ylim = myylim)
 acf(rowMeans(us))
 title("Estimated ACF")
 plot(as.numeric(tim), c(NA, rowMeans(epss)), type = "l", xlab = "Time",
-     main = "Mean residuals of residuals", ylim = myylim)
+     main = "Mean innovations", ylim = myylim)
 acf(rowMeans(epss))
 title("Estimated ACF")
 ```
