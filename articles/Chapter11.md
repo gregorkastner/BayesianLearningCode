@@ -12,25 +12,18 @@
 
 #### Example 11.2: Movie data: Full enumeration marginal likelihoods
 
-``` r
-
-library("BayesianLearningCode")
-data("movies", package = "BayesianLearningCode")
-
-y <- movies[, "OpenBoxOffice"]
-
-covs <- c("Budget", "Screens","PG")
-covs.cen <- scale(movies[, covs], scale = FALSE) # center the covariates
-```
-
 We write a function that computes the marginal likelihoods for models
 defined by indicator vectors.
 
 ``` r
 
-logmarlik_reg <- function(y,covs.cen, a0, A0, B0, c0, C0, gammas){
+logmarlik_reg <- function(y,X, a0, A0, B0, c0, C0, gammas){
   
   N <- length(y)
+  
+  cN=c0 + N / 2
+  const <- (- N / 2) * log(2*pi) + lgamma(cN) - lgamma(c0) + c0 * log(c0)
+  
   nmod <- dim(gammas)[1]
   p <- dim(gammas)[2]
   
@@ -38,85 +31,211 @@ logmarlik_reg <- function(y,covs.cen, a0, A0, B0, c0, C0, gammas){
   
   for (i in 1:nmod){
        
-       gamma <- gammas[i,]
-       dmod <- sum(gamma)
-       index <- (1:3)*gamma
-       
-       if (dmod==0){
-          X <-  as.matrix(rep(1, N))
-          B0.inv <- as.matrix(1/A0)
-       }else{  
-          X <- as.matrix(cbind(rep(1, N), covs.cen[,index] ))
-          B0.inv <- diag(c(1/A0,rep(1/B0,dmod)) )
-       }
-      
-      BN.inv <- B0.inv + crossprod(X)
-  
-      BN <- solve(BN.inv)
-      bN <- BN %*% (crossprod(X, y))
-  
-      SS.eps <- as.numeric(crossprod(y) - t(bN) %*% BN.inv %*% bN)
-      CN <- C0 + SS.eps / 2
-      cN=c0 + N / 2
-  
-      lmarlik[i]  <- N / 2 * log(2*pi) + lgamma(cN) - lgamma(c0) + 
-                     c0 * log(C0) - cN * log(CN) +
-                     0.5 * log(det(BN)) + 0.5*log(det(B0.inv))
-     
+    gamma <- gammas[i,]
+    k_gamma <- sum(gamma)
+    
+    if (k_gamma==0){
+       X_gamma <-  as.matrix(rep(1, N))
+       b0v <- t(as.vector(a0))
+       B0v.inv<- as.matrix(1/A0)
+    }else{
+       X_gamma <- as.matrix(cbind(rep(1, N), X[,gamma==1] ))
+       b0v <- c(a0,rep(0,k_gamma))
+       B0v.inv <- diag(c(1/A0,rep(1/B0,k_gamma)) )
+    }
+    BNv.inv <- B0v.inv + crossprod(X_gamma)
+    BNv <- solve(BNv.inv)
+
+    bNv <- BNv %*% (crossprod(X_gamma, y) + B0v.inv%*% b0v )
+    SSE <- as.numeric(crossprod(y) +  t(b0v) %*% B0v.inv %*% b0v -
+                    t(bNv) %*% BNv.inv %*% bNv)
+    
+   CN <- C0 + SSE / 2
+  lmarlik[i]  <- const   - cN * log(CN) +
+                  0.5 *( log(det(BNv)) + log(det(B0v.inv)) ) 
   }
   return(lmarlik)
 }
 ```
 
-Next we define a matrix where each row contains the includion indicator
-of one of the models.
+We load the data and choose covariates Budget,Screens and Comedy which
+we center at their means, and define the indicators for all $`2^3=8`$
+models
 
 ``` r
 
+# Example 11.2
+data("movies", package = "BayesianLearningCode")
+
+y <- movies[, "OpenBoxOffice"]
+
+covs <- c("Budget", "Screens","Comedy")
+covs.cen <- scale(movies[, covs], scale = FALSE) # center the covariates
 gammas <- cbind(c(rep(0,4),rep(1,4)),rep(c(rep(0,2), rep(1,2)),2),
                 rep(c(0,1),4)) 
 ```
 
-We choose the prior parameters and compute the log marginal likelihoods.
+Next we choose the prior parameters and compute the log marginal
+likelihoods.
 
 ``` r
 
 a0=0
-A0=100
+A0=10000
 
-B0=10
+B0=1
 c0 = 2.5
 C0 = 1.5
-logmarlik <- logmarlik_reg(y,covs.cen, a0, A0, B0, c0, C0, gammas) 
+logmarliks <- logmarlik_reg(y, covs.cen, a0, A0, B0, c0, C0, gammas) 
 ```
 
-Finally we compute the model probabilities
+Finally, we compute the model probabilities for a uniform prior on the
+model space.
 
 ``` r
 
-p <- 1/dim(gammas)[1]
-ind.max <- which.max(logmarlik)
-h <- exp(logmarlik-logmarlik[ind.max])
-cM <- p*sum(h)
-model.prob <- p*h/cM
+prob <- 1 / dim(gammas)[1]
+h <- exp(logmarliks - max(logmarliks))
+cM <- prob * sum(h)
+model_probs <- prob * h / cM
+
+knitr::kable(cbind(gammas, logmarliks, model_probs),
+             digits = c(rep(0, ncol(gammas)), 1, 3))
 ```
 
-TO DO: Print results nicely
+|     |     |     | logmarliks | model_probs |
+|----:|----:|----:|-----------:|------------:|
+|   0 |   0 |   0 |     -427.7 |       0.000 |
+|   0 |   0 |   1 |     -429.3 |       0.000 |
+|   0 |   1 |   0 |     -413.9 |       0.612 |
+|   0 |   1 |   1 |     -414.5 |       0.339 |
+|   1 |   0 |   0 |     -426.1 |       0.000 |
+|   1 |   0 |   1 |     -427.7 |       0.000 |
+|   1 |   1 |   0 |     -416.8 |       0.034 |
+|   1 |   1 |   1 |     -417.6 |       0.015 |
+
+We next perform model selection also for the standardized covariates.
+
+``` r
+
+covs.std <- scale(movies[, covs], scale = TRUE) 
+logmarliks <- logmarlik_reg(y, covs.std, a0, A0, B0, c0, C0, gammas) 
+
+h <- exp(logmarliks - max(logmarliks))
+cM <- prob * sum(h)
+model.prob <- prob * h / cM
+
+knitr::kable(cbind(gammas, logmarliks, model_probs),
+             digits = c(rep(0, ncol(gammas)), 1, 3))
+```
+
+|     |     |     | logmarliks | model_probs |
+|----:|----:|----:|-----------:|------------:|
+|   0 |   0 |   0 |     -427.7 |       0.000 |
+|   0 |   0 |   1 |     -430.0 |       0.000 |
+|   0 |   1 |   0 |     -412.5 |       0.612 |
+|   0 |   1 |   1 |     -413.7 |       0.339 |
+|   1 |   0 |   0 |     -423.2 |       0.000 |
+|   1 |   0 |   1 |     -425.5 |       0.000 |
+|   1 |   1 |   0 |     -412.3 |       0.034 |
+|   1 |   1 |   1 |     -413.8 |       0.015 |
 
 ### Section 11.2.2: Model space MCMC
 
 #### Example 11.3: Movie data: Model space MCMC
 
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
+We start by implementing the model space MH algorithm and a function
+that computes the frequencies different models are visited.
+
+``` r
+
+modelspace_mh <- function(y,X, a0, A0, B0, c0, C0,
+                          burnin = 1000L, M = 5000L){
+  p<-dim(X)[2] # change to X later
+
+  gamma_post <- matrix(ncol = p, nrow = M)
+  acc <- numeric(length = M)
+
+  gamma <- matrix(rep(1,p),nrow=1)
+  lmarlik_old <-logmarlik_reg(y,X, a0, A0, B0, c0, C0, gamma)
+
+  for (m in seq_len(burnin + M)) {
+    gamma_proposed <- gamma_old <- gamma
+
+    j <- sample(1:p, size=1)
+    gamma_proposed[j] <- 1-gamma_old[j]
+    lmarlik_proposed <-logmarlik_reg(y,X, a0, A0, B0, c0, C0, gamma_proposed)
+    
+    # compute acceptance probability and decide on acceptance
+    log_acc <- lmarlik_proposed - lmarlik_old
+
+    if (log(runif(1)) < log_acc) {
+       gamma <- gamma_proposed
+       lmarlik_old <- lmarlik_proposed
+       accept <- 1
+    } else {
+       gamma <- gamma_old
+       accept <- 0
+    }
+
+    if (m > burnin) {
+        gamma_post[m-burnin, ] <- gamma
+        acc[m-burnin] <- accept
+    }
+  }
+  return(list(gamma_post=gamma_post,acc=acc))
+}
+
+number_draws<- function(gamma_post, models){
+
+  nmod <- dim(models)[1]
+  freq <- rep(NA,nmod)
+
+  for (j in (1:nmod)){
+      freq[j] <- sum(apply(gamma_post, 1, 
+                           function(x) identical(x, models[j,])))
+  }
+  return(freq)
+}
+```
+
+We run the MH algorithm and compute how often each model is visited.
+
+``` r
+
+M <- 50000
+res <- modelspace_mh(y, covs.cen, a0, A0, B0, c0, C0, M = M)
+
+model_freq  <- number_draws(res$gamma_post, gammas)
+knitr::kable(cbind(gammas, model_freq, model_freq / M),
+            digits = c(rep(0, ncol(gammas)), 0, 3))
+```
+
+|     |     |     | model_freq |       |
+|----:|----:|----:|-----------:|------:|
+|   0 |   0 |   0 |          0 | 0.000 |
+|   0 |   0 |   1 |          0 | 0.000 |
+|   0 |   1 |   0 |      30618 | 0.612 |
+|   0 |   1 |   1 |      16906 | 0.338 |
+|   1 |   0 |   0 |          0 | 0.000 |
+|   1 |   0 |   1 |          0 | 0.000 |
+|   1 |   1 |   0 |       1752 | 0.035 |
+|   1 |   1 |   1 |        724 | 0.014 |
+
+Finally, we compute the PIPs.
+
+``` r
+
+p <- dim(gammas)[2]
+
+PIP <- rep(NA,p)
+ for (j in (1:p)){
+   PIP[j]=sum(model_freq[gammas[,j]==1])/M
+ }
+
+print(PIP)
+#> [1] 0.04952 1.00000 0.35260
+```
 
 ### Section 11.2.3: Benchmark priors for comparing regression models
 
@@ -345,7 +464,7 @@ for (i in 2:5) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-11-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-14-1.png)
 
 #### Example 11.10: US GDP data: Quantitative model-order selection
 
@@ -516,7 +635,7 @@ acf(dat)
 acf(ret)
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-20-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-23-1.png)
 
 This clearly hints at non-stationarity of the exchange rate series and
 at (first order) stationarity of the returns.
@@ -561,7 +680,7 @@ for (i in seq_along(draws)) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-22-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-25-1.png)
 
 To explore whether the nonstationarity of the raw series could be caused
 by a unit root, we investigate the posterior of
@@ -581,7 +700,7 @@ for (p in 1:4) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-23-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-26-1.png)
 
 We do the same for the inflation data (currently not included in the
 book).
@@ -609,7 +728,7 @@ for (p in 1:4) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-25-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-28-1.png)
 
 #### Example 11.XX: CHF exchange rate data: Testing for a unit root using the Savage-Dickey density ratio
 
@@ -649,7 +768,7 @@ abline(v = 0, lty = 3)
 abline(h = 0, lty = 3)
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-27-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-30-1.png)
 
 To compute the numerical value of the SD density ratio, we again use
 Rao-Blackwellization.
