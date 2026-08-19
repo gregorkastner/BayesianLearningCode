@@ -98,17 +98,17 @@ c0 = 2.5
 C0 = 1.5
 logmarliks <- logmarlik_reg(y,covs.cen, a0, A0, B0, c0, C0, gammas) 
 ```
-Finally we compute the model probabilities for a uniform prior on the model space. 
+
+Finally, we compute the model probabilities for a uniform prior on the model space. 
 
 ```{r}
-prob <- 1/dim(gammas)[1]
-h <- exp(logmarliks-logmarliks[which.max(logmarliks)])
-cM <- prob*sum(h)
-model_probs <- prob*h/cM
+prob <- 1 / dim(gammas)[1]
+h <- exp(logmarliks - logmarliks[which.max(logmarliks)])
+cM <- prob * sum(h)
+model_probs <- prob * h / cM
 
-require(xtable)
-print(xtable(cbind(gammas,logmarliks, model_probs),
-             digits=c(0,0,0,0,1,3)))
+knitr::kable(cbind(gammas, logmarliks, model_probs),
+             digits = c(rep(0, ncol(gammas)), 1, 3))
 ```
 
 We next peform model selection also for the standardised covariates.
