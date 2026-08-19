@@ -23,7 +23,9 @@ install.packages("pak")
 pak::pak("gregorkastner/BayesianLearningCode")
 ```
 
-Another variant (for Sylvia's course)
+If you don't have access to devtools, you could also try to install the
+pre-built package directly (you will then get the current release).
+
 ```r
 # First, install the dependencies from CRAN
 install.packages(c("corrplot", "robustbase", "stochvol", "mvtnorm",
