@@ -40,7 +40,7 @@ logmarlik_reg <- function(y,X, a0, A0, B0, c0, C0, gammas){
   
   N <- length(y)
   
-  cN=c0 + N / 2
+  cN <- c0 + N / 2
   const <- (- N / 2) * log(2*pi) + lgamma(cN) - lgamma(c0) + c0 * log(c0)
   
   nmod <- dim(gammas)[1]
@@ -119,7 +119,7 @@ logmarliks <- logmarlik_reg(y, covs.std, a0, A0, B0, c0, C0, gammas)
 
 h <- exp(logmarliks - max(logmarliks))
 cM <- prob * sum(h)
-model.prob <- prob * h / cM
+model_probs <- prob * h / cM
 
 knitr::kable(cbind(gammas, logmarliks, model_probs),
              digits = c(rep(0, ncol(gammas)), 1, 3))
@@ -206,6 +206,22 @@ PIP <- rep(NA,p)
 print(PIP)
 ```
 
+```{r}
+res <- modelspace_mh(y, covs.std, a0, A0, B0, c0, C0, M = M)
+
+model_freq  <- number_draws(res$gamma_post, gammas)
+knitr::kable(cbind(gammas, model_freq, model_freq / M),
+            digits = c(rep(0, ncol(gammas)), 0, 3))
+
+p <- dim(gammas)[2]
+
+PIP <- rep(NA,p)
+ for (j in (1:p)){
+   PIP[j]=sum(model_freq[gammas[,j]==1])/M
+ }
+
+print(PIP)
+```
 ## Section 11.2.3: Benchmark priors for comparing regression models
 
 ### Example 11.4: Movie data: Applying the g-prior
