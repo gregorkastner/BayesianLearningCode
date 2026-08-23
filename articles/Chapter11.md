@@ -21,7 +21,7 @@ logmarlik_reg <- function(y,X, a0, A0, B0, c0, C0, gammas){
   
   N <- length(y)
   
-  cN=c0 + N / 2
+  cN <- c0 + N / 2
   const <- (- N / 2) * log(2*pi) + lgamma(cN) - lgamma(c0) + c0 * log(c0)
   
   nmod <- dim(gammas)[1]
@@ -123,7 +123,7 @@ logmarliks <- logmarlik_reg(y, covs.std, a0, A0, B0, c0, C0, gammas)
 
 h <- exp(logmarliks - max(logmarliks))
 cM <- prob * sum(h)
-model.prob <- prob * h / cM
+model_probs <- prob * h / cM
 
 knitr::kable(cbind(gammas, logmarliks, model_probs),
              digits = c(rep(0, ncol(gammas)), 1, 3))
@@ -133,12 +133,12 @@ knitr::kable(cbind(gammas, logmarliks, model_probs),
 |----:|----:|----:|-----------:|------------:|
 |   0 |   0 |   0 |     -427.7 |       0.000 |
 |   0 |   0 |   1 |     -430.0 |       0.000 |
-|   0 |   1 |   0 |     -412.5 |       0.612 |
-|   0 |   1 |   1 |     -413.7 |       0.339 |
+|   0 |   1 |   0 |     -412.5 |       0.373 |
+|   0 |   1 |   1 |     -413.7 |       0.105 |
 |   1 |   0 |   0 |     -423.2 |       0.000 |
 |   1 |   0 |   1 |     -425.5 |       0.000 |
-|   1 |   1 |   0 |     -412.3 |       0.034 |
-|   1 |   1 |   1 |     -413.8 |       0.015 |
+|   1 |   1 |   0 |     -412.3 |       0.429 |
+|   1 |   1 |   1 |     -413.8 |       0.093 |
 
 ### Section 11.2.2: Model space MCMC
 
@@ -235,6 +235,40 @@ PIP <- rep(NA,p)
 
 print(PIP)
 #> [1] 0.04952 1.00000 0.35260
+```
+
+``` r
+
+res <- modelspace_mh(y, covs.std, a0, A0, B0, c0, C0, M = M)
+
+model_freq  <- number_draws(res$gamma_post, gammas)
+knitr::kable(cbind(gammas, model_freq, model_freq / M),
+            digits = c(rep(0, ncol(gammas)), 0, 3))
+```
+
+|     |     |     | model_freq |       |
+|----:|----:|----:|-----------:|------:|
+|   0 |   0 |   0 |          0 | 0.000 |
+|   0 |   0 |   1 |          0 | 0.000 |
+|   0 |   1 |   0 |      18673 | 0.373 |
+|   0 |   1 |   1 |       5461 | 0.109 |
+|   1 |   0 |   0 |          0 | 0.000 |
+|   1 |   0 |   1 |          0 | 0.000 |
+|   1 |   1 |   0 |      21197 | 0.424 |
+|   1 |   1 |   1 |       4669 | 0.093 |
+
+``` r
+
+
+p <- dim(gammas)[2]
+
+PIP <- rep(NA,p)
+ for (j in (1:p)){
+   PIP[j]=sum(model_freq[gammas[,j]==1])/M
+ }
+
+print(PIP)
+#> [1] 0.51732 1.00000 0.20260
 ```
 
 ### Section 11.2.3: Benchmark priors for comparing regression models
@@ -464,7 +498,7 @@ for (i in 2:5) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-14-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-15-1.png)
 
 #### Example 11.10: US GDP data: Quantitative model-order selection
 
@@ -635,7 +669,7 @@ acf(dat)
 acf(ret)
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-23-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-24-1.png)
 
 This clearly hints at non-stationarity of the exchange rate series and
 at (first order) stationarity of the returns.
@@ -680,7 +714,7 @@ for (i in seq_along(draws)) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-25-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-26-1.png)
 
 To explore whether the nonstationarity of the raw series could be caused
 by a unit root, we investigate the posterior of
@@ -700,7 +734,7 @@ for (p in 1:4) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-26-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-27-1.png)
 
 We do the same for the inflation data (currently not included in the
 book).
@@ -728,7 +762,7 @@ for (p in 1:4) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-28-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-29-1.png)
 
 #### Example 11.XX: CHF exchange rate data: Testing for a unit root using the Savage-Dickey density ratio
 
@@ -768,7 +802,7 @@ abline(v = 0, lty = 3)
 abline(h = 0, lty = 3)
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-30-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-31-1.png)
 
 To compute the numerical value of the SD density ratio, we again use
 Rao-Blackwellization.
