@@ -2,7 +2,11 @@
 
 ## Section 11.1: Marginal likelihood computations in regression analysis
 
-#### Example 11.1: Marginal likelihood estimation under a semi-conjugate prior
+#### Example 11.1: Marginal likelihoods when the error variance is known
+
+\[no code\]
+
+#### Example 11.2: Marginal likelihood estimation under a semi-conjugate prior
 
 \[no code\]
 
@@ -10,7 +14,7 @@
 
 ### Section 11.2.1: Bayesian variable selection
 
-#### Example 11.2: Movie data: Full enumeration marginal likelihoods
+#### Example 11.3: Movie data: Full enumeration marginal likelihoods
 
 We write a function that computes the marginal likelihoods for models
 defined by indicator vectors.
@@ -142,7 +146,7 @@ knitr::kable(cbind(gammas, logmarliks, model_probs),
 
 ### Section 11.2.2: Model space MCMC
 
-#### Example 11.3: Movie data: Model space MCMC
+#### Example 11.4: Movie data: Model space MCMC
 
 We start by implementing the model space MH algorithm and a function
 that computes the frequencies different models are visited.
@@ -203,6 +207,7 @@ We run the MH algorithm and compute how often each model is visited.
 
 ``` r
 
+set.seed(seed)
 M <- 50000
 res <- modelspace_mh(y, covs.cen, a0, A0, B0, c0, C0, M = M)
 
@@ -215,12 +220,12 @@ knitr::kable(cbind(gammas, model_freq, model_freq / M),
 |----:|----:|----:|-----------:|------:|
 |   0 |   0 |   0 |          0 | 0.000 |
 |   0 |   0 |   1 |          0 | 0.000 |
-|   0 |   1 |   0 |      30618 | 0.612 |
-|   0 |   1 |   1 |      16906 | 0.338 |
+|   0 |   1 |   0 |      30553 | 0.611 |
+|   0 |   1 |   1 |      17098 | 0.342 |
 |   1 |   0 |   0 |          0 | 0.000 |
 |   1 |   0 |   1 |          0 | 0.000 |
-|   1 |   1 |   0 |       1752 | 0.035 |
-|   1 |   1 |   1 |        724 | 0.014 |
+|   1 |   1 |   0 |       1638 | 0.033 |
+|   1 |   1 |   1 |        711 | 0.014 |
 
 Finally, we compute the PIPs.
 
@@ -234,11 +239,15 @@ PIP <- rep(NA,p)
  }
 
 print(PIP)
-#> [1] 0.04952 1.00000 0.35260
+#> [1] 0.04698 1.00000 0.35618
 ```
+
+We run model space MCMC and compute PIPs also for the standardized
+covariates.
 
 ``` r
 
+set.seed(seed)
 res <- modelspace_mh(y, covs.std, a0, A0, B0, c0, C0, M = M)
 
 model_freq  <- number_draws(res$gamma_post, gammas)
@@ -250,12 +259,12 @@ knitr::kable(cbind(gammas, model_freq, model_freq / M),
 |----:|----:|----:|-----------:|------:|
 |   0 |   0 |   0 |          0 | 0.000 |
 |   0 |   0 |   1 |          0 | 0.000 |
-|   0 |   1 |   0 |      18673 | 0.373 |
-|   0 |   1 |   1 |       5461 | 0.109 |
+|   0 |   1 |   0 |      18561 | 0.371 |
+|   0 |   1 |   1 |       5449 | 0.109 |
 |   1 |   0 |   0 |          0 | 0.000 |
 |   1 |   0 |   1 |          0 | 0.000 |
-|   1 |   1 |   0 |      21197 | 0.424 |
-|   1 |   1 |   1 |       4669 | 0.093 |
+|   1 |   1 |   0 |      21111 | 0.422 |
+|   1 |   1 |   1 |       4879 | 0.098 |
 
 ``` r
 
@@ -268,27 +277,225 @@ PIP <- rep(NA,p)
  }
 
 print(PIP)
-#> [1] 0.51732 1.00000 0.20260
+#> [1] 0.51980 1.00000 0.20656
 ```
+
+#### Example 11.5: Marginal likelihoods when the error variance is known
+
+\[no code\]
 
 ### Section 11.2.3: Benchmark priors for comparing regression models
 
-#### Example 11.4: Movie data: Applying the g-prior
+#### Example 11.6: Movie data: Applying the g-prior
 
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
+We again start writing a function that
+
+``` r
+
+varsel_g<- function(y, X, pri=NA, burnin=1000L, M=50000L){
+  N=length(y)
+
+  p <- dim(X)[2]
+  g <- N
+
+  gamma.post <- matrix(ncol = p, nrow = M)
+  k_post <- rep(NA,M)
+  acc <- numeric(length = M)
+
+  gamma_old <- matrix(rep(1,p),nrow=1)
+  X_gamma <- X
+  k_gamma <- sum(gamma_old)
+
+  BN_gamma <- solve( ((1+g)/g) * crossprod(X_gamma) )
+  R2_gamma <- t(y)%*%X_gamma%*%BN_gamma%*%t(X_gamma)%*%y / (N*var(y))
+
+  lmarlik_old <- (N-k_gamma-1)/2*log(1+g) -(N/2) * log(1+g*(1-R2_gamma) )
+
+  for (m in seq_len(burnin + M)) {
+
+    gamma_proposed <- gamma_old
+    j <- sample(1:p, size=1)
+    gamma_proposed[j] <- 1-gamma_old[j]
+
+    k_gamma <- sum(gamma_proposed)
+
+   if (k_gamma==0){ 
+      R2_gamma <- 0 
+     
+   }else{
+    X_gamma <- X[,gamma_proposed==1]
+    
+    BNinv_gamma <- ((1+g)/g) * crossprod(X_gamma)
+    BN_gamma <- solve( BNinv_gamma)
+    R2_gamma <- t(y) %*% X_gamma %*% BN_gamma %*% t(X_gamma) %*% y / (N*var(y))
+   }
+
+    lmarlik_proposed <- (N-k_gamma-1)/2*log(1+g) -
+                           (N-1)/2 * log(1+g*(1-R2_gamma) )
+
+    # compute acceptance probability and accept or not
+    log_acc <- lmarlik_proposed - lmarlik_old
+
+    if (log(runif(1)) < log_acc) {
+    
+      gamma_old <- gamma_proposed
+      lmarlik_old <- lmarlik_proposed
+      accept=1
+      
+    } else {
+      accept=0
+    }
+
+    if (m > burnin) {
+      gamma.post[m-burnin, ] <- gamma_old
+      k_post[m-burnin]<- sum(gamma_old)
+      acc[m-burnin] <- accept
+    }
+
+  }
+  return(list(gamma.post=gamma.post,acc=acc, k_post=k_post))
+}
+```
+
+As a first exercise we apply the g-prior to the model with the centered
+covariates used above
+
+``` r
+
+res<-varsel_g(y, covs.cen, M=50000)
+print(colMeans(res$gamma.post))
+#> [1] 0.43552 1.00000 0.18676
+
+h<-unique(res$gamma.post)
+freqs<-number_draws(res$gamma.post,h) 
+print(cbind(h,freqs))
+#>            freqs
+#> [1,] 1 1 0 18227
+#> [2,] 0 1 0 22435
+#> [3,] 0 1 1  5789
+#> [4,] 1 1 1  3549
+
+res<-varsel_g(y, covs.std, M=50000)
+print(colMeans(res$gamma.post))
+#> [1] 0.44094 0.99988 0.19000
+
+h<-unique(res$gamma.post)
+freqs<-number_draws(res$gamma.post,h) 
+print(cbind(h,freqs))
+#>            freqs
+#> [1,] 0 1 0 22261
+#> [2,] 1 1 0 18234
+#> [3,] 0 1 1  5692
+#> [4,] 1 1 1  3807
+#> [5,] 1 0 0     5
+#> [6,] 1 0 1     1
+```
+
+We see that results are very similar as the g-prior takes into account
+the scale of the covariates.
+
+#### Example 11.6: Movie data: Applying the g-prior
+
+We now use all covariates from example 6.7 except the categorical
+variable MMPA rating.
+
+``` r
+
+covs <- c("Comedy", "Thriller", "Budget", "Weeks", "Screens",
+          "S-4-6", "S-1-3", "Vol-4-6", "Vol-1-3")
+covs.cen <- scale(movies[, covs], scale = FALSE)
+M=100000
+
+res<-varsel_g(y, covs.cen,M=M )
+print(colMeans(res$gamma.post))
+#> [1] 0.10591 0.10206 0.83017 0.50303 0.99987 0.37775 0.47417 1.00000 1.00000
+
+h<-unique(res$gamma.post)
+freqs<-number_draws(res$gamma.post,h)/M 
+io<-order(freqs, decreasing=TRUE)
+knitr::kable(cbind(h,freqs)[io,],digits=cbind(rep(0, ncol(covs.cen)),4))
+```
+
+|     |     |     |     |     |     |     |     |     |  freqs |
+|----:|----:|----:|----:|----:|----:|----:|----:|----:|-------:|
+|   0 |   0 |   1 |   0 |   1 |   0 |   1 |   1 |   1 | 0.1500 |
+|   0 |   0 |   1 |   1 |   1 |   0 |   1 |   1 |   1 | 0.1357 |
+|   0 |   0 |   1 |   0 |   1 |   1 |   0 |   1 |   1 | 0.1242 |
+|   0 |   0 |   1 |   1 |   1 |   1 |   0 |   1 |   1 | 0.1052 |
+|   0 |   0 |   1 |   1 |   1 |   0 |   0 |   1 |   1 | 0.0668 |
+|   0 |   0 |   1 |   0 |   1 |   0 |   0 |   1 |   1 | 0.0501 |
+|   0 |   0 |   0 |   1 |   1 |   0 |   1 |   1 |   1 | 0.0319 |
+|   0 |   0 |   0 |   1 |   1 |   0 |   0 |   1 |   1 | 0.0285 |
+|   0 |   0 |   0 |   1 |   1 |   1 |   0 |   1 |   1 | 0.0228 |
+|   1 |   0 |   1 |   0 |   1 |   0 |   1 |   1 |   1 | 0.0216 |
+|   0 |   0 |   0 |   0 |   1 |   0 |   1 |   1 |   1 | 0.0201 |
+|   0 |   1 |   1 |   0 |   1 |   0 |   1 |   1 |   1 | 0.0192 |
+|   0 |   0 |   1 |   0 |   1 |   1 |   1 |   1 |   1 | 0.0176 |
+|   0 |   0 |   0 |   0 |   1 |   1 |   0 |   1 |   1 | 0.0161 |
+|   1 |   0 |   1 |   0 |   1 |   1 |   0 |   1 |   1 | 0.0158 |
+|   1 |   0 |   1 |   1 |   1 |   0 |   1 |   1 |   1 | 0.0158 |
+|   0 |   0 |   1 |   1 |   1 |   1 |   1 |   1 |   1 | 0.0154 |
+|   0 |   1 |   1 |   1 |   1 |   0 |   1 |   1 |   1 | 0.0148 |
+|   0 |   1 |   1 |   0 |   1 |   1 |   0 |   1 |   1 | 0.0134 |
+|   0 |   0 |   0 |   0 |   1 |   0 |   0 |   1 |   1 | 0.0132 |
+|   1 |   0 |   1 |   1 |   1 |   1 |   0 |   1 |   1 | 0.0110 |
+|   0 |   1 |   1 |   1 |   1 |   1 |   0 |   1 |   1 | 0.0107 |
+|   1 |   0 |   1 |   1 |   1 |   0 |   0 |   1 |   1 | 0.0071 |
+|   0 |   1 |   1 |   1 |   1 |   0 |   0 |   1 |   1 | 0.0070 |
+|   1 |   0 |   1 |   0 |   1 |   0 |   0 |   1 |   1 | 0.0060 |
+|   0 |   1 |   1 |   0 |   1 |   0 |   0 |   1 |   1 | 0.0056 |
+|   0 |   1 |   0 |   1 |   1 |   0 |   1 |   1 |   1 | 0.0045 |
+|   0 |   1 |   0 |   1 |   1 |   0 |   0 |   1 |   1 | 0.0036 |
+|   0 |   0 |   0 |   1 |   1 |   1 |   1 |   1 |   1 | 0.0033 |
+|   1 |   0 |   0 |   1 |   1 |   0 |   1 |   1 |   1 | 0.0031 |
+|   0 |   1 |   0 |   0 |   1 |   0 |   1 |   1 |   1 | 0.0030 |
+|   1 |   1 |   1 |   0 |   1 |   0 |   1 |   1 |   1 | 0.0028 |
+|   1 |   0 |   0 |   1 |   1 |   0 |   0 |   1 |   1 | 0.0026 |
+|   0 |   1 |   1 |   0 |   1 |   1 |   1 |   1 |   1 | 0.0023 |
+|   1 |   0 |   0 |   1 |   1 |   1 |   0 |   1 |   1 | 0.0023 |
+|   0 |   1 |   0 |   1 |   1 |   1 |   0 |   1 |   1 | 0.0022 |
+|   1 |   0 |   0 |   0 |   1 |   0 |   1 |   1 |   1 | 0.0022 |
+|   1 |   0 |   1 |   0 |   1 |   1 |   1 |   1 |   1 | 0.0021 |
+|   0 |   0 |   0 |   0 |   1 |   1 |   1 |   1 |   1 | 0.0021 |
+|   1 |   0 |   1 |   1 |   1 |   1 |   1 |   1 |   1 | 0.0018 |
+|   1 |   0 |   0 |   0 |   1 |   0 |   0 |   1 |   1 | 0.0017 |
+|   1 |   1 |   1 |   0 |   1 |   1 |   0 |   1 |   1 | 0.0017 |
+|   0 |   1 |   0 |   0 |   1 |   0 |   0 |   1 |   1 | 0.0016 |
+|   1 |   1 |   1 |   1 |   1 |   0 |   1 |   1 |   1 | 0.0016 |
+|   1 |   0 |   0 |   0 |   1 |   1 |   0 |   1 |   1 | 0.0016 |
+|   1 |   1 |   1 |   1 |   1 |   1 |   0 |   1 |   1 | 0.0015 |
+|   0 |   1 |   1 |   1 |   1 |   1 |   1 |   1 |   1 | 0.0013 |
+|   0 |   1 |   0 |   0 |   1 |   1 |   0 |   1 |   1 | 0.0012 |
+|   1 |   1 |   1 |   1 |   1 |   0 |   0 |   1 |   1 | 0.0007 |
+|   1 |   1 |   1 |   0 |   1 |   0 |   0 |   1 |   1 | 0.0005 |
+|   1 |   1 |   0 |   1 |   1 |   1 |   0 |   1 |   1 | 0.0005 |
+|   1 |   1 |   1 |   0 |   1 |   1 |   1 |   1 |   1 | 0.0004 |
+|   1 |   1 |   0 |   1 |   1 |   0 |   0 |   1 |   1 | 0.0003 |
+|   1 |   1 |   0 |   1 |   1 |   0 |   1 |   1 |   1 | 0.0003 |
+|   1 |   1 |   0 |   0 |   1 |   0 |   1 |   1 |   1 | 0.0003 |
+|   1 |   1 |   1 |   1 |   1 |   1 |   1 |   1 |   1 | 0.0003 |
+|   0 |   1 |   0 |   0 |   1 |   1 |   1 |   1 |   1 | 0.0003 |
+|   0 |   1 |   0 |   1 |   1 |   1 |   1 |   1 |   1 | 0.0002 |
+|   1 |   0 |   0 |   1 |   1 |   1 |   1 |   1 |   1 | 0.0002 |
+|   1 |   1 |   0 |   0 |   1 |   1 |   0 |   1 |   1 | 0.0001 |
+|   1 |   1 |   0 |   0 |   1 |   0 |   0 |   1 |   1 | 0.0001 |
+|   1 |   0 |   0 |   0 |   1 |   1 |   1 |   1 |   1 | 0.0001 |
+|   0 |   0 |   1 |   1 |   0 |   1 |   0 |   1 |   1 | 0.0001 |
+|   1 |   1 |   0 |   0 |   1 |   1 |   1 |   1 |   1 | 0.0000 |
+|   1 |   1 |   0 |   1 |   1 |   1 |   1 |   1 |   1 | 0.0000 |
+|   0 |   1 |   1 |   1 |   0 |   1 |   0 |   1 |   1 | 0.0000 |
+|   0 |   1 |   1 |   1 |   0 |   0 |   1 |   1 |   1 | 0.0000 |
+|   0 |   0 |   1 |   1 |   0 |   0 |   0 |   1 |   1 | 0.0000 |
+|   0 |   0 |   0 |   1 |   0 |   1 |   0 |   1 |   1 | 0.0000 |
+
+``` r
+
+#xtable(cbind(h,freqs)[io,],digits=c(rep(0, ncol(covs.cen)+1),4))
+```
 
 ### Section 11.2.4: Priors on the model space
 
-#### Example 11.5: Movie Data: Hierarchichal prior on the model space
+#### Example 11.7: Movie Data: Hierarchichal prior on the model space
 
 \[TODO\]  
 \[TODO\]  
@@ -498,7 +705,7 @@ for (i in 2:5) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-15-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-18-1.png)
 
 #### Example 11.10: US GDP data: Quantitative model-order selection
 
@@ -669,7 +876,7 @@ acf(dat)
 acf(ret)
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-24-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-27-1.png)
 
 This clearly hints at non-stationarity of the exchange rate series and
 at (first order) stationarity of the returns.
@@ -714,7 +921,7 @@ for (i in seq_along(draws)) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-26-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-29-1.png)
 
 To explore whether the nonstationarity of the raw series could be caused
 by a unit root, we investigate the posterior of
@@ -734,7 +941,7 @@ for (p in 1:4) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-27-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-30-1.png)
 
 We do the same for the inflation data (currently not included in the
 book).
@@ -762,7 +969,7 @@ for (p in 1:4) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-29-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-32-1.png)
 
 #### Example 11.XX: CHF exchange rate data: Testing for a unit root using the Savage-Dickey density ratio
 
@@ -802,7 +1009,7 @@ abline(v = 0, lty = 3)
 abline(h = 0, lty = 3)
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-31-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-34-1.png)
 
 To compute the numerical value of the SD density ratio, we again use
 Rao-Blackwellization.
