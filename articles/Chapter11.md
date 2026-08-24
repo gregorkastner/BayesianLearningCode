@@ -298,13 +298,13 @@ varsel_g<- function(y, X, pri=NA, burnin=1000L, M=50000L){
   p <- dim(X)[2]
   g <- N
 
-  gamma.post <- matrix(ncol = p, nrow = M)
-  k_post <- rep(NA,M)
+  gamma_post <- matrix(ncol = p, nrow = M)
+  kgamma_post <- numeric(length = M)
   acc <- numeric(length = M)
 
   gamma_old <- matrix(rep(1,p),nrow=1)
+  k_gamma=sum(gamma_old)
   X_gamma <- X
-  k_gamma <- sum(gamma_old)
 
   BN_gamma <- solve( ((1+g)/g) * crossprod(X_gamma) )
   R2_gamma <- t(y)%*%X_gamma%*%BN_gamma%*%t(X_gamma)%*%y / (N*var(y))
@@ -317,9 +317,9 @@ varsel_g<- function(y, X, pri=NA, burnin=1000L, M=50000L){
     j <- sample(1:p, size=1)
     gamma_proposed[j] <- 1-gamma_old[j]
 
-    k_gamma <- sum(gamma_proposed)
+    kgamma <- sum(gamma_proposed)
 
-   if (k_gamma==0){ 
+   if (kgamma==0){ 
       R2_gamma <- 0 
      
    }else{
@@ -330,14 +330,14 @@ varsel_g<- function(y, X, pri=NA, burnin=1000L, M=50000L){
     R2_gamma <- t(y) %*% X_gamma %*% BN_gamma %*% t(X_gamma) %*% y / (N*var(y))
    }
 
-    lmarlik_proposed <- (N-k_gamma-1)/2*log(1+g) -
+    lmarlik_proposed <- (N-kgamma-1)/2*log(1+g) -
                            (N-1)/2 * log(1+g*(1-R2_gamma) )
 
     # compute acceptance probability and accept or not
     log_acc <- lmarlik_proposed - lmarlik_old
 
     if (log(runif(1)) < log_acc) {
-    
+      
       gamma_old <- gamma_proposed
       lmarlik_old <- lmarlik_proposed
       accept=1
@@ -347,13 +347,13 @@ varsel_g<- function(y, X, pri=NA, burnin=1000L, M=50000L){
     }
 
     if (m > burnin) {
-      gamma.post[m-burnin, ] <- gamma_old
-      k_post[m-burnin]<- sum(gamma_old)
+      gamma_post[m-burnin, ] <- gamma_old
+      kgamma_post[m-burnin] <- sum(gamma_old)
       acc[m-burnin] <- accept
     }
 
   }
-  return(list(gamma.post=gamma.post,acc=acc, k_post=k_post))
+  return(list(gamma_post=gamma_post,acc=acc))
 }
 ```
 
@@ -362,33 +362,33 @@ covariates used above
 
 ``` r
 
-res<-varsel_g(y, covs.cen, M=50000)
-print(colMeans(res$gamma.post))
-#> [1] 0.43552 1.00000 0.18676
+res_cen<-varsel_g(y, covs.cen, M=100000)
+print(colMeans(res_cen$gamma_post))
+#> [1] 0.43811 0.99994 0.18842
 
-h<-unique(res$gamma.post)
-freqs<-number_draws(res$gamma.post,h) 
+h<-unique(res_cen$gamma_post)
+freqs<-number_draws(res_cen$gamma_post,h) 
 print(cbind(h,freqs))
 #>            freqs
-#> [1,] 1 1 0 18227
-#> [2,] 0 1 0 22435
-#> [3,] 0 1 1  5789
-#> [4,] 1 1 1  3549
-
-res<-varsel_g(y, covs.std, M=50000)
-print(colMeans(res$gamma.post))
-#> [1] 0.44094 0.99988 0.19000
-
-h<-unique(res$gamma.post)
-freqs<-number_draws(res$gamma.post,h) 
-print(cbind(h,freqs))
-#>            freqs
-#> [1,] 0 1 0 22261
-#> [2,] 1 1 0 18234
-#> [3,] 0 1 1  5692
-#> [4,] 1 1 1  3807
+#> [1,] 1 1 0 36450
+#> [2,] 0 1 0 44703
+#> [3,] 0 1 1 11486
+#> [4,] 1 1 1  7355
 #> [5,] 1 0 0     5
 #> [6,] 1 0 1     1
+
+res_std<-varsel_g(y, covs.std, M=100000)
+print(colMeans(res_std$gamma_post))
+#> [1] 0.44099 1.00000 0.18669
+
+h<-unique(res_std$gamma_post)
+freqs<-number_draws(res_std$gamma_post,h) 
+print(cbind(h,freqs))
+#>            freqs
+#> [1,] 0 1 0 44490
+#> [2,] 0 1 1 11411
+#> [3,] 1 1 0 36841
+#> [4,] 1 1 1  7258
 ```
 
 We see that results are very similar as the g-prior takes into account
@@ -407,93 +407,109 @@ covs.cen <- scale(movies[, covs], scale = FALSE)
 M=100000
 
 res<-varsel_g(y, covs.cen,M=M )
-print(colMeans(res$gamma.post))
-#> [1] 0.10591 0.10206 0.83017 0.50303 0.99987 0.37775 0.47417 1.00000 1.00000
+print(colMeans(res$gamma_post))
+#> [1] 0.11070 0.09471 0.82595 0.50353 0.99987 0.37215 0.47612 1.00000 1.00000
 
-h<-unique(res$gamma.post)
-freqs<-number_draws(res$gamma.post,h)/M 
+h<-unique(res$gamma_post)
+freqs<-number_draws(res$gamma_post,h)/M 
 io<-order(freqs, decreasing=TRUE)
 knitr::kable(cbind(h,freqs)[io,],digits=cbind(rep(0, ncol(covs.cen)),4))
 ```
 
 |     |     |     |     |     |     |     |     |     |  freqs |
 |----:|----:|----:|----:|----:|----:|----:|----:|----:|-------:|
-|   0 |   0 |   1 |   0 |   1 |   0 |   1 |   1 |   1 | 0.1500 |
-|   0 |   0 |   1 |   1 |   1 |   0 |   1 |   1 |   1 | 0.1357 |
-|   0 |   0 |   1 |   0 |   1 |   1 |   0 |   1 |   1 | 0.1242 |
-|   0 |   0 |   1 |   1 |   1 |   1 |   0 |   1 |   1 | 0.1052 |
-|   0 |   0 |   1 |   1 |   1 |   0 |   0 |   1 |   1 | 0.0668 |
-|   0 |   0 |   1 |   0 |   1 |   0 |   0 |   1 |   1 | 0.0501 |
-|   0 |   0 |   0 |   1 |   1 |   0 |   1 |   1 |   1 | 0.0319 |
-|   0 |   0 |   0 |   1 |   1 |   0 |   0 |   1 |   1 | 0.0285 |
-|   0 |   0 |   0 |   1 |   1 |   1 |   0 |   1 |   1 | 0.0228 |
-|   1 |   0 |   1 |   0 |   1 |   0 |   1 |   1 |   1 | 0.0216 |
-|   0 |   0 |   0 |   0 |   1 |   0 |   1 |   1 |   1 | 0.0201 |
-|   0 |   1 |   1 |   0 |   1 |   0 |   1 |   1 |   1 | 0.0192 |
-|   0 |   0 |   1 |   0 |   1 |   1 |   1 |   1 |   1 | 0.0176 |
-|   0 |   0 |   0 |   0 |   1 |   1 |   0 |   1 |   1 | 0.0161 |
-|   1 |   0 |   1 |   0 |   1 |   1 |   0 |   1 |   1 | 0.0158 |
-|   1 |   0 |   1 |   1 |   1 |   0 |   1 |   1 |   1 | 0.0158 |
-|   0 |   0 |   1 |   1 |   1 |   1 |   1 |   1 |   1 | 0.0154 |
-|   0 |   1 |   1 |   1 |   1 |   0 |   1 |   1 |   1 | 0.0148 |
-|   0 |   1 |   1 |   0 |   1 |   1 |   0 |   1 |   1 | 0.0134 |
-|   0 |   0 |   0 |   0 |   1 |   0 |   0 |   1 |   1 | 0.0132 |
-|   1 |   0 |   1 |   1 |   1 |   1 |   0 |   1 |   1 | 0.0110 |
-|   0 |   1 |   1 |   1 |   1 |   1 |   0 |   1 |   1 | 0.0107 |
-|   1 |   0 |   1 |   1 |   1 |   0 |   0 |   1 |   1 | 0.0071 |
-|   0 |   1 |   1 |   1 |   1 |   0 |   0 |   1 |   1 | 0.0070 |
-|   1 |   0 |   1 |   0 |   1 |   0 |   0 |   1 |   1 | 0.0060 |
-|   0 |   1 |   1 |   0 |   1 |   0 |   0 |   1 |   1 | 0.0056 |
-|   0 |   1 |   0 |   1 |   1 |   0 |   1 |   1 |   1 | 0.0045 |
-|   0 |   1 |   0 |   1 |   1 |   0 |   0 |   1 |   1 | 0.0036 |
-|   0 |   0 |   0 |   1 |   1 |   1 |   1 |   1 |   1 | 0.0033 |
-|   1 |   0 |   0 |   1 |   1 |   0 |   1 |   1 |   1 | 0.0031 |
-|   0 |   1 |   0 |   0 |   1 |   0 |   1 |   1 |   1 | 0.0030 |
-|   1 |   1 |   1 |   0 |   1 |   0 |   1 |   1 |   1 | 0.0028 |
-|   1 |   0 |   0 |   1 |   1 |   0 |   0 |   1 |   1 | 0.0026 |
-|   0 |   1 |   1 |   0 |   1 |   1 |   1 |   1 |   1 | 0.0023 |
-|   1 |   0 |   0 |   1 |   1 |   1 |   0 |   1 |   1 | 0.0023 |
-|   0 |   1 |   0 |   1 |   1 |   1 |   0 |   1 |   1 | 0.0022 |
-|   1 |   0 |   0 |   0 |   1 |   0 |   1 |   1 |   1 | 0.0022 |
-|   1 |   0 |   1 |   0 |   1 |   1 |   1 |   1 |   1 | 0.0021 |
+|   0 |   0 |   1 |   0 |   1 |   0 |   1 |   1 |   1 | 0.1582 |
+|   0 |   0 |   1 |   1 |   1 |   0 |   1 |   1 |   1 | 0.1361 |
+|   0 |   0 |   1 |   0 |   1 |   1 |   0 |   1 |   1 | 0.1181 |
+|   0 |   0 |   1 |   1 |   1 |   1 |   0 |   1 |   1 | 0.1022 |
+|   0 |   0 |   1 |   1 |   1 |   0 |   0 |   1 |   1 | 0.0675 |
+|   0 |   0 |   1 |   0 |   1 |   0 |   0 |   1 |   1 | 0.0496 |
+|   0 |   0 |   0 |   1 |   1 |   0 |   1 |   1 |   1 | 0.0321 |
+|   0 |   0 |   0 |   1 |   1 |   0 |   0 |   1 |   1 | 0.0312 |
+|   0 |   0 |   0 |   1 |   1 |   1 |   0 |   1 |   1 | 0.0247 |
+|   1 |   0 |   1 |   0 |   1 |   0 |   1 |   1 |   1 | 0.0211 |
+|   0 |   0 |   0 |   0 |   1 |   0 |   1 |   1 |   1 | 0.0199 |
+|   1 |   0 |   1 |   0 |   1 |   1 |   0 |   1 |   1 | 0.0179 |
+|   0 |   1 |   1 |   0 |   1 |   0 |   1 |   1 |   1 | 0.0174 |
+|   0 |   0 |   0 |   0 |   1 |   1 |   0 |   1 |   1 | 0.0164 |
+|   0 |   0 |   1 |   0 |   1 |   1 |   1 |   1 |   1 | 0.0159 |
+|   1 |   0 |   1 |   1 |   1 |   0 |   1 |   1 |   1 | 0.0155 |
+|   0 |   0 |   1 |   1 |   1 |   1 |   1 |   1 |   1 | 0.0147 |
+|   0 |   1 |   1 |   1 |   1 |   0 |   1 |   1 |   1 | 0.0138 |
+|   0 |   1 |   1 |   0 |   1 |   1 |   0 |   1 |   1 | 0.0136 |
+|   1 |   0 |   1 |   1 |   1 |   1 |   0 |   1 |   1 | 0.0122 |
+|   0 |   0 |   0 |   0 |   1 |   0 |   0 |   1 |   1 | 0.0122 |
+|   0 |   1 |   1 |   1 |   1 |   1 |   0 |   1 |   1 | 0.0092 |
+|   1 |   0 |   1 |   1 |   1 |   0 |   0 |   1 |   1 | 0.0076 |
+|   1 |   0 |   1 |   0 |   1 |   0 |   0 |   1 |   1 | 0.0064 |
+|   0 |   1 |   1 |   0 |   1 |   0 |   0 |   1 |   1 | 0.0060 |
+|   0 |   1 |   1 |   1 |   1 |   0 |   0 |   1 |   1 | 0.0059 |
+|   0 |   0 |   0 |   1 |   1 |   1 |   1 |   1 |   1 | 0.0038 |
+|   0 |   1 |   0 |   1 |   1 |   0 |   0 |   1 |   1 | 0.0035 |
+|   1 |   0 |   0 |   1 |   1 |   0 |   1 |   1 |   1 | 0.0034 |
+|   0 |   1 |   0 |   1 |   1 |   0 |   1 |   1 |   1 | 0.0033 |
+|   1 |   0 |   0 |   1 |   1 |   0 |   0 |   1 |   1 | 0.0030 |
+|   1 |   0 |   1 |   0 |   1 |   1 |   1 |   1 |   1 | 0.0027 |
+|   1 |   1 |   1 |   0 |   1 |   0 |   1 |   1 |   1 | 0.0026 |
+|   0 |   1 |   0 |   1 |   1 |   1 |   0 |   1 |   1 | 0.0026 |
+|   1 |   0 |   0 |   1 |   1 |   1 |   0 |   1 |   1 | 0.0025 |
+|   0 |   1 |   0 |   0 |   1 |   0 |   1 |   1 |   1 | 0.0024 |
+|   0 |   1 |   1 |   0 |   1 |   1 |   1 |   1 |   1 | 0.0022 |
 |   0 |   0 |   0 |   0 |   1 |   1 |   1 |   1 |   1 | 0.0021 |
-|   1 |   0 |   1 |   1 |   1 |   1 |   1 |   1 |   1 | 0.0018 |
-|   1 |   0 |   0 |   0 |   1 |   0 |   0 |   1 |   1 | 0.0017 |
-|   1 |   1 |   1 |   0 |   1 |   1 |   0 |   1 |   1 | 0.0017 |
-|   0 |   1 |   0 |   0 |   1 |   0 |   0 |   1 |   1 | 0.0016 |
-|   1 |   1 |   1 |   1 |   1 |   0 |   1 |   1 |   1 | 0.0016 |
-|   1 |   0 |   0 |   0 |   1 |   1 |   0 |   1 |   1 | 0.0016 |
-|   1 |   1 |   1 |   1 |   1 |   1 |   0 |   1 |   1 | 0.0015 |
+|   1 |   0 |   1 |   1 |   1 |   1 |   1 |   1 |   1 | 0.0019 |
+|   1 |   0 |   0 |   0 |   1 |   0 |   1 |   1 |   1 | 0.0019 |
+|   1 |   1 |   1 |   1 |   1 |   0 |   1 |   1 |   1 | 0.0018 |
+|   1 |   0 |   0 |   0 |   1 |   1 |   0 |   1 |   1 | 0.0018 |
+|   1 |   0 |   0 |   0 |   1 |   0 |   0 |   1 |   1 | 0.0018 |
+|   1 |   1 |   1 |   0 |   1 |   1 |   0 |   1 |   1 | 0.0015 |
+|   0 |   1 |   0 |   0 |   1 |   1 |   0 |   1 |   1 | 0.0015 |
+|   0 |   1 |   0 |   0 |   1 |   0 |   0 |   1 |   1 | 0.0014 |
 |   0 |   1 |   1 |   1 |   1 |   1 |   1 |   1 |   1 | 0.0013 |
-|   0 |   1 |   0 |   0 |   1 |   1 |   0 |   1 |   1 | 0.0012 |
-|   1 |   1 |   1 |   1 |   1 |   0 |   0 |   1 |   1 | 0.0007 |
-|   1 |   1 |   1 |   0 |   1 |   0 |   0 |   1 |   1 | 0.0005 |
-|   1 |   1 |   0 |   1 |   1 |   1 |   0 |   1 |   1 | 0.0005 |
-|   1 |   1 |   1 |   0 |   1 |   1 |   1 |   1 |   1 | 0.0004 |
-|   1 |   1 |   0 |   1 |   1 |   0 |   0 |   1 |   1 | 0.0003 |
-|   1 |   1 |   0 |   1 |   1 |   0 |   1 |   1 |   1 | 0.0003 |
-|   1 |   1 |   0 |   0 |   1 |   0 |   1 |   1 |   1 | 0.0003 |
-|   1 |   1 |   1 |   1 |   1 |   1 |   1 |   1 |   1 | 0.0003 |
+|   1 |   1 |   1 |   1 |   1 |   1 |   0 |   1 |   1 | 0.0011 |
+|   1 |   1 |   1 |   0 |   1 |   0 |   0 |   1 |   1 | 0.0006 |
+|   1 |   1 |   1 |   1 |   1 |   0 |   0 |   1 |   1 | 0.0006 |
+|   1 |   1 |   0 |   1 |   1 |   0 |   0 |   1 |   1 | 0.0005 |
+|   1 |   1 |   0 |   1 |   1 |   1 |   0 |   1 |   1 | 0.0004 |
+|   1 |   0 |   0 |   1 |   1 |   1 |   1 |   1 |   1 | 0.0003 |
 |   0 |   1 |   0 |   0 |   1 |   1 |   1 |   1 |   1 | 0.0003 |
-|   0 |   1 |   0 |   1 |   1 |   1 |   1 |   1 |   1 | 0.0002 |
-|   1 |   0 |   0 |   1 |   1 |   1 |   1 |   1 |   1 | 0.0002 |
-|   1 |   1 |   0 |   0 |   1 |   1 |   0 |   1 |   1 | 0.0001 |
-|   1 |   1 |   0 |   0 |   1 |   0 |   0 |   1 |   1 | 0.0001 |
-|   1 |   0 |   0 |   0 |   1 |   1 |   1 |   1 |   1 | 0.0001 |
-|   0 |   0 |   1 |   1 |   0 |   1 |   0 |   1 |   1 | 0.0001 |
+|   1 |   1 |   0 |   1 |   1 |   0 |   1 |   1 |   1 | 0.0003 |
+|   0 |   1 |   0 |   1 |   1 |   1 |   1 |   1 |   1 | 0.0003 |
+|   1 |   1 |   1 |   0 |   1 |   1 |   1 |   1 |   1 | 0.0003 |
+|   1 |   1 |   0 |   0 |   1 |   1 |   0 |   1 |   1 | 0.0002 |
+|   1 |   1 |   0 |   0 |   1 |   0 |   0 |   1 |   1 | 0.0002 |
+|   1 |   0 |   0 |   0 |   1 |   1 |   1 |   1 |   1 | 0.0002 |
+|   1 |   1 |   1 |   1 |   1 |   1 |   1 |   1 |   1 | 0.0001 |
+|   0 |   0 |   1 |   1 |   0 |   0 |   1 |   1 |   1 | 0.0001 |
+|   1 |   1 |   0 |   0 |   1 |   0 |   1 |   1 |   1 | 0.0001 |
+|   1 |   0 |   1 |   1 |   0 |   0 |   0 |   1 |   1 | 0.0000 |
 |   1 |   1 |   0 |   0 |   1 |   1 |   1 |   1 |   1 | 0.0000 |
-|   1 |   1 |   0 |   1 |   1 |   1 |   1 |   1 |   1 | 0.0000 |
-|   0 |   1 |   1 |   1 |   0 |   1 |   0 |   1 |   1 | 0.0000 |
-|   0 |   1 |   1 |   1 |   0 |   0 |   1 |   1 |   1 | 0.0000 |
-|   0 |   0 |   1 |   1 |   0 |   0 |   0 |   1 |   1 | 0.0000 |
-|   0 |   0 |   0 |   1 |   0 |   1 |   0 |   1 |   1 | 0.0000 |
+|   0 |   0 |   1 |   1 |   0 |   1 |   0 |   1 |   1 | 0.0000 |
 
 ``` r
 
 #xtable(cbind(h,freqs)[io,],digits=c(rep(0, ncol(covs.cen)+1),4))
 ```
 
-### Section 11.2.4: Priors on the model space
+We determine the posterior distribution of the size of the models and
+plot the mcmc draws and their distribution
+
+``` r
+
+if (pdfplots) {
+  pdf("11-2_1.pdf", width = 6, height = 3)
+}
+par(mfrow = c(1, 2), mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.5, .5, 0))
+options(scipen = 999)
+k_gamma=rowSums(res$gamma_post)
+plot(k_gamma, type="l", xlab="Draw", ylab=expression(k[gamma]), xaxt="n") 
+axis(side = 1, at = seq(from=0, to=M, by=M/5),labels = T)
+
+barplot(tabulate(k_gamma),  col ="blue",xlab=expression(k[gamma]),
+        ylab="Frequencies", ylim=c(0,50000),  names.arg=1:9)
+```
+
+![](Chapter11_files/figure-html/unnamed-chunk-14-1.png) \## Section
+11.2.4: Priors on the model space
 
 #### Example 11.7: Movie Data: Hierarchichal prior on the model space
 
@@ -525,7 +541,7 @@ knitr::kable(cbind(h,freqs)[io,],digits=cbind(rep(0, ncol(covs.cen)),4))
 
 ## Section 11.3: Model selection beyond standard regression analysis
 
-### Section 11.3.1: Marginal likelihoods under transformed outcome variables
+### Section 11.3.1: Marginal likelihoods under transformed outcome variableshttp://127.0.0.1:20438/graphics/ddda56d2-e194-4dd9-8f01-6debbb6c5578.png
 
 #### Example 11.7: Movie data: Model comparison under log transformations
 
@@ -705,7 +721,7 @@ for (i in 2:5) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-18-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-19-1.png)
 
 #### Example 11.10: US GDP data: Quantitative model-order selection
 
@@ -876,7 +892,7 @@ acf(dat)
 acf(ret)
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-27-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-28-1.png)
 
 This clearly hints at non-stationarity of the exchange rate series and
 at (first order) stationarity of the returns.
@@ -921,7 +937,7 @@ for (i in seq_along(draws)) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-29-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-30-1.png)
 
 To explore whether the nonstationarity of the raw series could be caused
 by a unit root, we investigate the posterior of
@@ -941,7 +957,7 @@ for (p in 1:4) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-30-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-31-1.png)
 
 We do the same for the inflation data (currently not included in the
 book).
@@ -969,7 +985,7 @@ for (p in 1:4) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-32-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-33-1.png)
 
 #### Example 11.XX: CHF exchange rate data: Testing for a unit root using the Savage-Dickey density ratio
 
@@ -1009,7 +1025,7 @@ abline(v = 0, lty = 3)
 abline(h = 0, lty = 3)
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-34-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-35-1.png)
 
 To compute the numerical value of the SD density ratio, we again use
 Rao-Blackwellization.
