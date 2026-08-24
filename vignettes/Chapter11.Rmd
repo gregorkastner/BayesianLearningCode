@@ -349,7 +349,8 @@ if (pdfplots) {
 par(mfrow = c(1, 2), mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.5, .5, 0))
 options(scipen = 999)
 k_gamma=rowSums(res$gamma_post)
-plot(k_gamma, type="l", xlab="Draw", ylab=expression(k[gamma]), xaxt="n") 
+plot(k_gamma, type="l", xlab="Draw", ylab=expression(k[gamma]), xaxt="n", 
+     ylim=c(0,9)) 
 axis(side = 1, at = seq(from=0, to=M, by=M/5),labels = T)
 
 barplot(tabulate(k_gamma),  col ="blue",xlab=expression(k[gamma]),
