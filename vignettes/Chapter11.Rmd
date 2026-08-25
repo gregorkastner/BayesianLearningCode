@@ -237,7 +237,7 @@ print(PIP)
 
 ## Section 11.2.3: Benchmark priors for comparing regression models
 
-### Example 11.6: Movie data: Applying the g-prior
+
 We  again start writing  a function that 
 ```{r}
 varsel_g<- function(y, X, pri=NA, burnin=1000L, M=50000L){
@@ -324,6 +324,7 @@ We see that results are very similar as the g-prior takes into account the
 scale of the covariates. 
  
 ### Example 11.6: Movie data: Applying the g-prior
+
 We now  use all covariates from example 6.7  except  the categorical variable MMPA rating.
 ```{r}
 covs <- c("Comedy", "Thriller", "Budget", "Weeks", "Screens",
@@ -357,7 +358,55 @@ barplot(tabulate(k_gamma),  col ="blue",xlab=expression(k[gamma]),
         ylab="Frequencies", ylim=c(0,50000),  names.arg=1:9)
 
 ```
+
 ## Section 11.2.4: Priors on the model space
+
+For Figure 11.3 we determine the prior distribution for the number of active covariates for $p=10$ covariates
+```{r}
+if (pdfplots) {
+  pdf("11-2_2a.pdf", width = 6, height = 3)
+}
+require(ggplot2)
+par(mfrow = c(1, 1), mar = c(2.5, 0, 1.5, .5),
+    mgp = c(1.5, 0.5, 0))
+colors=c("darkblue","darkred")
+
+p=10
+xx=0:p
+pip_data<-data.frame(x=rep(xx,2),
+               prob=c(dbinom(xx, size=p, prob=0.05), 
+                      dbinom(xx, size=p, prob=0.5)),
+               pi=c(rep("0.05",p+1),rep("0.5",p+1)) )
+
+ggplot(pip_data, aes(x = x, y =prob, fill = pi)) +
+  geom_bar(stat = "identity", width=0.6, position = "dodge")+
+  scale_x_continuous(breaks =0:p)+
+  scale_fill_manual(values=colors, 
+                    guide=guide_legend( title = expression(pi))) +
+  labs(x = "x", y = "P(X=x)")  +
+  theme(text = element_text(size = 15)) 
+
+```
+and for $p=100$ covariates
+```{r}
+if (pdfplots) {
+  pdf("11-2_2b.pdf", width = 6, height = 3)
+}
+p=100
+xx=0:p
+pip_data<-data.frame(x=rep(xx,2),
+               prob=c(dbinom(xx, size=p, prob=0.05), 
+                      dbinom(xx, size=p, prob=0.5)),
+               pi=c(rep("0.05",p+1),rep("0.5",p+1)) )
+
+ggplot(pip_data, aes(x = x, y =prob, fill = pi)) +
+  geom_bar(stat = "identity", width=0.6, position = "dodge")+
+  scale_x_continuous(breaks=seq( from=0, to= p, by=10))+
+  scale_fill_manual(values=colors, 
+                    guide=guide_legend( title = expression(pi))) +
+  labs(x = "x", y = "P(X=x)")  +
+  theme(text = element_text(size = 15)) 
+```
 
 ### Example 11.7: Movie Data: Hierarchichal prior on the model space
 
@@ -371,7 +420,7 @@ barplot(tabulate(k_gamma),  col ="blue",xlab=expression(k[gamma]),
 
 # Section 11.3: Model selection beyond standard regression analysis
 
-## Section 11.3.1: Marginal likelihoods under transformed outcome variableshttp://127.0.0.1:20438/graphics/ddda56d2-e194-4dd9-8f01-6debbb6c5578.png
+## Section 11.3.1: Marginal likelihoods under transformed outcome variables
 
 ### Example 11.7: Movie data: Model comparison under log transformations
 
