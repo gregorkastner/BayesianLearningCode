@@ -286,8 +286,6 @@ print(PIP)
 
 ### Section 11.2.3: Benchmark priors for comparing regression models
 
-#### Example 11.6: Movie data: Applying the g-prior
-
 We again start writing a function that
 
 ``` r
@@ -509,8 +507,9 @@ barplot(tabulate(k_gamma),  col ="blue",xlab=expression(k[gamma]),
         ylab="Frequencies", ylim=c(0,50000),  names.arg=1:9)
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-14-1.png) \## Section
-11.2.4: Priors on the model space
+![](Chapter11_files/figure-html/unnamed-chunk-14-1.png)
+
+### Section 11.2.4: Priors on the model space
 
 #### Example 11.7: Movie Data: Hierarchichal prior on the model space
 
@@ -542,7 +541,7 @@ barplot(tabulate(k_gamma),  col ="blue",xlab=expression(k[gamma]),
 
 ## Section 11.3: Model selection beyond standard regression analysis
 
-### Section 11.3.1: Marginal likelihoods under transformed outcome variableshttp://127.0.0.1:20438/graphics/ddda56d2-e194-4dd9-8f01-6debbb6c5578.png
+### Section 11.3.1: Marginal likelihoods under transformed outcome variables
 
 #### Example 11.7: Movie data: Model comparison under log transformations
 
