@@ -290,7 +290,7 @@ We again start writing a function that
 
 ``` r
 
-varsel_g<- function(y, X, pri=NA, burnin=1000L, M=50000L){
+varselreg_gunif<- function(y, X, pri=NA, burnin=1000L, M=50000L){
   N=length(y)
 
   p <- dim(X)[2]
@@ -360,7 +360,7 @@ covariates used above
 
 ``` r
 
-res_cen<-varsel_g(y, covs.cen, M=100000)
+res_cen<-varselreg_gunif(y, covs.cen, M=100000)
 print(colMeans(res_cen$gamma_post))
 #> [1] 0.43811 0.99994 0.18842
 
@@ -375,7 +375,7 @@ print(cbind(h,freqs))
 #> [5,] 1 0 0     5
 #> [6,] 1 0 1     1
 
-res_std<-varsel_g(y, covs.std, M=100000)
+res_std<-varselreg_gunif(y, covs.std, M=100000)
 print(colMeans(res_std$gamma_post))
 #> [1] 0.44099 1.00000 0.18669
 
@@ -404,14 +404,36 @@ covs <- c("Comedy", "Thriller", "Budget", "Weeks", "Screens",
 covs.cen <- scale(movies[, covs], scale = FALSE)
 M=100000
 
-res<-varsel_g(y, covs.cen,M=M )
-print(colMeans(res$gamma_post))
-#> [1] 0.11070 0.09471 0.82595 0.50353 0.99987 0.37215 0.47612 1.00000 1.00000
+res_gunif<-varselreg_gunif(y, covs.cen,M=M )
+```
 
-h<-unique(res$gamma_post)
-freqs<-number_draws(res$gamma_post,h)/M 
+We show the PIPs in a barplot and compute the estimated posterior
+probabilities of all models visited during MCMC.
+
+``` r
+
+if (pdfplots) {
+  pdf("11-2_2a.pdf", width = 3, height = 3)
+}
+par(mfrow = c(1, 1), mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.5, .5, 0))
+barplot(colMeans(res_gunif$gamma_post), col="blue",names.arg=1:9, 
+        xlab="Covariate",ylab="PIP")
+```
+
+![](Chapter11_files/figure-html/unnamed-chunk-14-1.png)
+
+``` r
+
+
+h <- unique(res_gunif$gamma_post)
+print(dim(h)[1])
+#> [1] 66
+
+freqs<-number_draws(res_gunif$gamma_post,h)/M
 io<-order(freqs, decreasing=TRUE)
-knitr::kable(cbind(h,freqs)[io,],digits=cbind(rep(0, ncol(covs.cen)),4))
+
+knitr::kable(cbind(h,freqs)[io,],
+             digits=cbind(rep(0, ncol(covs.cen)),4))
 ```
 
 |     |     |     |     |     |     |     |     |     |  freqs |
@@ -498,7 +520,8 @@ if (pdfplots) {
 }
 par(mfrow = c(1, 2), mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.5, .5, 0))
 options(scipen = 999)
-k_gamma=rowSums(res$gamma_post)
+
+k_gamma=rowSums(res_gunif$gamma_post)
 plot(k_gamma, type="l", xlab="Draw", ylab=expression(k[gamma]), xaxt="n", 
      ylim=c(0,9)) 
 axis(side = 1, at = seq(from=0, to=M, by=M/5),labels = T)
@@ -507,22 +530,101 @@ barplot(tabulate(k_gamma),  col ="blue",xlab=expression(k[gamma]),
         ylab="Frequencies", ylim=c(0,50000),  names.arg=1:9)
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-14-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-15-1.png)
 
 ### Section 11.2.4: Priors on the model space
 
-#### Example 11.7: Movie Data: Hierarchichal prior on the model space
+#### Example 11.8: Movie Data: Hierarchical prior on the model space
 
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
+We now implement variable selection with the g-prior
+
+``` r
+
+varselreg_ghier<- function(y, X, primod=list(type="hier", a0=1,b0=1),
+                         burnin=1000L, M=50000L){
+  N=length(y)
+
+  p <- dim(X)[2]
+  g <- N
+
+  gamma_post <- matrix(ncol = p, nrow = M)
+  
+  gamma <- matrix(rep(1,p),nrow=1)
+
+  for (m in seq_len(burnin + M)) {
+
+    # Step a: sample gamma
+    j <- sample(1:p, size=1)
+    p0 <- sum(gamma[-j])
+    
+    # compute prior "odds of the model
+    if (primod$type=="hier"){
+        pri.odds <- (primod$a0+p0)/(primod$b0+p-p0-1)
+    }else if(primod$type=="unif"){
+      pri.odds<- 1
+    }else {stop("not implemented")}
+    
+   # determine the logmarginal likelihoods
+    gamma[j]=0
+    k_gamma <- sum(gamma)
+
+    if (k_gamma==0){
+      R2_gamma <- 0
+    }else{
+      X_gamma<-X[,gamma==1]
+      BN_gamma <- solve( ((1+g)/g) * crossprod(X_gamma) )
+      R2_gamma <- t(y) %*% X_gamma %*% BN_gamma %*% t(X_gamma) %*% y / (N*var(y))
+    }
+
+    lmarlik0 <- (N-k_gamma-1)/2*log(1+g) -(N/2) * log(1+g*(1-R2_gamma) )
+
+    gamma[j]=1
+    k_gamma=k_gamma+1
+    X_gamma<-X[,gamma==1]
+    BN_gamma <- solve( ((1+g)/g) * crossprod(X_gamma) )
+    R2_gamma <- t(y) %*% X_gamma %*% BN_gamma %*% t(X_gamma) %*% y / (N*var(y))
+
+    lmarlik1 <- (N-k_gamma-1)/2*log(1+g) -(N/2) * log(1+g*(1-R2_gamma) )
+    Oj<- exp(lmarlik1-lmarlik0)*pri.odds
+
+    # compute acceptance probability and accept or not
+    gamma[j] <- 1*(-log(runif(1)) <= log(1+Oj))
+
+    if (m > burnin) {
+      gamma_post[m-burnin, ] <- gamma
+    }
+  }
+  return(gamma_post)
+}
+```
+
+We now estimate the model under the hierarchical prior on the model
+space and show again the PIPs-
+
+``` r
+
+if (pdfplots) {
+  pdf("11-2_2b.pdf", width = 3, height = 3)
+}
+gamma_post<-varselreg_ghier(y, covs.cen, M=50000)
+
+par(mfrow = c(1, 1), mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.5, .5, 0))
+barplot(colMeans(gamma_post), col="blue",names.arg=1:9, 
+        xlab="Covariate",ylab="PIP")
+```
+
+![](Chapter11_files/figure-html/unnamed-chunk-17-1.png)
+
+``` r
+
+
+h_ghier <- unique(gamma_post)
+print(dim(h_ghier)[1])
+#> [1] 66
+
+#primod <- list(type="unif")
+#gamma_post1<-varselreg_ghier(y, covs.cen,primod, M=50000)
+```
 
 ### Section 11.2.5: Bayesian model averaging
 
@@ -721,7 +823,7 @@ for (i in 2:5) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-19-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-22-1.png)
 
 #### Example 11.10: US GDP data: Quantitative model-order selection
 
@@ -892,7 +994,7 @@ acf(dat)
 acf(ret)
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-28-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-31-1.png)
 
 This clearly hints at non-stationarity of the exchange rate series and
 at (first order) stationarity of the returns.
@@ -937,7 +1039,7 @@ for (i in seq_along(draws)) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-30-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-33-1.png)
 
 To explore whether the nonstationarity of the raw series could be caused
 by a unit root, we investigate the posterior of
@@ -957,7 +1059,7 @@ for (p in 1:4) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-31-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-34-1.png)
 
 We do the same for the inflation data (currently not included in the
 book).
@@ -985,7 +1087,7 @@ for (p in 1:4) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-33-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-36-1.png)
 
 #### Example 11.XX: CHF exchange rate data: Testing for a unit root using the Savage-Dickey density ratio
 
@@ -1025,7 +1127,7 @@ abline(v = 0, lty = 3)
 abline(h = 0, lty = 3)
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-35-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-38-1.png)
 
 To compute the numerical value of the SD density ratio, we again use
 Rao-Blackwellization.
