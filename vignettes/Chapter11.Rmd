@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
   fig.height = 6
 )
 knitr::opts_knit$set(global.par = TRUE)
-pdfplots <- FALSE # default: FALSE; set this to TRUE only if you like pdf figures
+pdfplots <- FALSE  # default: FALSE; set this to TRUE only if you like pdf figures
 mcmcspeedup <- 10 # default: 1; set this to something higher for fewer draws
 seed <- 42
 ```
@@ -240,7 +240,7 @@ print(PIP)
 
 We  again start writing  a function that 
 ```{r}
-varsel_g<- function(y, X, pri=NA, burnin=1000L, M=50000L){
+varselreg_gunif<- function(y, X, pri=NA, burnin=1000L, M=50000L){
   N=length(y)
 
   p <- dim(X)[2]
@@ -306,14 +306,14 @@ varsel_g<- function(y, X, pri=NA, burnin=1000L, M=50000L){
 ```
 As a  first exercise we apply the g-prior to the model with the centered covariates used above  
 ```{r}
-res_cen<-varsel_g(y, covs.cen, M=100000)
+res_cen<-varselreg_gunif(y, covs.cen, M=100000)
 print(colMeans(res_cen$gamma_post))
 
 h<-unique(res_cen$gamma_post)
 freqs<-number_draws(res_cen$gamma_post,h) 
 print(cbind(h,freqs))
 
-res_std<-varsel_g(y, covs.std, M=100000)
+res_std<-varselreg_gunif(y, covs.std, M=100000)
 print(colMeans(res_std$gamma_post))
 
 h<-unique(res_std$gamma_post)
@@ -332,13 +332,26 @@ covs <- c("Comedy", "Thriller", "Budget", "Weeks", "Screens",
 covs.cen <- scale(movies[, covs], scale = FALSE)
 M=100000
 
-res<-varsel_g(y, covs.cen,M=M )
-print(colMeans(res$gamma_post))
+res_gunif<-varselreg_gunif(y, covs.cen,M=M )
 
-h<-unique(res$gamma_post)
-freqs<-number_draws(res$gamma_post,h)/M 
+```
+We show the PIPs in a barplot and compute the estimated posterior probabilities of all models visited during MCMC.
+```{r}
+if (pdfplots) {
+  pdf("11-2_2a.pdf", width = 3, height = 3)
+}
+par(mfrow = c(1, 1), mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.5, .5, 0))
+barplot(colMeans(res_gunif$gamma_post), col="blue",names.arg=1:9, 
+        xlab="Covariate",ylab="PIP")
+
+h <- unique(res_gunif$gamma_post)
+print(dim(h)[1])
+
+freqs<-number_draws(res_gunif$gamma_post,h)/M
 io<-order(freqs, decreasing=TRUE)
-knitr::kable(cbind(h,freqs)[io,],digits=cbind(rep(0, ncol(covs.cen)),4))
+
+knitr::kable(cbind(h,freqs)[io,],
+             digits=cbind(rep(0, ncol(covs.cen)),4))
 #xtable(cbind(h,freqs)[io,],digits=c(rep(0, ncol(covs.cen)+1),4))
 
 ```
@@ -349,7 +362,8 @@ if (pdfplots) {
 }
 par(mfrow = c(1, 2), mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.5, .5, 0))
 options(scipen = 999)
-k_gamma=rowSums(res$gamma_post)
+
+k_gamma=rowSums(res_gunif$gamma_post)
 plot(k_gamma, type="l", xlab="Draw", ylab=expression(k[gamma]), xaxt="n", 
      ylim=c(0,9)) 
 axis(side = 1, at = seq(from=0, to=M, by=M/5),labels = T)
@@ -361,10 +375,86 @@ barplot(tabulate(k_gamma),  col ="blue",xlab=expression(k[gamma]),
 
 ## Section 11.2.4: Priors on the model space
 
-### Example 11.7: Movie Data: Hierarchichal prior on the model space
+### Example 11.8: Movie Data: Hierarchical prior on the model space
 
-[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />
+We now implement variable selection with the g-prior
+```{r}
+varselreg_ghier<- function(y, X, primod=list(type="hier", a0=1,b0=1),
+                         burnin=1000L, M=50000L){
+  N=length(y)
 
+  p <- dim(X)[2]
+  g <- N
+
+  gamma_post <- matrix(ncol = p, nrow = M)
+  
+  gamma <- matrix(rep(1,p),nrow=1)
+
+  for (m in seq_len(burnin + M)) {
+
+    # Step a: sample gamma
+    j <- sample(1:p, size=1)
+    p0 <- sum(gamma[-j])
+    
+    # compute prior "odds of the model
+    if (primod$type=="hier"){
+        pri.odds <- (primod$a0+p0)/(primod$b0+p-p0-1)
+    }else if(primod$type=="unif"){
+      pri.odds<- 1
+    }else {stop("not implemented")}
+    
+   # determine the logmarginal likelihoods
+    gamma[j]=0
+    k_gamma <- sum(gamma)
+
+    if (k_gamma==0){
+      R2_gamma <- 0
+    }else{
+      X_gamma<-X[,gamma==1]
+      BN_gamma <- solve( ((1+g)/g) * crossprod(X_gamma) )
+      R2_gamma <- t(y) %*% X_gamma %*% BN_gamma %*% t(X_gamma) %*% y / (N*var(y))
+    }
+
+    lmarlik0 <- (N-k_gamma-1)/2*log(1+g) -(N/2) * log(1+g*(1-R2_gamma) )
+
+    gamma[j]=1
+    k_gamma=k_gamma+1
+    X_gamma<-X[,gamma==1]
+    BN_gamma <- solve( ((1+g)/g) * crossprod(X_gamma) )
+    R2_gamma <- t(y) %*% X_gamma %*% BN_gamma %*% t(X_gamma) %*% y / (N*var(y))
+
+    lmarlik1 <- (N-k_gamma-1)/2*log(1+g) -(N/2) * log(1+g*(1-R2_gamma) )
+    Oj<- exp(lmarlik1-lmarlik0)*pri.odds
+
+    # compute acceptance probability and accept or not
+    gamma[j] <- 1*(-log(runif(1)) <= log(1+Oj))
+
+    if (m > burnin) {
+      gamma_post[m-burnin, ] <- gamma
+    }
+  }
+  return(gamma_post)
+}
+```
+We now  estimate the model under the hierarchical prior on the model space
+and show again the PIPs-
+
+```{r}
+if (pdfplots) {
+  pdf("11-2_2b.pdf", width = 3, height = 3)
+}
+gamma_post<-varselreg_ghier(y, covs.cen, M=50000)
+
+par(mfrow = c(1, 1), mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.5, .5, 0))
+barplot(colMeans(gamma_post), col="blue",names.arg=1:9, 
+        xlab="Covariate",ylab="PIP")
+
+h_ghier <- unique(gamma_post)
+print(dim(h_ghier)[1])
+
+#primod <- list(type="unif")
+#gamma_post1<-varselreg_ghier(y, covs.cen,primod, M=50000)
+```
 ## Section 11.2.5: Bayesian model averaging
 
 ### Example 11.6: Movie data: Bayesian model averaging
