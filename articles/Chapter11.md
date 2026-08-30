@@ -62,7 +62,7 @@ logmarlik_reg <- function(y,X, a0, A0, B0, c0, C0, gammas){
 }
 ```
 
-We load the data and choose covariates Budget,Screens and Comedy which
+We load the data and choose covariates Budget, Screens and Comedy which
 we center at their means, and define the indicators for all $`2^3=8`$
 models
 
@@ -404,7 +404,8 @@ covs <- c("Comedy", "Thriller", "Budget", "Weeks", "Screens",
           "S-4-6", "S-1-3", "Vol-4-6", "Vol-1-3")
 covs.cen <- scale(movies[, covs], scale = FALSE)
 
-M=100000
+M <- 100000
+p <- dim(covs.cen)[2]
 
 set.seed(seed)
 res_gunif<-varselreg_gunif(y, covs.cen,M=M )
@@ -419,7 +420,7 @@ if (pdfplots) {
   pdf("11-2_2a.pdf", width = 3, height = 3)
 }
 par(mfrow = c(1, 1), mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.5, .5, 0))
-barplot(colMeans(res_gunif$gamma_post), col="blue",names.arg=1:9, 
+barplot(colMeans(res_gunif$gamma_post), col="blue",names.arg=1:p, 
         xlab="Covariate",ylab="PIP")
 ```
 
@@ -527,12 +528,12 @@ par(mfrow = c(1, 2), mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.5, .5, 0))
 options(scipen = 999)
 
 k_gamma=rowSums(res_gunif$gamma_post)
-plot(k_gamma, type="l", xlab="Draw", ylab=expression(k[gamma]), xaxt="n", 
-     ylim=c(0,9)) 
+plot(k_gamma, type="l", xlab="Draw", ylab=expression(k[gamma]), xaxt="n",
+          ylim=c(0,p)) 
 axis(side = 1, at = seq(from=0, to=M, by=M/5),labels = T)
 
 barplot(tabulate(k_gamma),  col ="blue",xlab=expression(k[gamma]),
-        ylab="Frequencies", ylim=c(0,50000),  names.arg=1:9)
+        ylab="Frequencies", ylim=c(0,50000),  names.arg=1:p)
 ```
 
 ![](Chapter11_files/figure-html/unnamed-chunk-15-1.png)
@@ -606,7 +607,7 @@ varselreg_ghier<- function(y, X, primod=list(type="hier", a0=1,b0=1),
 ```
 
 We now estimate the model under the hierarchical prior on the model
-space and show again the PIPs-
+space and show the PIPs.
 
 ``` r
 
@@ -617,7 +618,7 @@ set.seed(seed)
 gamma_post<-varselreg_ghier(y, covs.cen, M=M)
 
 par(mfrow = c(1, 1), mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.5, .5, 0))
-barplot(colMeans(gamma_post), col="blue",names.arg=1:9, 
+barplot(colMeans(gamma_post), col="blue",names.arg=1:p, 
         xlab="Covariate",ylab="PIP")
 ```
 
@@ -715,6 +716,8 @@ knitr::kable(cbind(h_ghier,freqs)[io,],
 #xtable(cbind(h,freqs)[io,],digits=c(rep(0, ncol(covs.cen)+1),4))
 ```
 
+We determine the distribution of the model space complexity
+
 ``` r
 
 if (pdfplots) {
@@ -735,6 +738,30 @@ barplot(tabulate(k_gamma),  col="blue",xlab=expression(k[gamma]),
 #primod <- list(type="unif")
 #gamma_post1<-varselreg_ghier(y, covs.cen,primod, M=50000)
 ```
+
+and the posterior of $`\pi`$
+
+``` r
+
+if (pdfplots) {
+  pdf("11-2_3.pdf", width = 5, height = 6)
+}
+
+b0 <- a0 <- 1
+
+p <- dim(covs.cen)[2]
+xx=seq(from=0, to=1, by=0.001)
+post_pi <- matrix(NA, ncol=M, nrow=length(xx))
+
+for (m in (1:M)){
+  post_pi[,m] <- dbeta(xx, a0+k_gamma[m] , b0+p-k_gamma[m])
+}
+plot(xx,rowMeans(post_pi) , type="l", col="blue")
+
+lines(xx,dbeta(xx, a0, b0),col="black")
+```
+
+![](Chapter11_files/figure-html/unnamed-chunk-19-1.png)
 
 ### Section 11.2.5: Bayesian model averaging
 
@@ -933,7 +960,7 @@ for (i in 2:5) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-23-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-24-1.png)
 
 #### Example 11.10: US GDP data: Quantitative model-order selection
 
@@ -1104,7 +1131,7 @@ acf(dat)
 acf(ret)
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-32-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-33-1.png)
 
 This clearly hints at non-stationarity of the exchange rate series and
 at (first order) stationarity of the returns.
@@ -1149,7 +1176,7 @@ for (i in seq_along(draws)) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-34-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-35-1.png)
 
 To explore whether the nonstationarity of the raw series could be caused
 by a unit root, we investigate the posterior of
@@ -1169,7 +1196,7 @@ for (p in 1:4) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-35-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-36-1.png)
 
 We do the same for the inflation data (currently not included in the
 book).
@@ -1197,7 +1224,7 @@ for (p in 1:4) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-37-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-38-1.png)
 
 #### Example 11.XX: CHF exchange rate data: Testing for a unit root using the Savage-Dickey density ratio
 
@@ -1237,7 +1264,7 @@ abline(v = 0, lty = 3)
 abline(h = 0, lty = 3)
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-39-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-40-1.png)
 
 To compute the numerical value of the SD density ratio, we again use
 Rao-Blackwellization.
