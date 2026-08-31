@@ -69,6 +69,7 @@ models
 ``` r
 
 # Example 11.2
+library("BayesianLearningCode")
 data("movies", package = "BayesianLearningCode")
 
 y <- movies[, "OpenBoxOffice"]
@@ -365,29 +366,29 @@ res_cen<-varselreg_gunif(y, covs.cen, M=100000)
 print(colMeans(res_cen$gamma_post))
 #> [1] 0.43680 1.00000 0.19064
 
-h<-unique(res_cen$gamma_post)
-freqs<-number_draws(res_cen$gamma_post,h) 
-print(cbind(h,freqs))
-#>            freqs
-#> [1,] 1 1 0 36325
-#> [2,] 0 1 0 44611
-#> [3,] 0 1 1 11709
-#> [4,] 1 1 1  7355
+gammas_unique<-unique(res_cen$gamma_post)
+freq_gammas<-number_draws(res_cen$gamma_post,gammas_unique) 
+print(cbind(gammas_unique,freq_gammas))
+#>            freq_gammas
+#> [1,] 1 1 0       36325
+#> [2,] 0 1 0       44611
+#> [3,] 0 1 1       11709
+#> [4,] 1 1 1        7355
 
-res_std<-varselreg_gunif(y, covs.std, M=100000)
+res_std <- varselreg_gunif(y, covs.std, M=100000)
 print(colMeans(res_std$gamma_post))
 #> [1] 0.44254 0.99994 0.18799
 
-h<-unique(res_std$gamma_post)
-freqs<-number_draws(res_std$gamma_post,h) 
-print(cbind(h,freqs))
-#>            freqs
-#> [1,] 0 1 1 11338
-#> [2,] 0 1 0 44408
-#> [3,] 1 1 0 36788
-#> [4,] 1 1 1  7460
-#> [5,] 1 0 0     5
-#> [6,] 1 0 1     1
+gammas_unique <- unique(res_std$gamma_post)
+freq_gammas<-number_draws(res_std$gamma_post,gammas_unique) 
+print(cbind(gammas_unique,freq_gammas))
+#>            freq_gammas
+#> [1,] 0 1 1       11338
+#> [2,] 0 1 0       44408
+#> [3,] 1 1 0       36788
+#> [4,] 1 1 1        7460
+#> [5,] 1 0 0           5
+#> [6,] 1 0 1           1
 ```
 
 We see that results are very similar as the g-prior takes into account
@@ -429,18 +430,19 @@ barplot(colMeans(res_gunif$gamma_post), col="blue",names.arg=1:p,
 ``` r
 
 
-h <- unique(res_gunif$gamma_post)
-print(dim(h)[1])
+gammas_unique <- unique(res_gunif$gamma_post)
+nmod <- dim(gammas_unique)[1]
+print(nmod)
 #> [1] 67
 
-freqs<-number_draws(res_gunif$gamma_post,h)/M
-io<-order(freqs, decreasing=TRUE)
+freq_gammas<-number_draws(res_gunif$gamma_post,gammas_unique)
+io <- order(freq_gammas, decreasing=TRUE)
 
-knitr::kable(cbind(h,freqs)[io,],
-             digits=cbind(rep(0, ncol(covs.cen)),4))
+knitr::kable(cbind(gammas_unique,freq_gammas/M)[io,],
+             digits=cbind(rep(0,p),4))
 ```
 
-|     |     |     |     |     |     |     |     |     |  freqs |
+|     |     |     |     |     |     |     |     |     |        |
 |----:|----:|----:|----:|----:|----:|----:|----:|----:|-------:|
 |   0 |   0 |   1 |   0 |   1 |   0 |   1 |   1 |   1 | 0.1579 |
 |   0 |   0 |   1 |   1 |   1 |   0 |   1 |   1 |   1 | 0.1343 |
@@ -513,7 +515,7 @@ knitr::kable(cbind(h,freqs)[io,],
 ``` r
 
 
-#xtable(cbind(h,freqs)[io,],digits=c(rep(0, ncol(covs.cen)+1),4))
+#xtable(cbind(h,freqs)[io,],digits=c(rep(0, p+1),4))
 ```
 
 We determine the posterior distribution of the size of the models and
@@ -546,8 +548,9 @@ We now implement variable selection with the g-prior
 
 ``` r
 
-varselreg_ghier<- function(y, X, primod=list(type="hier", a0=1,b0=1),
-                         burnin=1000L, M=50000L){
+varselreg_ghier<- function(y, X, 
+                           prior_model=list(type="hier", a0=1,b0=1),
+                           burnin=1000L, M=50000L){
   N=length(y)
 
   p <- dim(X)[2]
@@ -564,9 +567,9 @@ varselreg_ghier<- function(y, X, primod=list(type="hier", a0=1,b0=1),
     p0 <- sum(gamma[-j])
     
     # compute prior "odds of the model
-    if (primod$type=="hier"){
-        pri.odds <- (primod$a0+p0)/(primod$b0+p-p0-1)
-    }else if(primod$type=="unif"){
+    if (prior_model$type=="hier"){
+        pri.odds <- (prior_model$a0+p0)/(prior_model$b0+p-p0-1)
+    }else if(prior_model$type=="unif"){
       pri.odds<- 1
     }else {stop("not implemented")}
     
@@ -615,10 +618,10 @@ if (pdfplots) {
   pdf("11-2_2b.pdf", width = 3, height = 3)
 }
 set.seed(seed)
-gamma_post<-varselreg_ghier(y, covs.cen, M=M)
+gamma_post_hier<-varselreg_ghier(y, covs.cen, M=M)
 
 par(mfrow = c(1, 1), mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.5, .5, 0))
-barplot(colMeans(gamma_post), col="blue",names.arg=1:p, 
+barplot(colMeans(gamma_post_hier), col="blue",names.arg=1:p, 
         xlab="Covariate",ylab="PIP")
 ```
 
@@ -627,18 +630,19 @@ barplot(colMeans(gamma_post), col="blue",names.arg=1:p,
 ``` r
 
 
-h_ghier <- unique(gamma_post)
-print(dim(h_ghier)[1])
+gammas_unique_hier <- unique(gamma_post_hier)
+num_mod_hier <- dim(gammas_unique_hier)[1]
+print(num_mod_hier)
 #> [1] 69
 
-freqs<-number_draws(gamma_post,h_ghier)/M
-io<-order(freqs, decreasing=TRUE)
+freq_gammas_hier<- number_draws(gamma_post_hier,gammas_unique_hier)
+io_hier <- order(freq_gammas_hier, decreasing=TRUE)
 
-knitr::kable(cbind(h_ghier,freqs)[io,],
-             digits=cbind(rep(0, ncol(covs.cen)),4))
+knitr::kable(cbind(gammas_unique_hier,freq_gammas_hier/M)[io_hier,],
+             digits=cbind(rep(0, p),4))
 ```
 
-|     |     |     |     |     |     |     |     |     |  freqs |
+|     |     |     |     |     |     |     |     |     |        |
 |----:|----:|----:|----:|----:|----:|----:|----:|----:|-------:|
 |   0 |   0 |   1 |   1 |   1 |   0 |   1 |   1 |   1 | 0.1429 |
 |   0 |   0 |   1 |   0 |   1 |   0 |   1 |   1 |   1 | 0.1164 |
@@ -713,7 +717,7 @@ knitr::kable(cbind(h_ghier,freqs)[io,],
 ``` r
 
 
-#xtable(cbind(h,freqs)[io,],digits=c(rep(0, ncol(covs.cen)+1),4))
+#xtable(cbind(h,freqs)[io,],digits=c(rep(0,p+1),4))
 ```
 
 We determine the distribution of the model space complexity
@@ -723,10 +727,10 @@ We determine the distribution of the model space complexity
 if (pdfplots) {
   pdf("11-2_2c.pdf", width = 5, height = 6)
 }
-k_gamma=rowSums(gamma_post)
+k_gamma_hier=rowSums(gamma_post_hier)
 
-barplot(tabulate(k_gamma),  col="blue",xlab=expression(k[gamma]),
-              ylab="Frequencies", ylim=c(0,50000), names.arg=1:9)
+barplot(tabulate(k_gamma_hier),  col="blue",xlab=expression(k[gamma]),
+              ylab="Frequencies", ylim=c(0,50000), names.arg=1:p)
 ```
 
 ![](Chapter11_files/figure-html/unnamed-chunk-18-1.png)
@@ -735,11 +739,11 @@ barplot(tabulate(k_gamma),  col="blue",xlab=expression(k[gamma]),
 
 
 # TEST
-#primod <- list(type="unif")
-#gamma_post1<-varselreg_ghier(y, covs.cen,primod, M=50000)
+#prior_model <- list(type="unif")
+#gamma_post1<-varselreg_ghier(y, covs.cen,prior_model, M=50000)
 ```
 
-and the posterior of $`\pi`$
+and the posterior of $`\pi`$.
 
 ``` r
 
@@ -754,11 +758,12 @@ xx=seq(from=0, to=1, by=0.001)
 post_pi <- matrix(NA, ncol=M, nrow=length(xx))
 
 for (m in (1:M)){
-  post_pi[,m] <- dbeta(xx, a0+k_gamma[m] , b0+p-k_gamma[m])
+  post_pi[,m] <- dbeta(xx, a0+k_gamma_hier[m] , b0+p-k_gamma_hier[m])
 }
-plot(xx,rowMeans(post_pi) , type="l", col="blue")
-
+plot(xx,rowMeans(post_pi) , type="l", col="blue", xlab=expression(pi),
+     ylab=paste("p(", expression(pi),")"))
 lines(xx,dbeta(xx, a0, b0),col="black")
+legend("topleft",legend=c("posterior","prior"), col=c("blue","black"),lty=1)
 ```
 
 ![](Chapter11_files/figure-html/unnamed-chunk-19-1.png)
@@ -767,16 +772,86 @@ lines(xx,dbeta(xx, a0, b0),col="black")
 
 #### Example 11.6: Movie data: Bayesian model averaging
 
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
+As we have sampled the model indicators we can now sample the parameters
+of the regression model, using the frequencies of the different models.
+We write a function for this task
+
+``` r
+
+estimates_gprior<- function(y,X, gammas_unique, freq_gammas){
+  
+  N<- length(y)
+  p<- dim(X)[2] 
+  nmod <- length(freq_gammas)
+  
+  M <- sum(freq_gammas)
+  g <- N
+  cN<- (N-1)/2
+  
+   beta_post <-  matrix(0, ncol=p, nrow=M)
+   sigma2_post <- rep(NA,M)
+   
+   m <- 0
+   for (imod in 1:nmod){
+     
+     freq_imod <- freq_gammas[imod]
+     ind_gammas <- gammas_unique[imod,]==1
+     
+     X_gamma<- X[ ,ind_gammas]
+     BN <- g/(1+g)*solve(crossprod(X_gamma))
+     bN <- BN %*% crossprod(X_gamma,y)
+     
+     CN <- N*var(y) - t(bN)%*% solve(BN)%*%bN
+     sigma2_post[m + (1:freq_imod)] <- rinvgamma(freq_imod, cN, CN)
+     
+     beta_post[m + (1:freq_imod),ind_gammas] <- mvtnorm::rmvnorm(freq_imod, 
+                                                       mean = bN, sigma = BN)
+     m <- m+freq_imod
+   }
+   return(list(sigma2_post=sigma2_post,beta_post=beta_post))
+}
+```
+
+and apply it to the results under both priors.
+
+``` r
+
+set.seed(seed)
+estimates_unif <- estimates_gprior(y,covs.cen,gammas_unique, freq_gammas)
+estimates_hier <- estimates_gprior(y,covs.cen,gammas_unique_hier,freq_gammas_hier)
+```
+
+We determine the mean and the 2.5% and 97.% quantiles under the uniform
+and the hierarchical model space g-prior and provide results in a table
+(left: uniform prior, right: hierarchical prior )
+
+``` r
+
+res_mcmc <- function(x, lower = 0.025, upper = 0.975){
+  res <- c(quantile(x, lower), mean(x), quantile(x, upper))
+  names(res) <- c(paste0(lower * 100, "%"), "Posterior mean", 
+                  paste0(upper *   100, "%"))
+  res
+}
+res_unif<-t(apply(cbind(estimates_unif$beta_post,estimates_unif$sigma2_post),2,res_mcmc))
+rownames(res_unif)<- c(covs, "sigma2")
+res_hier<-t(apply(cbind(estimates_hier$beta_post,estimates_hier$sigma2_post),2,res_mcmc))
+
+knitr::kable(round(cbind(res_unif,res_hier),3))
+```
+
+|          |    2.5% | Posterior mean |   97.5% |    2.5% | Posterior mean |   97.5% |
+|:---------|--------:|---------------:|--------:|--------:|---------------:|--------:|
+| Comedy   |   0.000 |          0.104 |   1.379 |   0.000 |          0.199 |   1.469 |
+| Thriller |  -0.562 |         -0.021 |   0.118 |  -0.555 |          0.006 |   0.579 |
+| Budget   |   0.000 |          0.113 |   0.153 |   0.000 |          0.120 |   0.153 |
+| Weeks    |   0.000 |          0.195 |   0.470 |   0.000 |          0.231 |   0.458 |
+| Screens  |   0.901 |          1.013 |   1.224 |   0.895 |          0.992 |   1.215 |
+| S-4-6    |  -0.516 |          0.323 |   1.181 |  -0.843 |          0.246 |   1.170 |
+| S-1-3    |   0.000 |          0.558 |   1.636 |   0.000 |          0.701 |   1.941 |
+| Vol-4-6  | -16.652 |        -16.040 | -15.407 | -16.609 |        -16.005 | -15.440 |
+| Vol-1-3  |  20.880 |         21.610 |  22.291 |  20.921 |         21.574 |  22.269 |
+| sigma2   | 111.610 |        151.562 | 205.580 | 110.300 |        149.497 | 202.624 |
 
 ## Section 11.3: Model selection beyond standard regression analysis
 
@@ -960,7 +1035,7 @@ for (i in 2:5) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-24-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-27-1.png)
 
 #### Example 11.10: US GDP data: Quantitative model-order selection
 
@@ -1131,7 +1206,7 @@ acf(dat)
 acf(ret)
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-33-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-36-1.png)
 
 This clearly hints at non-stationarity of the exchange rate series and
 at (first order) stationarity of the returns.
@@ -1176,7 +1251,7 @@ for (i in seq_along(draws)) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-35-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-38-1.png)
 
 To explore whether the nonstationarity of the raw series could be caused
 by a unit root, we investigate the posterior of
@@ -1196,7 +1271,7 @@ for (p in 1:4) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-36-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-39-1.png)
 
 We do the same for the inflation data (currently not included in the
 book).
@@ -1224,7 +1299,7 @@ for (p in 1:4) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-38-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-41-1.png)
 
 #### Example 11.XX: CHF exchange rate data: Testing for a unit root using the Savage-Dickey density ratio
 
@@ -1264,7 +1339,7 @@ abline(v = 0, lty = 3)
 abline(h = 0, lty = 3)
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-40-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-43-1.png)
 
 To compute the numerical value of the SD density ratio, we again use
 Rao-Blackwellization.
