@@ -2529,7 +2529,7 @@ different models. We write a function for this task</p>
 <span>     <span class="va">BN</span> <span class="op">&lt;-</span> <span class="va">g</span><span class="op">/</span><span class="op">(</span><span class="fl">1</span><span class="op">+</span><span class="va">g</span><span class="op">)</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/base/solve.html" class="external-link">solve</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/crossprod.html" class="external-link">crossprod</a></span><span class="op">(</span><span class="va">X_gamma</span><span class="op">)</span><span class="op">)</span></span>
 <span>     <span class="va">bN</span> <span class="op">&lt;-</span> <span class="va">BN</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/crossprod.html" class="external-link">crossprod</a></span><span class="op">(</span><span class="va">X_gamma</span>,<span class="va">y</span><span class="op">)</span></span>
 <span>     </span>
-<span>     <span class="va">CN</span> <span class="op">&lt;-</span> <span class="va">N</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">var</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="va">bN</span><span class="op">)</span><span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/solve.html" class="external-link">solve</a></span><span class="op">(</span><span class="va">BN</span><span class="op">)</span><span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span><span class="va">bN</span></span>
+<span>     <span class="va">CN</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">N</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">var</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="va">bN</span><span class="op">)</span><span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/solve.html" class="external-link">solve</a></span><span class="op">(</span><span class="va">BN</span><span class="op">)</span><span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span><span class="va">bN</span><span class="op">)</span><span class="op">/</span><span class="fl">2</span></span>
 <span>     <span class="va">sigma2_post</span><span class="op">[</span><span class="va">m</span> <span class="op">+</span> <span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="va">freq_imod</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvGammaDist.html">rinvgamma</a></span><span class="op">(</span><span class="va">freq_imod</span>, <span class="va">cN</span>, <span class="va">CN</span><span class="op">)</span></span>
 <span>     </span>
 <span>     <span class="va">beta_post</span><span class="op">[</span><span class="va">m</span> <span class="op">+</span> <span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="va">freq_imod</span><span class="op">)</span>,<span class="va">ind_gammas</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu">mvtnorm</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/mvtnorm/man/Mvnorm.html" class="external-link">rmvnorm</a></span><span class="op">(</span><span class="va">freq_imod</span>, </span>
@@ -2661,12 +2661,12 @@ a table (left: uniform prior, right: hierarchical prior )</p>
 </tr>
 <tr class="even">
 <td align="left">sigma2</td>
-<td align="right">111.610</td>
-<td align="right">151.562</td>
-<td align="right">205.580</td>
-<td align="right">110.300</td>
-<td align="right">149.497</td>
-<td align="right">202.624</td>
+<td align="right">55.805</td>
+<td align="right">75.781</td>
+<td align="right">102.790</td>
+<td align="right">55.150</td>
+<td align="right">74.749</td>
+<td align="right">101.312</td>
 </tr>
 </tbody>
 </table>

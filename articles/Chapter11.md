@@ -801,7 +801,7 @@ estimates_gprior<- function(y,X, gammas_unique, freq_gammas){
      BN <- g/(1+g)*solve(crossprod(X_gamma))
      bN <- BN %*% crossprod(X_gamma,y)
      
-     CN <- N*var(y) - t(bN)%*% solve(BN)%*%bN
+     CN <- (N*var(y) - t(bN)%*% solve(BN)%*%bN)/2
      sigma2_post[m + (1:freq_imod)] <- rinvgamma(freq_imod, cN, CN)
      
      beta_post[m + (1:freq_imod),ind_gammas] <- mvtnorm::rmvnorm(freq_imod, 
@@ -851,7 +851,7 @@ knitr::kable(round(cbind(res_unif,res_hier),3))
 | S-1-3    |   0.000 |          0.558 |   1.636 |   0.000 |          0.701 |   1.941 |
 | Vol-4-6  | -16.652 |        -16.040 | -15.407 | -16.609 |        -16.005 | -15.440 |
 | Vol-1-3  |  20.880 |         21.610 |  22.291 |  20.921 |         21.574 |  22.269 |
-| sigma2   | 111.610 |        151.562 | 205.580 | 110.300 |        149.497 | 202.624 |
+| sigma2   |  55.805 |         75.781 | 102.790 |  55.150 |         74.749 | 101.312 |
 
 ## Section 11.3: Model selection beyond standard regression analysis
 
