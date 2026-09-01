@@ -542,7 +542,7 @@ estimates_gprior<- function(y,X, gammas_unique, freq_gammas){
      BN <- g/(1+g)*solve(crossprod(X_gamma))
      bN <- BN %*% crossprod(X_gamma,y)
      
-     CN <- N*var(y) - t(bN)%*% solve(BN)%*%bN
+     CN <- (N*var(y) - t(bN)%*% solve(BN)%*%bN)/2
      sigma2_post[m + (1:freq_imod)] <- rinvgamma(freq_imod, cN, CN)
      
      beta_post[m + (1:freq_imod),ind_gammas] <- mvtnorm::rmvnorm(freq_imod, 
