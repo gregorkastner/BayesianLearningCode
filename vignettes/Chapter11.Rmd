@@ -494,7 +494,7 @@ and the posterior of $\pi$.
 
 ```{r}
 if (pdfplots) {
-  pdf("11-2_3.pdf", width = 5, height = 6)
+  pdf("11-2_2d.pdf", width = 5, height = 6)
 }
 
 b0 <- a0 <- 1
@@ -543,6 +543,7 @@ estimates_gprior<- function(y,X, gammas_unique, freq_gammas){
      bN <- BN %*% crossprod(X_gamma,y)
      
      CN <- (N*var(y) - t(bN)%*% solve(BN)%*%bN)/2
+     print(rinvgamma(1, cN, CN))
      sigma2_post[m + (1:freq_imod)] <- rinvgamma(freq_imod, cN, CN)
      
      beta_post[m + (1:freq_imod),ind_gammas] <- mvtnorm::rmvnorm(freq_imod, 
