@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
   fig.height = 6
 )
 knitr::opts_knit$set(global.par = TRUE)
-pdfplots <- FALSE # default: FALSE; set this to TRUE only if you like pdf figures
+pdfplots <-TRUE # default: FALSE; set this to TRUE only if you like pdf figures
 mcmcspeedup <- 10 # default: 1; set this to something higher for fewer draws
 seed <- 42
 ```
@@ -385,7 +385,7 @@ barplot(tabulate(k_gamma),  col ="blue",xlab=expression(k[gamma]),
 ### Figure 11.3
 ```{r}
 if (pdfplots) {
-  pdf("11-2_3.pdf", width = 6, height = 3)
+  pdf("11-2_3.pdf", width = 8, height = 5)
 }
 px=10
 xx=0:px
@@ -402,7 +402,7 @@ barplot(rbind(dbinom(xx, size=px, prob=0.05),
               dbinom(xx, size=px, prob=0.5)), beside=TRUE,
               col=c("darkblue","darkred"),ylim=c(0,0.2), names.arg=xx,
               xlab = "x", ylab = "P(X=x)",cex.axis=1,cex.names=1,
-              #border=NA,
+              border=NA,
               legend.text=c(expression(paste(pi, " = 0.05")),
                             expression(paste(pi, " = 0.5"))  ) )
 ```
@@ -528,7 +528,7 @@ for (m in (1:M)){
   post_pi[,m] <- dbeta(xx, a0+k_gamma_hier[m] , b0+p-k_gamma_hier[m])
 }
 plot(xx,rowMeans(post_pi) , type="l", col="blue", xlab=expression(pi),
-     ylab=paste("p(", expression(pi),")"))
+     ylab=expression(paste("p(", pi,")")))
 lines(xx,dbeta(xx, a0, b0),col="black")
 legend("topleft",legend=c("posterior","prior"), col=c("blue","black"),lty=1)
 ```
