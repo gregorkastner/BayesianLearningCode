@@ -409,7 +409,7 @@ M <- 100000
 p <- dim(covs.cen)[2]
 
 set.seed(seed)
-res_gunif<-varselreg_gunif(y, covs.cen,M=M )
+res_gunif <- varselreg_gunif(y, covs.cen,M=M )
 ```
 
 We show the PIPs in a barplot and compute the estimated posterior
@@ -423,6 +423,12 @@ if (pdfplots) {
 par(mfrow = c(1, 1), mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.5, .5, 0))
 barplot(colMeans(res_gunif$gamma_post), col="blue",names.arg=1:p, 
         xlab="Covariate", ylab="PIP")
+```
+
+![](Chapter11_files/figure-html/unnamed-chunk-14-1.png)
+
+``` r
+
 
 gammas_unique <- unique(res_gunif$gamma_post)
 nmod <- dim(gammas_unique)[1]
@@ -532,6 +538,8 @@ barplot(tabulate(k_gamma),  col ="blue",xlab=expression(k[gamma]),
         ylab="Frequencies", ylim=c(0,50000),  names.arg=1:p)
 ```
 
+![](Chapter11_files/figure-html/unnamed-chunk-15-1.png)
+
 ### Section 11.2.4: Priors on the model space
 
 #### Figure 11.3
@@ -561,9 +569,11 @@ barplot(rbind(dbinom(xx, size=px, prob=0.05),
                             expression(paste(pi, " = 0.5"))  ) )
 ```
 
-#### Example 11.8: Movie Data: Hierarchical prior on the model space
+![](Chapter11_files/figure-html/unnamed-chunk-16-1.png) \### Example
+11.8: Movie Data: Hierarchical prior on the model space
 
-We now implement variable selection with the g-prior
+We now implement variable selection with the g-prior under a
+hierarchical prior.
 
 ``` r
 
@@ -637,11 +647,17 @@ if (pdfplots) {
   pdf("11-2_2b.pdf", width = 3, height = 3)
 }
 set.seed(seed)
-gamma_post_hier<-varselreg_ghier(y, covs.cen, M=M)
+gamma_post_hier <- varselreg_ghier(y, covs.cen, M=M)
 
 par(mfrow = c(1, 1), mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.5, .5, 0))
 barplot(colMeans(gamma_post_hier), col="blue",names.arg=1:p, 
         xlab="Covariate",ylab="PIP")
+```
+
+![](Chapter11_files/figure-html/unnamed-chunk-18-1.png)
+
+``` r
+
 
 gammas_unique_hier <- unique(gamma_post_hier)
 num_mod_hier <- dim(gammas_unique_hier)[1]
@@ -744,6 +760,12 @@ k_gamma_hier=rowSums(gamma_post_hier)
 
 barplot(tabulate(k_gamma_hier),  col="blue",xlab=expression(k[gamma]),
               ylab="Frequencies", ylim=c(0,50000), names.arg=1:p)
+```
+
+![](Chapter11_files/figure-html/unnamed-chunk-19-1.png)
+
+``` r
+
 
 # TEST
 #prior_model <- list(type="unif")
@@ -773,13 +795,16 @@ lines(xx,dbeta(xx, a0, b0),col="black")
 legend("topleft",legend=c("posterior","prior"), col=c("blue","black"),lty=1)
 ```
 
+![](Chapter11_files/figure-html/unnamed-chunk-20-1.png)
+
 ### Section 11.2.5: Bayesian model averaging
 
 #### Example 11.9: Movie data: Bayesian model averaging
 
 As we have sampled the model indicators we can now sample the parameters
 of the regression model, using the frequencies of the different models.
-We write a function for this task
+We write a function for this task. An alternative would be to implement
+this step in the function that performs variable selection.
 
 ``` r
 
@@ -804,7 +829,7 @@ estimates_gprior<- function(y,X, gammas_unique, freq_gammas){
      p_imod <- sum(ind_gammas)
      ind<-m + (1:freq_imod)
      
-     X_gamma<- X[ ,ind_gammas]
+     X_gamma <- X[ ,ind_gammas==1]
      BN <- g/(1+g)*solve(crossprod(X_gamma))
      bN <- BN %*% crossprod(X_gamma,y)
      
@@ -861,6 +886,11 @@ knitr::kable(round(cbind(res_unif,res_hier),3))
 | Vol-4-6  | -19.193 |        -16.045 | -12.893 | -19.134 |        -16.002 | -12.895 |
 | Vol-1-3  |  18.357 |         21.613 |  24.839 |  18.339 |         21.571 |  24.806 |
 | sigma2   |  55.805 |         75.781 | 102.790 |  55.150 |         74.749 | 101.312 |
+
+``` r
+
+#xtable(cbind(res_unif,res_hier),digits=rep(2,7))
+```
 
 ## Section 11.3: Model selection beyond standard regression analysis
 
@@ -1044,6 +1074,8 @@ for (i in 2:5) {
 }
 ```
 
+![](Chapter11_files/figure-html/unnamed-chunk-28-1.png)
+
 #### Example 11.10: US GDP data: Quantitative model-order selection
 
 After visualizing the Savage-Dickey density ratio, we now move towards
@@ -1213,6 +1245,8 @@ acf(dat)
 acf(ret)
 ```
 
+![](Chapter11_files/figure-html/unnamed-chunk-37-1.png)
+
 This clearly hints at non-stationarity of the exchange rate series and
 at (first order) stationarity of the returns.
 
@@ -1256,6 +1290,8 @@ for (i in seq_along(draws)) {
 }
 ```
 
+![](Chapter11_files/figure-html/unnamed-chunk-39-1.png)
+
 To explore whether the nonstationarity of the raw series could be caused
 by a unit root, we investigate the posterior of
 $`1 - \phi_1 - \dots - \phi_p`$ for $`p = 1, \dots, 4`$.
@@ -1273,6 +1309,8 @@ for (p in 1:4) {
   abline(v = 0, lty = 2, col = 2)
 }
 ```
+
+![](Chapter11_files/figure-html/unnamed-chunk-40-1.png)
 
 We do the same for the inflation data (currently not included in the
 book).
@@ -1299,6 +1337,8 @@ for (p in 1:4) {
   abline(v = 0, lty = 2, col = 2)
 }
 ```
+
+![](Chapter11_files/figure-html/unnamed-chunk-42-1.png)
 
 #### Example 11.XX: CHF exchange rate data: Testing for a unit root using the Savage-Dickey density ratio
 
@@ -1337,6 +1377,8 @@ lines(breaks, dnorm(breaks, b0[1], sqrt(B0[1, 1])), lwd = 1.5)
 abline(v = 0, lty = 3)
 abline(h = 0, lty = 3)
 ```
+
+![](Chapter11_files/figure-html/unnamed-chunk-44-1.png)
 
 To compute the numerical value of the SD density ratio, we again use
 Rao-Blackwellization.
