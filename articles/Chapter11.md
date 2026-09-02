@@ -423,12 +423,6 @@ if (pdfplots) {
 par(mfrow = c(1, 1), mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.5, .5, 0))
 barplot(colMeans(res_gunif$gamma_post), col="blue",names.arg=1:p, 
         xlab="Covariate", ylab="PIP")
-```
-
-![](Chapter11_files/figure-html/unnamed-chunk-14-1.png)
-
-``` r
-
 
 gammas_unique <- unique(res_gunif$gamma_post)
 nmod <- dim(gammas_unique)[1]
@@ -538,8 +532,6 @@ barplot(tabulate(k_gamma),  col ="blue",xlab=expression(k[gamma]),
         ylab="Frequencies", ylim=c(0,50000),  names.arg=1:p)
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-15-1.png)
-
 ### Section 11.2.4: Priors on the model space
 
 #### Figure 11.3
@@ -547,7 +539,7 @@ barplot(tabulate(k_gamma),  col ="blue",xlab=expression(k[gamma]),
 ``` r
 
 if (pdfplots) {
-  pdf("11-2_3.pdf", width = 6, height = 3)
+  pdf("11-2_3.pdf", width = 8, height = 5)
 }
 px=10
 xx=0:px
@@ -564,13 +556,12 @@ barplot(rbind(dbinom(xx, size=px, prob=0.05),
               dbinom(xx, size=px, prob=0.5)), beside=TRUE,
               col=c("darkblue","darkred"),ylim=c(0,0.2), names.arg=xx,
               xlab = "x", ylab = "P(X=x)",cex.axis=1,cex.names=1,
-              #border=NA,
+              border=NA,
               legend.text=c(expression(paste(pi, " = 0.05")),
                             expression(paste(pi, " = 0.5"))  ) )
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-16-1.png) \### Example
-11.8: Movie Data: Hierarchical prior on the model space
+#### Example 11.8: Movie Data: Hierarchical prior on the model space
 
 We now implement variable selection with the g-prior
 
@@ -651,12 +642,6 @@ gamma_post_hier<-varselreg_ghier(y, covs.cen, M=M)
 par(mfrow = c(1, 1), mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.5, .5, 0))
 barplot(colMeans(gamma_post_hier), col="blue",names.arg=1:p, 
         xlab="Covariate",ylab="PIP")
-```
-
-![](Chapter11_files/figure-html/unnamed-chunk-18-1.png)
-
-``` r
-
 
 gammas_unique_hier <- unique(gamma_post_hier)
 num_mod_hier <- dim(gammas_unique_hier)[1]
@@ -759,12 +744,6 @@ k_gamma_hier=rowSums(gamma_post_hier)
 
 barplot(tabulate(k_gamma_hier),  col="blue",xlab=expression(k[gamma]),
               ylab="Frequencies", ylim=c(0,50000), names.arg=1:p)
-```
-
-![](Chapter11_files/figure-html/unnamed-chunk-19-1.png)
-
-``` r
-
 
 # TEST
 #prior_model <- list(type="unif")
@@ -789,12 +768,10 @@ for (m in (1:M)){
   post_pi[,m] <- dbeta(xx, a0+k_gamma_hier[m] , b0+p-k_gamma_hier[m])
 }
 plot(xx,rowMeans(post_pi) , type="l", col="blue", xlab=expression(pi),
-     ylab=paste("p(", expression(pi),")"))
+     ylab=expression(paste("p(", pi,")")))
 lines(xx,dbeta(xx, a0, b0),col="black")
 legend("topleft",legend=c("posterior","prior"), col=c("blue","black"),lty=1)
 ```
-
-![](Chapter11_files/figure-html/unnamed-chunk-20-1.png)
 
 ### Section 11.2.5: Bayesian model averaging
 
@@ -1067,8 +1044,6 @@ for (i in 2:5) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-28-1.png)
-
 #### Example 11.10: US GDP data: Quantitative model-order selection
 
 After visualizing the Savage-Dickey density ratio, we now move towards
@@ -1238,8 +1213,6 @@ acf(dat)
 acf(ret)
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-37-1.png)
-
 This clearly hints at non-stationarity of the exchange rate series and
 at (first order) stationarity of the returns.
 
@@ -1283,8 +1256,6 @@ for (i in seq_along(draws)) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-39-1.png)
-
 To explore whether the nonstationarity of the raw series could be caused
 by a unit root, we investigate the posterior of
 $`1 - \phi_1 - \dots - \phi_p`$ for $`p = 1, \dots, 4`$.
@@ -1302,8 +1273,6 @@ for (p in 1:4) {
   abline(v = 0, lty = 2, col = 2)
 }
 ```
-
-![](Chapter11_files/figure-html/unnamed-chunk-40-1.png)
 
 We do the same for the inflation data (currently not included in the
 book).
@@ -1330,8 +1299,6 @@ for (p in 1:4) {
   abline(v = 0, lty = 2, col = 2)
 }
 ```
-
-![](Chapter11_files/figure-html/unnamed-chunk-42-1.png)
 
 #### Example 11.XX: CHF exchange rate data: Testing for a unit root using the Savage-Dickey density ratio
 
@@ -1370,8 +1337,6 @@ lines(breaks, dnorm(breaks, b0[1], sqrt(B0[1, 1])), lwd = 1.5)
 abline(v = 0, lty = 3)
 abline(h = 0, lty = 3)
 ```
-
-![](Chapter11_files/figure-html/unnamed-chunk-44-1.png)
 
 To compute the numerical value of the SD density ratio, we again use
 Rao-Blackwellization.
