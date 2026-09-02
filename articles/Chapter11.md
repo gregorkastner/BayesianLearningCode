@@ -422,7 +422,7 @@ if (pdfplots) {
 }
 par(mfrow = c(1, 1), mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.5, .5, 0))
 barplot(colMeans(res_gunif$gamma_post), col="blue",names.arg=1:p, 
-        xlab="Covariate",ylab="PIP")
+        xlab="Covariate", ylab="PIP")
 ```
 
 ![](Chapter11_files/figure-html/unnamed-chunk-14-1.png)
@@ -542,7 +542,35 @@ barplot(tabulate(k_gamma),  col ="blue",xlab=expression(k[gamma]),
 
 ### Section 11.2.4: Priors on the model space
 
-#### Example 11.8: Movie Data: Hierarchical prior on the model space
+#### Figure 11.3
+
+``` r
+
+if (pdfplots) {
+  pdf("11-2_3.pdf", width = 6, height = 3)
+}
+px=10
+xx=0:px
+par(mfrow = c(1, 2))
+barplot(rbind(dbinom(xx, size=px, prob=0.05),
+              dbinom(xx, size=px, prob=0.5)), beside=TRUE,
+              col=c("darkblue","darkred"),ylim=c(0,0.6), names.arg=xx,
+              xlab = "x", ylab = "P(X=x)",cex.axis=1.2,cex.names=1.2,
+              legend.text=c(expression(paste(pi, " = 0.05")),
+                            expression(paste(pi, " = 0.5"))  ) )
+px=100
+xx=0:px
+barplot(rbind(dbinom(xx, size=px, prob=0.05),
+              dbinom(xx, size=px, prob=0.5)), beside=TRUE,
+              col=c("darkblue","darkred"),ylim=c(0,0.2), names.arg=xx,
+              xlab = "x", ylab = "P(X=x)",cex.axis=1,cex.names=1,
+              #border=NA,
+              legend.text=c(expression(paste(pi, " = 0.05")),
+                            expression(paste(pi, " = 0.5"))  ) )
+```
+
+![](Chapter11_files/figure-html/unnamed-chunk-16-1.png) \### Example
+11.8: Movie Data: Hierarchical prior on the model space
 
 We now implement variable selection with the g-prior
 
@@ -625,7 +653,7 @@ barplot(colMeans(gamma_post_hier), col="blue",names.arg=1:p,
         xlab="Covariate",ylab="PIP")
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-17-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-18-1.png)
 
 ``` r
 
@@ -733,7 +761,7 @@ barplot(tabulate(k_gamma_hier),  col="blue",xlab=expression(k[gamma]),
               ylab="Frequencies", ylim=c(0,50000), names.arg=1:p)
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-18-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-19-1.png)
 
 ``` r
 
@@ -766,11 +794,11 @@ lines(xx,dbeta(xx, a0, b0),col="black")
 legend("topleft",legend=c("posterior","prior"), col=c("blue","black"),lty=1)
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-19-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-20-1.png)
 
 ### Section 11.2.5: Bayesian model averaging
 
-#### Example 11.6: Movie data: Bayesian model averaging
+#### Example 11.9: Movie data: Bayesian model averaging
 
 As we have sampled the model indicators we can now sample the parameters
 of the regression model, using the frequencies of the different models.
@@ -796,17 +824,20 @@ estimates_gprior<- function(y,X, gammas_unique, freq_gammas){
      
      freq_imod <- freq_gammas[imod]
      ind_gammas <- gammas_unique[imod,]==1
+     p_imod <- sum(ind_gammas)
+     ind<-m + (1:freq_imod)
      
      X_gamma<- X[ ,ind_gammas]
      BN <- g/(1+g)*solve(crossprod(X_gamma))
      bN <- BN %*% crossprod(X_gamma,y)
      
      CN <- (N*var(y) - t(bN)%*% solve(BN)%*%bN)/2
-     #print(rinvgamma(1, cN, CN))
-     sigma2_post[m + (1:freq_imod)] <- rinvgamma(freq_imod, cN, CN)
+     sigma2 <- rinvgamma(freq_imod, cN, CN)
+     u <- mvtnorm::rmvnorm(freq_imod, mean=rep(0,p_imod),sigma = BN)
      
-     beta_post[m + (1:freq_imod),ind_gammas] <- mvtnorm::rmvnorm(freq_imod, 
-                                                       mean = bN, sigma = BN)
+     beta_post[ind,ind_gammas] <- t(matrix(rep(bN,freq_imod), nrow=p_imod)) +
+                             u*matrix(rep(sqrt(sigma2),p_imod), nrow=freq_imod)
+     sigma2_post[ind] <- sigma2
      m <- m+freq_imod
    }
    return(list(sigma2_post=sigma2_post,beta_post=beta_post))
@@ -843,15 +874,15 @@ knitr::kable(round(cbind(res_unif,res_hier),3))
 
 |          |    2.5% | Posterior mean |   97.5% |    2.5% | Posterior mean |   97.5% |
 |:---------|--------:|---------------:|--------:|--------:|---------------:|--------:|
-| Comedy   |   0.000 |          0.104 |   1.379 |   0.000 |          0.199 |   1.469 |
-| Thriller |  -0.562 |         -0.021 |   0.118 |  -0.555 |          0.006 |   0.579 |
-| Budget   |   0.000 |          0.113 |   0.153 |   0.000 |          0.120 |   0.153 |
-| Weeks    |   0.000 |          0.195 |   0.470 |   0.000 |          0.231 |   0.458 |
-| Screens  |   0.901 |          1.013 |   1.224 |   0.895 |          0.992 |   1.215 |
-| S-4-6    |  -0.516 |          0.323 |   1.181 |  -0.843 |          0.246 |   1.170 |
-| S-1-3    |   0.000 |          0.558 |   1.636 |   0.000 |          0.701 |   1.941 |
-| Vol-4-6  | -16.652 |        -16.040 | -15.407 | -16.609 |        -16.005 | -15.440 |
-| Vol-1-3  |  20.880 |         21.610 |  22.291 |  20.921 |         21.574 |  22.269 |
+| Comedy   |  -0.508 |          0.104 |   2.414 |  -1.316 |          0.194 |   3.237 |
+| Thriller |  -1.625 |         -0.020 |   1.119 |  -2.535 |          0.007 |   2.577 |
+| Budget   |   0.000 |          0.113 |   0.227 |   0.000 |          0.120 |   0.227 |
+| Weeks    |   0.000 |          0.195 |   0.691 |   0.000 |          0.231 |   0.691 |
+| Screens  |   0.609 |          1.013 |   1.424 |   0.589 |          0.992 |   1.409 |
+| S-4-6    |  -0.487 |          0.319 |   1.742 |  -2.218 |          0.246 |   1.816 |
+| S-1-3    |   0.000 |          0.561 |   2.127 |  -0.023 |          0.699 |   3.335 |
+| Vol-4-6  | -19.193 |        -16.045 | -12.893 | -19.134 |        -16.002 | -12.895 |
+| Vol-1-3  |  18.357 |         21.613 |  24.839 |  18.339 |         21.571 |  24.806 |
 | sigma2   |  55.805 |         75.781 | 102.790 |  55.150 |         74.749 | 101.312 |
 
 ## Section 11.3: Model selection beyond standard regression analysis
@@ -1036,7 +1067,7 @@ for (i in 2:5) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-27-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-28-1.png)
 
 #### Example 11.10: US GDP data: Quantitative model-order selection
 
@@ -1207,7 +1238,7 @@ acf(dat)
 acf(ret)
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-36-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-37-1.png)
 
 This clearly hints at non-stationarity of the exchange rate series and
 at (first order) stationarity of the returns.
@@ -1252,7 +1283,7 @@ for (i in seq_along(draws)) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-38-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-39-1.png)
 
 To explore whether the nonstationarity of the raw series could be caused
 by a unit root, we investigate the posterior of
@@ -1272,7 +1303,7 @@ for (p in 1:4) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-39-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-40-1.png)
 
 We do the same for the inflation data (currently not included in the
 book).
@@ -1300,7 +1331,7 @@ for (p in 1:4) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-41-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-42-1.png)
 
 #### Example 11.XX: CHF exchange rate data: Testing for a unit root using the Savage-Dickey density ratio
 
@@ -1340,7 +1371,7 @@ abline(v = 0, lty = 3)
 abline(h = 0, lty = 3)
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-43-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-44-1.png)
 
 To compute the numerical value of the SD density ratio, we again use
 Rao-Blackwellization.
