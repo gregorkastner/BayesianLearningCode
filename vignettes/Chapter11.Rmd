@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
   fig.height = 6
 )
 knitr::opts_knit$set(global.par = TRUE)
-pdfplots <-TRUE # default: FALSE; set this to TRUE only if you like pdf figures
+pdfplots <- FALSE # default: FALSE; set this to TRUE only if you like pdf figures
 mcmcspeedup <- 10 # default: 1; set this to something higher for fewer draws
 seed <- 42
 ```
@@ -337,7 +337,7 @@ M <- 100000
 p <- dim(covs.cen)[2]
 
 set.seed(seed)
-res_gunif<-varselreg_gunif(y, covs.cen,M=M )
+res_gunif <- varselreg_gunif(y, covs.cen,M=M )
 ```
 We show the PIPs in a barplot and compute the estimated posterior probabilities of all models visited during MCMC.
 
@@ -408,7 +408,7 @@ barplot(rbind(dbinom(xx, size=px, prob=0.05),
 ```
 ### Example 11.8: Movie Data: Hierarchical prior on the model space
 
-We now implement variable selection with the g-prior
+We now implement variable selection with the g-prior under a hierarchical prior.
 ```{r}
 varselreg_ghier<- function(y, X, 
                            prior_model=list(type="hier", a0=1,b0=1),
@@ -477,7 +477,7 @@ if (pdfplots) {
   pdf("11-2_2b.pdf", width = 3, height = 3)
 }
 set.seed(seed)
-gamma_post_hier<-varselreg_ghier(y, covs.cen, M=M)
+gamma_post_hier <- varselreg_ghier(y, covs.cen, M=M)
 
 par(mfrow = c(1, 1), mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.5, .5, 0))
 barplot(colMeans(gamma_post_hier), col="blue",names.arg=1:p, 
@@ -538,7 +538,8 @@ legend("topleft",legend=c("posterior","prior"), col=c("blue","black"),lty=1)
 ### Example 11.9: Movie data: Bayesian model averaging
 As we have sampled  the model indicators we can now sample the parameters
 of the regression model, using the frequencies of the different models. We write 
-a function for this task 
+a function for this task. An alternative would be to implement this step in
+the function that performs variable selection.
 ```{r}
 estimates_gprior<- function(y,X, gammas_unique, freq_gammas){
   
@@ -561,7 +562,7 @@ estimates_gprior<- function(y,X, gammas_unique, freq_gammas){
      p_imod <- sum(ind_gammas)
      ind<-m + (1:freq_imod)
      
-     X_gamma<- X[ ,ind_gammas]
+     X_gamma <- X[ ,ind_gammas==1]
      BN <- g/(1+g)*solve(crossprod(X_gamma))
      bN <- BN %*% crossprod(X_gamma,y)
      
@@ -599,6 +600,7 @@ rownames(res_unif)<- c(covs, "sigma2")
 res_hier<-t(apply(cbind(estimates_hier$beta_post,estimates_hier$sigma2_post),2,res_mcmc))
 
 knitr::kable(round(cbind(res_unif,res_hier),3))
+#xtable(cbind(res_unif,res_hier),digits=rep(2,7))
 ```
 # Section 11.3: Model selection beyond standard regression analysis
 
