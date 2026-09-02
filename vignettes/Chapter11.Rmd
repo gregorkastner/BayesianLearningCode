@@ -238,7 +238,6 @@ print(PIP)
 
 ## Section 11.2.3: Benchmark priors for comparing regression models
 
-
 We  again start writing  a function that 
 ```{r}
 varselreg_gunif<- function(y, X, pri=NA, burnin=1000L, M=50000L){
@@ -379,7 +378,6 @@ axis(side = 1, at = seq(from=0, to=M, by=M/5),labels = T)
 
 barplot(tabulate(k_gamma),  col ="blue",xlab=expression(k[gamma]),
         ylab="Frequencies", ylim=c(0,50000),  names.arg=1:p)
-
 ```
 
 ## Section 11.2.4: Priors on the model space
@@ -472,7 +470,6 @@ knitr::kable(cbind(gammas_unique_hier,freq_gammas_hier/M)[io_hier,],
              digits=cbind(rep(0, p),4))
 
 #xtable(cbind(h,freqs)[io,],digits=c(rep(0,p+1),4))
-
 ```
 
 We determine the distribution of the model space complexity 
@@ -543,7 +540,7 @@ estimates_gprior<- function(y,X, gammas_unique, freq_gammas){
      bN <- BN %*% crossprod(X_gamma,y)
      
      CN <- (N*var(y) - t(bN)%*% solve(BN)%*%bN)/2
-     print(rinvgamma(1, cN, CN))
+     #print(rinvgamma(1, cN, CN))
      sigma2_post[m + (1:freq_imod)] <- rinvgamma(freq_imod, cN, CN)
      
      beta_post[m + (1:freq_imod),ind_gammas] <- mvtnorm::rmvnorm(freq_imod, 
