@@ -347,7 +347,7 @@ if (pdfplots) {
 }
 par(mfrow = c(1, 1), mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.5, .5, 0))
 barplot(colMeans(res_gunif$gamma_post), col="blue",names.arg=1:p, 
-        xlab="Covariate",ylab="PIP")
+        xlab="Covariate", ylab="PIP")
 
 gammas_unique <- unique(res_gunif$gamma_post)
 nmod <- dim(gammas_unique)[1]
@@ -382,6 +382,30 @@ barplot(tabulate(k_gamma),  col ="blue",xlab=expression(k[gamma]),
 
 ## Section 11.2.4: Priors on the model space
 
+### Figure 11.3
+```{r}
+if (pdfplots) {
+  pdf("11-2_3.pdf", width = 6, height = 3)
+}
+px=10
+xx=0:px
+par(mfrow = c(1, 2))
+barplot(rbind(dbinom(xx, size=px, prob=0.05),
+              dbinom(xx, size=px, prob=0.5)), beside=TRUE,
+              col=c("darkblue","darkred"),ylim=c(0,0.6), names.arg=xx,
+              xlab = "x", ylab = "P(X=x)",cex.axis=1.2,cex.names=1.2,
+              legend.text=c(expression(paste(pi, " = 0.05")),
+                            expression(paste(pi, " = 0.5"))  ) )
+px=100
+xx=0:px
+barplot(rbind(dbinom(xx, size=px, prob=0.05),
+              dbinom(xx, size=px, prob=0.5)), beside=TRUE,
+              col=c("darkblue","darkred"),ylim=c(0,0.2), names.arg=xx,
+              xlab = "x", ylab = "P(X=x)",cex.axis=1,cex.names=1,
+              #border=NA,
+              legend.text=c(expression(paste(pi, " = 0.05")),
+                            expression(paste(pi, " = 0.5"))  ) )
+```
 ### Example 11.8: Movie Data: Hierarchical prior on the model space
 
 We now implement variable selection with the g-prior
@@ -511,7 +535,7 @@ legend("topleft",legend=c("posterior","prior"), col=c("blue","black"),lty=1)
 
 ## Section 11.2.5: Bayesian model averaging
 
-### Example 11.6: Movie data: Bayesian model averaging
+### Example 11.9: Movie data: Bayesian model averaging
 As we have sampled  the model indicators we can now sample the parameters
 of the regression model, using the frequencies of the different models. We write 
 a function for this task 
@@ -534,17 +558,20 @@ estimates_gprior<- function(y,X, gammas_unique, freq_gammas){
      
      freq_imod <- freq_gammas[imod]
      ind_gammas <- gammas_unique[imod,]==1
+     p_imod <- sum(ind_gammas)
+     ind<-m + (1:freq_imod)
      
      X_gamma<- X[ ,ind_gammas]
      BN <- g/(1+g)*solve(crossprod(X_gamma))
      bN <- BN %*% crossprod(X_gamma,y)
      
      CN <- (N*var(y) - t(bN)%*% solve(BN)%*%bN)/2
-     #print(rinvgamma(1, cN, CN))
-     sigma2_post[m + (1:freq_imod)] <- rinvgamma(freq_imod, cN, CN)
+     sigma2 <- rinvgamma(freq_imod, cN, CN)
+     u <- mvtnorm::rmvnorm(freq_imod, mean=rep(0,p_imod),sigma = BN)
      
-     beta_post[m + (1:freq_imod),ind_gammas] <- mvtnorm::rmvnorm(freq_imod, 
-                                                       mean = bN, sigma = BN)
+     beta_post[ind,ind_gammas] <- t(matrix(rep(bN,freq_imod), nrow=p_imod)) +
+                             u*matrix(rep(sqrt(sigma2),p_imod), nrow=freq_imod)
+     sigma2_post[ind] <- sigma2
      m <- m+freq_imod
    }
    return(list(sigma2_post=sigma2_post,beta_post=beta_post))
