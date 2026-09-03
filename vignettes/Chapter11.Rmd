@@ -610,9 +610,25 @@ knitr::kable(round(cbind(res_unif,res_hier),3))
 ## Section 11.3.1: Marginal likelihoods under transformed outcome variables
 
 ### Example 11.7: Movie data: Model comparison under log transformations
+We first compute the marginaö likelihoods for the model of sales and log(sales)
+and then apply the correction factor.
+```{r}
+X=covs.cen[, c("Screens","Budget" )]
+gammas <- matrix(rep(1,2),nrow=1)
 
-[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />
-
+lM0 <- logmarlik_reg(y, X, a0=0, A0=100, B0=10, c0 = 2.5,C0 = 1.5,
+                     gammas)
+lMF_uncorr <- logmarlik_reg(log(y), X, a0=0, A0=10, B0=1, c0 = 2.5,C0 = 1.5,
+                            gammas)
+lMF<-lMF_uncorr- sum(log(y))
+```
+Next we compute the posterior model probabilities under the assumption that
+both models have equal prior probabilities (which hence can be omitted).
+We find a  clear preference for the transformed model.
+```{r}
+model_probs <- exp(c(lM0,lMF ) ) / sum(exp(lM0)+exp(lMF))
+print(round(model_probs, 3))
+```
 ## Section 11.3.2: Bayesian variable selection for a probit model
 
 ### Example 11.8: Labor market data: Bayesian variable selection
