@@ -901,16 +901,38 @@ knitr::kable(round(cbind(res_unif,res_hier),3))
 
 #### Example 11.7: Movie data: Model comparison under log transformations
 
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
-\[TODO\]  
+We first compute the marginal likelihoods for the model of sales and
+that of log(sales) in Example 6.3. Then we apply the correction factor.
+
+``` r
+
+X=covs.cen[, c("Screens","Budget" )]
+gammas <- matrix(rep(1,2),nrow=1)
+
+lM0 <- logmarlik_reg(y, X, a0=0, A0=100, B0=1, c0 = 2.5,C0 = 1.5,
+                     gammas)
+lMF_uncorr <- logmarlik_reg(log(y), X, a0=0, A0=100, B0=1, c0 = 2.5,C0 = 1.5,
+                            gammas)
+lMF<-lMF_uncorr- sum(log(y))
+knitr::kable(round(cbind(lM0,lMF_uncorr, lMF ),2))
+```
+
+|     lM0 | lMF_uncorr |    lMF |
+|--------:|-----------:|-------:|
+| -414.46 |    -109.08 | -354.4 |
+
+We then compute the posterior model probabilities under the assumption
+that both models have equal prior probabilities (which hence can be
+omitted). We find a clear preference for the transformed model.
+
+``` r
+
+model_probs <- exp(c(lM0,lMF ) ) / (exp(lM0)+exp(lMF))
+names(model_probs)=c("P(M0)", "P(MF)")
+print(round(model_probs),2)
+#> P(M0) P(MF) 
+#>     0     1
+```
 
 ### Section 11.3.2: Bayesian variable selection for a probit model
 
@@ -1077,7 +1099,7 @@ for (i in 2:5) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-28-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-30-1.png)
 
 #### Example 11.10: US GDP data: Quantitative model-order selection
 
@@ -1248,7 +1270,7 @@ acf(dat)
 acf(ret)
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-37-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-39-1.png)
 
 This clearly hints at non-stationarity of the exchange rate series and
 at (first order) stationarity of the returns.
@@ -1293,7 +1315,7 @@ for (i in seq_along(draws)) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-39-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-41-1.png)
 
 To explore whether the nonstationarity of the raw series could be caused
 by a unit root, we investigate the posterior of
@@ -1313,7 +1335,7 @@ for (p in 1:4) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-40-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-42-1.png)
 
 We do the same for the inflation data (currently not included in the
 book).
@@ -1341,7 +1363,7 @@ for (p in 1:4) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-42-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-44-1.png)
 
 #### Example 11.XX: CHF exchange rate data: Testing for a unit root using the Savage-Dickey density ratio
 
@@ -1381,7 +1403,7 @@ abline(v = 0, lty = 3)
 abline(h = 0, lty = 3)
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-44-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-46-1.png)
 
 To compute the numerical value of the SD density ratio, we again use
 Rao-Blackwellization.
