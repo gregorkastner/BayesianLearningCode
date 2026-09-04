@@ -1089,7 +1089,6 @@ ats <- which(!duplicated(years))
 axis(1, ats, years[ats])
 acf(y, ylab = "")
 title("Empirical ACF")
-dev.off()
 ```
 
 We now implement the MCMC sampler for fitting an MA(1) model, where we treat the
