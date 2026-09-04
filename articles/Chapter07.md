@@ -831,7 +831,8 @@ prior.
 
 ``` r
 
-par(mfrow = c(4, 2), mar = c(2.5, 2.8, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
+par(mfrow = c(4, 2), mar = c(2.5, 2.8, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5,
+    font.main = 1)
 for (i in seq_along(stationary2)) {
   plot.ts(stationary2[i], xlab = "Draws after burn-in", ylab = labels[i])
   if (i == 1) title("Traceplot")
@@ -1004,7 +1005,8 @@ MH-step (d).
 
 ``` r
 
-par(mfrow = c(4, 2), mar = c(2.5, 2.8, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
+par(mfrow = c(4, 2), mar = c(2.5, 2.8, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5,
+    font.main = 1)
 for (i in seq_along(stationary3)) {
   plot.ts(stationary3[i], xlab = "Draws after burn-in", ylab = labels[i])
   if (i == 1) title("Traceplot")
@@ -1079,29 +1081,45 @@ log returns.
 
 data("exrates", package = "stochvol")
 daily <- exrates$USD / exrates$CHF
+names(daily) <- exrates$date
 
-# Identify week
-#week <- format(exrates$date, "%Y-%U")
-# Keep last observation in each week
-#weekly <- daily[!duplicated(week, fromLast = TRUE)]
+# Define r as the log returns
+r <- diff(log(daily))
 
-# Define y as the (absolute) growth rate of the squared log returns
-y <- diff(diff(log(daily))^2)
+# Define y as the change of the squared log returns
+y <- diff(r^2)
 
-#y <- head(exrates$USD / exrates$CHF, 2000)
-#y <- 100 * diff(diff(log(exrates$USD / exrates$CHF))^2)
-#data(inflation)
-#ytmp <- diff(window(inflation, end = c(2019, 12)))
-#ytmp <- diff(inflation)
-#y <- ytmp - mean(ytmp)
-#y <- diff(ts(ukdat[,2], start = 1989, end = 2025))
-#y <- diff(ts(usdat[,2], start = usdat$year[1], end = tail(usdat$year, 1)))
-ts.plot(y)
-acf(y)
-pacf(y)
+plot(r, xaxt = "n", type = "l", xlab = "Time", ylab = "r")
+title("Log returns")
+years <- format(as.Date(names(r)), "%Y")
+ats <- which(!duplicated(years))
+axis(1, ats, years[ats])
+acf(r, ylab = "")
+title("Empirical ACF")
+
+plot(r^2, xaxt = "n", type = "l", xlab = "Time", ylab = expression(r^2))
+title("Squared log returns")
+axis(1, ats, years[ats])
+acf(r^2, ylab = "")
+title("Empirical ACF")
+
+plot(y, xaxt = "n", type = "l", xlab = "Time", ylab = "y")
+title("Changes of squared log returns")
+years <- format(as.Date(names(y)), "%Y")
+ats <- which(!duplicated(years))
+axis(1, ats, years[ats])
+acf(y, ylab = "")
+title("Empirical ACF")
 ```
 
 ![](Chapter07_files/figure-html/unnamed-chunk-39-1.png)
+
+``` r
+
+dev.off()
+#> null device 
+#>           1
+```
 
 We now implement the MCMC sampler for fitting an MA(1) model, where we
 treat the latent state $`\epsilon_0 \sim \mathcal{N}(0, \sigma^2)`$ as
