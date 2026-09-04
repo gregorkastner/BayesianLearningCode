@@ -1114,13 +1114,6 @@ title("Empirical ACF")
 
 ![](Chapter07_files/figure-html/unnamed-chunk-39-1.png)
 
-``` r
-
-dev.off()
-#> null device 
-#>           1
-```
-
 We now implement the MCMC sampler for fitting an MA(1) model, where we
 treat the latent state $`\epsilon_0 \sim \mathcal{N}(0, \sigma^2)`$ as
 unknown. For the innovation variance, we assume an inverse gamma prior,
