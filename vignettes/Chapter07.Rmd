@@ -1056,23 +1056,9 @@ squared log returns.
 par(mfrow = c(1, 3))
 data("exrates", package = "stochvol")
 daily <- exrates$USD / exrates$CHF
-
-# Identify week
-#week <- format(exrates$date, "%Y-%U")
-# Keep last observation in each week
-#weekly <- daily[!duplicated(week, fromLast = TRUE)]
-
 # Define y as the (absolute) growth rate of the squared log returns
 y <- diff(diff(log(daily))^2)
 
-#y <- head(exrates$USD / exrates$CHF, 2000)
-#y <- 100 * diff(diff(log(exrates$USD / exrates$CHF))^2)
-#data(inflation)
-#ytmp <- diff(window(inflation, end = c(2019, 12)))
-#ytmp <- diff(inflation)
-#y <- ytmp - mean(ytmp)
-#y <- diff(ts(ukdat[,2], start = 1989, end = 2025))
-#y <- diff(ts(usdat[,2], start = usdat$year[1], end = tail(usdat$year, 1)))
 ts.plot(y)
 acf(y)
 pacf(y)
