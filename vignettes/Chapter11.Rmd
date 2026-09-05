@@ -609,7 +609,7 @@ knitr::kable(round(cbind(res_unif,res_hier),3))
 
 ## Section 11.3.1: Marginal likelihoods under transformed outcome variables
 
-### Example 11.7: Movie data: Model comparison under log transformations
+### Example 11.10 Movie data: Model comparison under log transformations
 We first compute the marginal likelihoods for the model of sales and that of  log(sales)
 in Example 6.3. Then we apply the correction factor.
 ```{r}
