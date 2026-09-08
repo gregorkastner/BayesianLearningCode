@@ -1145,8 +1145,8 @@ optimized MH step.</p>
 <h4 id="example-7-13-chf-exchange-rate-data-fitting-an-ma1-model-using-a-random-walk-mh">Example 7.13: CHF exchange rate data: Fitting an MA(1) model using a
 random walk MH<a class="anchor" aria-label="anchor" href="#example-7-13-chf-exchange-rate-data-fitting-an-ma1-model-using-a-random-walk-mh"></a>
 </h4>
-<p>First, we load the data and compute the (absolute) growth of the
-squared log returns.</p>
+<p>First, we load the data and compute the growth of the absolute log
+returns.</p>
 <div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"exrates"</span>, package <span class="op">=</span> <span class="st">"stochvol"</span><span class="op">)</span></span>
 <span><span class="va">daily</span> <span class="op">&lt;-</span> <span class="va">exrates</span><span class="op">$</span><span class="va">USD</span> <span class="op">/</span> <span class="va">exrates</span><span class="op">$</span><span class="va">CHF</span></span>
@@ -1155,8 +1155,8 @@ squared log returns.</p>
 <span><span class="co"># Define r as the log returns</span></span>
 <span><span class="va">r</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/diff.html" class="external-link">diff</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">daily</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Define y as the change of the squared log returns</span></span>
-<span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/diff.html" class="external-link">diff</a></span><span class="op">(</span><span class="va">r</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span></span>
+<span><span class="co"># Define y as the change of the absolute log returns</span></span>
+<span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/diff.html" class="external-link">diff</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">r</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">r</span>, xaxt <span class="op">=</span> <span class="st">"n"</span>, type <span class="op">=</span> <span class="st">"l"</span>, xlab <span class="op">=</span> <span class="st">"Time"</span>, ylab <span class="op">=</span> <span class="st">"r"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/title.html" class="external-link">title</a></span><span class="op">(</span><span class="st">"Log returns"</span><span class="op">)</span></span>
@@ -1166,14 +1166,14 @@ squared log returns.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/acf.html" class="external-link">acf</a></span><span class="op">(</span><span class="va">r</span>, ylab <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/title.html" class="external-link">title</a></span><span class="op">(</span><span class="st">"Empirical ACF"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">r</span><span class="op">^</span><span class="fl">2</span>, xaxt <span class="op">=</span> <span class="st">"n"</span>, type <span class="op">=</span> <span class="st">"l"</span>, xlab <span class="op">=</span> <span class="st">"Time"</span>, ylab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">r</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/title.html" class="external-link">title</a></span><span class="op">(</span><span class="st">"Squared log returns"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">r</span><span class="op">)</span>, xaxt <span class="op">=</span> <span class="st">"n"</span>, type <span class="op">=</span> <span class="st">"l"</span>, xlab <span class="op">=</span> <span class="st">"Time"</span>, ylab <span class="op">=</span> <span class="st">"|r|"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/title.html" class="external-link">title</a></span><span class="op">(</span><span class="st">"Absolute log returns"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/axis.html" class="external-link">axis</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">ats</span>, <span class="va">years</span><span class="op">[</span><span class="va">ats</span><span class="op">]</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/stats/acf.html" class="external-link">acf</a></span><span class="op">(</span><span class="va">r</span><span class="op">^</span><span class="fl">2</span>, ylab <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/acf.html" class="external-link">acf</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">r</span><span class="op">)</span>, ylab <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/title.html" class="external-link">title</a></span><span class="op">(</span><span class="st">"Empirical ACF"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">y</span>, xaxt <span class="op">=</span> <span class="st">"n"</span>, type <span class="op">=</span> <span class="st">"l"</span>, xlab <span class="op">=</span> <span class="st">"Time"</span>, ylab <span class="op">=</span> <span class="st">"y"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/title.html" class="external-link">title</a></span><span class="op">(</span><span class="st">"Changes of squared log returns"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/title.html" class="external-link">title</a></span><span class="op">(</span><span class="st">"Changes of absolute log returns"</span><span class="op">)</span></span>
 <span><span class="va">years</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/format.html" class="external-link">format</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">)</span>, <span class="st">"%Y"</span><span class="op">)</span></span>
 <span><span class="va">ats</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/duplicated.html" class="external-link">duplicated</a></span><span class="op">(</span><span class="va">years</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/axis.html" class="external-link">axis</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">ats</span>, <span class="va">years</span><span class="op">[</span><span class="va">ats</span><span class="op">]</span><span class="op">)</span></span>
@@ -1195,7 +1195,7 @@ is chosen to be a priori uniform on
 <span><span class="va">c0</span> <span class="op">&lt;-</span> <span class="va">C0</span> <span class="op">&lt;-</span> <span class="fl">0.01</span></span>
 <span></span>
 <span><span class="co"># standard deviation for random walk MH proposal</span></span>
-<span><span class="va">cthetas</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.09</span>, <span class="fl">.9</span>, <span class="fl">9</span><span class="op">)</span></span>
+<span><span class="va">cthetas</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.003</span>, <span class="fl">.03</span>, <span class="fl">.3</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Allocate space for the draws</span></span>
 <span><span class="va">eps0s</span> <span class="op">&lt;-</span> <span class="va">sigma2s</span> <span class="op">&lt;-</span> <span class="va">thetas</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="cn">NA_real_</span>, <span class="va">ndraws</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">cthetas</span><span class="op">)</span><span class="op">)</span></span>
@@ -1338,7 +1338,7 @@ proposal on
 <span><span class="va">invtrans</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">thetatrans</span><span class="op">)</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">thetatrans</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">thetatrans</span><span class="op">)</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># standard deviation for random walk MH proposal</span></span>
-<span><span class="va">cthetas3</span> <span class="op">&lt;-</span> <span class="fl">3</span> <span class="op">*</span> <span class="va">cthetas2</span></span>
+<span><span class="va">cthetas3</span> <span class="op">&lt;-</span> <span class="fl">20</span> <span class="op">*</span> <span class="va">cthetas2</span></span>
 <span></span>
 <span><span class="co"># Allocate space for the draws</span></span>
 <span><span class="va">eps0s3</span> <span class="op">&lt;-</span> <span class="va">sigma2s3</span> <span class="op">&lt;-</span> <span class="va">thetas3</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="cn">NA_real_</span>, <span class="va">ndraws</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">cthetas3</span><span class="op">)</span><span class="op">)</span></span>
@@ -1427,21 +1427,21 @@ samplers.</p>
 <tbody>
 <tr class="odd">
 <td align="left">Gaussian RW</td>
-<td align="right">0.84</td>
-<td align="right">0.23</td>
-<td align="right">0.03</td>
+<td align="right">0.88</td>
+<td align="right">0.32</td>
+<td align="right">0.04</td>
 </tr>
 <tr class="even">
 <td align="left">truncated RW</td>
-<td align="right">0.88</td>
-<td align="right">0.37</td>
-<td align="right">0.29</td>
+<td align="right">0.89</td>
+<td align="right">0.34</td>
+<td align="right">0.06</td>
 </tr>
 <tr class="odd">
 <td align="left">transformed RW</td>
-<td align="right">0.89</td>
-<td align="right">0.36</td>
-<td align="right">0.03</td>
+<td align="right">0.92</td>
+<td align="right">0.41</td>
+<td align="right">0.04</td>
 </tr>
 </tbody>
 </table>
@@ -1457,21 +1457,21 @@ samplers.</p>
 <tbody>
 <tr class="odd">
 <td align="left">Gaussian RW</td>
-<td align="right">15.6</td>
-<td align="right">8.7</td>
-<td align="right">60.0</td>
+<td align="right">23.2</td>
+<td align="right">6.2</td>
+<td align="right">48.8</td>
 </tr>
 <tr class="even">
 <td align="left">truncated RW</td>
-<td align="right">30.1</td>
-<td align="right">5.3</td>
-<td align="right">5.9</td>
+<td align="right">37.9</td>
+<td align="right">4.3</td>
+<td align="right">16.4</td>
 </tr>
 <tr class="odd">
 <td align="left">transformed RW</td>
-<td align="right">30.7</td>
-<td align="right">5.3</td>
-<td align="right">63.7</td>
+<td align="right">60.0</td>
+<td align="right">4.3</td>
+<td align="right">20.5</td>
 </tr>
 </tbody>
 </table>

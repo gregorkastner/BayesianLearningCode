@@ -1074,8 +1074,8 @@ knitr::kable(round(ndraws / ess, 2))
 
 #### Example 7.13: CHF exchange rate data: Fitting an MA(1) model using a random walk MH
 
-First, we load the data and compute the (absolute) growth of the squared
-log returns.
+First, we load the data and compute the growth of the absolute log
+returns.
 
 ``` r
 
@@ -1086,8 +1086,8 @@ names(daily) <- exrates$date
 # Define r as the log returns
 r <- diff(log(daily))
 
-# Define y as the change of the squared log returns
-y <- diff(r^2)
+# Define y as the change of the absolute log returns
+y <- diff(abs(r))
 
 plot(r, xaxt = "n", type = "l", xlab = "Time", ylab = "r")
 title("Log returns")
@@ -1097,14 +1097,14 @@ axis(1, ats, years[ats])
 acf(r, ylab = "")
 title("Empirical ACF")
 
-plot(r^2, xaxt = "n", type = "l", xlab = "Time", ylab = expression(r^2))
-title("Squared log returns")
+plot(abs(r), xaxt = "n", type = "l", xlab = "Time", ylab = "|r|")
+title("Absolute log returns")
 axis(1, ats, years[ats])
-acf(r^2, ylab = "")
+acf(abs(r), ylab = "")
 title("Empirical ACF")
 
 plot(y, xaxt = "n", type = "l", xlab = "Time", ylab = "y")
-title("Changes of squared log returns")
+title("Changes of absolute log returns")
 years <- format(as.Date(names(y)), "%Y")
 ats <- which(!duplicated(years))
 axis(1, ats, years[ats])
@@ -1127,7 +1127,7 @@ set.seed(123)
 c0 <- C0 <- 0.01
 
 # standard deviation for random walk MH proposal
-cthetas <- c(.09, .9, 9)
+cthetas <- c(.003, .03, .3)
 
 # Allocate space for the draws
 eps0s <- sigma2s <- thetas <- matrix(NA_real_, ndraws, length(cthetas))
@@ -1284,7 +1284,7 @@ trans <- function(theta) log(1 + theta) - log(1 - theta)
 invtrans <- function(thetatrans) (exp(thetatrans) - 1) / (exp(thetatrans) + 1)
 
 # standard deviation for random walk MH proposal
-cthetas3 <- 3 * cthetas2
+cthetas3 <- 20 * cthetas2
 
 # Allocate space for the draws
 eps0s3 <- sigma2s3 <- thetas3 <- matrix(NA_real_, ndraws, length(cthetas3))
@@ -1381,9 +1381,9 @@ knitr::kable(round(accepts, 2))
 
 |                | tiny | medium | huge |
 |:---------------|-----:|-------:|-----:|
-| Gaussian RW    | 0.84 |   0.23 | 0.03 |
-| truncated RW   | 0.88 |   0.37 | 0.29 |
-| transformed RW | 0.89 |   0.36 | 0.03 |
+| Gaussian RW    | 0.88 |   0.32 | 0.04 |
+| truncated RW   | 0.89 |   0.34 | 0.06 |
+| transformed RW | 0.92 |   0.41 | 0.04 |
 
 ``` r
 
@@ -1392,9 +1392,9 @@ knitr::kable(round(IF, 1))
 
 |                | tiny | medium | huge |
 |:---------------|-----:|-------:|-----:|
-| Gaussian RW    | 15.6 |    8.7 | 60.0 |
-| truncated RW   | 30.1 |    5.3 |  5.9 |
-| transformed RW | 30.7 |    5.3 | 63.7 |
+| Gaussian RW    | 23.2 |    6.2 | 48.8 |
+| truncated RW   | 37.9 |    4.3 | 16.4 |
+| transformed RW | 60.0 |    4.3 | 20.5 |
 
 ## Section 7.4: Markov modeling for a panel of categorical time series
 
