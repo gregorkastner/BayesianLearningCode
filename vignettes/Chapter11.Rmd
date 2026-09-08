@@ -793,7 +793,7 @@ PiP close to zero whereas the other covariates are included with a very high
 probability.
 ```{r}
 if (pdfplots) {
-  pdf("11-5.pdf", width = 5, height = 6)
+  pdf("11-3_5.pdf", width = 5, height = 6)
 }
 print(colMeans(res$gamma_post))
 
