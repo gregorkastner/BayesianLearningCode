@@ -634,8 +634,168 @@ print(round(model_probs),2)
 ## Section 11.3.2: Bayesian variable selection for a probit model
 
 ### Example 11.8: Labor market data: Bayesian variable selection
+To implement variable selection in a probit model we start by writing a function
+for the log marginal likelihood.
+```{r}
+logmarlik_probreg<- function(z,X, a0, A0, B0, gamma){
+  
+   N <- length(z)
+   k_gamma <- sum(gamma)
+    
+   if (k_gamma==0){
+       X_gamma <-  as.matrix(rep(1, N))
+       b0v <- t(as.vector(a0))
+       B0v.inv<- as.matrix(1/A0)
+   }else{
+       X_gamma <- as.matrix(cbind(rep(1, N), X[,gamma==1] ))
+       b0v <- c(a0,rep(0,k_gamma))
+       B0v.inv <- diag(c(1/A0,rep(1/B0,k_gamma)) )
+   }
+   BNv.inv <- B0v.inv + crossprod(X_gamma)
+  
+   bNv <- solve(BNv.inv)%*% (crossprod(X_gamma, y) + B0v.inv%*% b0v )
+   SSE <- as.numeric(crossprod(z) +  t(b0v) %*% B0v.inv %*% b0v -
+                    t(bNv) %*% BNv.inv %*% bNv)
+ 
+  lmarlik  <- (- N / 2) * log(2*pi) +  0.5 *( log(det(B0v.inv))-log(det(BNv.inv))   )-
+                  SSE/2
+  return(lmarlik)
+}
+```
+We use this function to implement variable selection for the probit model.
+```{r}
+varsel_probit <- function(y, Xreg, a0=0, A0=1000, B0 = 1000,
+                   burnin = 1000L, M = 20000L / mcmcspeedup) {
+  
+  # Define quantities for the Gibbs sampler
+  N <- length(y)
+  p <- dim(Xreg)[2]   # number of regression effects
+  d <- p+1
+  
+  ind0 <- (y == 0) # indicators for zeros
+  ind1 <- (y == 1) # indicators for ones
+  n0 <- sum(ind0)
+  n1 <- sum(ind1)
+  
+  # Prepare memory to store the draws
+  gamma_post <- matrix(NA_real_, nrow = M, ncol = p)
+  acc <- rep(NA_real_, M)
+  beta_post<- matrix(0, nrow = M, ncol = d)
+  colnames(beta_post) <- c("Intercept",colnames(Xreg))
 
-[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />[TODO]<br />
+  # Set starting values
+  gamma <- matrix(rep(1,p),nrow=1)
+  X_gamma_old <- cbind(rep(1,N),Xreg)
+  
+  b0_old <- c(a0,rep(0,length.out=p))
+  B0_old.inv <- diag(c(1/A0,rep(1/B0,length.out=p)) )
+  BN_old.inv <- B0_old.inv + crossprod(X_gamma_old)
+  BN_old <- solve(BN_old.inv)
+  beta <- c(qnorm(mean(y)), rnorm(p)*0.01)
+  
+  eta <- X_gamma_old %*% beta
+  piv <- pnorm(eta)
+ 
+  z <- rep(NA_real_, N)
+  z[ind0] <- eta[ind0] + qnorm(runif(n0) * (1 - piv[ind0]))
+  z[ind1] <- eta[ind1] + qnorm(1 - runif(n1) * piv[ind1])
+
+  for (m in seq_len(burnin + M)) {
+    gamma_proposed <- gamma_old <- gamma
+
+    j <- sample(1:p, size=1)
+    gamma_proposed[j] <- 1-gamma_old[j]
+     k_gamma <- sum(gamma_proposed)
+    
+   if (k_gamma==0){
+       X_gamma_prop <-  as.matrix(rep(1, N))
+       b0_prop <- t(as.vector(a0))
+       B0_prop.inv<- as.matrix(1/A0)
+   }else{
+       X_gamma_prop <- as.matrix(cbind(rep(1, N), Xreg[,gamma_proposed==1] ))
+       b0_prop <- c(a0,rep(0,k_gamma))
+       B0_prop.inv <- diag(c(1/A0,rep(1/B0,k_gamma)) )
+   }
+   BN_prop.inv <- B0_prop.inv + crossprod(X_gamma_prop)
+   BN_prop <- solve(BN_prop.inv)
+  
+   bN_prop <- BN_prop %*% (crossprod(X_gamma_prop, z) + B0_prop.inv%*% b0_prop )
+   SSE_prop <- as.numeric(crossprod(z) +  t(b0_prop) %*% B0_prop.inv %*% b0_prop -
+                    t(bN_prop) %*% BN_prop.inv %*% bN_prop)
+ 
+   lmarlik_prop<- (- N / 2) * log(2*pi) - SSE_prop/2 +
+                        0.5 *( log(det(B0_prop.inv))-log(det(BN_prop.inv)))
+
+   
+   bN_old <- BN_old %*% (crossprod(X_gamma_old, z) + B0_old.inv%*% b0_old )
+   SSE_old <- as.numeric(crossprod(z) +  t(b0_old) %*% B0_old.inv %*% b0_old -
+                    t(bN_old) %*% BN_old.inv %*% bN_old)
+ 
+   lmarlik_old<- (- N / 2) * log(2*pi) - SSE_old/2 +
+                        0.5 *( log(det(B0_old.inv))-log(det(BN_old.inv)))
+
+    # compute acceptance probability and decide on acceptance
+    log_acc <- lmarlik_prop - lmarlik_old
+
+    if (log(runif(1)) < log_acc) {
+      gamma <- gamma_proposed
+      X_gamma <- X_gamma_prop
+      bN <- bN_prop
+      BN <- BN_prop
+      accept <- 1
+   } else {
+      gamma <- gamma_old
+      X_gamma <- X_gamma_old
+      bN <- bN_old
+      BN <- BN_old
+      accept <- 0
+    }
+    
+    # Sample beta from the full conditional
+    beta <- t(mvtnorm::rmvnorm(1, mean = bN, sigma = BN))
+    print(beta)
+    print(gamma)
+
+    # Draw z conditional on y and beta
+    u <- runif(N)
+    eta <- X_gamma %*% beta
+    piv <- pnorm(eta)
+
+    z[ind0] <- eta[ind0] + qnorm(u[ind0] * (1 - piv[ind0]))
+    z[ind1] <- eta[ind1] + qnorm(1 - u[ind1] * piv[ind1])
+
+    # Store the draws
+    if (m > burnin) {
+      gamma_post[m-burnin, ] <- gamma
+      acc[m-burnin] <- accept
+      ind <- c(1,gamma*(2:d)) 
+      beta_post[m - burnin, ind[ind>0]] <- beta
+    }
+  }
+  return(list(gamma_post=gamma_post,beta_post=beta_post))
+}
+```
+```{r}
+data("labor", package = "BayesianLearningCode")
+y <- labor$income_1998 == "zero"
+N <- length(y)  
+X_unemp <- with(labor, cbind(female = female,
+                             age18 = 1998 - birthyear - 18,
+                             wcollar = wcollar_1997,
+                             unemp97 = income_1997 == "zero")) # regressor matrix
+p_irrel <- 5
+X <- cbind(X_unemp,matrix(rnorm(p_irrel*N),ncol=p_irrel))
+colnames(X)[4+(1:p_irrel)] <-c("irrel1","irrel2","irrel3","irrel4","irrel5")
+
+M <- 20000 #/ mcmcspeedup
+set.seed(seed)
+res <- varsel_probit(y, X, M=20000)# B0=1000=A0
+
+ print(colMeans(res$gamma_post))
+```
+
+
+
 
 # Section 11.4: Model selection problems in time series analysis
 
