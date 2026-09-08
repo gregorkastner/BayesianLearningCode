@@ -1115,7 +1115,7 @@ very high probability.
 ``` r
 
 if (pdfplots) {
-  pdf("11-5.pdf", width = 5, height = 6)
+  pdf("11-3_5.pdf", width = 5, height = 6)
 }
 print(colMeans(res$gamma_post))
 #> [1] 0.98780 1.00000 0.93860 1.00000 0.04040 0.02805 0.02710 0.12095 0.02465
