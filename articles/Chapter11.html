@@ -3587,11 +3587,11 @@ where we assume that the wage mobility of male and female workers
 differs in the Austrian labor market.</p>
 <p>We determine the marginal likelihoods of the two models, considering
 also two different prior choices, namely
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>γ</mi><mrow><mn>0</mn><mo>,</mo><mi>h</mi><mi>k</mi></mrow></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\gamma_{0,hk} = 1</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>γ</mi><mrow><mn>0</mn><mo>,</mo><mi>h</mi><mi>k</mi></mrow></msub><mo>=</mo><mn>0.5</mn></mrow><annotation encoding="application/x-tex">\gamma_{0,hk} = 0.5</annotation></semantics></math>
 and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>γ</mi><mrow><mn>0</mn><mo>,</mo><mi>h</mi><mi>k</mi></mrow></msub><mo>=</mo><mn>4</mn></mrow><annotation encoding="application/x-tex">\gamma_{0,hk} = 4</annotation></semantics></math>.</p>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>γ</mi><mrow><mn>0</mn><mo>,</mo><mi>h</mi><mi>k</mi></mrow></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\gamma_{0,hk} = 1</annotation></semantics></math>.</p>
 <div class="sourceCode" id="cb64"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">gammas</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">4</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">gammas</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">K</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">N_hk</span><span class="op">)</span></span>
 <span><span class="va">G</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">Ng_hk</span><span class="op">)</span></span>
 <span><span class="va">logmarglikMH</span> <span class="op">&lt;-</span> <span class="va">logmarglikMG</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span>
@@ -3612,13 +3612,12 @@ and
 <span>             MH <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">logmarglikMH</span>, <span class="va">logmarglikMH</span> <span class="op">-</span> <span class="va">logmarglikMG</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"gamma ="</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">gammas</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">res</span></span>
-<span><span class="co">#&gt;    gamma = 1 gamma = 4 gamma = 1 gamma = 4</span></span>
-<span><span class="co">#&gt; MG -13833.11 -14096.42        NA        NA</span></span>
-<span><span class="co">#&gt; MH -13887.79 -14030.63 -54.68241  65.79208</span></span></code></pre></div>
-<p>There is evidence for the two-group Markov chain model when using
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>γ</mi><mrow><mn>0</mn><mo>,</mo><mi>h</mi><mi>k</mi></mrow></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\gamma_{0,hk} = 1</annotation></semantics></math>,
-whereas the homogeneous model is preferred for
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>γ</mi><mrow><mn>0</mn><mo>,</mo><mi>h</mi><mi>k</mi></mrow></msub><mo>=</mo><mn>4</mn></mrow><annotation encoding="application/x-tex">\gamma_{0,hk} = 4</annotation></semantics></math>.</p>
+<span><span class="co">#&gt;    gamma = 0.5 gamma = 1 gamma = 0.5 gamma = 1</span></span>
+<span><span class="co">#&gt; MG   -13801.73 -13833.11          NA        NA</span></span>
+<span><span class="co">#&gt; MH   -13871.55 -13887.79   -69.81362 -54.68241</span></span></code></pre></div>
+<p>There is evidence for the two-group Markov chain model, regardless of
+the prior on
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>γ</mi><mrow><mn>0</mn><mo>,</mo><mi>h</mi><mi>k</mi></mrow></msub><annotation encoding="application/x-tex">\gamma_{0,hk}</annotation></semantics></math>.</p>
 </div>
 <div class="section level4">
 <h4 id="example-11-20-wage-mobility-data-testing-low-income-male-workers">Example 11.20: Wage mobility data: testing low-income male
@@ -3647,8 +3646,8 @@ unrestricted two-group model:</p>
 <span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">res</span>,</span>
 <span>             MR1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">logmarglikR1</span>, <span class="va">logBF_R1G</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">res</span><span class="op">[</span><span class="st">"MR1"</span>, <span class="op">]</span></span>
-<span><span class="co">#&gt;   gamma = 1   gamma = 4   gamma = 1   gamma = 4 </span></span>
-<span><span class="co">#&gt; -13708.7613 -13972.8418    124.3463    123.5805</span></span></code></pre></div>
+<span><span class="co">#&gt; gamma = 0.5   gamma = 1 gamma = 0.5   gamma = 1 </span></span>
+<span><span class="co">#&gt; -13676.9394 -13708.7613    124.7950    124.3463</span></span></code></pre></div>
 <p>Results suggest overwhelming evidence for the restricted model,
 regardless of the prior on
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>γ</mi><mrow><mn>0</mn><mo>,</mo><mi>h</mi><mi>k</mi></mrow></msub><annotation encoding="application/x-tex">\gamma_{0,hk}</annotation></semantics></math>.</p>
@@ -3671,12 +3670,12 @@ priors on
 <span>    <span class="va">gamma</span> <span class="op">&lt;-</span> <span class="va">gammas</span><span class="op">[</span><span class="va">i</span><span class="op">]</span></span>
 <span>    <span class="va">aN1</span> <span class="op">&lt;-</span> <span class="va">gamma</span> <span class="op">+</span> <span class="va">Ng_hk</span><span class="op">[[</span><span class="st">"male"</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="st">"1"</span>, <span class="st">"0"</span><span class="op">]</span></span>
 <span>    <span class="va">aN2</span> <span class="op">&lt;-</span> <span class="va">gamma</span> <span class="op">+</span> <span class="va">Ng_hk</span><span class="op">[[</span><span class="st">"female"</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="st">"1"</span>, <span class="st">"0"</span><span class="op">]</span></span>
+<span>    <span class="va">aN</span> <span class="op">&lt;-</span> <span class="va">gamma</span> <span class="op">+</span> <span class="va">Ng_hk</span><span class="op">[[</span><span class="st">"male"</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="st">"1"</span>, <span class="st">"0"</span><span class="op">]</span> <span class="op">+</span> <span class="va">Ng_hk</span><span class="op">[[</span><span class="st">"female"</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="st">"1"</span>, <span class="st">"0"</span><span class="op">]</span></span>
 <span>    <span class="va">bN1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">gamma</span> <span class="op">+</span> <span class="va">Ng_hk</span><span class="op">[[</span><span class="st">"male"</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="st">"1"</span>, <span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></span>
 <span>    <span class="va">bN2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">gamma</span> <span class="op">+</span> <span class="va">Ng_hk</span><span class="op">[[</span><span class="st">"female"</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="st">"1"</span>, <span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></span>
-<span>    <span class="va">logBF_R2G</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Special.html" class="external-link">lbeta</a></span><span class="op">(</span><span class="va">aN1</span> <span class="op">+</span> <span class="va">aN2</span> <span class="op">-</span> <span class="fl">1</span>, <span class="va">bN1</span> <span class="op">+</span> <span class="va">bN2</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
-<span>        <span class="fl">2</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Special.html" class="external-link">lbeta</a></span><span class="op">(</span><span class="va">gamma</span>, <span class="op">(</span><span class="va">K</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">*</span> <span class="va">gamma</span><span class="op">)</span> <span class="op">-</span></span>
-<span>        <span class="fu"><a href="https://rdrr.io/r/base/Special.html" class="external-link">lbeta</a></span><span class="op">(</span><span class="va">aN1</span>, <span class="va">bN1</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Special.html" class="external-link">lbeta</a></span><span class="op">(</span><span class="va">aN2</span>, <span class="va">bN2</span><span class="op">)</span> <span class="op">-</span></span>
-<span>        <span class="fu"><a href="https://rdrr.io/r/base/Special.html" class="external-link">lbeta</a></span><span class="op">(</span><span class="fl">2</span> <span class="op">*</span> <span class="va">gamma</span> <span class="op">-</span> <span class="fl">1</span>, <span class="fl">2</span> <span class="op">*</span> <span class="op">(</span><span class="va">K</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">*</span> <span class="va">gamma</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span></span>
+<span>    <span class="va">bN</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">gamma</span> <span class="op">+</span> <span class="va">Ng_hk</span><span class="op">[[</span><span class="st">"male"</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="st">"1"</span>, <span class="op">-</span><span class="fl">1</span><span class="op">]</span> <span class="op">+</span> <span class="va">Ng_hk</span><span class="op">[[</span><span class="st">"female"</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="st">"1"</span>, <span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></span>
+<span>    <span class="va">logBF_R2G</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Special.html" class="external-link">lbeta</a></span><span class="op">(</span><span class="va">aN</span>, <span class="va">bN</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Special.html" class="external-link">lbeta</a></span><span class="op">(</span><span class="va">gamma</span>, <span class="op">(</span><span class="va">K</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">*</span> <span class="va">gamma</span><span class="op">)</span> <span class="op">-</span></span>
+<span>        <span class="fu"><a href="https://rdrr.io/r/base/Special.html" class="external-link">lbeta</a></span><span class="op">(</span><span class="va">aN1</span>, <span class="va">bN1</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Special.html" class="external-link">lbeta</a></span><span class="op">(</span><span class="va">aN2</span>, <span class="va">bN2</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>We obtain the log marginal likelihoods for the restricted model from
 the log marginal likelihood of the two-group model and the log Bayes
@@ -3686,8 +3685,8 @@ factor.</p>
 <span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">res</span>,</span>
 <span>             MR2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">logmarglikR2</span>, <span class="va">logBF_R2G</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">res</span><span class="op">[</span><span class="st">"MR2"</span>, <span class="op">]</span></span>
-<span><span class="co">#&gt;     gamma = 1     gamma = 4     gamma = 1     gamma = 4 </span></span>
-<span><span class="co">#&gt; -13838.721495 -14102.412473     -5.613901     -5.990161</span></span></code></pre></div>
+<span><span class="co">#&gt;   gamma = 0.5     gamma = 1   gamma = 0.5     gamma = 1 </span></span>
+<span><span class="co">#&gt; -13807.024737 -13838.795461     -5.290386     -5.687867</span></span></code></pre></div>
 <p>Results suggest that the unrestricted model is preferred, regardless
 of the prior on
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>γ</mi><mrow><mn>0</mn><mo>,</mo><mi>h</mi><mi>k</mi></mrow></msub><annotation encoding="application/x-tex">\gamma_{0,hk}</annotation></semantics></math>.</p>
@@ -3697,39 +3696,39 @@ of the prior on
 <table class="table">
 <thead><tr class="header">
 <th align="left"></th>
+<th align="right">gamma = 0.5</th>
 <th align="right">gamma = 1</th>
-<th align="right">gamma = 4</th>
+<th align="right">gamma = 0.5</th>
 <th align="right">gamma = 1</th>
-<th align="right">gamma = 4</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
 <td align="left">MG</td>
+<td align="right">-13801.73</td>
 <td align="right">-13833.11</td>
-<td align="right">-14096.42</td>
 <td align="right">NA</td>
 <td align="right">NA</td>
 </tr>
 <tr class="even">
 <td align="left">MH</td>
+<td align="right">-13871.55</td>
 <td align="right">-13887.79</td>
-<td align="right">-14030.63</td>
-<td align="right">-54.68241</td>
-<td align="right">65.792076</td>
+<td align="right">-69.813617</td>
+<td align="right">-54.682409</td>
 </tr>
 <tr class="odd">
 <td align="left">MR1</td>
+<td align="right">-13676.94</td>
 <td align="right">-13708.76</td>
-<td align="right">-13972.84</td>
-<td align="right">124.34630</td>
-<td align="right">123.580533</td>
+<td align="right">124.794994</td>
+<td align="right">124.346300</td>
 </tr>
 <tr class="even">
 <td align="left">MR2</td>
-<td align="right">-13838.72</td>
-<td align="right">-14102.41</td>
-<td align="right">-5.61390</td>
-<td align="right">-5.990161</td>
+<td align="right">-13807.02</td>
+<td align="right">-13838.80</td>
+<td align="right">-5.290386</td>
+<td align="right">-5.687867</td>
 </tr>
 </tbody>
 </table>

@@ -1733,12 +1733,12 @@ $`\mathcal{M}_G`$ where we assume that the wage mobility of male and
 female workers differs in the Austrian labor market.
 
 We determine the marginal likelihoods of the two models, considering
-also two different prior choices, namely $`\gamma_{0,hk} = 1`$ and
-$`\gamma_{0,hk} = 4`$.
+also two different prior choices, namely $`\gamma_{0,hk} = 0.5`$ and
+$`\gamma_{0,hk} = 1`$.
 
 ``` r
 
-gammas <- c(1, 4)
+gammas <- c(0.5, 1)
 K <- nrow(N_hk)
 G <- length(Ng_hk)
 logmarglikMH <- logmarglikMG <- numeric(2)
@@ -1763,14 +1763,13 @@ res <- rbind(MG = c(logmarglikMG, NA, NA),
              MH = c(logmarglikMH, logmarglikMH - logmarglikMG))
 colnames(res) <- paste("gamma =", rep(gammas, 2))
 res
-#>    gamma = 1 gamma = 4 gamma = 1 gamma = 4
-#> MG -13833.11 -14096.42        NA        NA
-#> MH -13887.79 -14030.63 -54.68241  65.79208
+#>    gamma = 0.5 gamma = 1 gamma = 0.5 gamma = 1
+#> MG   -13801.73 -13833.11          NA        NA
+#> MH   -13871.55 -13887.79   -69.81362 -54.68241
 ```
 
-There is evidence for the two-group Markov chain model when using
-$`\gamma_{0,hk} = 1`$, whereas the homogeneous model is preferred for
-$`\gamma_{0,hk} = 4`$.
+There is evidence for the two-group Markov chain model, regardless of
+the prior on $`\gamma_{0,hk}`$.
 
 #### Example 11.20: Wage mobility data: testing low-income male workers
 
@@ -1799,8 +1798,8 @@ logmarglikR1 <- logmarglikMG + logBF_R1G
 res <- rbind(res,
              MR1 = c(logmarglikR1, logBF_R1G))
 res["MR1", ]
-#>   gamma = 1   gamma = 4   gamma = 1   gamma = 4 
-#> -13708.7613 -13972.8418    124.3463    123.5805
+#> gamma = 0.5   gamma = 1 gamma = 0.5   gamma = 1 
+#> -13676.9394 -13708.7613    124.7950    124.3463
 ```
 
 Results suggest overwhelming evidence for the restricted model,
@@ -1824,12 +1823,12 @@ for (i in 1:2) {
     gamma <- gammas[i]
     aN1 <- gamma + Ng_hk[["male"]]["1", "0"]
     aN2 <- gamma + Ng_hk[["female"]]["1", "0"]
+    aN <- gamma + Ng_hk[["male"]]["1", "0"] + Ng_hk[["female"]]["1", "0"]
     bN1 <- sum(gamma + Ng_hk[["male"]]["1", -1])
     bN2 <- sum(gamma + Ng_hk[["female"]]["1", -1])
-    logBF_R2G[i] <- lbeta(aN1 + aN2 - 1, bN1 + bN2 - 1) +
-        2 * lbeta(gamma, (K - 1) * gamma) -
-        lbeta(aN1, bN1) - lbeta(aN2, bN2) -
-        lbeta(2 * gamma - 1, 2 * (K - 1) * gamma - 1)
+    bN <- sum(gamma + Ng_hk[["male"]]["1", -1] + Ng_hk[["female"]]["1", -1])
+    logBF_R2G[i] <- lbeta(aN, bN) + lbeta(gamma, (K - 1) * gamma) -
+        lbeta(aN1, bN1) - lbeta(aN2, bN2)
 }
 ```
 
@@ -1842,8 +1841,8 @@ logmarglikR2 <- logmarglikMG + logBF_R2G
 res <- rbind(res,
              MR2 = c(logmarglikR2, logBF_R2G))
 res["MR2", ]
-#>     gamma = 1     gamma = 4     gamma = 1     gamma = 4 
-#> -13838.721495 -14102.412473     -5.613901     -5.990161
+#>   gamma = 0.5     gamma = 1   gamma = 0.5     gamma = 1 
+#> -13807.024737 -13838.795461     -5.290386     -5.687867
 ```
 
 Results suggest that the unrestricted model is preferred, regardless of
@@ -1856,9 +1855,9 @@ We also summarize the results.
 knitr::kable(res)
 ```
 
-|     | gamma = 1 | gamma = 4 | gamma = 1 |  gamma = 4 |
-|:----|----------:|----------:|----------:|-----------:|
-| MG  | -13833.11 | -14096.42 |        NA |         NA |
-| MH  | -13887.79 | -14030.63 | -54.68241 |  65.792076 |
-| MR1 | -13708.76 | -13972.84 | 124.34630 | 123.580533 |
-| MR2 | -13838.72 | -14102.41 |  -5.61390 |  -5.990161 |
+|     | gamma = 0.5 | gamma = 1 | gamma = 0.5 |  gamma = 1 |
+|:----|------------:|----------:|------------:|-----------:|
+| MG  |   -13801.73 | -13833.11 |          NA |         NA |
+| MH  |   -13871.55 | -13887.79 |  -69.813617 | -54.682409 |
+| MR1 |   -13676.94 | -13708.76 |  124.794994 | 124.346300 |
+| MR2 |   -13807.02 | -13838.80 |   -5.290386 |  -5.687867 |
