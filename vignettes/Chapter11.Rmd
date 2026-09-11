@@ -1367,11 +1367,11 @@ $\mathcal{M}_G$ where we assume that the wage mobility of male and
 female workers differs in the Austrian labor market.
 
 We determine the marginal likelihoods of the two models, considering
-also two different prior choices, namely $\gamma_{0,hk} = 1$ and
-$\gamma_{0,hk} = 4$.
+also two different prior choices, namely $\gamma_{0,hk} = 0.5$ and
+$\gamma_{0,hk} = 1$.
 
 ```{r}
-gammas <- c(1, 4)
+gammas <- c(0.5, 1)
 K <- nrow(N_hk)
 G <- length(Ng_hk)
 logmarglikMH <- logmarglikMG <- numeric(2)
@@ -1397,9 +1397,8 @@ colnames(res) <- paste("gamma =", rep(gammas, 2))
 res
 ```
 
-There is evidence for the two-group Markov chain model when using
-$\gamma_{0,hk} = 1$, whereas the homogeneous model is preferred for
-$\gamma_{0,hk} = 4$.
+There is evidence for the two-group Markov chain model, regardless of
+the prior on $\gamma_{0,hk}$.
 
 ### Example 11.20: Wage mobility data: testing low-income male workers
 
@@ -1449,12 +1448,12 @@ for (i in 1:2) {
     gamma <- gammas[i]
     aN1 <- gamma + Ng_hk[["male"]]["1", "0"]
     aN2 <- gamma + Ng_hk[["female"]]["1", "0"]
+    aN <- gamma + Ng_hk[["male"]]["1", "0"] + Ng_hk[["female"]]["1", "0"]
     bN1 <- sum(gamma + Ng_hk[["male"]]["1", -1])
     bN2 <- sum(gamma + Ng_hk[["female"]]["1", -1])
-    logBF_R2G[i] <- lbeta(aN1 + aN2 - 1, bN1 + bN2 - 1) +
-        2 * lbeta(gamma, (K - 1) * gamma) -
-        lbeta(aN1, bN1) - lbeta(aN2, bN2) -
-        lbeta(2 * gamma - 1, 2 * (K - 1) * gamma - 1)
+    bN <- sum(gamma + Ng_hk[["male"]]["1", -1] + Ng_hk[["female"]]["1", -1])
+    logBF_R2G[i] <- lbeta(aN, bN) + lbeta(gamma, (K - 1) * gamma) -
+        lbeta(aN1, bN1) - lbeta(aN2, bN2)
 }
 ```
 
