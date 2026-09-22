@@ -18,4 +18,92 @@ knitr::opts_chunk$set(
 )
 knitr::opts_knit$set(global.par = TRUE)
 pdfplots <- FALSE # default: FALSE; set this to TRUE only if you like pdf figures
+seed <- 42
 ```
+
+# Section 12.1: Beyond classical Bayesian model comparison
+
+## Section 12.1.1: Schwarz Criterion and BIC
+
+### Example 12.1. Labor Market Data: Bayesian Variable Selection using BIC
+
+We return to the probit analysis of Example 11.11 and run variable selection 
+using the Schwarz criterion instead of the marginal likelihood. 
+We first implement this approach.
+
+```{r}
+modsel_probit_BIC <- function(y,X,burnin = 1000L, M = 5000L){
+  n <- dim(X)[1]
+  p <- dim(X)[2] # change to X later
+
+  gamma_post <- matrix(ncol = p, nrow = M)
+  acc <- numeric(length = M)
+
+  gamma <- matrix(rep(1,p),nrow=1)
+  mod0<-glm(y~X, family=binomial(link = "probit"))
+  SC_old <- logLik(mod0) - log(n)*(p+1)/2
+
+  for (m in seq_len(burnin + M)) {
+    gamma_proposed <- gamma_old <- gamma
+
+    j <- sample(1:p, size=1)
+    gamma_proposed[j] <- 1-gamma_old[j]
+
+    X_gamma <- X[,gamma_proposed==1]
+    model<-glm(y~X_gamma, family=binomial(link = "probit"))
+    SC_proposed <- logLik(model) - log(n)*(sum(gamma_proposed)+1)/2
+    
+    # compute acceptance probability and decide on acceptance
+    log_acc <- SC_proposed - SC_old
+
+    if (log(runif(1)) < log_acc) {
+      gamma <- gamma_proposed
+      SC_old <- SC_proposed
+      accept <- 1
+    } else {
+      gamma <- gamma_old
+      accept <- 0
+    }
+
+    if (m > burnin) {
+      gamma_post[m-burnin, ] <- gamma
+      acc[m-burnin] <- accept
+    }
+  }
+  return(list(gamma_post=gamma_post,acc=acc))
+}
+```
+
+We next load the data and as in exercise 11.11. add 5 irrelevant, standard 
+normal regressors. Then we run the algorithm. 
+
+```{r}
+library("BayesianLearningCode")
+data("labor", package = "BayesianLearningCode")
+y <- labor$income_1998 == "zero"
+N <- length(y)
+X_unemp <- with(labor, cbind(female = female,
+                             age18 = 1998 - birthyear - 18,
+                             wcollar = wcollar_1997,
+                             unemp97 = income_1997 == "zero")) # regressor matrix
+p_irrel <- 5
+set.seed(seed)
+X <- cbind(X_unemp,matrix(rnorm(p_irrel*N),ncol=p_irrel))
+colnames(X)[4+(1:p_irrel)]<-c("irrel1","irrel2","irrel3","irrel4","irrel5")
+
+M <-20000 
+res <- modsel_probit_BIC(y, X, M=M)
+```
+
+We determine the number of models visited during MCMC and the average model 
+complexity, i.e. the average number of covariates included in the model.
+```{r}
+gammas_unique <- unique(res$gamma_post)
+num_mod <- dim(gammas_unique)[1]
+print(num_mod)
+
+k_gamma=rowSums(res$gamma_post)
+print(mean(k_gamma))
+```
+ 
+
