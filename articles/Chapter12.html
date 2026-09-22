@@ -144,20 +144,115 @@ standard normal regressors. Then we run the algorithm.</p>
 <span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">X_unemp</span>,<span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">p_irrel</span><span class="op">*</span><span class="va">N</span><span class="op">)</span>,ncol<span class="op">=</span><span class="va">p_irrel</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">[</span><span class="fl">4</span><span class="op">+</span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="va">p_irrel</span><span class="op">)</span><span class="op">]</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"irrel1"</span>,<span class="st">"irrel2"</span>,<span class="st">"irrel3"</span>,<span class="st">"irrel4"</span>,<span class="st">"irrel5"</span><span class="op">)</span></span>
 <span></span>
+<span><span class="va">p</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span></span>
 <span><span class="va">M</span> <span class="op">&lt;-</span><span class="fl">20000</span> </span>
 <span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">modsel_probit_BIC</span><span class="op">(</span><span class="va">y</span>, <span class="va">X</span>, M<span class="op">=</span><span class="va">M</span><span class="op">)</span></span></code></pre></div>
-<p>We determine the number of models visited during MCMC and the average
+<p>We determine the number of models visited during MCMC, the average
 model complexity, i.e. the average number of covariates included in the
-model.</p>
+model and show the posterior inclusion probabilities.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">gammas_unique</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">gamma_post</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="va">pdfplots</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/grDevices/pdf.html" class="external-link">pdf</a></span><span class="op">(</span><span class="st">"12-1_1.pdf"</span>, width <span class="op">=</span> <span class="fl">5</span>, height <span class="op">=</span> <span class="fl">6</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="va">gammas_unique</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">gamma_post</span><span class="op">)</span></span>
 <span><span class="va">num_mod</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">gammas_unique</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">num_mod</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 42</span></span>
 <span></span>
 <span><span class="va">k_gamma</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">gamma_post</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">k_gamma</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 3.79915</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 3.79915</span></span>
+<span></span>
+<span><span class="co"># PIPs</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colMeans</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">gamma_post</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 0.90785 1.00000 0.74525 1.00000 0.02735 0.01135 0.01605 0.07500 0.01630</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.5</span>, <span class="fl">2.5</span>, <span class="fl">1.5</span>, <span class="fl">.5</span><span class="op">)</span>, mgp <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.5</span>, <span class="fl">.5</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html" class="external-link">barplot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colMeans</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">gamma_post</span><span class="op">)</span>, col<span class="op">=</span><span class="st">"blue"</span>,names.arg<span class="op">=</span><span class="fl">1</span><span class="op">:</span><span class="va">p</span>,</span>
+<span>        xlab<span class="op">=</span><span class="st">"Covariate"</span>,ylab<span class="op">=</span><span class="st">"PIP"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="Chapter12_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" alt="" width="768">
+To determine the model visited most often we re-use a function which we
+defined in Chapter 11.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">number_draws</span><span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">gamma_post</span>, <span class="va">models</span><span class="op">)</span><span class="op">{</span></span>
+<span>  </span>
+<span>  <span class="va">nmod</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">models</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span></span>
+<span>  <span class="va">freq</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA</span>,<span class="va">nmod</span><span class="op">)</span></span>
+<span>  </span>
+<span>  <span class="kw">for</span> <span class="op">(</span><span class="va">j</span> <span class="kw">in</span> <span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="va">nmod</span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span>
+<span>    <span class="va">freq</span><span class="op">[</span><span class="va">j</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">gamma_post</span>, <span class="fl">1</span>,</span>
+<span>                         <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">models</span><span class="op">[</span><span class="va">j</span>,<span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="op">}</span></span>
+<span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="va">freq</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="va">freq_gammas</span><span class="op">&lt;-</span> <span class="fu">number_draws</span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">gamma_post</span>,<span class="va">gammas_unique</span><span class="op">)</span></span>
+<span><span class="va">io</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">freq_gammas</span>, decreasing<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">gammas_unique</span>,<span class="va">freq_gammas</span><span class="op">/</span><span class="va">M</span><span class="op">)</span><span class="op">[</span><span class="va">io</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span>,<span class="op">]</span>,</span>
+<span>             digits<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">p</span><span class="op">)</span>,<span class="fl">4</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<table class="table"><tbody>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0.6068</td>
+</tr>
+<tr class="even">
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0.1742</td>
+</tr>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0.0537</td>
+</tr>
+<tr class="even">
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0.0494</td>
+</tr>
+<tr class="odd">
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0.0308</td>
+</tr>
+</tbody></table>
 </div>
 </div>
 </div>

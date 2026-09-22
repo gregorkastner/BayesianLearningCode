@@ -72,15 +72,20 @@ set.seed(seed)
 X <- cbind(X_unemp,matrix(rnorm(p_irrel*N),ncol=p_irrel))
 colnames(X)[4+(1:p_irrel)]<-c("irrel1","irrel2","irrel3","irrel4","irrel5")
 
+p<-dim(X)[2]
 M <-20000 
 res <- modsel_probit_BIC(y, X, M=M)
 ```
 
-We determine the number of models visited during MCMC and the average
-model complexity, i.e. the average number of covariates included in the
-model.
+We determine the number of models visited during MCMC, the average model
+complexity, i.e. the average number of covariates included in the model
+and show the posterior inclusion probabilities.
 
 ``` r
+
+if (pdfplots) {
+  pdf("12-1_1.pdf", width = 5, height = 6)
+}
 
 gammas_unique <- unique(res$gamma_post)
 num_mod <- dim(gammas_unique)[1]
@@ -90,4 +95,44 @@ print(num_mod)
 k_gamma=rowSums(res$gamma_post)
 print(mean(k_gamma))
 #> [1] 3.79915
+
+# PIPs
+print(colMeans(res$gamma_post))
+#> [1] 0.90785 1.00000 0.74525 1.00000 0.02735 0.01135 0.01605 0.07500 0.01630
+
+par(mfrow = c(1, 1), mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.5, .5, 0))
+barplot(colMeans(res$gamma_post), col="blue",names.arg=1:p,
+        xlab="Covariate",ylab="PIP")
 ```
+
+![](Chapter12_files/figure-html/unnamed-chunk-4-1.png) To determine the
+model visited most often we re-use a function which we defined in
+Chapter 11.
+
+``` r
+
+number_draws<- function(gamma_post, models){
+  
+  nmod <- dim(models)[1]
+  freq <- rep(NA,nmod)
+  
+  for (j in (1:nmod)){
+    freq[j] <- sum(apply(gamma_post, 1,
+                         function(x) identical(x, models[j,])))
+  }
+  return(freq)
+}
+freq_gammas<- number_draws(res$gamma_post,gammas_unique)
+io <- order(freq_gammas, decreasing=TRUE)
+
+knitr::kable(cbind(gammas_unique,freq_gammas/M)[io[1:5],],
+             digits=cbind(rep(0, p),4))
+```
+
+|     |     |     |     |     |     |     |     |     |        |
+|----:|----:|----:|----:|----:|----:|----:|----:|----:|-------:|
+|   1 |   1 |   1 |   1 |   0 |   0 |   0 |   0 |   0 | 0.6068 |
+|   1 |   1 |   0 |   1 |   0 |   0 |   0 |   0 |   0 | 0.1742 |
+|   1 |   1 |   1 |   1 |   0 |   0 |   0 |   1 |   0 | 0.0537 |
+|   0 |   1 |   0 |   1 |   0 |   0 |   0 |   0 |   0 | 0.0494 |
+|   0 |   1 |   1 |   1 |   0 |   0 |   0 |   0 |   0 | 0.0308 |
