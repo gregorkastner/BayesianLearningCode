@@ -3094,7 +3094,7 @@ initial data than then bare minimum).</p>
 <span><span class="op">}</span></span></code></pre></div>
 <p>Now we are ready to reproduce the results in the book.</p>
 <div class="section level4">
-<h4 id="example-11-9-us-gdp-data-qualitative-model-order-selection">Example 11.9: US GDP data: Qualitative model-order selection<a class="anchor" aria-label="anchor" href="#example-11-9-us-gdp-data-qualitative-model-order-selection"></a>
+<h4 id="example-11-12-us-gdp-data-qualitative-model-order-selection">Example 11.12: US GDP data: Qualitative model-order selection<a class="anchor" aria-label="anchor" href="#example-11-12-us-gdp-data-qualitative-model-order-selection"></a>
 </h4>
 <p>We obtain draws and parameters for four AR models under the
 semi-conjugate prior.</p>
@@ -3128,7 +3128,7 @@ along with the marginal prior.</p>
 <p><img src="Chapter11_files/figure-html/unnamed-chunk-34-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 <div class="section level4">
-<h4 id="example-11-10-us-gdp-data-quantitative-model-order-selection">Example 11.10: US GDP data: Quantitative model-order selection<a class="anchor" aria-label="anchor" href="#example-11-10-us-gdp-data-quantitative-model-order-selection"></a>
+<h4 id="example-11-13-us-gdp-data-quantitative-model-order-selection">Example 11.13: US GDP data: Quantitative model-order selection<a class="anchor" aria-label="anchor" href="#example-11-13-us-gdp-data-quantitative-model-order-selection"></a>
 </h4>
 <p>After visualizing the Savage-Dickey density ratio, we now move
 towards computing its numerical value by Rao-Blackwellization. We first
@@ -3253,8 +3253,8 @@ median.</p>
 <span><span class="co">#&gt; -35.97  -1.18   0.47   2.75</span></span></code></pre></div>
 </div>
 <div class="section level4">
-<h4 id="example-11-11-us-gdp-data-choosing-the-model-order-via-marginal-likelihoods">Example 11.11: US GDP data: Choosing the model order via marginal
-likelihoods<a class="anchor" aria-label="anchor" href="#example-11-11-us-gdp-data-choosing-the-model-order-via-marginal-likelihoods"></a>
+<h4 id="example-11-14-us-gdp-data-choosing-the-model-order-via-marginal-likelihoods">Example 11.14: US GDP data: Choosing the model order via marginal
+likelihoods<a class="anchor" aria-label="anchor" href="#example-11-14-us-gdp-data-choosing-the-model-order-via-marginal-likelihoods"></a>
 </h4>
 <p>For convenience, we write a small function which converts log
 marginal likelihoods to posterior model probabilities.</p>
@@ -3309,7 +3309,7 @@ prior.</p>
 <h3 id="section-11-4-2-bayesian-unit-root-testing">Section 11.4.2: Bayesian unit root testing<a class="anchor" aria-label="anchor" href="#section-11-4-2-bayesian-unit-root-testing"></a>
 </h3>
 <div class="section level4">
-<h4 id="example-11-12-chf-exchange-rate-data-exploring-stationarity">Example 11.12: CHF exchange rate data: Exploring stationarity<a class="anchor" aria-label="anchor" href="#example-11-12-chf-exchange-rate-data-exploring-stationarity"></a>
+<h4 id="example-11-15-chf-exchange-rate-data-exploring-stationarity">Example 11.15: CHF exchange rate data: Exploring stationarity<a class="anchor" aria-label="anchor" href="#example-11-15-chf-exchange-rate-data-exploring-stationarity"></a>
 </h4>
 <p>Let us check for stationarity of the exchange rate data. First, we
 load the data and visualize it as well as its empirical ACF. We do the
@@ -3329,7 +3329,7 @@ same for the absolute returns.</p>
 and at (first order) stationarity of the returns.</p>
 </div>
 <div class="section level4">
-<h4 id="example-11-13-chf-exchange-rate-data-exploring-unit-roots">Example 11.13: CHF exchange rate data: Exploring unit roots<a class="anchor" aria-label="anchor" href="#example-11-13-chf-exchange-rate-data-exploring-unit-roots"></a>
+<h4 id="example-11-16-chf-exchange-rate-data-exploring-unit-roots">Example 11.16 CHF exchange rate data: Exploring unit roots<a class="anchor" aria-label="anchor" href="#example-11-16-chf-exchange-rate-data-exploring-unit-roots"></a>
 </h4>
 <p>To check more formally, we fit AR(p) models to both.</p>
 <div class="sourceCode" id="cb50"><pre class="downlit sourceCode r">
@@ -3401,8 +3401,8 @@ book).</p>
 <p><img src="Chapter11_files/figure-html/unnamed-chunk-48-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 <div class="section level4">
-<h4 id="example-11-xx-chf-exchange-rate-data-testing-for-a-unit-root-using-the-savage-dickey-density-ratio">Example 11.XX: CHF exchange rate data: Testing for a unit root using
-the Savage-Dickey density ratio<a class="anchor" aria-label="anchor" href="#example-11-xx-chf-exchange-rate-data-testing-for-a-unit-root-using-the-savage-dickey-density-ratio"></a>
+<h4 id="example-11-17-chf-exchange-rate-data-testing-for-a-unit-root-using-the-savage-dickey-density-ratio">Example 11.17: CHF exchange rate data: Testing for a unit root using
+the Savage-Dickey density ratio<a class="anchor" aria-label="anchor" href="#example-11-17-chf-exchange-rate-data-testing-for-a-unit-root-using-the-savage-dickey-density-ratio"></a>
 </h4>
 <p>We start by defining covariates and response, running the regression
 thereafter.</p>
@@ -3446,21 +3446,19 @@ Rao-Blackwellization.</p>
 <span><span class="co">#&gt; [1] 10.37</span></span></code></pre></div>
 </div>
 <div class="section level4">
-<h4 id="example-11-xx-inflation-data-bayesian-unit-root-testing-with-unknown-model-order">Example 11.XX: Inflation data: Bayesian unit root testing with
-unknown model order<a class="anchor" aria-label="anchor" href="#example-11-xx-inflation-data-bayesian-unit-root-testing-with-unknown-model-order"></a>
+<h4 id="example-11-18-chf-exchange-rate-data-bayesian-unit-root-testing-with-unknown-model-order">Example 11.18: CHF exchange rate data: Bayesian unit root testing
+with unknown model order<a class="anchor" aria-label="anchor" href="#example-11-18-chf-exchange-rate-data-bayesian-unit-root-testing-with-unknown-model-order"></a>
 </h4>
 <p>To compare all models, we need to condition on the same set of
 initial observations.</p>
 <div class="sourceCode" id="cb58"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="va">seed</span> <span class="op">-</span> <span class="fl">123</span><span class="op">)</span></span>
 <span><span class="va">pu</span> <span class="op">&lt;-</span> <span class="fl">4</span></span>
-<span><span class="va">D0</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
-<span><span class="va">A0</span> <span class="op">&lt;-</span> <span class="va">F0</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
 <span><span class="va">resG</span> <span class="op">&lt;-</span> <span class="va">resDF</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/vector.html" class="external-link">vector</a></span><span class="op">(</span><span class="st">"list"</span>, <span class="va">pu</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Set up response and covariates:</span></span>
-<span><span class="va">deltay</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diff.html" class="external-link">diff</a></span><span class="op">(</span><span class="va">inflation</span><span class="op">)</span>, <span class="op">-</span><span class="op">(</span><span class="va">pu</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span>        <span class="co"># rm dy1 ... dy(pu - 1)</span></span>
-<span><span class="va">ylagged</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="va">inflation</span>, <span class="op">-</span><span class="op">(</span><span class="va">pu</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span>, <span class="op">-</span><span class="fl">1</span><span class="op">)</span>   <span class="co"># rm y1 ... y(pu - 1), yT</span></span>
+<span><span class="va">deltay</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diff.html" class="external-link">diff</a></span><span class="op">(</span><span class="va">dat</span><span class="op">)</span>, <span class="op">-</span><span class="op">(</span><span class="va">pu</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span>        <span class="co"># rm dy1 ... dy(pu - 1)</span></span>
+<span><span class="va">ylagged</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="va">dat</span>, <span class="op">-</span><span class="op">(</span><span class="va">pu</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span>, <span class="op">-</span><span class="fl">1</span><span class="op">)</span>   <span class="co"># rm y1 ... y(pu - 1), yT</span></span>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">p</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">pu</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">deltaylagged</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="cn">NA_real_</span>, nrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">deltay</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="va">p</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span></span>
 <span>  <span class="co"># if p == 1:  empty</span></span>
@@ -3469,20 +3467,20 @@ initial observations.</p>
 <span>  <span class="co">#      ...</span></span>
 <span>  <span class="co"># if p == pu: keep additionally dy1        ... dy(T - pu - 1)</span></span>
 <span>  <span class="kw">for</span> <span class="op">(</span><span class="va">j</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">p</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="va">deltaylagged</span><span class="op">[</span>, <span class="va">j</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/diff.html" class="external-link">diff</a></span><span class="op">(</span><span class="va">inflation</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="va">pu</span> <span class="op">-</span> <span class="va">j</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">inflation</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span> <span class="op">-</span> <span class="va">j</span><span class="op">)</span><span class="op">]</span></span>
+<span>    <span class="va">deltaylagged</span><span class="op">[</span>, <span class="va">j</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/diff.html" class="external-link">diff</a></span><span class="op">(</span><span class="va">dat</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="va">pu</span> <span class="op">-</span> <span class="va">j</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">dat</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span> <span class="op">-</span> <span class="va">j</span><span class="op">)</span><span class="op">]</span></span>
 <span>  <span class="op">}</span></span>
 <span>  </span>
 <span>  <span class="co"># Restricted model MG:</span></span>
 <span>  <span class="va">Xy</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">deltaylagged</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">ylagged</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="va">p</span><span class="op">)</span></span>
 <span>  <span class="va">b0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">p</span><span class="op">)</span></span>
 <span>  <span class="va">B0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">F0</span>, <span class="va">p</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span>, <span class="va">A0</span><span class="op">)</span><span class="op">)</span></span>
-<span>  <span class="va">resG</span><span class="op">[[</span><span class="va">p</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu">regression</span><span class="op">(</span><span class="va">deltay</span>, <span class="va">Xy</span>, b0 <span class="op">=</span> <span class="va">b0</span>, B0 <span class="op">=</span> <span class="va">B0</span>, c0 <span class="op">=</span> <span class="fl">2</span>, C0 <span class="op">=</span> <span class="fl">0.001</span><span class="op">)</span></span>
+<span>  <span class="va">resG</span><span class="op">[[</span><span class="va">p</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu">regression</span><span class="op">(</span><span class="va">deltay</span>, <span class="va">Xy</span>, b0 <span class="op">=</span> <span class="va">b0</span>, B0 <span class="op">=</span> <span class="va">B0</span>, c0 <span class="op">=</span> <span class="va">c0</span>, C0 <span class="op">=</span> <span class="va">C0</span><span class="op">)</span></span>
 <span>  </span>
 <span>  <span class="co"># Unrestricted model MDF:</span></span>
 <span>  <span class="va">Xy</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">ylagged</span>, <span class="va">deltaylagged</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">ylagged</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="va">p</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span></span>
 <span>  <span class="va">b0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">p</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span></span>
 <span>  <span class="va">B0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">D0</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">F0</span>, <span class="va">p</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span>, <span class="va">A0</span><span class="op">)</span><span class="op">)</span></span>
-<span>  <span class="va">resDF</span><span class="op">[[</span><span class="va">p</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu">regression</span><span class="op">(</span><span class="va">deltay</span>, <span class="va">Xy</span>, b0 <span class="op">=</span> <span class="va">b0</span>, B0 <span class="op">=</span> <span class="va">B0</span>, c0 <span class="op">=</span> <span class="fl">2</span>, C0 <span class="op">=</span> <span class="fl">0.001</span><span class="op">)</span></span>
+<span>  <span class="va">resDF</span><span class="op">[[</span><span class="va">p</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu">regression</span><span class="op">(</span><span class="va">deltay</span>, <span class="va">Xy</span>, b0 <span class="op">=</span> <span class="va">b0</span>, B0 <span class="op">=</span> <span class="va">B0</span>, c0 <span class="op">=</span> <span class="va">c0</span>, C0 <span class="op">=</span> <span class="va">C0</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>We now compute Chib’s estimator, evaluated at the posterior median,
 exactly as before.</p>
@@ -3513,28 +3511,28 @@ exactly as before.</p>
 <span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">tab</span>, digits <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <table class="table"><tbody>
 <tr class="odd">
-<td align="right">-115.90</td>
-<td align="right">0.00</td>
-<td align="right">-118.94</td>
-<td align="right">0.00</td>
+<td align="right">11366.67</td>
+<td align="right">0.86</td>
+<td align="right">11364.29</td>
+<td align="right">0.08</td>
 </tr>
 <tr class="even">
-<td align="right">-106.14</td>
-<td align="right">0.06</td>
-<td align="right">-108.08</td>
-<td align="right">0.01</td>
+<td align="right">11363.70</td>
+<td align="right">0.04</td>
+<td align="right">11361.35</td>
+<td align="right">0.00</td>
 </tr>
 <tr class="odd">
-<td align="right">-103.90</td>
-<td align="right">0.59</td>
-<td align="right">-104.67</td>
-<td align="right">0.27</td>
+<td align="right">11362.49</td>
+<td align="right">0.01</td>
+<td align="right">11360.10</td>
+<td align="right">0.00</td>
 </tr>
 <tr class="even">
-<td align="right">-106.58</td>
-<td align="right">0.04</td>
-<td align="right">-106.97</td>
-<td align="right">0.03</td>
+<td align="right">11358.57</td>
+<td align="right">0.00</td>
+<td align="right">11356.17</td>
+<td align="right">0.00</td>
 </tr>
 </tbody></table>
 </div>

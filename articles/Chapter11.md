@@ -1240,7 +1240,7 @@ ARdesignmatrix <- function(dat, p = 1, conditioninglength = p) {
 
 Now we are ready to reproduce the results in the book.
 
-#### Example 11.9: US GDP data: Qualitative model-order selection
+#### Example 11.12: US GDP data: Qualitative model-order selection
 
 We obtain draws and parameters for four AR models under the
 semi-conjugate prior.
@@ -1281,7 +1281,7 @@ for (i in 2:5) {
 
 ![](Chapter11_files/figure-html/unnamed-chunk-34-1.png)
 
-#### Example 11.10: US GDP data: Quantitative model-order selection
+#### Example 11.13: US GDP data: Quantitative model-order selection
 
 After visualizing the Savage-Dickey density ratio, we now move towards
 computing its numerical value by Rao-Blackwellization. We first define a
@@ -1395,7 +1395,7 @@ round(pairwiselogML, 2)
 #> -35.97  -1.18   0.47   2.75
 ```
 
-#### Example 11.11: US GDP data: Choosing the model order via marginal likelihoods
+#### Example 11.14: US GDP data: Choosing the model order via marginal likelihoods
 
 For convenience, we write a small function which converts log marginal
 likelihoods to posterior model probabilities.
@@ -1431,7 +1431,7 @@ knitr::kable(t(round(cbind(unif = probs_unif, penalized = probs_pen), 3)))
 
 ### Section 11.4.2: Bayesian unit root testing
 
-#### Example 11.12: CHF exchange rate data: Exploring stationarity
+#### Example 11.15: CHF exchange rate data: Exploring stationarity
 
 Let us check for stationarity of the exchange rate data. First, we load
 the data and visualize it as well as its empirical ACF. We do the same
@@ -1455,7 +1455,7 @@ acf(ret)
 This clearly hints at non-stationarity of the exchange rate series and
 at (first order) stationarity of the returns.
 
-#### Example 11.13: CHF exchange rate data: Exploring unit roots
+#### Example 11.16 CHF exchange rate data: Exploring unit roots
 
 To check more formally, we fit AR(p) models to both.
 
@@ -1545,7 +1545,7 @@ for (p in 1:4) {
 
 ![](Chapter11_files/figure-html/unnamed-chunk-48-1.png)
 
-#### Example 11.XX: CHF exchange rate data: Testing for a unit root using the Savage-Dickey density ratio
+#### Example 11.17: CHF exchange rate data: Testing for a unit root using the Savage-Dickey density ratio
 
 We start by defining covariates and response, running the regression
 thereafter.
@@ -1600,7 +1600,7 @@ logSD <- logpostordinate - dnorm(0, b0[1], sqrt(B0[1, 1]), log = TRUE)
 #> [1] 10.37
 ```
 
-#### Example 11.XX: Inflation data: Bayesian unit root testing with unknown model order
+#### Example 11.18: CHF exchange rate data: Bayesian unit root testing with unknown model order
 
 To compare all models, we need to condition on the same set of initial
 observations.
@@ -1609,13 +1609,11 @@ observations.
 
 set.seed(seed - 123)
 pu <- 4
-D0 <- 1
-A0 <- F0 <- 1
 resG <- resDF <- vector("list", pu)
 
 # Set up response and covariates:
-deltay <- tail(diff(inflation), -(pu - 1))        # rm dy1 ... dy(pu - 1)
-ylagged <- head(tail(inflation, -(pu - 1)), -1)   # rm y1 ... y(pu - 1), yT
+deltay <- tail(diff(dat), -(pu - 1))        # rm dy1 ... dy(pu - 1)
+ylagged <- head(tail(dat, -(pu - 1)), -1)   # rm y1 ... y(pu - 1), yT
 for (p in seq_len(pu)) {
   deltaylagged <- matrix(NA_real_, nrow = length(deltay), ncol = p - 1)
   # if p == 1:  empty
@@ -1624,20 +1622,20 @@ for (p in seq_len(pu)) {
   #      ...
   # if p == pu: keep additionally dy1        ... dy(T - pu - 1)
   for (j in seq_len(p - 1)) {
-    deltaylagged[, j] <- diff(inflation)[seq(pu - j, length(inflation) - 1 - j)]
+    deltaylagged[, j] <- diff(dat)[seq(pu - j, length(dat) - 1 - j)]
   }
   
   # Restricted model MG:
   Xy <- matrix(c(deltaylagged, rep(1, length(ylagged))), ncol = p)
   b0 <- rep(0, p)
   B0 <- diag(c(rep(F0, p - 1), A0))
-  resG[[p]] <- regression(deltay, Xy, b0 = b0, B0 = B0, c0 = 2, C0 = 0.001)
+  resG[[p]] <- regression(deltay, Xy, b0 = b0, B0 = B0, c0 = c0, C0 = C0)
   
   # Unrestricted model MDF:
   Xy <- matrix(c(ylagged, deltaylagged, rep(1, length(ylagged))), ncol = p + 1)
   b0 <- rep(0, p + 1)
   B0 <- diag(c(D0, rep(F0, p - 1), A0))
-  resDF[[p]] <- regression(deltay, Xy, b0 = b0, B0 = B0, c0 = 2, C0 = 0.001)
+  resDF[[p]] <- regression(deltay, Xy, b0 = b0, B0 = B0, c0 = c0, C0 = C0)
 }
 ```
 
@@ -1676,12 +1674,12 @@ dimnames(tab) <- list("Lag order" = seq_len(ncol(logML)), NULL)
 knitr::kable(tab, digits = 2)
 ```
 
-|         |      |         |      |
-|--------:|-----:|--------:|-----:|
-| -115.90 | 0.00 | -118.94 | 0.00 |
-| -106.14 | 0.06 | -108.08 | 0.01 |
-| -103.90 | 0.59 | -104.67 | 0.27 |
-| -106.58 | 0.04 | -106.97 | 0.03 |
+|          |      |          |      |
+|---------:|-----:|---------:|-----:|
+| 11366.67 | 0.86 | 11364.29 | 0.08 |
+| 11363.70 | 0.04 | 11361.35 | 0.00 |
+| 11362.49 | 0.01 | 11360.10 | 0.00 |
+| 11358.57 | 0.00 | 11356.17 | 0.00 |
 
 ### Section 11.4.3: Bayesian testing for first-order Markov chain models
 
