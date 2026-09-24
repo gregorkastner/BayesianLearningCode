@@ -903,7 +903,7 @@ ARdesignmatrix <- function(dat, p = 1, conditioninglength = p) {
 
 Now we are ready to reproduce the results in the book.
 
-### Example 11.9: US GDP data: Qualitative model-order selection
+### Example 11.12: US GDP data: Qualitative model-order selection
 
 We obtain draws and parameters for four AR models under the semi-conjugate
 prior.
@@ -944,7 +944,7 @@ for (i in 2:5) {
 }
 ```
 
-### Example 11.10: US GDP data: Quantitative model-order selection
+### Example 11.13: US GDP data: Quantitative model-order selection
 
 After visualizing the Savage-Dickey density ratio, we now move towards
 computing its numerical value by Rao-Blackwellization. We first define
@@ -1042,7 +1042,7 @@ names(pairwiselogML) <- names(logSD)
 round(pairwiselogML, 2)
 ```
 
-### Example 11.11: US GDP data: Choosing the model order via marginal likelihoods
+### Example 11.14: US GDP data: Choosing the model order via marginal likelihoods
 
 For convenience, we write a small function which converts log marginal
 likelihoods to posterior model probabilities.
@@ -1070,7 +1070,7 @@ knitr::kable(t(round(cbind(unif = probs_unif, penalized = probs_pen), 3)))
 
 ## Section 11.4.2: Bayesian unit root testing
 
-### Example 11.12: CHF exchange rate data: Exploring stationarity
+### Example 11.15: CHF exchange rate data: Exploring stationarity
 
 Let us check for stationarity of the exchange rate data. First, we load the
 data and visualize it as well as its empirical ACF. We do the same for the
@@ -1096,7 +1096,7 @@ This clearly hints at non-stationarity of the exchange rate series and at
 (first order) stationarity of the returns.
 
 
-### Example 11.13: CHF exchange rate data: Exploring unit roots
+### Example 11.16 CHF exchange rate data: Exploring unit roots
 
 To check more formally, we fit AR(p) models to both.
 
@@ -1186,7 +1186,7 @@ for (p in 1:4) {
 }
 ```
 
-### Example 11.XX: CHF exchange rate data: Testing for a unit root using the Savage-Dickey density ratio
+### Example 11.17: CHF exchange rate data: Testing for a unit root using the Savage-Dickey density ratio
 
 We start by defining covariates and response, running the regression thereafter.
 
@@ -1238,7 +1238,7 @@ logSD <- logpostordinate - dnorm(0, b0[1], sqrt(B0[1, 1]), log = TRUE)
 ```
 
 
-### Example 11.XX: Inflation data: Bayesian unit root testing with unknown model order
+### Example 11.18: Inflation data: Bayesian unit root testing with unknown model order
 
 To compare all models, we need to condition on the same set of initial
 observations.
