@@ -1,6 +1,6 @@
-# Chapter 11: Bayesian Model Selection in Regression and Time Series Analysis
+# Chapter 11: Bayesian Model Comparison in Regression and Time Series Analysis
 
-## Section 11.1: Marginal likelihood computations in regression analysis
+## Section 11.1: Marginal likelihood computation in regression analysis
 
 #### Example 11.1: Marginal likelihoods when the error variance is known
 
@@ -14,49 +14,39 @@
 
 ### Section 11.2.1: Bayesian variable selection
 
-#### Example 11.3: Movie data: Full enumeration marginal likelihoods
+#### Example 11.3: Movie data: Full enumeration of marginal likelihoods
 
 We write a function that computes the marginal likelihoods for models
 defined by indicator vectors.
 
 ``` r
 
-logmarlik_reg <- function(y,X, a0, A0, B0, c0, C0, gammas){
-  
+logmarlik_reg <- function(y, X, a0, A0, B0, c0, C0, gammas) {
   N <- length(y)
   
   cN <- c0 + N / 2
   const <- (- N / 2) * log(2*pi) + lgamma(cN) - lgamma(c0) + c0 * log(c0)
   
-  nmod <- dim(gammas)[1]
-  p <- dim(gammas)[2]
-  
-  lmarlik <- rep(NA,nmod)
-  
-  for (i in 1:nmod){
-       
-    gamma <- gammas[i,]
+  nmod <- nrow(gammas)
+  lmarlik <- rep(NA_real_, nmod)
+  for (i in seq_len(nmod)) {
+    gamma <- gammas[i, ]
     k_gamma <- sum(gamma)
     
-    if (k_gamma==0){
-       X_gamma <-  as.matrix(rep(1, N))
-       b0v <- t(as.vector(a0))
-       B0v.inv<- as.matrix(1/A0)
-    }else{
-       X_gamma <- as.matrix(cbind(rep(1, N), X[,gamma==1] ))
-       b0v <- c(a0,rep(0,k_gamma))
-       B0v.inv <- diag(c(1/A0,rep(1/B0,k_gamma)) )
-    }
+    X_gamma <- cbind(1, X[, gamma == 1L])
+    b0v <- c(a0, rep(0, k_gamma))
+    B0v.inv <- diag(c(1/A0, rep(1/B0, k_gamma)), nrow = k_gamma + 1)
+
     BNv.inv <- B0v.inv + crossprod(X_gamma)
     BNv <- solve(BNv.inv)
 
-    bNv <- BNv %*% (crossprod(X_gamma, y) + B0v.inv%*% b0v )
+    bNv <- BNv %*% (crossprod(X_gamma, y) + B0v.inv %*% b0v)
     SSE <- as.numeric(crossprod(y) +  t(b0v) %*% B0v.inv %*% b0v -
-                    t(bNv) %*% BNv.inv %*% bNv)
-    
-   CN <- C0 + SSE / 2
-   lmarlik[i]  <- const   - cN * log(CN) +
-                  0.5 *( log(det(BNv)) + log(det(B0v.inv)) ) 
+      t(bNv) %*% BNv.inv %*% bNv)
+
+    CN <- C0 + SSE / 2
+    lmarlik[i] <- const - cN * log(CN) +
+      0.5 * (log(det(BNv)) + log(det(B0v.inv)))
   }
   return(lmarlik)
 }
@@ -68,31 +58,26 @@ $`2^3=8`$ models that can be estimated with these covariates.
 
 ``` r
 
-# Example 11.2
 library("BayesianLearningCode")
 data("movies", package = "BayesianLearningCode")
 
 y <- movies[, "OpenBoxOffice"]
-
-covs <- c("Budget", "Screens","Comedy")
-covs.cen <- scale(movies[, covs], scale = FALSE) # center the covariates
-gammas <- cbind(c(rep(0,4),rep(1,4)),rep(c(rep(0,2), rep(1,2)),2),
-                rep(c(0,1),4)) 
+covs <- c("Budget", "Screens", "Comedy")
+X <- scale(movies[, covs], scale = FALSE) # center the covariates
+gammas <- cbind(rep(0:1, each = 4),
+                rep(rep(0:1, each = 2), 2),
+                rep(0:1, 4))
+colnames(gammas) <- colnames(X)
 ```
 
-Next we choose the prior parameters and compute the log marginal
+We specify the prior parameters and compute the log marginal
 likelihoods.
 
 ``` r
 
-a0=0
-A0=10000
-
-B0=1
-c0 = 2.5
-C0 = 1.5
-set.seed(seed)
-logmarliks <- logmarlik_reg(y, covs.cen, a0, A0, B0, c0, C0, gammas) 
+a0 <- 0; A0 <- 10000; B0 <- 1
+c0 <- 2.5; C0 <- 1.5
+logmarliks <- logmarlik_reg(y, X, a0, A0, B0, c0, C0, gammas) 
 ```
 
 Finally, we compute the model probabilities for a uniform prior on the
@@ -100,92 +85,100 @@ model space.
 
 ``` r
 
-prob <- 1 / dim(gammas)[1]
+prob <- 1 / nrow(gammas)
 h <- exp(logmarliks - max(logmarliks))
 cM <- prob * sum(h)
 model_probs <- prob * h / cM
 
 knitr::kable(cbind(gammas, logmarliks, model_probs),
-             digits = c(rep(0, ncol(gammas)), 1, 3))
+  digits = c(rep(0, ncol(gammas)), 1, 3))
 ```
 
-|     |     |     | logmarliks | model_probs |
-|----:|----:|----:|-----------:|------------:|
-|   0 |   0 |   0 |     -427.7 |       0.000 |
-|   0 |   0 |   1 |     -429.3 |       0.000 |
-|   0 |   1 |   0 |     -413.9 |       0.612 |
-|   0 |   1 |   1 |     -414.5 |       0.339 |
-|   1 |   0 |   0 |     -426.1 |       0.000 |
-|   1 |   0 |   1 |     -427.7 |       0.000 |
-|   1 |   1 |   0 |     -416.8 |       0.034 |
-|   1 |   1 |   1 |     -417.6 |       0.015 |
+| Budget | Screens | Comedy | logmarliks | model_probs |
+|-------:|--------:|-------:|-----------:|------------:|
+|      0 |       0 |      0 |     -427.7 |       0.000 |
+|      0 |       0 |      1 |     -429.3 |       0.000 |
+|      0 |       1 |      0 |     -413.9 |       0.612 |
+|      0 |       1 |      1 |     -414.5 |       0.339 |
+|      1 |       0 |      0 |     -426.1 |       0.000 |
+|      1 |       0 |      1 |     -427.7 |       0.000 |
+|      1 |       1 |      0 |     -416.8 |       0.034 |
+|      1 |       1 |      1 |     -417.6 |       0.015 |
 
 We then perform model selection also for the model with standardized
 covariates.
 
 ``` r
 
-covs.std <- scale(movies[, covs], scale = TRUE) 
-logmarliks <- logmarlik_reg(y, covs.std, a0, A0, B0, c0, C0, gammas) 
+X.std <- scale(movies[, covs], scale = TRUE)
+logmarliks <- logmarlik_reg(y, X.std, a0, A0, B0, c0, C0, gammas) 
 
 h <- exp(logmarliks - max(logmarliks))
 cM <- prob * sum(h)
 model_probs <- prob * h / cM
 
 knitr::kable(cbind(gammas, logmarliks, model_probs),
-             digits = c(rep(0, ncol(gammas)), 1, 3))
+  digits = c(rep(0, ncol(gammas)), 1, 3))
 ```
 
-|     |     |     | logmarliks | model_probs |
-|----:|----:|----:|-----------:|------------:|
-|   0 |   0 |   0 |     -427.7 |       0.000 |
-|   0 |   0 |   1 |     -430.0 |       0.000 |
-|   0 |   1 |   0 |     -412.5 |       0.373 |
-|   0 |   1 |   1 |     -413.7 |       0.105 |
-|   1 |   0 |   0 |     -423.2 |       0.000 |
-|   1 |   0 |   1 |     -425.5 |       0.000 |
-|   1 |   1 |   0 |     -412.3 |       0.429 |
-|   1 |   1 |   1 |     -413.8 |       0.093 |
+| Budget | Screens | Comedy | logmarliks | model_probs |
+|-------:|--------:|-------:|-----------:|------------:|
+|      0 |       0 |      0 |     -427.7 |       0.000 |
+|      0 |       0 |      1 |     -430.0 |       0.000 |
+|      0 |       1 |      0 |     -412.5 |       0.373 |
+|      0 |       1 |      1 |     -413.7 |       0.105 |
+|      1 |       0 |      0 |     -423.2 |       0.000 |
+|      1 |       0 |      1 |     -425.5 |       0.000 |
+|      1 |       1 |      0 |     -412.3 |       0.429 |
+|      1 |       1 |      1 |     -413.8 |       0.093 |
 
-We find that results are different using original and standardized
-covariates.
+We find that results are different using the original and the
+standardized covariates. This is due to the original covariates
+differing in scaling as indicated by the standard deviations:
+
+``` r
+
+attr(X.std, "scaled:scale")
+#>     Budget    Screens     Comedy 
+#> 20.3961376  5.2001432  0.4970745
+```
 
 ### Section 11.2.2: Model space MCMC
 
 #### Example 11.4: Movie data: Model space MCMC
 
 We start by implementing the model space MH algorithm and a function
-that computes the frequencies different models are visited.
+that computes the frequencies with which different models are visited.
 
 ``` r
 
-modelspace_mh <- function(y,X, a0, A0, B0, c0, C0,
-                          burnin = 1000L, M = 5000L){
-  p<-dim(X)[2] 
+modelspace_mh <- function(y, X, a0, A0, B0, c0, C0,
+                          burnin = 1000L, M = 5000L / mcmcspeedup) {
+  p <- ncol(X)
 
-  gamma_post <- matrix(ncol = p, nrow = M)
-  acc <- numeric(length = M)
+  gamma_post <- matrix(0L, nrow = M, ncol = p,
+                       dimnames = list(NULL, colnames(X)))
+  acc <- integer(length = M)
 
-  gamma <- matrix(rep(1,p),nrow=1)
-  lmarlik_old <-logmarlik_reg(y, X, a0, A0, B0, c0, C0, gamma)
+  gamma <- matrix(1L, nrow = 1L, ncol = p)
+  lmarlik_old <- logmarlik_reg(y, X, a0, A0, B0, c0, C0, gamma)
 
   for (m in seq_len(burnin + M)) {
     gamma_proposed <- gamma_old <- gamma
 
-    j <- sample(1:p, size=1)
-    gamma_proposed[j] <- 1-gamma_old[j]
-    lmarlik_proposed <-logmarlik_reg(y, X, a0, A0, B0, c0, C0, gamma_proposed)
+    j <- sample(1:p, size = 1L)
+    gamma_proposed[j] <- 1L - gamma_old[j]
+    lmarlik_proposed <- logmarlik_reg(y, X, a0, A0, B0, c0, C0, gamma_proposed)
     
-    # compute acceptance probability and decide on acceptance
+    # Compute acceptance probability and decide on acceptance
     log_acc <- lmarlik_proposed - lmarlik_old
-
     if (log(runif(1)) < log_acc) {
        gamma <- gamma_proposed
        lmarlik_old <- lmarlik_proposed
-       accept <- 1
+       accept <- 1L
     } else {
        gamma <- gamma_old
-       accept <- 0
+       accept <- 0L
     }
 
     if (m > burnin) {
@@ -193,19 +186,12 @@ modelspace_mh <- function(y,X, a0, A0, B0, c0, C0,
         acc[m-burnin] <- accept
     }
   }
-  return(list(gamma_post=gamma_post,acc=acc))
+  return(list(gamma_post = gamma_post, acc = acc))
 }
 
-number_draws<- function(gamma_post, models){
-
-  nmod <- dim(models)[1]
-  freq <- rep(NA,nmod)
-
-  for (j in (1:nmod)){
-      freq[j] <- sum(apply(gamma_post, 1, 
-                           function(x) identical(x, models[j,])))
-  }
-  return(freq)
+number_draws <- function(gamma_post, models) {
+  sapply(seq_len(nrow(models)), function(j) 
+    sum(apply(gamma_post, 1L, function(x) identical(x, models[j, ]))))
 }
 ```
 
@@ -213,38 +199,36 @@ We run the MH algorithm and compute how often each model is visited.
 
 ``` r
 
-M <- 50000
+M <- 50000 / mcmcspeedup
 set.seed(seed)
-res <- modelspace_mh(y, covs.cen, a0, A0, B0, c0, C0, M = M)
+res <- modelspace_mh(y, X, a0, A0, B0, c0, C0, M = M)
 
-model_freq  <- number_draws(res$gamma_post, gammas)
-knitr::kable(cbind(gammas, model_freq, model_freq / M),
-            digits = c(rep(0, ncol(gammas)), 0, 3))
+n_gamma <- number_draws(res$gamma_post, gammas)
+knitr::kable(cbind(gammas, n_gamma, phat_gamma = n_gamma / M),
+  digits = c(rep(0, ncol(gammas)), 0, 3))
 ```
 
-|     |     |     | model_freq |       |
-|----:|----:|----:|-----------:|------:|
-|   0 |   0 |   0 |          0 | 0.000 |
-|   0 |   0 |   1 |          0 | 0.000 |
-|   0 |   1 |   0 |      30553 | 0.611 |
-|   0 |   1 |   1 |      17098 | 0.342 |
-|   1 |   0 |   0 |          0 | 0.000 |
-|   1 |   0 |   1 |          0 | 0.000 |
-|   1 |   1 |   0 |       1638 | 0.033 |
-|   1 |   1 |   1 |        711 | 0.014 |
+| Budget | Screens | Comedy | n_gamma | phat_gamma |
+|-------:|--------:|-------:|--------:|-----------:|
+|      0 |       0 |      0 |       0 |      0.000 |
+|      0 |       0 |      1 |       0 |      0.000 |
+|      0 |       1 |      0 |   30553 |      0.611 |
+|      0 |       1 |      1 |   17098 |      0.342 |
+|      1 |       0 |      0 |       0 |      0.000 |
+|      1 |       0 |      1 |       0 |      0.000 |
+|      1 |       1 |      0 |    1638 |      0.033 |
+|      1 |       1 |      1 |     711 |      0.014 |
 
 Finally, we compute the PIPs.
 
 ``` r
 
-p <- dim(gammas)[2]
-
-PIP <- rep(NA,p)
- for (j in (1:p)){
-   PIP[j]=sum(model_freq[gammas[,j]==1])/M
- }
-
-print(PIP)
+p <- ncol(gammas)
+PIP <- rep(NA_real_, p)
+for (j in seq_len(p)) {
+  PIP[j] <- sum(n_gamma[gammas[, j] == 1L]) / M
+}
+PIP
 #> [1] 0.04698 1.00000 0.35618
 ```
 
@@ -254,34 +238,33 @@ covariates.
 ``` r
 
 set.seed(seed)
-res <- modelspace_mh(y, covs.std, a0, A0, B0, c0, C0, M = M)
+res <- modelspace_mh(y, X.std, a0, A0, B0, c0, C0, M = M)
 
-model_freq  <- number_draws(res$gamma_post, gammas)
-knitr::kable(cbind(gammas, model_freq, model_freq / M),
-            digits = c(rep(0, ncol(gammas)), 0, 3))
+n_gamma  <- number_draws(res$gamma_post, gammas)
+knitr::kable(cbind(gammas, n_gamma, phat_gamma = n_gamma / M),
+  digits = c(rep(0, ncol(gammas)), 0, 3))
 ```
 
-|     |     |     | model_freq |       |
-|----:|----:|----:|-----------:|------:|
-|   0 |   0 |   0 |          0 | 0.000 |
-|   0 |   0 |   1 |          0 | 0.000 |
-|   0 |   1 |   0 |      18561 | 0.371 |
-|   0 |   1 |   1 |       5449 | 0.109 |
-|   1 |   0 |   0 |          0 | 0.000 |
-|   1 |   0 |   1 |          0 | 0.000 |
-|   1 |   1 |   0 |      21111 | 0.422 |
-|   1 |   1 |   1 |       4879 | 0.098 |
+| Budget | Screens | Comedy | n_gamma | phat_gamma |
+|-------:|--------:|-------:|--------:|-----------:|
+|      0 |       0 |      0 |       0 |      0.000 |
+|      0 |       0 |      1 |       0 |      0.000 |
+|      0 |       1 |      0 |   18561 |      0.371 |
+|      0 |       1 |      1 |    5449 |      0.109 |
+|      1 |       0 |      0 |       0 |      0.000 |
+|      1 |       0 |      1 |       0 |      0.000 |
+|      1 |       1 |      0 |   21111 |      0.422 |
+|      1 |       1 |      1 |    4879 |      0.098 |
 
 ``` r
 
 
-p <- dim(gammas)[2]
-
-PIP <- rep(NA,p)
- for (j in (1:p)){
-   PIP[j]=sum(model_freq[gammas[,j]==1])/M
- }
-print(PIP)
+p <- ncol(gammas)
+PIP <- rep(NA_real_, p)
+for (j in 1:p) {
+  PIP[j] <- sum(n_gamma[gammas[, j] == 1L]) / M
+}
+PIP
 #> [1] 0.51980 1.00000 0.20656
 ```
 
@@ -291,72 +274,66 @@ print(PIP)
 
 ### Section 11.2.3: Benchmark priors for comparing regression models
 
-We again start writing a function that performs model selection using
-the g-prior.
+We start with writing a function which implements the model space MH
+algorithm using the g-prior.
 
 ``` r
 
-varselreg_gunif<- function(y, X, pri=NA, burnin=1000L, M=50000L){
-  N=length(y)
-
-  p <- dim(X)[2]
+varselreg_gunif <- function(y, X, burnin = 1000L, M = 50000L / mcmcspeedup) {
+  N <- length(y)
+  p <- ncol(X)
   g <- N
+  Nvary <- N * var(y)
 
-  gamma_post <- matrix(ncol = p, nrow = M)
-  kgamma_post <- numeric(length = M)
-  acc <- numeric(length = M)
+  gamma_post <- matrix(0L, nrow = M, ncol = p,
+                       dimnames = list(NULL, colnames(X)))
+  acc <- integer(length = M)
 
-  gamma_old <- matrix(rep(1,p),nrow=1)
+  gamma_old <- matrix(1L, nrow = 1L, ncol = p)
   k_gamma <- sum(gamma_old)
   X_gamma <- X
 
-  BN_gamma <- solve( ((1+g)/g) * crossprod(X_gamma) )
-  R2_gamma <- t(y)%*%X_gamma%*%BN_gamma%*%t(X_gamma)%*%y / (N*var(y))
+  BN_gamma <- solve(((1+g)/g) * crossprod(X_gamma))
+  R2_gamma <- (t(y) %*% X_gamma %*% BN_gamma %*% t(X_gamma) %*% y) / Nvary
 
-  lmarlik_old <- (N-k_gamma-1)/2*log(1+g) -(N/2) * log(1+g*(1-R2_gamma) )
+  lmarlik_old <- (N-k_gamma-1)/2 * log(1+g) - (N/2) * log(1+g*(1-R2_gamma))
 
   for (m in seq_len(burnin + M)) {
-
     gamma_proposed <- gamma_old
-    j <- sample(1:p, size=1)
-    gamma_proposed[j] <- 1-gamma_old[j]
+    j <- sample(1:p, size = 1L)
+    gamma_proposed[j] <- 1L - gamma_old[j]
 
     kgamma <- sum(gamma_proposed)
 
-   if (kgamma==0){ 
+   if (kgamma == 0L) { 
       R2_gamma <- 0 
-   }else{
-    X_gamma <- X[,gamma_proposed==1]
-    
-    BNinv_gamma <- ((1+g)/g) * crossprod(X_gamma)
-    BN_gamma <- solve( BNinv_gamma)
-    R2_gamma <- t(y) %*% X_gamma %*% BN_gamma %*% t(X_gamma) %*% y / (N*var(y))
+   } else {
+      X_gamma <- X[, gamma_proposed == 1L]
+      yX_gamma <- crossprod(y, X_gamma)
+      BN_gamma <- solve(((1+g)/g) * crossprod(X_gamma))
+      R2_gamma <- (yX_gamma %*% BN_gamma %*% t(yX_gamma)) / Nvary
    }
 
-    lmarlik_proposed <- (N-kgamma-1)/2*log(1+g) -
-                           (N-1)/2 * log(1+g*(1-R2_gamma) )
+   lmarlik_proposed <- (N-kgamma-1)/2 * log(1+g) -
+     (N-1)/2 * log(1+g*(1-R2_gamma))
 
-    # compute acceptance probability and accept or not
-    log_acc <- lmarlik_proposed - lmarlik_old
-
-    if (log(runif(1)) < log_acc) {
-      
+   # Compute acceptance probability and decide on acceptance
+   log_acc <- lmarlik_proposed - lmarlik_old
+   if (log(runif(1)) < log_acc) {
       gamma_old <- gamma_proposed
       lmarlik_old <- lmarlik_proposed
-      accept=1
-      
+      accept <- 1L
     } else {
-      accept=0
+      accept <- 0L
     }
 
     if (m > burnin) {
       gamma_post[m-burnin, ] <- gamma_old
-      kgamma_post[m-burnin] <- sum(gamma_old)
       acc[m-burnin] <- accept
     }
 
   }
-  return(list(gamma_post=gamma_post,acc=acc))
+  return(list(gamma_post = gamma_post, acc = acc))
 }
 ```
 
@@ -367,33 +344,35 @@ covariates.
 ``` r
 
 set.seed(seed)
-res_cen<-varselreg_gunif(y, covs.cen, M=100000)
-print(colMeans(res_cen$gamma_post))
-#> [1] 0.43680 1.00000 0.19064
+res_cen <- varselreg_gunif(y, X, M = 100000 / mcmcspeedup)
+colMeans(res_cen$gamma_post)
+#>  Budget Screens  Comedy 
+#> 0.43680 1.00000 0.19064
 
-gammas_unique<-unique(res_cen$gamma_post)
-freq_gammas<-number_draws(res_cen$gamma_post,gammas_unique) 
-print(cbind(gammas_unique,freq_gammas))
-#>            freq_gammas
-#> [1,] 1 1 0       36325
-#> [2,] 0 1 0       44611
-#> [3,] 0 1 1       11709
-#> [4,] 1 1 1        7355
+gammas_unique <- unique(res_cen$gamma_post)
+n_gamma <- number_draws(res_cen$gamma_post, gammas_unique) 
+cbind(gammas_unique, n_gamma)
+#>      Budget Screens Comedy n_gamma
+#> [1,]      1       1      0   36325
+#> [2,]      0       1      0   44611
+#> [3,]      0       1      1   11709
+#> [4,]      1       1      1    7355
 
-res_std <- varselreg_gunif(y, covs.std, M=100000)
-print(colMeans(res_std$gamma_post))
-#> [1] 0.44254 0.99994 0.18799
+res_std <- varselreg_gunif(y, X.std, M = 100000 / mcmcspeedup)
+colMeans(res_std$gamma_post)
+#>  Budget Screens  Comedy 
+#> 0.44254 0.99994 0.18799
 
 gammas_unique <- unique(res_std$gamma_post)
-freq_gammas<-number_draws(res_std$gamma_post,gammas_unique) 
-print(cbind(gammas_unique,freq_gammas))
-#>            freq_gammas
-#> [1,] 0 1 1       11338
-#> [2,] 0 1 0       44408
-#> [3,] 1 1 0       36788
-#> [4,] 1 1 1        7460
-#> [5,] 1 0 0           5
-#> [6,] 1 0 1           1
+n_gamma <- number_draws(res_std$gamma_post, gammas_unique) 
+cbind(gammas_unique, n_gamma)
+#>      Budget Screens Comedy n_gamma
+#> [1,]      0       1      1   11338
+#> [2,]      0       1      0   44408
+#> [3,]      1       1      0   36788
+#> [4,]      1       1      1    7460
+#> [5,]      1       0      0       5
+#> [6,]      1       0      1       1
 ```
 
 We see that results are very similar as the g-prior takes into account
@@ -402,23 +381,21 @@ the scale of the covariates.
 #### Example 11.6: Movie data: Applying the g-prior
 
 We now perform variable selection for the movie data. We use all
-covariates from example 6.7 except for the categorical variable MMPA
+covariates from Example 6.7 except for the categorical variable MMPA
 rating.
 
 ``` r
 
 covs <- c("Comedy", "Thriller", "Budget", "Weeks", "Screens",
           "S-4-6", "S-1-3", "Vol-4-6", "Vol-1-3")
-covs.cen <- scale(movies[, covs], scale = FALSE)
-
-M <- 100000
-p <- dim(covs.cen)[2]
+X <- scale(movies[, covs], scale = FALSE)
 
 set.seed(seed)
-res_gunif <- varselreg_gunif(y, covs.cen,M=M )
+M <- 100000L / mcmcspeedup
+res_gunif <- varselreg_gunif(y, X, M = M)
 ```
 
-We show the PIPs in a barplot and compute the estimated posterior
+We show the PIPs in a barplot and compute the estimated posterior model
 probabilities of the 10 top models visited during MCMC.
 
 ``` r
@@ -427,49 +404,43 @@ if (pdfplots) {
   pdf("11-2_2a.pdf", width = 3, height = 3)
 }
 par(mfrow = c(1, 1), mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.5, .5, 0))
-barplot(colMeans(res_gunif$gamma_post), col="blue",names.arg=1:p, 
-        xlab="Covariate", ylab="PIP")
+p <- ncol(X)
+barplot(colMeans(res_gunif$gamma_post), col = "blue",
+        names.arg = 1:p, xlab = "Covariate", ylab = "PIP")
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-14-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-15-1.png)
 
 ``` r
-
 
 gammas_unique <- unique(res_gunif$gamma_post)
-nmod <- dim(gammas_unique)[1]
-print(nmod)
+nmod <- nrow(gammas_unique)
+nmod
 #> [1] 67
 
-freq_gammas<-number_draws(res_gunif$gamma_post,gammas_unique)
-io <- order(freq_gammas, decreasing=TRUE)
+n_gamma <- number_draws(res_gunif$gamma_post, gammas_unique)
+io <- order(n_gamma, decreasing = TRUE)
 
-knitr::kable(cbind(gammas_unique,freq_gammas/M)[io[1:10],],
-             digits=cbind(rep(0,p),4))
+knitr::kable(cbind(gammas_unique, phat_gamma = n_gamma/M)[io[1:10], ],
+  digits = c(rep(0, p), 4))
 ```
 
-|     |     |     |     |     |     |     |     |     |        |
-|----:|----:|----:|----:|----:|----:|----:|----:|----:|-------:|
-|   0 |   0 |   1 |   0 |   1 |   0 |   1 |   1 |   1 | 0.1579 |
-|   0 |   0 |   1 |   1 |   1 |   0 |   1 |   1 |   1 | 0.1343 |
-|   0 |   0 |   1 |   0 |   1 |   1 |   0 |   1 |   1 | 0.1258 |
-|   0 |   0 |   1 |   1 |   1 |   1 |   0 |   1 |   1 | 0.0995 |
-|   0 |   0 |   1 |   1 |   1 |   0 |   0 |   1 |   1 | 0.0654 |
-|   0 |   0 |   1 |   0 |   1 |   0 |   0 |   1 |   1 | 0.0511 |
-|   0 |   0 |   0 |   1 |   1 |   0 |   0 |   1 |   1 | 0.0320 |
-|   0 |   0 |   0 |   1 |   1 |   0 |   1 |   1 |   1 | 0.0309 |
-|   0 |   0 |   0 |   1 |   1 |   1 |   0 |   1 |   1 | 0.0247 |
-|   1 |   0 |   1 |   0 |   1 |   0 |   1 |   1 |   1 | 0.0209 |
+| Comedy | Thriller | Budget | Weeks | Screens | S-4-6 | S-1-3 | Vol-4-6 | Vol-1-3 | phat_gamma |
+|-------:|---------:|-------:|------:|--------:|------:|------:|--------:|--------:|-----------:|
+|      0 |        0 |      1 |     0 |       1 |     0 |     1 |       1 |       1 |     0.1579 |
+|      0 |        0 |      1 |     1 |       1 |     0 |     1 |       1 |       1 |     0.1343 |
+|      0 |        0 |      1 |     0 |       1 |     1 |     0 |       1 |       1 |     0.1258 |
+|      0 |        0 |      1 |     1 |       1 |     1 |     0 |       1 |       1 |     0.0995 |
+|      0 |        0 |      1 |     1 |       1 |     0 |     0 |       1 |       1 |     0.0654 |
+|      0 |        0 |      1 |     0 |       1 |     0 |     0 |       1 |       1 |     0.0511 |
+|      0 |        0 |      0 |     1 |       1 |     0 |     0 |       1 |       1 |     0.0320 |
+|      0 |        0 |      0 |     1 |       1 |     0 |     1 |       1 |       1 |     0.0309 |
+|      0 |        0 |      0 |     1 |       1 |     1 |     0 |       1 |       1 |     0.0247 |
+|      1 |        0 |      1 |     0 |       1 |     0 |     1 |       1 |       1 |     0.0209 |
 
-``` r
-
-
-#xtable(cbind(h,freqs)[io,],digits=c(rep(0, p+1),4))
-```
-
-We next determine the posterior distribution of the size of the models,
-i.e. the number of covariates. We plot the MCMC draws of the model size
-and its posterior distribution.
+Next, we determine the posterior distribution of the size of the models,
+i.e., the number of covariates included. We plot the MCMC draws of the
+model size and its posterior distribution.
 
 ``` r
 
@@ -477,18 +448,21 @@ if (pdfplots) {
   pdf("11-2_1.pdf", width = 6, height = 3)
 }
 par(mfrow = c(1, 2), mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.5, .5, 0))
-options(scipen = 999)
-
-k_gamma=rowSums(res_gunif$gamma_post)
-plot(k_gamma, type="l", xlab="Draw", ylab=expression(k[gamma]), xaxt="n",
-          ylim=c(0,p)) 
-axis(side = 1, at = seq(from=0, to=M, by=M/5),labels = T)
-
-barplot(tabulate(k_gamma),  col ="blue",xlab=expression(k[gamma]),
-        ylab="Frequencies", ylim=c(0,50000),  names.arg=1:p)
+oopts <- options(scipen = 999)
+k_gamma <- rowSums(res_gunif$gamma_post)
+plot(k_gamma, type = "l", xlab = "Draw", ylab = expression(k[gamma]),
+     xaxt = "n", ylim = c(0, p)) 
+axis(side = 1, at = seq(from = 0, to = M, by = M/5), labels = TRUE)
+barplot(tabulate(k_gamma), col = "blue", xlab = expression(k[gamma]),
+        ylab = "Frequency", ylim = c(0, M/2), names.arg = 1:p)
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-15-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-16-1.png)
+
+``` r
+
+options(oopts)
+```
 
 ### Section 11.2.4: Priors on the model space
 
@@ -499,89 +473,90 @@ barplot(tabulate(k_gamma),  col ="blue",xlab=expression(k[gamma]),
 if (pdfplots) {
   pdf("11-2_3.pdf", width = 8, height = 5)
 }
-px=10
-xx=0:px
+px <- 10
+xx <- 0:px
 par(mfrow = c(1, 2))
-barplot(rbind(dbinom(xx, size=px, prob=0.05),
-              dbinom(xx, size=px, prob=0.5)), beside=TRUE,
-              col=c("darkblue","darkred"),ylim=c(0,0.6), names.arg=xx,
-              xlab = "x", ylab = "P(X=x)",
-              legend.text=c(expression(paste(pi, " = 0.05")),
-                            expression(paste(pi, " = 0.5"))  ) )
-px=100
-xx=0:px
-bp <- barplot(rbind(dbinom(xx, size=px, prob=0.05),
-              dbinom(xx, size=px, prob=0.5)), beside=TRUE,
-              col=c("darkblue","darkred"),ylim=c(0,0.2), names.arg=NULL,
-              xlab = "x", ylab = "P(X=x)",
-              border=NA,
-              legend.text=c(expression(paste(pi, " = 0.05")),
-                            expression(paste(pi, " = 0.5"))  ) )
+barplot(rbind(dbinom(xx, size = px, prob = 0.05),
+              dbinom(xx, size = px, prob = 0.5)),
+  beside = TRUE, col = c("darkblue", "darkred"), ylim = c(0, 0.6),
+  names.arg = xx, xlab = "x", ylab = "P(X=x)",
+  legend.text = c(expression(paste(pi, " = 0.05")),
+                  expression(paste(pi, " = 0.5"))))
+px <- 100
+xx <- 0:px
+bp <- barplot(rbind(dbinom(xx, size = px, prob = 0.05),
+                    dbinom(xx, size = px, prob = 0.5)),
+  beside = TRUE, col = c("darkblue", "darkred"), ylim = c(0, 0.2),
+  names.arg = NULL, xlab = "x", ylab = "P(X=x)", border = NA,
+  legend.text = c(expression(paste(pi, " = 0.05")),
+                  expression(paste(pi, " = 0.5"))))
 xlabs <- xx
 xlabs[xx %% 10 > 0] <- NA_character_
 axis(side = 1, tick = FALSE, at = colMeans(bp), labels = xlabs, gap.axis = -1)
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-16-1.png) \### Example
-11.8: Movie Data: Hierarchical prior on the model space
+![](Chapter11_files/figure-html/unnamed-chunk-17-1.png)
 
-We now implement variable selection with the g-prior and a hierarchical
+#### Example 11.8: Movie data: Hierarchical prior on the model space
+
+We implement variable selection with the g-prior and a hierarchical
 prior on the model space.
 
 ``` r
 
-varselreg_ghier<- function(y, X, 
-                           prior_model=list(type="hier", a0=1,b0=1),
-                           burnin=1000L, M=50000L){
+varselreg_ghier <- function(y, X,
+                            prior_model = list(type = "hier", a0 = 1, b0 = 1),
+                            burnin = 1000L, M = 50000L / mcmcspeedup) {
   N <- length(y)
-
-  p <- dim(X)[2]
+  p <- ncol(X)
   g <- N
+  Nvary <- N * var(y)
 
-  gamma_post <- matrix(ncol = p, nrow = M)
-  
-  gamma <- matrix(rep(1,p),nrow=1)
+  gamma_post <- matrix(0L, nrow = M, ncol = p,
+                       dimnames = list(NULL, colnames(X)))
+  gamma <- matrix(1L, nrow = 1L, ncol = p)
 
   for (m in seq_len(burnin + M)) {
-
     # Step a: sample gamma
-    j <- sample(1:p, size=1)
+    j <- sample(1:p, size = 1L)
     p0 <- sum(gamma[-j])
     
-    # compute prior "odds of the model
-    if (prior_model$type=="hier"){
-        pri.odds <- (prior_model$a0+p0)/(prior_model$b0+p-p0-1)
-    }else if(prior_model$type=="unif"){
-        pri.odds<- 1
-    }else {stop("not implemented")}
+    # Compute prior "odds of the model
+    if (prior_model$type == "hier") {
+        prior.odds <- (prior_model$a0 + p0)/(prior_model$b0 + p - p0 - 1)
+    } else if (prior_model$type == "unif") {
+        prior.odds <- 1 
+    } else {
+        stop("Prior model type not implemented")
+    }
     
-   # determine the logmarginal likelihoods
-    gamma[j] <- 0
+    # Determine the logmarginal likelihoods
+    gamma[j] <- 0L
     k_gamma <- sum(gamma)
 
-    if (k_gamma==0){
-       R2_gamma <- 0
-    }else{
-       X_gamma <- X[,gamma==1]
-       BN_gamma <- solve( ((1+g)/g) * crossprod(X_gamma) )
-       R2_gamma <- t(y) %*% X_gamma %*% BN_gamma %*% t(X_gamma) %*% y /
-                   (N*var(y))
+    if (k_gamma == 0L) {
+      R2_gamma <- 0
+    } else {
+      X_gamma <- X[, gamma == 1L]
+      yX_gamma <- crossprod(y, X_gamma)        
+      BN_gamma <- solve(((1+g)/g) * crossprod(X_gamma))
+      R2_gamma <- (yX_gamma %*% BN_gamma %*% t(yX_gamma)) / Nvary
     }
 
-    lmarlik0 <- (N-k_gamma-1)/2*log(1+g) -(N/2) * log(1+g*(1-R2_gamma) )
+    lmarlik0 <- (N-k_gamma-1)/2*log(1+g) - (N/2) * log(1+g*(1-R2_gamma))
 
-    gamma[j] <- 1
-    k_gamma <- k_gamma+1
-    X_gamma <- X[,gamma==1]
-    BN_gamma <- solve( ((1+g)/g) * crossprod(X_gamma) )
-    R2_gamma <- t(y) %*% X_gamma %*% BN_gamma %*% t(X_gamma) %*% y /
-                  (N*var(y))
+    gamma[j] <- 1L
+    k_gamma <- k_gamma + 1L
+    X_gamma <- X[, gamma == 1L]
+    yX_gamma <- crossprod(y, X_gamma)      
+    BN_gamma <- solve(((1+g)/g) * crossprod(X_gamma))
+    R2_gamma <- (yX_gamma %*% BN_gamma %*% t(yX_gamma)) / Nvary
 
-    lmarlik1 <- (N-k_gamma-1)/2*log(1+g) -(N/2) * log(1+g*(1-R2_gamma) )
-    Oj<- exp(lmarlik1-lmarlik0)*pri.odds
+    lmarlik1 <- (N-k_gamma-1)/2*log(1+g) - (N/2) * log(1+g*(1-R2_gamma))
+    Oj <- exp(lmarlik1-lmarlik0) * prior.odds
 
-    # compute acceptance probability and accept or not
-    gamma[j] <- 1*(-log(runif(1)) <= log(1+Oj))
+    # Compute acceptance probability and decide on acceptance
+    gamma[j] <- -log(runif(1)) <= log(1+Oj)
 
     if (m > burnin) {
       gamma_post[m-burnin, ] <- gamma
@@ -599,61 +574,11 @@ if (pdfplots) {
   pdf("11-2_2b.pdf", width = 3, height = 3)
 }
 set.seed(seed)
-gamma_post_hier <- varselreg_ghier(y, covs.cen, M=M)
+gamma_post_hier <- varselreg_ghier(y, X, M = M)
 
 par(mfrow = c(1, 1), mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.5, .5, 0))
-barplot(colMeans(gamma_post_hier), col="blue",names.arg=1:p, 
-        xlab="Covariate",ylab="PIP")
-```
-
-![](Chapter11_files/figure-html/unnamed-chunk-18-1.png)
-
-``` r
-
-
-gammas_unique_hier <- unique(gamma_post_hier)
-num_mod_hier <- dim(gammas_unique_hier)[1]
-print(num_mod_hier)
-#> [1] 69
-
-freq_gammas_hier <- number_draws(gamma_post_hier,gammas_unique_hier)
-io_hier <- order(freq_gammas_hier, decreasing=TRUE)
-
-knitr::kable(cbind(gammas_unique_hier,freq_gammas_hier/M)[io_hier[1:10],],
-             digits=cbind(rep(0, p),4))
-```
-
-|     |     |     |     |     |     |     |     |     |        |
-|----:|----:|----:|----:|----:|----:|----:|----:|----:|-------:|
-|   0 |   0 |   1 |   1 |   1 |   0 |   1 |   1 |   1 | 0.1429 |
-|   0 |   0 |   1 |   0 |   1 |   0 |   1 |   1 |   1 | 0.1164 |
-|   0 |   0 |   1 |   1 |   1 |   1 |   0 |   1 |   1 | 0.0984 |
-|   0 |   0 |   1 |   0 |   1 |   1 |   0 |   1 |   1 | 0.0828 |
-|   0 |   0 |   1 |   1 |   1 |   0 |   0 |   1 |   1 | 0.0443 |
-|   0 |   0 |   1 |   1 |   1 |   1 |   1 |   1 |   1 | 0.0361 |
-|   1 |   0 |   1 |   1 |   1 |   0 |   1 |   1 |   1 | 0.0359 |
-|   0 |   1 |   1 |   1 |   1 |   0 |   1 |   1 |   1 | 0.0353 |
-|   0 |   0 |   1 |   0 |   1 |   0 |   0 |   1 |   1 | 0.0338 |
-|   1 |   0 |   1 |   1 |   1 |   1 |   0 |   1 |   1 | 0.0235 |
-
-``` r
-
-
-#xtable(cbind(h,freqs)[io,],digits=c(rep(0,p+1),4))
-```
-
-We also determine the posterior distribution of the model space
-complexity,
-
-``` r
-
-if (pdfplots) {
-  pdf("11-2_2c.pdf", width = 5, height = 6)
-}
-k_gamma_hier=rowSums(gamma_post_hier)
-
-barplot(tabulate(k_gamma_hier),  col="blue",xlab=expression(k[gamma]),
-              ylab="Frequencies", ylim=c(0,50000), names.arg=1:p)
+barplot(colMeans(gamma_post_hier), col = "blue", names.arg = 1:p, 
+        xlab = "Covariate", ylab = "PIP")
 ```
 
 ![](Chapter11_files/figure-html/unnamed-chunk-19-1.png)
@@ -661,10 +586,69 @@ barplot(tabulate(k_gamma_hier),  col="blue",xlab=expression(k[gamma]),
 ``` r
 
 
-# TEST
-#prior_model <- list(type="unif")
-#gamma_post1<-varselreg_ghier(y, covs.cen,prior_model, M=50000)
+gammas_unique_hier <- unique(gamma_post_hier)
+nrow(gammas_unique_hier)
+#> [1] 69
+
+n_gamma_hier <- number_draws(gamma_post_hier, gammas_unique_hier)
+io_hier <- order(n_gamma_hier, decreasing = TRUE)
+
+knitr::kable(cbind(gammas_unique_hier,
+  phat_gamma = n_gamma_hier / M)[io_hier[1:10], ],
+  digits = c(rep(0, p), 4))
 ```
+
+| Comedy | Thriller | Budget | Weeks | Screens | S-4-6 | S-1-3 | Vol-4-6 | Vol-1-3 | phat_gamma |
+|-------:|---------:|-------:|------:|--------:|------:|------:|--------:|--------:|-----------:|
+|      0 |        0 |      1 |     1 |       1 |     0 |     1 |       1 |       1 |     0.1429 |
+|      0 |        0 |      1 |     0 |       1 |     0 |     1 |       1 |       1 |     0.1164 |
+|      0 |        0 |      1 |     1 |       1 |     1 |     0 |       1 |       1 |     0.0984 |
+|      0 |        0 |      1 |     0 |       1 |     1 |     0 |       1 |       1 |     0.0828 |
+|      0 |        0 |      1 |     1 |       1 |     0 |     0 |       1 |       1 |     0.0443 |
+|      0 |        0 |      1 |     1 |       1 |     1 |     1 |       1 |       1 |     0.0361 |
+|      1 |        0 |      1 |     1 |       1 |     0 |     1 |       1 |       1 |     0.0359 |
+|      0 |        1 |      1 |     1 |       1 |     0 |     1 |       1 |       1 |     0.0353 |
+|      0 |        0 |      1 |     0 |       1 |     0 |     0 |       1 |       1 |     0.0338 |
+|      1 |        0 |      1 |     1 |       1 |     1 |     0 |       1 |       1 |     0.0235 |
+
+``` r
+
+gammas_unique_both <- unique(rbind(gammas_unique, gammas_unique_hier))
+uniform <- number_draws(res_gunif$gamma_post, gammas_unique_both) / M
+hierarchical <- number_draws(gamma_post_hier, gammas_unique_both) / M
+io <- order(uniform, decreasing = TRUE)
+
+knitr::kable(cbind(gammas_unique_both, uniform, hierarchical)[io[1:10], ],
+  digits = rep(c(0, 4), c(p, 2)))
+```
+
+| Comedy | Thriller | Budget | Weeks | Screens | S-4-6 | S-1-3 | Vol-4-6 | Vol-1-3 | uniform | hierarchical |
+|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 0 | 0 | 1 | 0 | 1 | 0 | 1 | 1 | 1 | 0.1579 | 0.1164 |
+| 0 | 0 | 1 | 1 | 1 | 0 | 1 | 1 | 1 | 0.1343 | 0.1429 |
+| 0 | 0 | 1 | 0 | 1 | 1 | 0 | 1 | 1 | 0.1258 | 0.0828 |
+| 0 | 0 | 1 | 1 | 1 | 1 | 0 | 1 | 1 | 0.0995 | 0.0984 |
+| 0 | 0 | 1 | 1 | 1 | 0 | 0 | 1 | 1 | 0.0654 | 0.0443 |
+| 0 | 0 | 1 | 0 | 1 | 0 | 0 | 1 | 1 | 0.0511 | 0.0338 |
+| 0 | 0 | 0 | 1 | 1 | 0 | 0 | 1 | 1 | 0.0320 | 0.0196 |
+| 0 | 0 | 0 | 1 | 1 | 0 | 1 | 1 | 1 | 0.0309 | 0.0198 |
+| 0 | 0 | 0 | 1 | 1 | 1 | 0 | 1 | 1 | 0.0247 | 0.0162 |
+| 1 | 0 | 1 | 0 | 1 | 0 | 1 | 1 | 1 | 0.0209 | 0.0219 |
+
+We also determine the posterior distribution of the model space
+complexity
+
+``` r
+
+if (pdfplots) {
+  pdf("11-2_2c.pdf", width = 5, height = 6)
+}
+k_gamma_hier <- rowSums(gamma_post_hier)
+barplot(tabulate(k_gamma_hier), col = "blue", xlab = expression(k[gamma]),
+        ylab = "Frequency", ylim = c(0, M/2), names.arg = 1:p)
+```
+
+![](Chapter11_files/figure-html/unnamed-chunk-21-1.png)
 
 and the posterior of $`\pi`$.
 
@@ -675,21 +659,20 @@ if (pdfplots) {
 }
 
 b0 <- a0 <- 1
-
-p <- dim(covs.cen)[2]
-xx <- seq(from=0, to=1, by=0.001)
-post_pi <- matrix(NA, ncol=M, nrow=length(xx))
-
-for (m in (1:M)){
-  post_pi[,m] <- dbeta(xx, a0+k_gamma_hier[m] , b0+p-k_gamma_hier[m])
+p <- ncol(X)
+xx <- seq(from = 0, to = 1, by = 0.001)
+post_pi <- matrix(NA_real_, ncol = M, nrow = length(xx))
+for (m in (1:M)) {
+  post_pi[, m] <- dbeta(xx, a0+k_gamma_hier[m], b0+p-k_gamma_hier[m])
 }
-plot(xx,rowMeans(post_pi) , type="l", col="blue", xlab=expression(pi),
-     ylab=expression(paste("p(", pi,")")))
-lines(xx,dbeta(xx, a0, b0),col="black")
-legend("topleft",legend=c("posterior","prior"), col=c("blue","black"),lty=1)
+plot(xx, rowMeans(post_pi), type = "l", col = "blue", xlab = expression(pi),
+     ylab = expression(paste("p(", pi, ")")))
+lines(xx, dbeta(xx, a0, b0), col = "black")
+legend("topleft", legend = c("posterior", "prior"), col = c("blue", "black"),
+       lty = 1)
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-20-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-22-1.png)
 
 ### Section 11.2.5: Bayesian model averaging
 
@@ -702,41 +685,44 @@ this step in the function that performs variable selection.
 
 ``` r
 
-estimates_gprior<- function(y,X, gammas_unique, freq_gammas){
-  
-  N<- length(y)
-  p<- dim(X)[2] 
-  nmod <- length(freq_gammas)
-  
-  M <- sum(freq_gammas)
+estimates_gprior <- function(y, X, gammas_unique, n_gamma) {
+  N <- length(y)
+  p <- ncol(X)
+
+  index <- n_gamma > 0
+  gammas_unique <- gammas_unique[index, , drop = FALSE]
+  n_gamma <- n_gamma[index]
+  nmod <- length(n_gamma)
+
+  M <- sum(n_gamma)
   g <- N
-  cN<- (N-1)/2
+  cN <- (N-1)/2
+  Nvary <- N * var(y)
   
-   beta_post <-  matrix(0, ncol=p, nrow=M)
-   sigma2_post <- rep(NA,M)
+  beta_post <-  matrix(0, nrow = M, ncol = p)
+  sigma2_post <- rep(NA_real_, M)
    
-   m <- 0
-   for (imod in 1:nmod){
+  m <- 0L
+  for (imod in 1:nmod) {
+    freq_imod <- n_gamma[imod]
+    ind_gammas <- gammas_unique[imod, ] == 1L
+    ind <- m + (1:freq_imod)
      
-     freq_imod <- freq_gammas[imod]
-     ind_gammas <- gammas_unique[imod,]==1
-     p_imod <- sum(ind_gammas)
-     ind <- m + (1:freq_imod)
+    X_gamma <- X[, ind_gammas]
+    p_imod <- ncol(X_gamma)
+    BN <- g/(1+g) * solve(crossprod(X_gamma))
+    bN <- BN %*% crossprod(X_gamma, y)
      
-     X_gamma <- X[ ,ind_gammas==1]
-     BN <- g/(1+g)*solve(crossprod(X_gamma))
-     bN <- BN %*% crossprod(X_gamma,y)
-     
-     CN <- (N*var(y) - t(bN)%*% solve(BN)%*%bN)/2
-     sigma2 <- rinvgamma(freq_imod, cN, CN)
-     u <- mvtnorm::rmvnorm(freq_imod, mean=rep(0,p_imod),sigma = BN)
-     
-     beta_post[ind,ind_gammas] <- t(matrix(rep(bN,freq_imod), nrow=p_imod)) +
-                             u*matrix(rep(sqrt(sigma2),p_imod), nrow=freq_imod)
-     sigma2_post[ind] <- sigma2
-     m <- m+freq_imod
-   }
-   return(list(sigma2_post=sigma2_post,beta_post=beta_post))
+    CN <- (Nvary - t(bN) %*% solve(BN) %*% bN)/2
+    sigma2 <- rinvgamma(freq_imod, cN, CN)
+    sigma2_post[ind] <- sigma2
+
+    u <- mvtnorm::rmvnorm(freq_imod, mean = rep(0, p_imod), sigma = BN)
+    beta_post[ind, ind_gammas] <- matrix(rep(bN, each = freq_imod), ncol = p_imod) +
+        u * matrix(rep(sqrt(sigma2), p_imod), nrow = freq_imod)
+    m <- m + freq_imod
+  }
+  return(list(sigma2_post = sigma2_post, beta_post = beta_post))
 }
 ```
 
@@ -746,8 +732,8 @@ and the hierarchical model space g-prior.
 ``` r
 
 set.seed(seed)
-estimates_unif <- estimates_gprior(y,covs.cen,gammas_unique, freq_gammas)
-estimates_hier <- estimates_gprior(y,covs.cen,gammas_unique_hier,freq_gammas_hier)
+estimates_unif <- estimates_gprior(y, X, gammas_unique, n_gamma)
+estimates_hier <- estimates_gprior(y, X, gammas_unique_hier, n_gamma_hier)
 ```
 
 We determine the mean and the 2.5% and 97.% quantiles under both priors
@@ -756,17 +742,18 @@ prior).
 
 ``` r
 
-res_mcmc <- function(x, lower = 0.025, upper = 0.975){
+res_mcmc <- function(x, lower = 0.025, upper = 0.975) {
   res <- c(quantile(x, lower), mean(x), quantile(x, upper))
   names(res) <- c(paste0(lower * 100, "%"), "Posterior mean", 
                   paste0(upper *   100, "%"))
   res
 }
-res_unif<-t(apply(cbind(estimates_unif$beta_post,estimates_unif$sigma2_post),2,res_mcmc))
-rownames(res_unif)<- c(covs, "sigma2")
-res_hier<-t(apply(cbind(estimates_hier$beta_post,estimates_hier$sigma2_post),2,res_mcmc))
-
-knitr::kable(round(cbind(res_unif,res_hier),2))
+res_unif <- with(estimates_unif, t(apply(cbind(beta_post, sigma2_post),
+  2, res_mcmc)))
+rownames(res_unif) <- c(covs, "sigma2")
+res_hier <- with(estimates_hier, t(apply(cbind(beta_post, sigma2_post),
+  2, res_mcmc)))
+knitr::kable(cbind(res_unif, res_hier), digit = 2)
 ```
 
 |          |   2.5% | Posterior mean |  97.5% |   2.5% | Posterior mean |  97.5% |
@@ -782,11 +769,6 @@ knitr::kable(round(cbind(res_unif,res_hier),2))
 | Vol-1-3  |  18.36 |          21.61 |  24.84 |  18.34 |          21.57 |  24.81 |
 | sigma2   |  55.81 |          75.78 | 102.79 |  55.15 |          74.75 | 101.31 |
 
-``` r
-
-#xtable(cbind(res_unif,res_hier),digits=rep(2,7))
-```
-
 ## Section 11.3: Model selection beyond standard regression analysis
 
 ### Section 11.3.1: Marginal likelihoods under transformed outcome variables
@@ -799,20 +781,18 @@ factor.
 
 ``` r
 
-X <- covs.cen[, c("Screens","Budget" )]
-gammas <- matrix(rep(1,2),nrow=1)
+X <- X[, c("Screens", "Budget")]
+gammas <- matrix(1, nrow = 1, ncol = 2)
 
-lM0 <- logmarlik_reg(y, X, a0=0, A0=100, B0=1, c0 = 2.5,C0 = 1.5,
-                     gammas)
-lMF_uncorr <- logmarlik_reg(log(y), X, a0=0, A0=100, B0=1, c0 = 2.5,C0 = 1.5,
-                            gammas)
-lMF<-lMF_uncorr- sum(log(y))
-knitr::kable(round(cbind(lM0,lMF_uncorr, lMF ),2))
+lM0 <- logmarlik_reg(y, X, a0, A0 = 100, B0, c0, C0, gammas)
+lMF_uncorr <- logmarlik_reg(log(y), X, a0, A0 = 100, B0, c0, C0, gammas)
+lMF <- lMF_uncorr - sum(log(y))
+knitr::kable(round(cbind(lM0, lMF_uncorr, lMF), 2))
 ```
 
-|     lM0 | lMF_uncorr |    lMF |
-|--------:|-----------:|-------:|
-| -414.46 |    -109.08 | -354.4 |
+|     lM0 | lMF_uncorr |     lMF |
+|--------:|-----------:|--------:|
+| -414.46 |    -109.03 | -354.35 |
 
 We then compute the posterior model probabilities under the assumption
 that both models have equal prior probabilities (which hence can be
@@ -820,9 +800,9 @@ omitted). We find a clear preference for the transformed model.
 
 ``` r
 
-model_probs <- exp(c(lM0,lMF ) ) / (exp(lM0)+exp(lMF))
+model_probs <- exp(c(lM0, lMF)) / (exp(lM0)+exp(lMF))
 names(model_probs) <- c("P(M0)", "P(MF)")
-print(round(model_probs),2)
+print(round(model_probs), 2)
 #> P(M0) P(MF) 
 #>     0     1
 ```
@@ -831,38 +811,37 @@ print(round(model_probs),2)
 
 #### Example 11.11: Labor market data: Bayesian variable selection
 
-We implement variable selection in a probit model
+We implement variable selection in a probit model.
 
 ``` r
 
-varsel_probit <- function(y, Xreg, a0=0, A0=100, B0 = 1,
+varsel_probit <- function(y, X, a0 = 0, A0 = 100, B0 = 1,
                    burnin = 1000L, M = 20000L / mcmcspeedup) {
-  
   # Define quantities for the Gibbs sampler
   N <- length(y)
-  p <- dim(Xreg)[2]   # number of regression effects
-  d <- p+1
+  p <- ncol(X)  # number of regression effects
+  d <- p + 1
 
   ind0 <- (y == 0) # indicators for zeros
   ind1 <- (y == 1) # indicators for ones
   n0 <- sum(ind0)
   n1 <- sum(ind1)
   
-  # Prepare memory to store the draws
-  gamma_post <- matrix(NA_real_, nrow = M, ncol = p)
-  acc <- rep(NA_real_, M)
-  beta_post<- matrix(0, nrow = M, ncol = d)
-  colnames(beta_post) <- c("Intercept",colnames(Xreg))
+  # Prepare for storing the draws
+  gamma_post <- matrix(0L, nrow = M, ncol = p,
+                       dimnames = list(NULL, colnames(X)))
+  acc <- integer(M)
+  beta_post <- matrix(0, nrow = M, ncol = d,
+                      dimnames = list(NULL, c("Intercept", colnames(X))))
 
   # Set starting values
-  gamma_old <- matrix(rep(1,p),nrow=1)
-  X_gamma_old <- cbind(rep(1,N),Xreg)
+  gamma_old <- matrix(1L, nrow = 1, ncol = p)
+  X_gamma_old <- cbind(1, X)
   
-  b0_old <- c(a0,rep(0,length.out=p))
-  B0_old.inv <- diag(c(1/A0,rep(1/B0,length.out=p)) )
+  b0_old <- c(a0, rep(0, p))
+  B0_old.inv <- diag(c(1/A0, rep(1/B0, length.out = p)), nrow = p + 1)
   BN_old.inv <- B0_old.inv + crossprod(X_gamma_old)
-  #BN_old <- solve(BN_old.inv)
-  beta <- c(qnorm(mean(y)), rnorm(p)*0.01)
+  beta <- c(qnorm(mean(y)), rnorm(p, sd = 0.01))
   
   eta <- X_gamma_old %*% beta
   piv <- pnorm(eta)
@@ -874,49 +853,43 @@ varsel_probit <- function(y, Xreg, a0=0, A0=100, B0 = 1,
   for (m in seq_len(burnin + M)) {
     gamma_proposed <- gamma_old 
 
-    j <- sample(1:p, size=1)
-    gamma_proposed[j] <- 1-gamma_old[j]
+    j <- sample(1:p, size = 1L)
+    gamma_proposed[j] <- 1L - gamma_old[j]
     k_gamma <- sum(gamma_proposed)
     
-   if (k_gamma==0){
-       X_gamma_prop <-  as.matrix(rep(1, N))
-       b0_prop <- t(as.vector(a0))
-       B0_prop.inv <- as.matrix(1/A0)
-   }else{
-       X_gamma_prop <- as.matrix(cbind(rep(1, N), Xreg[,gamma_proposed==1] ))
-       b0_prop <- c(a0,rep(0,k_gamma))
-       B0_prop.inv <- diag(c(1/A0,rep(1/B0,k_gamma)) )
-   }
-   BN_prop.inv <- B0_prop.inv + crossprod(X_gamma_prop)
+    X_gamma_prop <- cbind(1, X[, gamma_proposed == 1L])
+    b0_prop <- c(a0, rep(0, k_gamma))
+    B0_prop.inv <- diag(c(1/A0, rep(1/B0, k_gamma)), nrow = k_gamma + 1)
+    BN_prop.inv <- B0_prop.inv + crossprod(X_gamma_prop)        
    
-   bN_prop <- solve(BN_prop.inv) %*% (crossprod(X_gamma_prop, z) + B0_prop.inv%*% b0_prop )
-   SSE_prop <- as.numeric(crossprod(z) +  t(b0_prop) %*% B0_prop.inv %*% b0_prop -
-                    t(bN_prop) %*% BN_prop.inv %*% bN_prop)
+    bN_prop <- solve(BN_prop.inv) %*% (crossprod(X_gamma_prop, z) +
+      B0_prop.inv %*% b0_prop)
+    SSE_prop <- as.numeric(crossprod(z) + t(b0_prop) %*% B0_prop.inv %*% 
+      b0_prop - t(bN_prop) %*% BN_prop.inv %*% bN_prop)
  
-   lmarlik_prop<- (- N / 2) * log(2*pi) - SSE_prop/2 +
-                        0.5 *( log(det(B0_prop.inv))-log(det(BN_prop.inv)))
-
+    lmarlik_prop <- (- N / 2) * log(2*pi) - SSE_prop/2 +
+      0.5 * (log(det(B0_prop.inv)) - log(det(BN_prop.inv)))
    
-   bN_old <- solve(BN_old.inv) %*% (crossprod(X_gamma_old, z) + B0_old.inv%*% b0_old)
-   SSE_old <- as.numeric(crossprod(z) +  t(b0_old) %*% B0_old.inv %*% b0_old -
-                    t(bN_old) %*% BN_old.inv %*% bN_old)
+    bN_old <- solve(BN_old.inv) %*% (crossprod(X_gamma_old, z) +
+      B0_old.inv %*% b0_old)
+    SSE_old <- as.numeric(crossprod(z) +  t(b0_old) %*% B0_old.inv %*% b0_old -
+      t(bN_old) %*% BN_old.inv %*% bN_old)
  
-   lmarlik_old<- (- N / 2) * log(2*pi) - SSE_old/2 +
-                        0.5 *( log(det(B0_old.inv))-log(det(BN_old.inv)))
+    lmarlik_old <- (- N / 2) * log(2*pi) - SSE_old/2 +
+      0.5 * (log(det(B0_old.inv)) - log(det(BN_old.inv)))
 
-    # compute acceptance probability and decide on acceptance
+    # Compute acceptance probability and decide on acceptance
     log_acc <- lmarlik_prop - lmarlik_old
-
     if (log(runif(1)) < log_acc) {
       gamma_old <- gamma_proposed
-      X_gamma_old <-  X_gamma_prop
+      X_gamma_old <- X_gamma_prop
       b0_old <- b0_prop
       B0_old.inv <- B0_prop.inv
       bN_old <- bN_prop
       BN_old.inv <-  BN_prop.inv
-      accept <- 1
-   } else {
-      accept <- 0
+      accept <- 1L
+    } else {
+      accept <- 0L
     }
     
     # Sample beta from the full conditional
@@ -934,11 +907,11 @@ varsel_probit <- function(y, Xreg, a0=0, A0=100, B0 = 1,
     if (m > burnin) {
       gamma_post[m-burnin, ] <- gamma_old
       acc[m-burnin] <- accept
-      ind <- c(1,gamma_old*(2:d)) 
-      beta_post[m - burnin, ind[ind>0]] <- beta
-    }
+      ind <- c(1, gamma_old*(2:d)) 
+      beta_post[m - burnin, ind[ind > 0]] <- beta
+     }
   }
-  return(list(gamma_post=gamma_post,beta_post=beta_post))
+  return(list(gamma_post = gamma_post, beta_post = beta_post))
 }
 ```
 
@@ -955,16 +928,13 @@ X_unemp <- with(labor, cbind(female = female,
                              unemp97 = income_1997 == "zero")) # regressor matrix
 p_irrel <- 5
 set.seed(seed)
-X <- cbind(X_unemp,matrix(rnorm(p_irrel*N),ncol=p_irrel))
-colnames(X)[4+(1:p_irrel)] <- c("irrel1","irrel2","irrel3","irrel4","irrel5")
+X <- cbind(X_unemp, matrix(rnorm(p_irrel*N), ncol = p_irrel))
+colnames(X)[ncol(X_unemp) + (1:p_irrel)] <-
+  paste0("irrel", seq_len(p_irrel))
 
-M <- 20000 #/ mcmcspeedup
+M <- 20000L / mcmcspeedup
 set.seed(seed)
-res <- varsel_probit(y, X, M=M) 
-
-# Xstd <- scale(X)
- #res <- varsel_probit(y, Xstd, M=M)
- #print(colMeans(res$gamma_post))
+res <- varsel_probit(y, X, M = M) 
 ```
 
 We compute the average model complexity, the number of models visited
@@ -973,28 +943,26 @@ during MCMC and the model visited most frequently.
 ``` r
 
 k_gamma <- rowSums(res$gamma_post)
-print(mean(k_gamma))
+mean(k_gamma)
 #> [1] 4.16745
 
 gammas_unique <- unique(res$gamma_post)
-num_mod <- dim(gammas_unique)[1]
-print(num_mod)
+nrow(gammas_unique)
 #> [1] 36
+n_gamma <- number_draws(res$gamma_post, gammas_unique)
+io <- order(n_gamma, decreasing = TRUE)
 
-freq_gammas <- number_draws(res$gamma_post,gammas_unique)
-io <- order(freq_gammas, decreasing=TRUE)
-
-knitr::kable(cbind(gammas_unique,freq_gammas/M)[io[1:5],],
-             digits=cbind(rep(0, p),4))
+knitr::kable(cbind(gammas_unique, phat_gamma = n_gamma/M)[io[1:5], ],
+             digits = c(rep(0, p), 4))
 ```
 
-|     |     |     |     |     |     |     |     |     |        |
-|----:|----:|----:|----:|----:|----:|----:|----:|----:|-------:|
-|   1 |   1 |   1 |   1 |   0 |   0 |   0 |   0 |   0 | 0.7238 |
-|   1 |   1 |   1 |   1 |   0 |   0 |   0 |   1 |   0 | 0.0988 |
-|   1 |   1 |   0 |   1 |   0 |   0 |   0 |   0 |   0 | 0.0447 |
-|   1 |   1 |   1 |   1 |   1 |   0 |   0 |   0 |   0 | 0.0293 |
-|   1 |   1 |   1 |   1 |   0 |   0 |   1 |   0 |   0 | 0.0230 |
+| female | age18 | wcollar | unemp97 | irrel1 | irrel2 | irrel3 | irrel4 | irrel5 | phat_gamma |
+|-------:|------:|--------:|--------:|-------:|-------:|-------:|-------:|-------:|-----------:|
+|      1 |     1 |       1 |       1 |      0 |      0 |      0 |      0 |      0 |     0.7238 |
+|      1 |     1 |       1 |       1 |      0 |      0 |      0 |      1 |      0 |     0.0988 |
+|      1 |     1 |       0 |       1 |      0 |      0 |      0 |      0 |      0 |     0.0447 |
+|      1 |     1 |       1 |       1 |      1 |      0 |      0 |      0 |      0 |     0.0293 |
+|      1 |     1 |       1 |       1 |      0 |      0 |      1 |      0 |      0 |     0.0230 |
 
 From the barplot of the PIPs we see that the irrelevant covariates have
 a PiP close to zero whereas the other covariates are included with a
@@ -1005,15 +973,16 @@ very high probability.
 if (pdfplots) {
   pdf("11-3_5.pdf", width = 5, height = 6)
 }
-print(colMeans(res$gamma_post))
-#> [1] 0.98780 1.00000 0.93860 1.00000 0.04020 0.02810 0.02700 0.12110 0.02465
+colMeans(res$gamma_post)
+#>  female   age18 wcollar unemp97  irrel1  irrel2  irrel3  irrel4  irrel5 
+#> 0.98780 1.00000 0.93860 1.00000 0.04020 0.02810 0.02700 0.12110 0.02465
 
 par(mfrow = c(1, 1), mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.5, .5, 0))
-barplot(colMeans(res$gamma_post), col="blue",names.arg=1:p, 
-        xlab="Covariate",ylab="PIP")
+barplot(colMeans(res$gamma_post), col = "blue", names.arg = 1:p, 
+        xlab = "Covariate", ylab = "PIP")
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-29-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-31-1.png)
 
 ## Section 11.4: Model selection problems in time series analysis
 
@@ -1050,11 +1019,7 @@ regression <- function(y, X, b0, B0, c0, C0,
   if (length(b0) == 1L) b0 <- rep(b0, d)
   
   if (!is.matrix(B0)) {
-    if (length(B0) == 1L) {
-      B0 <- diag(rep(B0, d))
-    } else {
-      B0 <- diag(B0)
-    }
+    B0 <- diag(rep(B0, d), nrow = d)
   }
   
   # Precompute some values
@@ -1064,12 +1029,12 @@ regression <- function(y, X, b0, B0, c0, C0,
   XX <- crossprod(X)
   Xy <- crossprod(X, y)
     
-  # Prepare memory to store the draws
+  # Prepare for storing the draws
   betas <- matrix(NA_real_, nrow = M, ncol = d)
   sigma2s <- rep(NA_real_, M)
   colnames(betas) <- colnames(X)
   
-  # Prepare memory to store the parameters
+  # Prepare for storing the parameters
   paras <- list(bN = matrix(NA_real_, nrow = M, ncol = d),
                 BN = array(NA_real_, dim = c(M, d, d)),
                 cN = rep(NA_real_, M),
@@ -1107,7 +1072,7 @@ regression <- function(y, X, b0, B0, c0, C0,
 
 We also need a function to create the AR-specific design matrix (also
 re-used from Chapter 7, now with the added option to condition on more
-initial data than then bare minimum).
+initial data than the bare minimum).
 
 ``` r
 
@@ -1165,7 +1130,7 @@ for (i in 2:5) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-34-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-36-1.png)
 
 #### Example 11.13: US GDP data: Quantitative model-order selection
 
@@ -1200,7 +1165,7 @@ for (i in seq_len(length(res) - 1)) {
 names(logSD) <- c("0 vs 1", "1 vs 2", "2 vs 3", "3 vs 4")
 round(logSD, 2)
 #> 0 vs 1 1 vs 2 2 vs 3 3 vs 4 
-#> -35.98  -1.18   0.46   2.75
+#> -35.88  -1.18   0.47   2.75
 ```
 
 Note that the first value of logSD is numerically rather unstable.
@@ -1336,7 +1301,7 @@ acf(dat)
 acf(ret)
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-43-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-45-1.png)
 
 This clearly hints at non-stationarity of the exchange rate series and
 at (first order) stationarity of the returns.
@@ -1381,7 +1346,7 @@ for (i in seq_along(draws)) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-45-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-47-1.png)
 
 To explore whether the nonstationarity of the raw series could be caused
 by a unit root, we investigate the posterior of
@@ -1401,7 +1366,7 @@ for (p in 1:4) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-46-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-48-1.png)
 
 We do the same for the inflation data (currently not included in the
 book).
@@ -1429,7 +1394,7 @@ for (p in 1:4) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-48-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-50-1.png)
 
 #### Example 11.17: CHF exchange rate data: Testing for a unit root using the Savage-Dickey density ratio
 
@@ -1469,7 +1434,7 @@ abline(v = 0, lty = 3)
 abline(h = 0, lty = 3)
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-50-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-52-1.png)
 
 To compute the numerical value of the SD density ratio, we again use
 Rao-Blackwellization.
@@ -1514,13 +1479,13 @@ for (p in seq_len(pu)) {
   # Restricted model MG:
   Xy <- matrix(c(deltaylagged, rep(1, length(ylagged))), ncol = p)
   b0 <- rep(0, p)
-  B0 <- diag(c(rep(F0, p - 1), A0))
+  B0 <- diag(c(rep(F0, p - 1), A0), nrow = p)
   resG[[p]] <- regression(deltay, Xy, b0 = b0, B0 = B0, c0 = c0, C0 = C0)
   
   # Unrestricted model MDF:
   Xy <- matrix(c(ylagged, deltaylagged, rep(1, length(ylagged))), ncol = p + 1)
   b0 <- rep(0, p + 1)
-  B0 <- diag(c(D0, rep(F0, p - 1), A0))
+  B0 <- diag(c(D0, rep(F0, p - 1), A0), nrow = p + 1)
   resDF[[p]] <- regression(deltay, Xy, b0 = b0, B0 = B0, c0 = c0, C0 = C0)
 }
 ```
