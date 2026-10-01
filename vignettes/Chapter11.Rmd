@@ -422,12 +422,14 @@ varselreg_ghier <- function(y, X,
 
   gamma_post <- matrix(0L, nrow = M, ncol = p,
                        dimnames = list(NULL, colnames(X)))
+  acc <- integer(length = M)
   gamma <- matrix(1L, nrow = 1L, ncol = p)
 
   for (m in seq_len(burnin + M)) {
     # Step a: sample gamma
     j <- sample(1:p, size = 1L)
     p0 <- sum(gamma[-j])
+    gammaj_old <- gamma[j]
     
     # Compute prior "odds of the model
     if (prior_model$type == "hier") {
@@ -465,12 +467,14 @@ varselreg_ghier <- function(y, X,
 
     # Compute acceptance probability and decide on acceptance
     gamma[j] <- -log(runif(1)) <= log(1+Oj)
-
+   
     if (m > burnin) {
-      gamma_post[m-burnin, ] <- gamma
+      gamma_post[m-burnin,] <- gamma
+      acc[m-burnin] <- gamma[j] != gammaj_old 
+    
     }
   }
-  return(gamma_post)
+  return(list(gamma_post=gamma_post, acc=acc))
 }
 ```
 We now  use the hierarchical prior on the model space and show the PIPs.
@@ -480,7 +484,8 @@ if (pdfplots) {
   pdf("11-2_2b.pdf", width = 3, height = 3)
 }
 set.seed(seed)
-gamma_post_hier <- varselreg_ghier(y, X, M = M)
+res<- varselreg_ghier(y, X, M = M)
+gamma_post_hier <- res$gamma_post
 
 par(mfrow = c(1, 1), mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.5, .5, 0))
 barplot(colMeans(gamma_post_hier), col = "blue", names.arg = 1:p, 
@@ -632,8 +637,8 @@ factor.
 X <- X[, c("Screens", "Budget")]
 gammas <- matrix(1, nrow = 1, ncol = 2)
 
-lM0 <- logmarlik_reg(y, X, a0, A0 = 100, B0, c0, C0, gammas)
-lMF_uncorr <- logmarlik_reg(log(y), X, a0, A0 = 100, B0, c0, C0, gammas)
+lM0 <- logmarlik_reg(y, X, a0, A0 = 10000, B0, c0, C0, gammas)
+lMF_uncorr <- logmarlik_reg(log(y), X, a0, A0 = 10000, B0, c0, C0, gammas)
 lMF <- lMF_uncorr - sum(log(y))
 knitr::kable(round(cbind(lM0, lMF_uncorr, lMF), 2))
 ```
@@ -751,7 +756,7 @@ varsel_probit <- function(y, X, a0 = 0, A0 = 100, B0 = 1,
       beta_post[m - burnin, ind[ind > 0]] <- beta
      }
   }
-  return(list(gamma_post = gamma_post, beta_post = beta_post))
+  return(list(gamma_post = gamma_post, acc=acc, beta_post = beta_post))
 }
 ```
 
