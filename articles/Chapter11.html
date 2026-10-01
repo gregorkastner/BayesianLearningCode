@@ -901,12 +901,14 @@ prior on the model space.</p>
 <span></span>
 <span>  <span class="va">gamma_post</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0L</span>, nrow <span class="op">=</span> <span class="va">M</span>, ncol <span class="op">=</span> <span class="va">p</span>,</span>
 <span>                       dimnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="cn">NULL</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">acc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span>length <span class="op">=</span> <span class="va">M</span><span class="op">)</span></span>
 <span>  <span class="va">gamma</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1L</span>, nrow <span class="op">=</span> <span class="fl">1L</span>, ncol <span class="op">=</span> <span class="va">p</span><span class="op">)</span></span>
 <span></span>
 <span>  <span class="kw">for</span> <span class="op">(</span><span class="va">m</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">burnin</span> <span class="op">+</span> <span class="va">M</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="co"># Step a: sample gamma</span></span>
 <span>    <span class="va">j</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="va">p</span>, size <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span>
 <span>    <span class="va">p0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">gamma</span><span class="op">[</span><span class="op">-</span><span class="va">j</span><span class="op">]</span><span class="op">)</span></span>
+<span>    <span class="va">gammaj_old</span> <span class="op">&lt;-</span> <span class="va">gamma</span><span class="op">[</span><span class="va">j</span><span class="op">]</span></span>
 <span>    </span>
 <span>    <span class="co"># Compute prior "odds of the model</span></span>
 <span>    <span class="kw">if</span> <span class="op">(</span><span class="va">prior_model</span><span class="op">$</span><span class="va">type</span> <span class="op">==</span> <span class="st">"hier"</span><span class="op">)</span> <span class="op">{</span></span>
@@ -944,12 +946,14 @@ prior on the model space.</p>
 <span></span>
 <span>    <span class="co"># Compute acceptance probability and decide on acceptance</span></span>
 <span>    <span class="va">gamma</span><span class="op">[</span><span class="va">j</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span> <span class="op">&lt;=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">1</span><span class="op">+</span><span class="va">Oj</span><span class="op">)</span></span>
-<span></span>
+<span>   </span>
 <span>    <span class="kw">if</span> <span class="op">(</span><span class="va">m</span> <span class="op">&gt;</span> <span class="va">burnin</span><span class="op">)</span> <span class="op">{</span></span>
-<span>      <span class="va">gamma_post</span><span class="op">[</span><span class="va">m</span><span class="op">-</span><span class="va">burnin</span>, <span class="op">]</span> <span class="op">&lt;-</span> <span class="va">gamma</span></span>
+<span>      <span class="va">gamma_post</span><span class="op">[</span><span class="va">m</span><span class="op">-</span><span class="va">burnin</span>,<span class="op">]</span> <span class="op">&lt;-</span> <span class="va">gamma</span></span>
+<span>      <span class="va">acc</span><span class="op">[</span><span class="va">m</span><span class="op">-</span><span class="va">burnin</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">gamma</span><span class="op">[</span><span class="va">j</span><span class="op">]</span> <span class="op">!=</span> <span class="va">gammaj_old</span> </span>
+<span>    </span>
 <span>    <span class="op">}</span></span>
 <span>  <span class="op">}</span></span>
-<span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="va">gamma_post</span><span class="op">)</span></span>
+<span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>gamma_post<span class="op">=</span><span class="va">gamma_post</span>, acc<span class="op">=</span><span class="va">acc</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>We now use the hierarchical prior on the model space and show the
 PIPs.</p>
@@ -958,7 +962,8 @@ PIPs.</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/grDevices/pdf.html" class="external-link">pdf</a></span><span class="op">(</span><span class="st">"11-2_2b.pdf"</span>, width <span class="op">=</span> <span class="fl">3</span>, height <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="va">seed</span><span class="op">)</span></span>
-<span><span class="va">gamma_post_hier</span> <span class="op">&lt;-</span> <span class="fu">varselreg_ghier</span><span class="op">(</span><span class="va">y</span>, <span class="va">X</span>, M <span class="op">=</span> <span class="va">M</span><span class="op">)</span></span>
+<span><span class="va">res</span><span class="op">&lt;-</span> <span class="fu">varselreg_ghier</span><span class="op">(</span><span class="va">y</span>, <span class="va">X</span>, M <span class="op">=</span> <span class="va">M</span><span class="op">)</span></span>
+<span><span class="va">gamma_post_hier</span> <span class="op">&lt;-</span> <span class="va">res</span><span class="op">$</span><span class="va">gamma_post</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.5</span>, <span class="fl">2.5</span>, <span class="fl">1.5</span>, <span class="fl">.5</span><span class="op">)</span>, mgp <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.5</span>, <span class="fl">.5</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html" class="external-link">barplot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colMeans</a></span><span class="op">(</span><span class="va">gamma_post_hier</span><span class="op">)</span>, col <span class="op">=</span> <span class="st">"blue"</span>, names.arg <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="va">p</span>, </span>
@@ -1531,8 +1536,8 @@ factor.</p>
 <code class="sourceCode R"><span><span class="va">X</span> <span class="op">&lt;-</span> <span class="va">X</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Screens"</span>, <span class="st">"Budget"</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="va">gammas</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1</span>, nrow <span class="op">=</span> <span class="fl">1</span>, ncol <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">lM0</span> <span class="op">&lt;-</span> <span class="fu">logmarlik_reg</span><span class="op">(</span><span class="va">y</span>, <span class="va">X</span>, <span class="va">a0</span>, A0 <span class="op">=</span> <span class="fl">100</span>, <span class="va">B0</span>, <span class="va">c0</span>, <span class="va">C0</span>, <span class="va">gammas</span><span class="op">)</span></span>
-<span><span class="va">lMF_uncorr</span> <span class="op">&lt;-</span> <span class="fu">logmarlik_reg</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span>, <span class="va">X</span>, <span class="va">a0</span>, A0 <span class="op">=</span> <span class="fl">100</span>, <span class="va">B0</span>, <span class="va">c0</span>, <span class="va">C0</span>, <span class="va">gammas</span><span class="op">)</span></span>
+<span><span class="va">lM0</span> <span class="op">&lt;-</span> <span class="fu">logmarlik_reg</span><span class="op">(</span><span class="va">y</span>, <span class="va">X</span>, <span class="va">a0</span>, A0 <span class="op">=</span> <span class="fl">10000</span>, <span class="va">B0</span>, <span class="va">c0</span>, <span class="va">C0</span>, <span class="va">gammas</span><span class="op">)</span></span>
+<span><span class="va">lMF_uncorr</span> <span class="op">&lt;-</span> <span class="fu">logmarlik_reg</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span>, <span class="va">X</span>, <span class="va">a0</span>, A0 <span class="op">=</span> <span class="fl">10000</span>, <span class="va">B0</span>, <span class="va">c0</span>, <span class="va">C0</span>, <span class="va">gammas</span><span class="op">)</span></span>
 <span><span class="va">lMF</span> <span class="op">&lt;-</span> <span class="va">lMF_uncorr</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">lM0</span>, <span class="va">lMF_uncorr</span>, <span class="va">lMF</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
@@ -1542,9 +1547,9 @@ factor.</p>
 <th align="right">lMF</th>
 </tr></thead>
 <tbody><tr class="odd">
-<td align="right">-414.46</td>
-<td align="right">-109.03</td>
-<td align="right">-354.35</td>
+<td align="right">-416.76</td>
+<td align="right">-111.31</td>
+<td align="right">-356.63</td>
 </tr></tbody>
 </table>
 <p>We then compute the posterior model probabilities under the
@@ -1663,7 +1668,7 @@ model.</p>
 <span>      <span class="va">beta_post</span><span class="op">[</span><span class="va">m</span> <span class="op">-</span> <span class="va">burnin</span>, <span class="va">ind</span><span class="op">[</span><span class="va">ind</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">beta</span></span>
 <span>     <span class="op">}</span></span>
 <span>  <span class="op">}</span></span>
-<span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>gamma_post <span class="op">=</span> <span class="va">gamma_post</span>, beta_post <span class="op">=</span> <span class="va">beta_post</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>gamma_post <span class="op">=</span> <span class="va">gamma_post</span>, acc<span class="op">=</span><span class="va">acc</span>, beta_post <span class="op">=</span> <span class="va">beta_post</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>We define the data and perform Bayesian variable selection.</p>
 <div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
