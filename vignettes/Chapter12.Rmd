@@ -24,9 +24,9 @@ seed <- 42
 
 # Section 12.1: Beyond classical Bayesian model comparison
 
-## Section 12.1.1: Schwarz Criterion and BIC
+## Section 12.1.1: Schwarz criterion and BIC
 
-### Example 12.1: Labor Market Data: Bayesian Variable Selection using BIC
+### Example 12.1: Labor market data: Bayesian variable selection using BIC
 
 We return to the probit analysis of Example 11.11 and run variable selection 
 using the Schwarz criterion instead of the marginal likelihood. 
@@ -142,3 +142,17 @@ io <- order(freq_gammas, decreasing = TRUE)
 knitr::kable(cbind(gammas_unique, freq_gammas / M)[io[1:5], ],
              digits = cbind(rep(0, p), 4))
 ```
+
+## Section 12.1.2: Perspectives on Bayesian model comparison
+
+[no code]
+
+# Section 12.2: Comparative model assessment through predictive information criteria
+
+## Section 12.2.1: Measuring predictive loss
+
+[no code]
+
+## Section 12.2.2: Akaike information criterion (AIC)
+
+### Example 12.2: U.S. GDP data: Choosing the model order via AIC and BIC 
