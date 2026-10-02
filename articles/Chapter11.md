@@ -401,7 +401,8 @@ probabilities of the 10 top models visited during MCMC.
 if (pdfplots) {
   pdf("11-2_2a.pdf", width = 3, height = 3)
 }
-par(mfrow = c(1, 1), mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.5, .5, 0))
+par(mfrow = c(1, 1), mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.5, .5, 0),
+    font.main = 1)
 p <- ncol(X)
 barplot(colMeans(res_gunif$gamma_post), col = "blue",
         names.arg = 1:p, xlab = "Covariate", ylab = "PIP")
@@ -445,7 +446,8 @@ model size and its posterior distribution.
 if (pdfplots) {
   pdf("11-2_1.pdf", width = 6, height = 3)
 }
-par(mfrow = c(1, 2), mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.5, .5, 0))
+par(mfrow = c(1, 2), mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.5, .5, 0),
+    font.main = 1)
 oopts <- options(scipen = 999)
 k_gamma <- rowSums(res_gunif$gamma_post)
 plot(k_gamma, type = "l", xlab = "Draw", ylab = expression(k[gamma]),
