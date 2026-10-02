@@ -18,6 +18,7 @@ knitr::opts_chunk$set(
 )
 knitr::opts_knit$set(global.par = TRUE)
 pdfplots <- FALSE # default: FALSE; set this to TRUE only if you like pdf figures
+mcmcspeedup <- 10L # default: 1L; set this to something higher for fewer draws
 seed <- 42
 ```
 
@@ -93,6 +94,7 @@ colnames(X)[4 + (1:p_irrel)] <-
   c("irrel1", "irrel2", "irrel3", "irrel4", "irrel5")
 
 p <- dim(X)[2]
+M <- 20000 / mcmcspeedup
 res <- modsel_probit_BIC(y, X, M = M)
 ```
 
