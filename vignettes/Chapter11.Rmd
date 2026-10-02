@@ -342,7 +342,8 @@ model probabilities of the 10 top models visited during MCMC.
 if (pdfplots) {
   pdf("11-2_2a.pdf", width = 3, height = 3)
 }
-par(mfrow = c(1, 1), mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.5, .5, 0))
+par(mfrow = c(1, 1), mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.5, .5, 0),
+    font.main = 1)
 p <- ncol(X)
 barplot(colMeans(res_gunif$gamma_post), col = "blue",
         names.arg = 1:p, xlab = "Covariate", ylab = "PIP")
@@ -365,7 +366,8 @@ draws of the model size and its posterior distribution.
 if (pdfplots) {
   pdf("11-2_1.pdf", width = 6, height = 3)
 }
-par(mfrow = c(1, 2), mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.5, .5, 0))
+par(mfrow = c(1, 2), mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.5, .5, 0),
+    font.main = 1)
 oopts <- options(scipen = 999)
 k_gamma <- rowSums(res_gunif$gamma_post)
 plot(k_gamma, type = "l", xlab = "Draw", ylab = expression(k[gamma]),
@@ -942,7 +944,8 @@ prior.
 if (pdfplots) {
   pdf("11-4_1.pdf", width = 6, height = 3)
 }
-par(mfrow = c(1, 4), mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.5, .5, 0))
+par(mfrow = c(1, 4), mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.5, .5, 0),
+    font.main = 1)
 mymin <- -.75
 mymax <- .75
 mybreaks <- seq(mymin, mymax, by = .02)
@@ -1093,7 +1096,8 @@ absolute returns.
 if (pdfplots) {
   pdf("11-4_2.pdf", width = 8, height = 4)
 }
-par(mfrow = c(2, 2), mar = c(2.5, 2.5, 1.2, .5), mgp = c(1.5, .5, 0), lwd = 2)
+par(mfrow = c(2, 2), mar = c(2.5, 2.5, 1.2, .5), mgp = c(1.5, .5, 0), lwd = 2,
+    font.main = 1)
 data("exrates", package = "stochvol")
 dat <- exrates$USD / exrates$CHF
 ret <- diff(dat)
@@ -1131,7 +1135,8 @@ Now we can graphically investigate stationarity as above.
 if (pdfplots) {
   pdf("11-4_3.pdf", width = 8, height = 4)
 }
-par(mfrow = c(2, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 2)
+par(mfrow = c(2, 2), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 2,
+    font.main = 1)
 draws <- list(ardat[[2]]$betas[, 2:3], arret[[2]]$betas[, 2:3])
 eigenvalues <- matrix(NA_complex_, nrow(draws[[1]]), ncol(draws[[1]]))
 mains <- c("AR(2) on the raw series", "AR(2) on the returns")
@@ -1159,7 +1164,8 @@ $p = 1, \dots, 4$.
 if (pdfplots) {
   pdf("11-4_4.pdf", width = 7, height = 2.5)
 }
-par(mfrow = c(1, 4), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 2)
+par(mfrow = c(1, 4), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 2,
+    font.main = 1)
 toplot <- matrix(NA_real_, nrow(ardat[[1]]$betas), length(ardat))
 for (p in 1:4) {
   toplot[, p] <- rowSums(ardat[[p]]$betas[, 2:(p + 1), drop = FALSE]) - 1
@@ -1187,7 +1193,8 @@ for (p in 1:4) {
 if (pdfplots) {
   pdf("11-4_4a.pdf", width = 7, height = 2.5)
 }
-par(mfrow = c(1, 4), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 2)
+par(mfrow = c(1, 4), mar = c(2.5, 2.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 2,
+    font.main = 1)
 for (p in 1:4) {
   toplot[, p] <- rowSums(ardat[[p]]$betas[, 2:(p + 1), drop = FALSE]) - 1
 }
@@ -1231,7 +1238,8 @@ Now we can visualize the Savage-Dickey density ratio.
 if (pdfplots) {
   pdf("11-4_5.pdf", width = 7, height = 4)
 }
-par(mfrow = c(1, 1), mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
+par(mfrow = c(1, 1), mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5,
+    font.main = 1)
 deltas <- seq(-.003, .003, length.out = 300)
 plot(NULL, ylab = "", xlab = expression(delta),
      main = "Augmented Dickey Fuller regression",
