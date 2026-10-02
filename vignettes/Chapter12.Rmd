@@ -155,4 +155,47 @@ knitr::kable(cbind(gammas_unique, freq_gammas / M)[io[1:5], ],
 
 ## Section 12.2.2: Akaike information criterion (AIC)
 
-### Example 12.2: U.S. GDP data: Choosing the model order via AIC and BIC 
+### Example 12.2: U.S. GDP data: Choosing the model order via AIC and BIC
+
+We need to re-load the function which creates the design matrix.
+
+```{r}
+ARdesignmatrix <- function(dat, p = 1, conditioninglength = p) {
+  d <- p + 1
+  N <- length(dat) - p
+
+  Xy <- matrix(NA_real_, N, d)
+  Xy[, 1] <- 1
+  for (i in seq_len(p)) {
+    Xy[, i + 1] <- dat[(p + 1 - i) : (length(dat) - i)]
+  }
+  Xy[(1 + conditioninglength - p):N, , drop = FALSE]
+}
+```
+
+Let's load the data and compute log returns.
+
+```{r}
+data(gdp, package = "BayesianLearningCode")
+logret <- diff(log(gdp))
+```
+
+Now we compute five OLS estimates and the corresponding AICs and BICs.
+
+```{r}
+AIC <- BIC <- rep(NA_real_, 5)
+for (i in seq_along(AIC)) {
+  y <- tail(logret, -4)
+  p <- i - 1     # lag length
+  d <- i + 1     # total number of parameters
+  n <- length(y) # number of data points used for estimation
+  Xy <- ARdesignmatrix(logret, p, conditioninglength = 4)
+  fit <- lm(y ~ Xy - 1)
+  betahat <- coef(fit)
+  sigma2hat <- sum(resid(fit)^2) / length(y)
+  minus2timesloglikmax <- n * (1 + log(2 * pi)) + n * log(sigma2hat)
+  AIC[i] <- minus2timesloglikmax + 2 * d      # equals bult-in AIC(fit)
+  BIC[i] <- minus2timesloglikmax + log(n) * d # equals built-in BIC(fit)
+}
+knitr::kable(rbind(AIC, BIC), digits = 2)
+```
