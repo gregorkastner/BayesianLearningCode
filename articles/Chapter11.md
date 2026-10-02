@@ -212,12 +212,12 @@ knitr::kable(cbind(gammas, n_gamma, phat_gamma = n_gamma / M),
 |-------:|--------:|-------:|--------:|-----------:|
 |      0 |       0 |      0 |       0 |      0.000 |
 |      0 |       0 |      1 |       0 |      0.000 |
-|      0 |       1 |      0 |   30553 |      0.611 |
-|      0 |       1 |      1 |   17098 |      0.342 |
+|      0 |       1 |      0 |    3107 |      0.621 |
+|      0 |       1 |      1 |    1675 |      0.335 |
 |      1 |       0 |      0 |       0 |      0.000 |
 |      1 |       0 |      1 |       0 |      0.000 |
-|      1 |       1 |      0 |    1638 |      0.033 |
-|      1 |       1 |      1 |     711 |      0.014 |
+|      1 |       1 |      0 |     152 |      0.030 |
+|      1 |       1 |      1 |      66 |      0.013 |
 
 Finally, we compute the PIPs.
 
@@ -229,7 +229,7 @@ for (j in seq_len(p)) {
   PIP[j] <- sum(n_gamma[gammas[, j] == 1L]) / M
 }
 PIP
-#> [1] 0.04698 1.00000 0.35618
+#> [1] 0.0436 1.0000 0.3482
 ```
 
 We run model space MCMC and compute PIPs also for the standardized
@@ -249,12 +249,12 @@ knitr::kable(cbind(gammas, n_gamma, phat_gamma = n_gamma / M),
 |-------:|--------:|-------:|--------:|-----------:|
 |      0 |       0 |      0 |       0 |      0.000 |
 |      0 |       0 |      1 |       0 |      0.000 |
-|      0 |       1 |      0 |   18561 |      0.371 |
-|      0 |       1 |      1 |    5449 |      0.109 |
+|      0 |       1 |      0 |    1791 |      0.358 |
+|      0 |       1 |      1 |     589 |      0.118 |
 |      1 |       0 |      0 |       0 |      0.000 |
 |      1 |       0 |      1 |       0 |      0.000 |
-|      1 |       1 |      0 |   21111 |      0.422 |
-|      1 |       1 |      1 |    4879 |      0.098 |
+|      1 |       1 |      0 |    2113 |      0.423 |
+|      1 |       1 |      1 |     507 |      0.101 |
 
 ``` r
 
@@ -265,7 +265,7 @@ for (j in 1:p) {
   PIP[j] <- sum(n_gamma[gammas[, j] == 1L]) / M
 }
 PIP
-#> [1] 0.51980 1.00000 0.20656
+#> [1] 0.5240 1.0000 0.2192
 ```
 
 #### Example 11.5: Marginal likelihoods when the error variance is known
@@ -347,32 +347,30 @@ set.seed(seed)
 res_cen <- varselreg_gunif(y, X, M = 100000 / mcmcspeedup)
 colMeans(res_cen$gamma_post)
 #>  Budget Screens  Comedy 
-#> 0.43680 1.00000 0.19064
+#>  0.4290  1.0000  0.2073
 
 gammas_unique <- unique(res_cen$gamma_post)
 n_gamma <- number_draws(res_cen$gamma_post, gammas_unique) 
 cbind(gammas_unique, n_gamma)
 #>      Budget Screens Comedy n_gamma
-#> [1,]      1       1      0   36325
-#> [2,]      0       1      0   44611
-#> [3,]      0       1      1   11709
-#> [4,]      1       1      1    7355
+#> [1,]      1       1      0    3484
+#> [2,]      0       1      0    4443
+#> [3,]      0       1      1    1267
+#> [4,]      1       1      1     806
 
 res_std <- varselreg_gunif(y, X.std, M = 100000 / mcmcspeedup)
 colMeans(res_std$gamma_post)
 #>  Budget Screens  Comedy 
-#> 0.44254 0.99994 0.18799
+#>  0.4332  1.0000  0.1949
 
 gammas_unique <- unique(res_std$gamma_post)
 n_gamma <- number_draws(res_std$gamma_post, gammas_unique) 
 cbind(gammas_unique, n_gamma)
 #>      Budget Screens Comedy n_gamma
-#> [1,]      0       1      1   11338
-#> [2,]      0       1      0   44408
-#> [3,]      1       1      0   36788
-#> [4,]      1       1      1    7460
-#> [5,]      1       0      0       5
-#> [6,]      1       0      1       1
+#> [1,]      0       1      0    4447
+#> [2,]      1       1      0    3604
+#> [3,]      1       1      1     728
+#> [4,]      0       1      1    1221
 ```
 
 We see that results are very similar as the g-prior takes into account
@@ -416,7 +414,7 @@ barplot(colMeans(res_gunif$gamma_post), col = "blue",
 gammas_unique <- unique(res_gunif$gamma_post)
 nmod <- nrow(gammas_unique)
 nmod
-#> [1] 67
+#> [1] 58
 
 n_gamma <- number_draws(res_gunif$gamma_post, gammas_unique)
 io <- order(n_gamma, decreasing = TRUE)
@@ -427,16 +425,16 @@ knitr::kable(cbind(gammas_unique, phat_gamma = n_gamma/M)[io[1:10], ],
 
 | Comedy | Thriller | Budget | Weeks | Screens | S-4-6 | S-1-3 | Vol-4-6 | Vol-1-3 | phat_gamma |
 |-------:|---------:|-------:|------:|--------:|------:|------:|--------:|--------:|-----------:|
-|      0 |        0 |      1 |     0 |       1 |     0 |     1 |       1 |       1 |     0.1579 |
-|      0 |        0 |      1 |     1 |       1 |     0 |     1 |       1 |       1 |     0.1343 |
-|      0 |        0 |      1 |     0 |       1 |     1 |     0 |       1 |       1 |     0.1258 |
-|      0 |        0 |      1 |     1 |       1 |     1 |     0 |       1 |       1 |     0.0995 |
-|      0 |        0 |      1 |     1 |       1 |     0 |     0 |       1 |       1 |     0.0654 |
-|      0 |        0 |      1 |     0 |       1 |     0 |     0 |       1 |       1 |     0.0511 |
-|      0 |        0 |      0 |     1 |       1 |     0 |     0 |       1 |       1 |     0.0320 |
-|      0 |        0 |      0 |     1 |       1 |     0 |     1 |       1 |       1 |     0.0309 |
-|      0 |        0 |      0 |     1 |       1 |     1 |     0 |       1 |       1 |     0.0247 |
-|      1 |        0 |      1 |     0 |       1 |     0 |     1 |       1 |       1 |     0.0209 |
+|      0 |        0 |      1 |     0 |       1 |     0 |     1 |       1 |       1 |     0.1444 |
+|      0 |        0 |      1 |     1 |       1 |     0 |     1 |       1 |       1 |     0.1270 |
+|      0 |        0 |      1 |     0 |       1 |     1 |     0 |       1 |       1 |     0.1268 |
+|      0 |        0 |      1 |     1 |       1 |     1 |     0 |       1 |       1 |     0.0981 |
+|      0 |        0 |      1 |     1 |       1 |     0 |     0 |       1 |       1 |     0.0598 |
+|      0 |        0 |      1 |     0 |       1 |     0 |     0 |       1 |       1 |     0.0477 |
+|      0 |        0 |      0 |     1 |       1 |     0 |     0 |       1 |       1 |     0.0380 |
+|      0 |        0 |      0 |     1 |       1 |     0 |     1 |       1 |       1 |     0.0283 |
+|      1 |        0 |      1 |     0 |       1 |     0 |     1 |       1 |       1 |     0.0246 |
+|      0 |        0 |      0 |     1 |       1 |     1 |     0 |       1 |       1 |     0.0239 |
 
 Next, we determine the posterior distribution of the size of the models,
 i.e., the number of covariates included. We plot the MCMC draws of the
@@ -593,7 +591,7 @@ barplot(colMeans(gamma_post_hier), col = "blue", names.arg = 1:p,
 
 gammas_unique_hier <- unique(gamma_post_hier)
 nrow(gammas_unique_hier)
-#> [1] 69
+#> [1] 61
 
 n_gamma_hier <- number_draws(gamma_post_hier, gammas_unique_hier)
 io_hier <- order(n_gamma_hier, decreasing = TRUE)
@@ -605,16 +603,16 @@ knitr::kable(cbind(gammas_unique_hier,
 
 | Comedy | Thriller | Budget | Weeks | Screens | S-4-6 | S-1-3 | Vol-4-6 | Vol-1-3 | phat_gamma |
 |-------:|---------:|-------:|------:|--------:|------:|------:|--------:|--------:|-----------:|
-|      0 |        0 |      1 |     1 |       1 |     0 |     1 |       1 |       1 |     0.1429 |
-|      0 |        0 |      1 |     0 |       1 |     0 |     1 |       1 |       1 |     0.1164 |
-|      0 |        0 |      1 |     1 |       1 |     1 |     0 |       1 |       1 |     0.0984 |
-|      0 |        0 |      1 |     0 |       1 |     1 |     0 |       1 |       1 |     0.0828 |
+|      0 |        0 |      1 |     1 |       1 |     0 |     1 |       1 |       1 |     0.1242 |
+|      0 |        0 |      1 |     0 |       1 |     0 |     1 |       1 |       1 |     0.1139 |
+|      0 |        0 |      1 |     1 |       1 |     1 |     0 |       1 |       1 |     0.1035 |
+|      0 |        0 |      1 |     0 |       1 |     1 |     0 |       1 |       1 |     0.0831 |
 |      0 |        0 |      1 |     1 |       1 |     0 |     0 |       1 |       1 |     0.0443 |
-|      0 |        0 |      1 |     1 |       1 |     1 |     1 |       1 |       1 |     0.0361 |
-|      1 |        0 |      1 |     1 |       1 |     0 |     1 |       1 |       1 |     0.0359 |
-|      0 |        1 |      1 |     1 |       1 |     0 |     1 |       1 |       1 |     0.0353 |
-|      0 |        0 |      1 |     0 |       1 |     0 |     0 |       1 |       1 |     0.0338 |
-|      1 |        0 |      1 |     1 |       1 |     1 |     0 |       1 |       1 |     0.0235 |
+|      0 |        0 |      1 |     0 |       1 |     0 |     0 |       1 |       1 |     0.0400 |
+|      0 |        0 |      1 |     1 |       1 |     1 |     1 |       1 |       1 |     0.0343 |
+|      0 |        1 |      1 |     1 |       1 |     0 |     1 |       1 |       1 |     0.0317 |
+|      0 |        0 |      0 |     1 |       1 |     0 |     1 |       1 |       1 |     0.0272 |
+|      1 |        0 |      1 |     1 |       1 |     0 |     1 |       1 |       1 |     0.0271 |
 
 ``` r
 
@@ -629,16 +627,16 @@ knitr::kable(cbind(gammas_unique_both, uniform, hierarchical)[io[1:10], ],
 
 | Comedy | Thriller | Budget | Weeks | Screens | S-4-6 | S-1-3 | Vol-4-6 | Vol-1-3 | uniform | hierarchical |
 |---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| 0 | 0 | 1 | 0 | 1 | 0 | 1 | 1 | 1 | 0.1579 | 0.1164 |
-| 0 | 0 | 1 | 1 | 1 | 0 | 1 | 1 | 1 | 0.1343 | 0.1429 |
-| 0 | 0 | 1 | 0 | 1 | 1 | 0 | 1 | 1 | 0.1258 | 0.0828 |
-| 0 | 0 | 1 | 1 | 1 | 1 | 0 | 1 | 1 | 0.0995 | 0.0984 |
-| 0 | 0 | 1 | 1 | 1 | 0 | 0 | 1 | 1 | 0.0654 | 0.0443 |
-| 0 | 0 | 1 | 0 | 1 | 0 | 0 | 1 | 1 | 0.0511 | 0.0338 |
-| 0 | 0 | 0 | 1 | 1 | 0 | 0 | 1 | 1 | 0.0320 | 0.0196 |
-| 0 | 0 | 0 | 1 | 1 | 0 | 1 | 1 | 1 | 0.0309 | 0.0198 |
-| 0 | 0 | 0 | 1 | 1 | 1 | 0 | 1 | 1 | 0.0247 | 0.0162 |
-| 1 | 0 | 1 | 0 | 1 | 0 | 1 | 1 | 1 | 0.0209 | 0.0219 |
+| 0 | 0 | 1 | 0 | 1 | 0 | 1 | 1 | 1 | 0.1444 | 0.1139 |
+| 0 | 0 | 1 | 1 | 1 | 0 | 1 | 1 | 1 | 0.1270 | 0.1242 |
+| 0 | 0 | 1 | 0 | 1 | 1 | 0 | 1 | 1 | 0.1268 | 0.0831 |
+| 0 | 0 | 1 | 1 | 1 | 1 | 0 | 1 | 1 | 0.0981 | 0.1035 |
+| 0 | 0 | 1 | 1 | 1 | 0 | 0 | 1 | 1 | 0.0598 | 0.0443 |
+| 0 | 0 | 1 | 0 | 1 | 0 | 0 | 1 | 1 | 0.0477 | 0.0400 |
+| 0 | 0 | 0 | 1 | 1 | 0 | 0 | 1 | 1 | 0.0380 | 0.0198 |
+| 0 | 0 | 0 | 1 | 1 | 0 | 1 | 1 | 1 | 0.0283 | 0.0272 |
+| 1 | 0 | 1 | 0 | 1 | 0 | 1 | 1 | 1 | 0.0246 | 0.0212 |
+| 0 | 0 | 0 | 1 | 1 | 1 | 0 | 1 | 1 | 0.0239 | 0.0157 |
 
 We also determine the posterior distribution of the model space
 complexity
@@ -763,16 +761,16 @@ knitr::kable(cbind(res_unif, res_hier), digit = 2)
 
 |          |   2.5% | Posterior mean |  97.5% |   2.5% | Posterior mean |  97.5% |
 |:---------|-------:|---------------:|-------:|-------:|---------------:|-------:|
-| Comedy   |  -0.51 |           0.10 |   2.41 |  -1.32 |           0.19 |   3.24 |
-| Thriller |  -1.62 |          -0.02 |   1.12 |  -2.53 |           0.01 |   2.58 |
+| Comedy   |  -0.47 |           0.11 |   2.50 |  -1.34 |           0.19 |   3.22 |
+| Thriller |  -1.91 |          -0.02 |   1.43 |  -2.71 |           0.00 |   2.66 |
 | Budget   |   0.00 |           0.11 |   0.23 |   0.00 |           0.12 |   0.23 |
 | Weeks    |   0.00 |           0.20 |   0.69 |   0.00 |           0.23 |   0.69 |
-| Screens  |   0.61 |           1.01 |   1.42 |   0.59 |           0.99 |   1.41 |
-| S-4-6    |  -0.49 |           0.32 |   1.74 |  -2.22 |           0.25 |   1.82 |
-| S-1-3    |   0.00 |           0.56 |   2.13 |  -0.02 |           0.70 |   3.33 |
-| Vol-4-6  | -19.19 |         -16.05 | -12.89 | -19.13 |         -16.00 | -12.90 |
-| Vol-1-3  |  18.36 |          21.61 |  24.84 |  18.34 |          21.57 |  24.81 |
-| sigma2   |  55.81 |          75.78 | 102.79 |  55.15 |          74.75 | 101.31 |
+| Screens  |   0.60 |           1.01 |   1.43 |   0.60 |           1.00 |   1.42 |
+| S-4-6    |  -0.67 |           0.31 |   1.76 |  -2.19 |           0.27 |   1.80 |
+| S-1-3    |   0.00 |           0.57 |   2.21 |   0.00 |           0.66 |   3.35 |
+| Vol-4-6  | -19.20 |         -16.06 | -13.01 | -19.12 |         -16.01 | -12.93 |
+| Vol-1-3  |  18.40 |          21.64 |  24.95 |  18.42 |          21.57 |  24.80 |
+| sigma2   |  55.81 |          75.96 | 102.51 |  55.23 |          74.86 | 100.91 |
 
 ## Section 11.3: Model selection beyond standard regression analysis
 
@@ -949,11 +947,11 @@ during MCMC and the model visited most frequently.
 
 k_gamma <- rowSums(res$gamma_post)
 mean(k_gamma)
-#> [1] 4.16745
+#> [1] 4.2305
 
 gammas_unique <- unique(res$gamma_post)
 nrow(gammas_unique)
-#> [1] 36
+#> [1] 16
 n_gamma <- number_draws(res$gamma_post, gammas_unique)
 io <- order(n_gamma, decreasing = TRUE)
 
@@ -963,11 +961,11 @@ knitr::kable(cbind(gammas_unique, phat_gamma = n_gamma/M)[io[1:5], ],
 
 | female | age18 | wcollar | unemp97 | irrel1 | irrel2 | irrel3 | irrel4 | irrel5 | phat_gamma |
 |-------:|------:|--------:|--------:|-------:|-------:|-------:|-------:|-------:|-----------:|
-|      1 |     1 |       1 |       1 |      0 |      0 |      0 |      0 |      0 |     0.7238 |
-|      1 |     1 |       1 |       1 |      0 |      0 |      0 |      1 |      0 |     0.0988 |
-|      1 |     1 |       0 |       1 |      0 |      0 |      0 |      0 |      0 |     0.0447 |
-|      1 |     1 |       1 |       1 |      1 |      0 |      0 |      0 |      0 |     0.0293 |
-|      1 |     1 |       1 |       1 |      0 |      0 |      1 |      0 |      0 |     0.0230 |
+|      1 |     1 |       1 |       1 |      0 |      0 |      0 |      0 |      0 |     0.6520 |
+|      1 |     1 |       1 |       1 |      0 |      0 |      0 |      1 |      0 |     0.1490 |
+|      1 |     1 |       0 |       1 |      0 |      0 |      0 |      0 |      0 |     0.0600 |
+|      1 |     1 |       1 |       1 |      1 |      0 |      0 |      0 |      0 |     0.0360 |
+|      1 |     1 |       1 |       1 |      0 |      0 |      0 |      0 |      1 |     0.0245 |
 
 From the barplot of the PIPs we see that the irrelevant covariates have
 a PiP close to zero whereas the other covariates are included with a
@@ -980,7 +978,7 @@ if (pdfplots) {
 }
 colMeans(res$gamma_post)
 #>  female   age18 wcollar unemp97  irrel1  irrel2  irrel3  irrel4  irrel5 
-#> 0.98780 1.00000 0.93860 1.00000 0.04020 0.02810 0.02700 0.12110 0.02465
+#>  1.0000  1.0000  0.9190  1.0000  0.0530  0.0165  0.0320  0.1790  0.0310
 
 par(mfrow = c(1, 1), mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.5, .5, 0))
 barplot(colMeans(res$gamma_post), col = "blue", names.arg = 1:p, 
@@ -1170,7 +1168,7 @@ for (i in seq_len(length(res) - 1)) {
 names(logSD) <- c("0 vs 1", "1 vs 2", "2 vs 3", "3 vs 4")
 round(logSD, 2)
 #> 0 vs 1 1 vs 2 2 vs 3 3 vs 4 
-#> -35.88  -1.18   0.47   2.75
+#> -35.98  -1.18   0.46   2.75
 ```
 
 Note that the first value of logSD is numerically rather unstable.
@@ -1403,8 +1401,8 @@ for (p in 1:4) {
 
 #### Example 11.17: CHF exchange rate data: Testing for a unit root using the Savage-Dickey density ratio
 
-We start by defining covariates and response, running the regression
-thereafter.
+We start by defining covariates and response, specify the priors, and
+run the regression thereafter.
 
 ``` r
 
@@ -1418,25 +1416,34 @@ c0 <- 2
 C0 <- 0.001
 b0 <- rep(0, 3)
 A0 <- F0 <- 1
-D0 <- 0.01^2
-B0 <- diag(c(D0, F0, A0))
+D0 <- c(0.01, 0.1, 1)^2
+B0 <- NULL
+res <- vector("list", length(D0))
 
-res <- regression(deltay, Xy, b0 = b0, B0 = B0, c0 = c0, C0 = C0)
+for (i in seq_along(D0)) {
+  B0tmp <- diag(c(D0[i], F0, A0))
+  res[[i]] <- regression(deltay, Xy, b0 = b0, B0 = B0tmp, c0 = c0, C0 = C0)
+}
 ```
 
 Now we can visualize the Savage-Dickey density ratio.
 
 ``` r
 
-breaks <- seq(0.001 * floor(1000 * min(res$beta[,1])),
-              0.001 * ceiling(1000 * max(res$beta[,1])),
-              length.out = 40)
-hist(res$betas[,1], probability = TRUE, breaks = breaks,
-     xlab = expression(delta), ylab = "", border = NA,
-     main = "Augmented Dickey Fuller regression")
-lines(breaks, dnorm(breaks, b0[1], sqrt(B0[1, 1])), lwd = 1.5)
-abline(v = 0, lty = 3)
-abline(h = 0, lty = 3)
+deltas <- seq(-.003, .003, length.out = 300)
+plot(NULL, ylab = "", xlab = expression(delta),
+     main = "Augmented Dickey Fuller regression",
+     xlim = range(deltas), ylim = range(density(res[[1]]$betas[, 1])$y))
+abline(v = 0, lty = 3, col = "darkgrey")
+abline(h = 0, lty = 3, col = "darkgrey")
+for (i in seq_along(D0)) {
+  lines(density(res[[i]]$betas[, 1], bw = "SJ", adjust = 2), col = i)
+  lines(deltas, dnorm(deltas, 0, sqrt(D0[i])), lty = 2, col = i)
+}
+legend("topright", parse(text = c(paste0("Posterior ~ (D[0] == ", D0, ")"),
+                                  paste0("Prior ~ (D[0] == ", D0, ")"))),
+       lty = rep(c(1, 2), each = length(D0)),
+       col = rep(seq_along(D0), 2))
 ```
 
 ![](Chapter11_files/figure-html/unnamed-chunk-52-1.png)
@@ -1446,14 +1453,17 @@ Rao-Blackwellization.
 
 ``` r
 
-means <- res$paras$bN[, 1]
-sds <- sqrt(res$paras$BN[, 1, 1])
-logpostordinate <- logmeanexp(dnorm(0, means, sds, log = TRUE))
-logSD <- logpostordinate - dnorm(0, b0[1], sqrt(B0[1, 1]), log = TRUE)
+logpostordinate <- rep(NA_real_, length(D0))
+for (i in seq_along(D0)) {
+  means <- res[[i]]$paras$bN[, 1]
+  sds <- sqrt(res[[i]]$paras$BN[, 1, 1])
+  logpostordinate[i] <- logmeanexp(dnorm(0, means, sds, log = TRUE))
+}
+logSD <- logpostordinate - dnorm(0, b0[1], sqrt(D0), log = TRUE)
 (round(exp(logSD), 2))
-#> [1] 10.37
-(round(sqrt(2 * pi * B0[1, 1]) * exp(logpostordinate), 2)) # equivalent
-#> [1] 10.37
+#> [1]   10.37  103.29 1032.89
+(round(sqrt(2 * pi * D0) * exp(logpostordinate), 2)) # equivalent
+#> [1]   10.37  103.29 1032.89
 ```
 
 #### Example 11.18: CHF exchange rate data: Bayesian unit root testing with unknown model order
@@ -1532,10 +1542,10 @@ knitr::kable(tab, digits = 2)
 
 |          |      |          |      |
 |---------:|-----:|---------:|-----:|
-| 11366.67 | 0.86 | 11364.29 | 0.08 |
-| 11363.70 | 0.04 | 11361.35 | 0.00 |
-| 11362.49 | 0.01 | 11360.10 | 0.00 |
-| 11358.57 | 0.00 | 11356.17 | 0.00 |
+| 11366.67 | 0.49 | 11366.60 | 0.45 |
+| 11363.70 | 0.02 | 11363.60 | 0.02 |
+| 11362.49 | 0.01 | 11362.35 | 0.01 |
+| 11358.57 | 0.00 | 11358.42 | 0.00 |
 
 ### Section 11.4.3: Bayesian testing for first-order Markov chain models
 
