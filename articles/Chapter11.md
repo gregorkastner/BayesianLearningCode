@@ -566,7 +566,7 @@ varselreg_ghier <- function(y, X,
     
     }
   }
-  return(list(gamma_post=gamma_post, acc=acc))
+  return(list(gamma_post = gamma_post, acc = acc))
 }
 ```
 
@@ -578,12 +578,12 @@ if (pdfplots) {
   pdf("11-2_2b.pdf", width = 3, height = 3)
 }
 set.seed(seed)
-res<- varselreg_ghier(y, X, M = M)
+res <- varselreg_ghier(y, X, M = M)
 gamma_post_hier <- res$gamma_post
 
 par(mfrow = c(1, 1), mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.5, .5, 0))
 barplot(colMeans(gamma_post_hier), col = "blue", names.arg = 1:p, 
-        xlab = "Covariate", ylab = "PIP")
+  xlab = "Covariate", ylab = "PIP")
 ```
 
 ![](Chapter11_files/figure-html/unnamed-chunk-19-1.png)
@@ -789,8 +789,8 @@ factor.
 X <- X[, c("Screens", "Budget")]
 gammas <- matrix(1, nrow = 1, ncol = 2)
 
-lM0 <- logmarlik_reg(y, X, a0, A0 = 10000, B0, c0, C0, gammas)
-lMF_uncorr <- logmarlik_reg(log(y), X, a0, A0 = 10000, B0, c0, C0, gammas)
+lM0 <- logmarlik_reg(y, X, a0, A0, B0, c0, C0, gammas)
+lMF_uncorr <- logmarlik_reg(log(y), X, a0, A0, B0, c0, C0, gammas)
 lMF <- lMF_uncorr - sum(log(y))
 knitr::kable(round(cbind(lM0, lMF_uncorr, lMF), 2))
 ```
@@ -916,7 +916,7 @@ varsel_probit <- function(y, X, a0 = 0, A0 = 100, B0 = 1,
       beta_post[m - burnin, ind[ind > 0]] <- beta
      }
   }
-  return(list(gamma_post = gamma_post, acc=acc, beta_post = beta_post))
+  return(list(gamma_post = gamma_post, acc = acc, beta_post = beta_post))
 }
 ```
 
