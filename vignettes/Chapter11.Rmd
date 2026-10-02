@@ -1201,7 +1201,8 @@ for (p in 1:4) {
 
 ### Example 11.17: CHF exchange rate data: Testing for a unit root using the Savage-Dickey density ratio
 
-We start by defining covariates and response, running the regression thereafter.
+We start by defining covariates and response, specify the priors, and run the
+regression thereafter.
 
 ```{r}
 set.seed(seed + 123)
@@ -1214,10 +1215,14 @@ c0 <- 2
 C0 <- 0.001
 b0 <- rep(0, 3)
 A0 <- F0 <- 1
-D0 <- 0.01^2
-B0 <- diag(c(D0, F0, A0))
+D0 <- c(0.01, 0.1, 1)^2
 
-res <- regression(deltay, Xy, b0 = b0, B0 = B0, c0 = c0, C0 = C0)
+res <- vector("list", length(D0))
+
+for (i in seq_along(D0)) {
+  B0 <- diag(c(D0[i], F0, A0))
+  res[[i]] <- regression(deltay, Xy, b0 = b0, B0 = B0, c0 = c0, C0 = C0)
+}
 ```
 
 Now we can visualize the Savage-Dickey density ratio.
