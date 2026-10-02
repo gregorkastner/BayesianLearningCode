@@ -1216,12 +1216,12 @@ C0 <- 0.001
 b0 <- rep(0, 3)
 A0 <- F0 <- 1
 D0 <- c(0.01, 0.1, 1)^2
-
+B0 <- NULL
 res <- vector("list", length(D0))
 
 for (i in seq_along(D0)) {
-  B0 <- diag(c(D0[i], F0, A0))
-  res[[i]] <- regression(deltay, Xy, b0 = b0, B0 = B0, c0 = c0, C0 = C0)
+  B0tmp <- diag(c(D0[i], F0, A0))
+  res[[i]] <- regression(deltay, Xy, b0 = b0, B0 = B0tmp, c0 = c0, C0 = C0)
 }
 ```
 
@@ -1232,14 +1232,14 @@ if (pdfplots) {
   pdf("11-4_5.pdf", width = 7, height = 4)
 }
 par(mfrow = c(1, 1), mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
-deltas <- seq(-.005, .005, length.out = 300)
+deltas <- seq(-.003, .003, length.out = 300)
 plot(NULL, ylab = "", xlab = expression(delta),
-      main = "Augmented Dickey Fuller regression",
+     main = "Augmented Dickey Fuller regression",
      xlim = range(deltas), ylim = range(density(res[[1]]$betas[, 1])$y))
 abline(v = 0, lty = 3, col = "darkgrey")
 abline(h = 0, lty = 3, col = "darkgrey")
 for (i in seq_along(D0)) {
-  lines(density(res[[i]]$betas[, 1], adjust = 2), col = i)
+  lines(density(res[[i]]$betas[, 1], bw = "SJ", adjust = 2), col = i)
   lines(deltas, dnorm(deltas, 0, sqrt(D0[i])), lty = 2, col = i)
 }
 legend("topright", parse(text = c(paste0("Posterior ~ (D[0] == ", D0, ")"),
