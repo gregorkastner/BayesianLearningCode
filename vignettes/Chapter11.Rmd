@@ -1231,16 +1231,21 @@ Now we can visualize the Savage-Dickey density ratio.
 if (pdfplots) {
   pdf("11-4_5.pdf", width = 7, height = 4)
 }
-par(mfrow = c(1, 1), mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1)
-breaks <- seq(0.001 * floor(1000 * min(res$beta[,1])),
-              0.001 * ceiling(1000 * max(res$beta[,1])),
-              length.out = 40)
-hist(res$betas[,1], probability = TRUE, breaks = breaks,
-     xlab = expression(delta), ylab = "", border = NA,
-     main = "Augmented Dickey Fuller regression")
-lines(breaks, dnorm(breaks, b0[1], sqrt(B0[1, 1])), lwd = 1.5)
-abline(v = 0, lty = 3)
-abline(h = 0, lty = 3)
+par(mfrow = c(1, 1), mar = c(2.5, 1.5, 1.5, .1), mgp = c(1.5, .5, 0), lwd = 1.5)
+deltas <- seq(-.005, .005, length.out = 300)
+plot(NULL, ylab = "", xlab = expression(delta),
+      main = "Augmented Dickey Fuller regression",
+     xlim = range(deltas), ylim = range(density(res[[1]]$betas[, 1])$y))
+abline(v = 0, lty = 3, col = "darkgrey")
+abline(h = 0, lty = 3, col = "darkgrey")
+for (i in seq_along(D0)) {
+  lines(density(res[[i]]$betas[, 1], adjust = 2), col = i)
+  lines(deltas, dnorm(deltas, 0, sqrt(D0[i])), lty = 2, col = i)
+}
+legend("topright", parse(text = c(paste0("Posterior ~ (D[0] == ", D0, ")"),
+                                  paste0("Prior ~ (D[0] == ", D0, ")"))),
+       lty = rep(c(1, 2), each = length(D0)),
+       col = rep(seq_along(D0), 2))
 ```
 
 To compute the numerical value of the SD density ratio, we again use
