@@ -231,7 +231,7 @@ SSR <- sum(y^2)
 cN <- c0 + N / 2
 CN <- C0 + SSR / 2
 
-M <- 10^7 / mcmcspeedup
+M <- 1e6 / mcmcspeedup
 draws[[1]]$sigma2s <- rinvgamma(M, cN , CN)
 draws[[1]]$nus <- Inf
 ```
@@ -249,7 +249,8 @@ nu <- 7
 
 # allocate space for storing the draws
 draws[[2]]$sigma2s <- rep(NA_real_, M)
-draws[[2]]$nus <- nu
+draws[[2]]$nus <- rep(nu, M)
+draws[[2]]$ws <- matrix(NA_real_, nrow = M, ncol = N)
 
 # starting value for w
 w <- rep(1, N)
@@ -278,7 +279,10 @@ for (m in 1:(burnin + M)) {
   w <- rgamma(length(eps), (nu + 1) /2, (nu + r) / 2)
 
   # store the results
-  if (m > burnin) draws[[2]]$sigma2s[m - burnin] <- sigma2
+  if (m > burnin) {
+    draws[[2]]$sigma2s[m - burnin] <- sigma2
+    draws[[2]]$ws[m - burnin, ] <- w
+  }
 }
 ```
 
@@ -296,6 +300,7 @@ lambda <- 1 / 7
 
 # allocate space for storing the draws
 draws[[3]]$nus <- draws[[3]]$sigma2s <- rep(NA_real_, M)
+draws[[3]]$ws <- matrix(NA_real_, nrow = M, ncol = N)
 
 # starting value for log(nu) and w
 w <- rep(1, N)
@@ -330,6 +335,7 @@ for (m in 1:(burnin + M)) {
   if (m > burnin) {
     draws[[3]]$sigma2s[m - burnin] <- sigma2
     draws[[3]]$nus[m - burnin] <- nu
+    draws[[3]]$ws[m - burnin, ] <- w
   }
 }
 ```
@@ -363,7 +369,7 @@ knitr::kable(res, digits = c(0, 0, 0, 1))
 |-----:|-----:|-----:|----:|
 | 6907 | 6906 | 6905 | 1.0 |
 | 6269 | 6266 | 6264 | 2.4 |
-| 6379 | 6375 | 6370 | 4.6 |
+| 6376 | 6371 | 6367 | 4.5 |
 
 For the Gaussian model (only), we can compute the DIC in closed form.
 
@@ -383,3 +389,75 @@ knitr::kable(cbind(DIC, avgD, Davg, pd))
 |      DIC |     avgD |     Davg |       pd |
 |---------:|---------:|---------:|---------:|
 | 6906.922 | 6905.925 | 6904.927 | 0.997449 |
+
+#### Example 3.7: CHF exchange rate data: Testing normal vs. Student t using hierarchical DIC
+
+Because we also stored the weights, we can use the samples from above to
+compute conditional and augmented DICs. To do so, we first define the
+log conditional likelihood. and the log augmented (“complete-data”)
+likelihood.
+
+``` r
+
+logcondlik <- function(y, sigma2, nu, w) {
+  sum(dnorm(y, 0, sqrt(sigma2 / w), log = TRUE))
+}
+
+logauglik <- function(y, sigma2, nu, w) {
+  logcondlik(y, sigma2, nu, w) + sum(dinvgamma(w, nu / 2, nu / 2, log = TRUE))
+}
+```
+
+Now we can compute the conditional and the augmented DIC.
+
+``` r
+
+res <- matrix(NA_real_, 2, 4)
+colnames(res) <- c("DIC_C", "pd_C", "DIC_A", "pd_A")
+for (i in 1:nrow(res)) {
+  d <- draws[[i + 1]]
+  
+  # Evaluate the log conditional likelihood at all posterior draws
+  alllogcondlik <- sapply(seq_along(d$sigma2s), function(j) {
+    logcondlik(y, d$sigma2s[j], d$nus[j], d$ws[j, ])
+  })
+  
+  # Compute the average conditional deviance
+  avgcondD <- -2 * mean(alllogcondlik)
+  
+  # Evaluate the log augmented likelihood at all posterior draws
+  alllogauglik <- sapply(seq_along(d$sigma2s), function(j) {
+    logauglik(y, d$sigma2s[j], d$nus[j], d$ws[j, ])
+  })
+  
+  # Evaluate the unnormalized log posterior
+  alllogpost_unnormalized <- alllogauglik +
+    dinvgamma(d$sigma2s, c0, C0, log = TRUE) + dexp(d$nus, lambda, log = TRUE)
+  
+  # Find the index of the posterior draw with highest joint posterior density
+  MAPind <- which.max(alllogpost_unnormalized)
+  
+  # Evaluate the conditional deviance at the MAP
+  estcondD <- -2 * alllogcondlik[MAPind]
+  
+  # Compute conditional pd and conditional DIC
+  res[i, "pd_C"] <- avgcondD - estcondD
+  res[i, "DIC_C"] <- 2 * avgcondD - estcondD
+  
+  # Compute the average augmented deviance
+  avgaugD <- -2 * mean(alllogauglik)
+  
+  # Evaluate the augmented deviance at the MAP
+  estaugD <- -2 * alllogauglik[MAPind]
+  
+  # Compute augmented pd and augmented DIC
+  res[i, "pd_A"] <- avgaugD - estaugD
+  res[i, "DIC_A"] <- 2 * avgaugD - estaugD
+}
+knitr::kable(res)
+```
+
+|    DIC_C |       pd_C |    DIC_A |      pd_A |
+|---------:|-----------:|---------:|----------:|
+| 6129.955 |    7.55751 | 13786.08 |  811.7167 |
+| 5953.732 | -128.16054 | 15806.54 | 2152.5271 |
