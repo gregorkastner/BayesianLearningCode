@@ -386,3 +386,52 @@ logauglik <- function(y, sigma2, nu, w) {
   logcondlik(y, sigma2, nu, w) + sum(dinvgamma(w, nu / 2, nu / 2, log = TRUE))
 }
 ```
+
+Now we can compute the conditional and the augmented DIC.
+
+```{r}
+res <- matrix(NA_real_, 2, 4)
+colnames(res) <- c("DIC_C", "pd_C", "DIC_A", "pd_A")
+for (i in 1:nrow(res)) {
+  d <- draws[[i + 1]]
+  
+  # Evaluate the log conditional likelihood at all posterior draws
+  alllogcondlik <- sapply(seq_along(d$sigma2s), function(j) {
+    logcondlik(y, d$sigma2s[j], d$nus[j], d$ws[j, ])
+  })
+  
+  # Compute the average conditional deviance
+  avgcondD <- -2 * mean(alllogcondlik)
+  
+  # Evaluate the log augmented likelihood at all posterior draws
+  alllogauglik <- sapply(seq_along(d$sigma2s), function(j) {
+    logauglik(y, d$sigma2s[j], d$nus[j], d$ws[j, ])
+  })
+  
+  # Evaluate the unnormalized log posterior
+  alllogpost_unnormalized <- alllogauglik +
+    dinvgamma(d$sigma2s, c0, C0, log = TRUE) + dexp(d$nus, lambda, log = TRUE)
+  
+  # Find the index of the posterior draw with highest joint posterior density
+  MAPind <- which.max(alllogpost_unnormalized)
+  
+  # Evaluate the conditional deviance at the MAP
+  estcondD <- -2 * alllogcondlik[MAPind]
+  
+  # Compute conditional pd and conditional DIC
+  res[i, "pd_C"] <- avgcondD - estcondD
+  res[i, "DIC_C"] <- 2 * avgcondD - estcondD
+  
+  # Compute the average augmented deviance
+  avgaugD <- -2 * mean(alllogauglik)
+  
+  # Evaluate the augmented deviance at the MAP
+  estaugD <- -2 * alllogauglik[MAPind]
+  
+  # Compute augmented pd and augmented DIC
+  res[i, "pd_A"] <- avgaugD - estaugD
+  res[i, "DIC_A"] <- 2 * avgaugD - estaugD
+}
+knitr::kable(res)
+```
+
