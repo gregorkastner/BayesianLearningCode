@@ -302,14 +302,14 @@ BICs.</p>
 <span>  <span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="va">logret</span>, <span class="op">-</span><span class="fl">4</span><span class="op">)</span></span>
 <span>  <span class="va">p</span> <span class="op">&lt;-</span> <span class="va">i</span> <span class="op">-</span> <span class="fl">1</span>     <span class="co"># lag length</span></span>
 <span>  <span class="va">d</span> <span class="op">&lt;-</span> <span class="va">i</span> <span class="op">+</span> <span class="fl">1</span>     <span class="co"># total number of parameters</span></span>
-<span>  <span class="va">n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="co"># number of data points used for estimation</span></span>
+<span>  <span class="va">N</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="co"># number of data points used for estimation</span></span>
 <span>  <span class="va">Xy</span> <span class="op">&lt;-</span> <span class="fu">ARdesignmatrix</span><span class="op">(</span><span class="va">logret</span>, <span class="va">p</span>, conditioninglength <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span>
 <span>  <span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">Xy</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span></span>
 <span>  <span class="va">betahat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span>  <span class="va">sigma2hat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/residuals.html" class="external-link">resid</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span></span>
-<span>  <span class="va">minus2timesloglikmax</span> <span class="op">&lt;-</span> <span class="va">n</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">2</span> <span class="op">*</span> <span class="va">pi</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="va">n</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">sigma2hat</span><span class="op">)</span></span>
+<span>  <span class="va">minus2timesloglikmax</span> <span class="op">&lt;-</span> <span class="va">N</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">2</span> <span class="op">*</span> <span class="va">pi</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="va">N</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">sigma2hat</span><span class="op">)</span></span>
 <span>  <span class="va">AIC</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">minus2timesloglikmax</span> <span class="op">+</span> <span class="fl">2</span> <span class="op">*</span> <span class="va">d</span>      <span class="co"># equals bult-in AIC(fit)</span></span>
-<span>  <span class="va">BIC</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">minus2timesloglikmax</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span> <span class="op">*</span> <span class="va">d</span> <span class="co"># equals built-in BIC(fit)</span></span>
+<span>  <span class="va">BIC</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">minus2timesloglikmax</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">N</span><span class="op">)</span> <span class="op">*</span> <span class="va">d</span> <span class="co"># equals built-in BIC(fit)</span></span>
 <span><span class="op">}</span></span>
 <span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">AIC</span>, <span class="va">BIC</span><span class="op">)</span>, digits <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <table class="table"><tbody>
@@ -330,6 +330,200 @@ BICs.</p>
 <td align="right">-1813.86</td>
 </tr>
 </tbody></table>
+</div>
+<div class="section level4">
+<h4 id="example-12-6-chf-exchange-rate-data-testing-normal-vs--t-using-dic">Example 12.6: CHF exchange rate data: Testing normal vs. t using
+DIC<a class="anchor" aria-label="anchor" href="#example-12-6-chf-exchange-rate-data-testing-normal-vs--t-using-dic"></a>
+</h4>
+<p>Let’s load the data first and make some space for the draws under the
+three models.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"exrates"</span>, package <span class="op">=</span> <span class="st">"stochvol"</span><span class="op">)</span></span>
+<span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fl">100</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/diff.html" class="external-link">diff</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">exrates</span><span class="op">$</span><span class="va">USD</span> <span class="op">/</span> <span class="va">exrates</span><span class="op">$</span><span class="va">CHF</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
+<span><span class="va">N</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">draws</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/vector.html" class="external-link">vector</a></span><span class="op">(</span><span class="st">"list"</span>, <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
+<p>Under the zero-mean Gaussian model, the posterior of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>σ</mi><mn>2</mn></msup><annotation encoding="application/x-tex">\sigma^2</annotation></semantics></math>
+is inverse gamma, and we can easily draw from it.</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">c0</span> <span class="op">&lt;-</span> <span class="fl">2.5</span></span>
+<span><span class="va">C0</span> <span class="op">&lt;-</span> <span class="fl">1.5</span></span>
+<span></span>
+<span><span class="va">SSR</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">y</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span></span>
+<span><span class="va">cN</span> <span class="op">&lt;-</span> <span class="va">c0</span> <span class="op">+</span> <span class="va">N</span> <span class="op">/</span> <span class="fl">2</span></span>
+<span><span class="va">CN</span> <span class="op">&lt;-</span> <span class="va">C0</span> <span class="op">+</span> <span class="va">SSR</span> <span class="op">/</span> <span class="fl">2</span></span>
+<span></span>
+<span><span class="va">M</span> <span class="op">&lt;-</span> <span class="fl">100000</span> <span class="op">/</span> <span class="va">mcmcspeedup</span></span>
+<span><span class="va">draws</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">sigma2s</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvGammaDist.html">rinvgamma</a></span><span class="op">(</span><span class="va">M</span>, <span class="va">cN</span> , <span class="va">CN</span><span class="op">)</span></span>
+<span><span class="va">draws</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">nus</span> <span class="op">&lt;-</span> <span class="cn">Inf</span></span></code></pre></div>
+<p>Under the t distribution with 7 degrees of freedom, the posterior of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>σ</mi><mn>2</mn></msup><annotation encoding="application/x-tex">\sigma^2</annotation></semantics></math>
+is not available in closed form, but we can draw from it using data
+augmentation.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">burnin</span> <span class="op">&lt;-</span> <span class="fl">100</span></span>
+<span></span>
+<span><span class="co"># fix df</span></span>
+<span><span class="va">nu</span> <span class="op">&lt;-</span> <span class="fl">7</span></span>
+<span></span>
+<span><span class="co"># allocate space for storing the draws</span></span>
+<span><span class="va">draws</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">sigma2s</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA_real_</span>, <span class="va">M</span><span class="op">)</span></span>
+<span><span class="va">draws</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">nus</span> <span class="op">&lt;-</span> <span class="va">nu</span></span>
+<span></span>
+<span><span class="co"># starting value for w</span></span>
+<span><span class="va">w</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">N</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># pre-compute cN</span></span>
+<span><span class="va">cN</span> <span class="op">&lt;-</span> <span class="va">c0</span> <span class="op">+</span> <span class="va">N</span> <span class="op">/</span> <span class="fl">2</span></span>
+<span></span>
+<span><span class="co"># log likelihood</span></span>
+<span><span class="va">loglik</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">y</span>, <span class="va">sigma2</span>, <span class="va">nu</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/is.finite.html" class="external-link">is.finite</a></span><span class="op">(</span><span class="va">nu</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="op">*</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Special.html" class="external-link">lgamma</a></span><span class="op">(</span><span class="op">(</span><span class="va">nu</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Special.html" class="external-link">lgamma</a></span><span class="op">(</span><span class="va">nu</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span> <span class="op">-</span> <span class="fl">.5</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">nu</span><span class="op">)</span><span class="op">)</span> <span class="op">-</span></span>
+<span>    <span class="op">(</span><span class="va">nu</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="va">y</span><span class="op">^</span><span class="fl">2</span> <span class="op">/</span> <span class="va">nu</span> <span class="op">/</span> <span class="va">sigma2</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">dnorm</a></span><span class="op">(</span><span class="va">y</span>, <span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">sigma2</span><span class="op">)</span>, log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="op">}</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">m</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="op">(</span><span class="va">burnin</span> <span class="op">+</span> <span class="va">M</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="co"># sample sigma^2 from its full conditional (S-DA)</span></span>
+<span>  <span class="va">eps</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">w</span><span class="op">)</span> <span class="op">*</span> <span class="va">y</span></span>
+<span>  <span class="va">CN</span> <span class="op">&lt;-</span> <span class="va">C0</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/crossprod.html" class="external-link">crossprod</a></span><span class="op">(</span><span class="va">eps</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span></span>
+<span>  <span class="va">sigma2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvGammaDist.html">rinvgamma</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">cN</span>, <span class="va">CN</span><span class="op">)</span></span>
+<span></span>
+<span>  <span class="co"># sample w (W-DA)</span></span>
+<span>  <span class="va">r</span> <span class="op">&lt;-</span> <span class="va">eps</span><span class="op">^</span><span class="fl">2</span> <span class="op">/</span> <span class="op">(</span><span class="va">w</span> <span class="op">*</span> <span class="va">sigma2</span><span class="op">)</span></span>
+<span>  <span class="va">w</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html" class="external-link">rgamma</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">eps</span><span class="op">)</span>, <span class="op">(</span><span class="va">nu</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span> <span class="op">/</span><span class="fl">2</span>, <span class="op">(</span><span class="va">nu</span> <span class="op">+</span> <span class="va">r</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span></span>
+<span></span>
+<span>  <span class="co"># store the results</span></span>
+<span>  <span class="kw">if</span> <span class="op">(</span><span class="va">m</span> <span class="op">&gt;</span> <span class="va">burnin</span><span class="op">)</span> <span class="va">draws</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">sigma2s</span><span class="op">[</span><span class="va">m</span> <span class="op">-</span> <span class="va">burnin</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">sigma2</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+<p>For sampling also the degrees of freedom under an exponential prior,
+we re-run the sampler from Example 8.16, but this time without an
+intercept.</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># fix tuning parameter for MH</span></span>
+<span><span class="va">cnu</span> <span class="op">&lt;-</span> <span class="fl">0.3</span></span>
+<span></span>
+<span><span class="co"># fix prior hyperparameters</span></span>
+<span><span class="va">lambda</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="op">/</span> <span class="fl">7</span></span>
+<span></span>
+<span><span class="co"># allocate space for storing the draws</span></span>
+<span><span class="va">draws</span><span class="op">[[</span><span class="fl">3</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">nus</span> <span class="op">&lt;-</span> <span class="va">draws</span><span class="op">[[</span><span class="fl">3</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">sigma2s</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA_real_</span>, <span class="va">M</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># starting value for log(nu) and w</span></span>
+<span><span class="va">w</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">N</span><span class="op">)</span></span>
+<span><span class="va">nu</span> <span class="op">&lt;-</span> <span class="fl">7</span></span>
+<span></span>
+<span><span class="va">accepts</span> <span class="op">&lt;-</span> <span class="fl">0L</span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">m</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="op">(</span><span class="va">burnin</span> <span class="op">+</span> <span class="va">M</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="co"># sample sigma^2 from its full conditional (S-DA)</span></span>
+<span>  <span class="va">eps</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">w</span><span class="op">)</span> <span class="op">*</span> <span class="va">y</span></span>
+<span>  <span class="va">CN</span> <span class="op">&lt;-</span> <span class="va">C0</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/crossprod.html" class="external-link">crossprod</a></span><span class="op">(</span><span class="va">eps</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span></span>
+<span>  <span class="va">sigma2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvGammaDist.html">rinvgamma</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">cN</span>, <span class="va">CN</span><span class="op">)</span></span>
+<span></span>
+<span>  <span class="co"># sample nu (N-MH)</span></span>
+<span>  <span class="va">nuprop</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">nu</span><span class="op">)</span>, <span class="va">cnu</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">logR</span> <span class="op">&lt;-</span> <span class="fu">loglik</span><span class="op">(</span><span class="va">y</span>, <span class="va">sigma2</span>, <span class="va">nuprop</span><span class="op">)</span> <span class="op">-</span></span>
+<span>          <span class="fu">loglik</span><span class="op">(</span><span class="va">y</span>, <span class="va">sigma2</span>, <span class="va">nu</span><span class="op">)</span> <span class="op">+</span></span>
+<span>          <span class="fu"><a href="https://rdrr.io/r/stats/Exponential.html" class="external-link">dexp</a></span><span class="op">(</span><span class="va">nuprop</span>, <span class="va">lambda</span>, log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">-</span></span>
+<span>          <span class="fu"><a href="https://rdrr.io/r/stats/Exponential.html" class="external-link">dexp</a></span><span class="op">(</span><span class="va">nu</span>, <span class="va">lambda</span>, log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
+<span>          <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">nuprop</span><span class="op">)</span> <span class="op">-</span></span>
+<span>          <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">nu</span><span class="op">)</span></span>
+<span>  </span>
+<span>  <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span> <span class="op">&lt;</span> <span class="va">logR</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">nu</span> <span class="op">&lt;-</span> <span class="va">nuprop</span></span>
+<span>    <span class="kw">if</span> <span class="op">(</span><span class="va">m</span> <span class="op">&gt;</span> <span class="va">burnin</span><span class="op">)</span> <span class="va">accepts</span> <span class="op">&lt;-</span> <span class="va">accepts</span> <span class="op">+</span> <span class="fl">1L</span></span>
+<span>  <span class="op">}</span></span>
+<span>  </span>
+<span>  <span class="co"># sample w (W-DA)</span></span>
+<span>  <span class="va">r</span> <span class="op">&lt;-</span> <span class="va">eps</span><span class="op">^</span><span class="fl">2</span> <span class="op">/</span> <span class="op">(</span><span class="va">w</span> <span class="op">*</span> <span class="va">sigma2</span><span class="op">)</span></span>
+<span>  <span class="va">w</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html" class="external-link">rgamma</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">eps</span><span class="op">)</span>, <span class="op">(</span><span class="va">nu</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span> <span class="op">/</span><span class="fl">2</span>, <span class="op">(</span><span class="va">nu</span> <span class="op">+</span> <span class="va">r</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span></span>
+<span></span>
+<span>  <span class="co"># store the results</span></span>
+<span>  <span class="kw">if</span> <span class="op">(</span><span class="va">m</span> <span class="op">&gt;</span> <span class="va">burnin</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">draws</span><span class="op">[[</span><span class="fl">3</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">sigma2s</span><span class="op">[</span><span class="va">m</span> <span class="op">-</span> <span class="va">burnin</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">sigma2</span></span>
+<span>    <span class="va">draws</span><span class="op">[[</span><span class="fl">3</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">nus</span><span class="op">[</span><span class="va">m</span> <span class="op">-</span> <span class="va">burnin</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">nu</span></span>
+<span>  <span class="op">}</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+<p>We can now estimate the DIC from the draws. First, we define the
+deviance function
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>D</mi><annotation encoding="application/x-tex">D</annotation></semantics></math>.</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">D_nonvec</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">y</span>, <span class="va">sigma2</span>, <span class="va">nu</span><span class="op">)</span> <span class="op">-</span><span class="fl">2</span> <span class="op">*</span> <span class="fu">loglik</span><span class="op">(</span><span class="va">y</span>, <span class="va">sigma2</span>, <span class="va">nu</span><span class="op">)</span></span>
+<span><span class="va">D</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Vectorize.html" class="external-link">Vectorize</a></span><span class="op">(</span><span class="va">D_nonvec</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sigma2"</span>, <span class="st">"nu"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>Now, we estimate the average deviance, the effective number of
+parameters, and finally DIC.</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="cn">NA_real_</span>, <span class="fl">3</span>, <span class="fl">4</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"DIC"</span>, <span class="st">"avgD"</span>, <span class="st">"Davg"</span>, <span class="st">"pd"</span><span class="op">)</span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">res</span><span class="op">[</span><span class="va">i</span>, <span class="st">"avgD"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/deriv.html" class="external-link">D</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">draws</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">sigma2s</span>, <span class="va">draws</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">nus</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">res</span><span class="op">[</span><span class="va">i</span>, <span class="st">"Davg"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/deriv.html" class="external-link">D</a></span><span class="op">(</span><span class="va">y</span>, <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">draws</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">sigma2s</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">draws</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">nus</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">res</span><span class="op">[</span><span class="va">i</span>, <span class="st">"pd"</span><span class="op">]</span> <span class="op">&lt;-</span>  <span class="va">res</span><span class="op">[</span><span class="va">i</span>, <span class="st">"avgD"</span><span class="op">]</span> <span class="op">-</span> <span class="va">res</span><span class="op">[</span><span class="va">i</span>, <span class="st">"Davg"</span><span class="op">]</span></span>
+<span>  <span class="va">res</span><span class="op">[</span><span class="va">i</span>, <span class="st">"DIC"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">res</span><span class="op">[</span><span class="va">i</span>, <span class="st">"avgD"</span><span class="op">]</span> <span class="op">+</span> <span class="va">res</span><span class="op">[</span><span class="va">i</span>, <span class="st">"pd"</span><span class="op">]</span></span>
+<span><span class="op">}</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">res</span>, digits <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="right">DIC</th>
+<th align="right">avgD</th>
+<th align="right">Davg</th>
+<th align="right">pd</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="right">6906.94</td>
+<td align="right">6905.93</td>
+<td align="right">6904.93</td>
+<td align="right">1.01</td>
+</tr>
+<tr class="even">
+<td align="right">6269.06</td>
+<td align="right">6266.67</td>
+<td align="right">6264.29</td>
+<td align="right">2.39</td>
+</tr>
+<tr class="odd">
+<td align="right">6379.78</td>
+<td align="right">6375.27</td>
+<td align="right">6370.77</td>
+<td align="right">4.50</td>
+</tr>
+</tbody>
+</table>
+<p>For the Gaussian model (only), we can compute the DIC in closed
+form.</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">cN</span> <span class="op">&lt;-</span> <span class="va">c0</span> <span class="op">+</span> <span class="va">N</span> <span class="op">/</span> <span class="fl">2</span></span>
+<span><span class="va">CN</span> <span class="op">&lt;-</span> <span class="va">C0</span> <span class="op">+</span> <span class="va">SSR</span> <span class="op">/</span> <span class="fl">2</span></span>
+<span><span class="va">Davg</span> <span class="op">&lt;-</span> <span class="va">N</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">2</span> <span class="op">*</span> <span class="va">pi</span> <span class="op">*</span> <span class="va">CN</span> <span class="op">/</span> <span class="op">(</span><span class="va">cN</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="op">(</span><span class="va">cN</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">*</span> <span class="va">SSR</span> <span class="op">/</span> <span class="va">CN</span></span>
+<span><span class="va">avgD</span> <span class="op">&lt;-</span> <span class="va">N</span> <span class="op">*</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">2</span> <span class="op">*</span> <span class="va">pi</span> <span class="op">*</span> <span class="va">CN</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Special.html" class="external-link">digamma</a></span><span class="op">(</span><span class="va">cN</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="va">SSR</span> <span class="op">*</span> <span class="va">cN</span> <span class="op">/</span> <span class="va">CN</span></span>
+<span><span class="va">pd</span> <span class="op">&lt;-</span> <span class="va">avgD</span> <span class="op">-</span> <span class="va">Davg</span></span>
+<span><span class="co"># Explicityly: N * (log(cN - 1) - digamma(cN)) + SSR / CN</span></span>
+<span><span class="va">DIC</span> <span class="op">&lt;-</span> <span class="va">avgD</span> <span class="op">+</span> <span class="va">pd</span></span>
+<span><span class="co"># N * log(2 * pi * CN * (cN - 1)) - 2 * N * digamma(cN) + (cN + 1) * SSR / CN</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">DIC</span>, <span class="va">avgD</span>, <span class="va">Davg</span>, <span class="va">pd</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="right">DIC</th>
+<th align="right">avgD</th>
+<th align="right">Davg</th>
+<th align="right">pd</th>
+</tr></thead>
+<tbody><tr class="odd">
+<td align="right">6906.922</td>
+<td align="right">6905.925</td>
+<td align="right">6904.927</td>
+<td align="right">0.997449</td>
+</tr></tbody>
+</table>
 </div>
 </div>
 </div>
