@@ -199,3 +199,16 @@ for (i in seq_along(AIC)) {
 }
 knitr::kable(rbind(AIC, BIC), digits = 2)
 ```
+
+
+### Example 12.6: CHF exchange rate data: Testing normal vs. t using DIC
+
+Let's load the data first.
+
+```{r}
+data("exrates", package = "stochvol")
+y <- 100 * diff(log(exrates$USD / exrates$CHF))
+X <- 1
+N <- length(y)
+```
+
