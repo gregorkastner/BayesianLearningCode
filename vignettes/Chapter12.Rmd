@@ -383,7 +383,7 @@ logcondlik <- function(y, sigma2, nu, w) {
 }
 
 logauglik <- function(y, sigma2, nu, w) {
-  logcondlik(y, sigma2, nu, w) + sum(dinvgamma(w, nu / 2, nu / 2, log = TRUE))
+  logcondlik(y, sigma2, nu, w) + sum(dgamma(w, nu / 2, nu / 2, log = TRUE))
 }
 ```
 
