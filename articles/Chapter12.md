@@ -92,15 +92,15 @@ par(mfrow = c(1, 1), mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.5, .5, 0))
 gammas_unique <- unique(res$gamma_post)
 num_mod <- dim(gammas_unique)[1]
 print(num_mod)
-#> [1] 12
+#> [1] 21
 
 k_gamma <- rowSums(res$gamma_post)
 print(mean(k_gamma))
-#> [1] 3.785
+#> [1] 3.7335
 
 # PIPs
 print(colMeans(res$gamma_post))
-#> [1] 0.830 1.000 0.655 1.000 0.000 0.085 0.065 0.150 0.000
+#> [1] 0.8995 1.0000 0.7020 1.0000 0.0320 0.0085 0.0065 0.0710 0.0140
 
 barplot(colMeans(res$gamma_post), col = "blue", names.arg = 1:p,
         xlab = "Covariate", ylab = "PIP")
@@ -130,13 +130,13 @@ knitr::kable(cbind(gammas_unique, freq_gammas / M)[io[1:5], ],
              digits = cbind(rep(0, p), 4))
 ```
 
-|     |     |     |     |     |     |     |     |     |       |
-|----:|----:|----:|----:|----:|----:|----:|----:|----:|------:|
-|   1 |   1 |   1 |   1 |   0 |   0 |   0 |   0 |   0 | 0.535 |
-|   0 |   1 |   0 |   1 |   0 |   0 |   0 |   0 |   0 | 0.095 |
-|   1 |   1 |   0 |   1 |   0 |   0 |   0 |   0 |   0 | 0.085 |
-|   1 |   1 |   1 |   1 |   0 |   0 |   0 |   1 |   0 | 0.060 |
-|   0 |   1 |   0 |   1 |   0 |   0 |   0 |   1 |   0 | 0.060 |
+|     |     |     |     |     |     |     |     |     |        |
+|----:|----:|----:|----:|----:|----:|----:|----:|----:|-------:|
+|   1 |   1 |   1 |   1 |   0 |   0 |   0 |   0 |   0 | 0.5915 |
+|   1 |   1 |   0 |   1 |   0 |   0 |   0 |   0 |   0 | 0.2060 |
+|   0 |   1 |   0 |   1 |   0 |   0 |   0 |   0 |   0 | 0.0580 |
+|   1 |   1 |   1 |   1 |   0 |   0 |   0 |   1 |   0 | 0.0380 |
+|   0 |   1 |   1 |   1 |   0 |   0 |   0 |   0 |   0 | 0.0255 |
 
 ### Section 12.1.2: Perspectives on Bayesian model comparison
 
@@ -231,8 +231,13 @@ SSR <- sum(y^2)
 cN <- c0 + N / 2
 CN <- C0 + SSR / 2
 
+# number of draws
 M <- 1e6 / mcmcspeedup
-draws[[1]]$sigma2s <- rinvgamma(M, cN , CN)
+
+# thinning to save some computer memory
+thin <- ceiling(10 / mcmcspeedup)
+
+draws[[1]]$sigma2s <- rinvgamma(M / thin, cN , CN)
 draws[[1]]$nus <- Inf
 ```
 
@@ -248,9 +253,9 @@ burnin <- 100
 nu <- 7
 
 # allocate space for storing the draws
-draws[[2]]$sigma2s <- rep(NA_real_, M)
-draws[[2]]$nus <- rep(nu, M)
-draws[[2]]$ws <- matrix(NA_real_, nrow = M, ncol = N)
+draws[[2]]$sigma2s <- rep(NA_real_, M / thin)
+draws[[2]]$nus <- rep(nu, M / thin)
+draws[[2]]$ws <- matrix(NA_real_, nrow = M / thin, ncol = N)
 
 # starting value for w
 w <- rep(1, N)
@@ -279,9 +284,9 @@ for (m in 1:(burnin + M)) {
   w <- rgamma(length(eps), (nu + 1) /2, (nu + r) / 2)
 
   # store the results
-  if (m > burnin) {
-    draws[[2]]$sigma2s[m - burnin] <- sigma2
-    draws[[2]]$ws[m - burnin, ] <- w
+  if (m > burnin && (m - burnin) %% thin == 0L) {
+    draws[[2]]$sigma2s[(m - burnin) / thin] <- sigma2
+    draws[[2]]$ws[(m - burnin) / thin, ] <- w
   }
 }
 ```
@@ -299,8 +304,8 @@ cnu <- 0.3
 lambda <- 1 / 7
 
 # allocate space for storing the draws
-draws[[3]]$nus <- draws[[3]]$sigma2s <- rep(NA_real_, M)
-draws[[3]]$ws <- matrix(NA_real_, nrow = M, ncol = N)
+draws[[3]]$nus <- draws[[3]]$sigma2s <- rep(NA_real_, M / thin)
+draws[[3]]$ws <- matrix(NA_real_, nrow = M / thin, ncol = N)
 
 # starting value for log(nu) and w
 w <- rep(1, N)
@@ -332,10 +337,10 @@ for (m in 1:(burnin + M)) {
   w <- rgamma(length(eps), (nu + 1) /2, (nu + r) / 2)
 
   # store the results
-  if (m > burnin) {
-    draws[[3]]$sigma2s[m - burnin] <- sigma2
-    draws[[3]]$nus[m - burnin] <- nu
-    draws[[3]]$ws[m - burnin, ] <- w
+  if (m > burnin && (m - burnin) %% thin == 0L) {
+    draws[[3]]$sigma2s[(m - burnin) / thin] <- sigma2
+    draws[[3]]$nus[(m - burnin) / thin] <- nu
+    draws[[3]]$ws[(m - burnin) / thin, ] <- w
   }
 }
 ```
@@ -369,7 +374,7 @@ knitr::kable(res, digits = c(0, 0, 0, 1))
 |-----:|-----:|-----:|----:|
 | 6907 | 6906 | 6905 | 1.0 |
 | 6269 | 6266 | 6264 | 2.4 |
-| 6376 | 6371 | 6367 | 4.5 |
+| 6379 | 6375 | 6370 | 4.6 |
 
 For the Gaussian model (only), we can compute the DIC in closed form.
 
@@ -457,7 +462,7 @@ for (i in 1:nrow(res)) {
 knitr::kable(res)
 ```
 
-|    DIC_C |       pd_C |    DIC_A |     pd_A |
-|---------:|-----------:|---------:|---------:|
-| 6141.702 |   19.30375 | 10786.02 | 309.9162 |
-| 5953.732 | -128.16054 | 11576.19 | 852.5660 |
+|    DIC_C |      pd_C |    DIC_A |      pd_A |
+|---------:|----------:|---------:|----------:|
+| 6153.280 |   30.5282 | 10834.66 |  358.1104 |
+| 5948.089 | -132.5316 | 11745.58 | 1019.5312 |
