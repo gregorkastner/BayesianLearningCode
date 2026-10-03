@@ -336,3 +336,18 @@ function $D$.
 D_nonvec <- function(y, sigma2, nu) -2 * loglik(y, sigma2, nu)
 D <- Vectorize(D_nonvec, c("sigma2", "nu"))
 ```
+
+Now, we estimate the average deviance, the effective number of parameters, and
+finally DIC.
+
+```{r}
+res <- matrix(NA_real_, 3, 4)
+colnames(res) <- c("DIC", "avgD", "Davg", "pd")
+for (i in 1:nrow(res)) {
+  res[i, "avgD"] <- mean(D(y, draws[[i]]$sigma2s, draws[[i]]$nus))
+  res[i, "Davg"] <- D(y, mean(draws[[i]]$sigma2s), mean(draws[[i]]$nus))
+  res[i, "pd"] <-  res[i, "avgD"] - res[i, "Davg"]
+  res[i, "DIC"] <- res[i, "avgD"] + res[i, "pd"]
+}
+knitr::kable(res, digits = 2)
+```
