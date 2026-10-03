@@ -267,3 +267,70 @@ for (m in 1:(burnin + M)) {
   if (m > burnin) sigma2t7[m - burnin] <- sigma2
 }
 ```
+
+
+For sampling also the degrees of freedom under an exponential prior, 
+we re-run the sampler from Example 8.16, but this time without an intercept.
+
+
+```{r}
+set.seed(1)
+
+# fix tuning parameter for MH, the number of draws M, and burn-in length
+cnu <- 0.3
+burnin <- 1000
+
+# fix prior hyperparameters
+lambda <- 1 / 7
+
+# allocate space for storing the draws
+nus <- mus <- sigma2s <- rep(NA_real_, M)
+ws <- matrix(NA_real_, nrow = M, ncol = N)
+
+# starting value for sigma2, log(nu), and w
+sigma2 <- var(y) / 2
+w <- rep(1, N)
+nu <- 10
+
+# pre-compute cN
+cN <- c0 + N / 2
+
+# log likelihood
+loglik <- function(y, sigma2, nu) {
+  length(y) * (lgamma((nu + 1) / 2) - lgamma(nu / 2) - .5 * log(nu)) -
+  (nu + 1) / 2 * sum(log(1 + y^2 / nu / sigma2))
+}
+
+accepts <- 0L
+for (m in 1:(burnin + M)) {
+  # sample sigma^2 from its full conditional (S-DA)
+  eps <- sqrt(w) * y
+  CN <- C0 + crossprod(eps) / 2
+  sigma2 <- rinvgamma(1, cN, CN)
+
+  # sample nu (N-MH)
+  nuprop <- exp(rnorm(1, log(nu), cnu))
+  logR <- loglik(y, sigma2, nuprop) -
+          loglik(y, sigma2, nu) +
+          dexp(nuprop, lambda, log = TRUE) -
+          dexp(nu, lambda, log = TRUE) +
+          log(nuprop) -
+          log(nu)
+  
+  if (log(runif(1)) < logR) {
+    nu <- nuprop
+    if (m > burnin) accepts <- accepts + 1L
+  }
+  
+  # sample w (W-DA)
+  r <- eps^2 / (w * sigma2)
+  w <- rgamma(length(eps), (nu + 1) /2, (nu + r) / 2)
+
+  # store the results
+  if (m > burnin) {
+    sigma2s[m - burnin] <- sigma2
+    nus[m - burnin] <- nu
+    ws[m - burnin, ] <- w
+  }
+}
+```
