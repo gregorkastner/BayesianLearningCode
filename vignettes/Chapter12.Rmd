@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 )
 knitr::opts_knit$set(global.par = TRUE)
 pdfplots <- FALSE # default: FALSE; set this to TRUE only if you like pdf figures
-mcmcspeedup <- 10L # default: 1L; set this to something higher for fewer draws
+mcmcspeedup <- 100L # default: 1L; set this to something higher for fewer draws
 seed <- 42
 ```
 
@@ -219,6 +219,7 @@ Under the zero-mean Gaussian model, the posterior of $\sigma^2$ is inverse
 gamma, and we can easily draw from it.
 
 ```{r}
+set.seed(seed)
 c0 <- 2.5
 C0 <- 1.5
 
@@ -226,7 +227,7 @@ SSR <- sum(y^2)
 cN <- c0 + N / 2
 CN <- C0 + SSR / 2
 
-M <- 100000 / mcmcspeedup
+M <- 10^7 / mcmcspeedup
 draws[[1]]$sigma2s <- rinvgamma(M, cN , CN)
 draws[[1]]$nus <- Inf
 ```
@@ -236,7 +237,6 @@ is not available in closed form, but we can draw from it using data
 augmentation.
 
 ```{r}
-set.seed(1)
 burnin <- 100
 
 # fix df
@@ -281,8 +281,6 @@ For sampling also the degrees of freedom under an exponential prior,
 we re-run the sampler from Example 8.16, but this time without an intercept.
 
 ```{r}
-set.seed(1)
-
 # fix tuning parameter for MH
 cnu <- 0.3
 
@@ -337,8 +335,8 @@ D_nonvec <- function(y, sigma2, nu) -2 * loglik(y, sigma2, nu)
 D <- Vectorize(D_nonvec, c("sigma2", "nu"))
 ```
 
-Now, we estimate the average deviance, the effective number of parameters, and
-finally DIC.
+Now, we estimate the average deviance, the deviance of the posterior averages,
+the effective number of parameters, and finally, DIC.
 
 ```{r}
 res <- matrix(NA_real_, 3, 4)
@@ -349,7 +347,7 @@ for (i in 1:nrow(res)) {
   res[i, "pd"] <-  res[i, "avgD"] - res[i, "Davg"]
   res[i, "DIC"] <- res[i, "avgD"] + res[i, "pd"]
 }
-knitr::kable(res, digits = 2)
+knitr::kable(res, digits = c(0, 0, 0, 1))
 ```
 
 For the Gaussian model (only), we can compute the DIC in closed form.
