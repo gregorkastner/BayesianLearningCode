@@ -212,3 +212,17 @@ X <- 1
 N <- length(y)
 ```
 
+Under the zero-mean Gaussian model, the posterior of $\sigma^2$ is inverse
+gamma, and we can easily draw from it.
+
+```{r}
+c0 <- 2.5
+C0 <- 1.5
+
+SSR <- sum(y^2)
+cN <- c0 + N / 2
+CN <- C0 + SSR / 2
+
+M <- 10000 / mcmcspeedup
+sigma2normal <- rinvgamma(M, cN , CN)
+```
