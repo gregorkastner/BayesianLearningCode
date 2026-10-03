@@ -668,9 +668,10 @@ easily.</p>
 <span>                 prior_sd_lessinformative <span class="op">=</span> <span class="fu">dirichlet_sd</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">/</span><span class="va">K</span>, <span class="va">K</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>                 rel_freq <span class="op">=</span> <span class="va">counts</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">counts</span><span class="op">)</span>,</span>
 <span>                 posterior_mean_uniform <span class="op">=</span> <span class="va">post_uniform</span>,</span>
-<span>                 posterior_sd_uniform <span class="op">=</span> <span class="fu">dirichlet_sd</span><span class="op">(</span><span class="va">post_uniform</span><span class="op">)</span>,</span>
+<span>                 posterior_sd_uniform <span class="op">=</span> <span class="fu">dirichlet_sd</span><span class="op">(</span><span class="va">post_uniform_unnormalized</span><span class="op">)</span>,</span>
 <span>                 posterior_mean_lessinformative <span class="op">=</span> <span class="va">post_lessinformative</span>,</span>
-<span>                 posterior_sd_lessinformative <span class="op">=</span> <span class="fu">dirichlet_sd</span><span class="op">(</span><span class="va">post_lessinformative</span><span class="op">)</span><span class="op">)</span></span>
+<span>                 posterior_sd_lessinformative <span class="op">=</span></span>
+<span>                   <span class="fu">dirichlet_sd</span><span class="op">(</span><span class="va">post_lessinformative_unnormalized</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">unseen</span> <span class="op">&lt;-</span> <span class="va">counts</span> <span class="op">==</span> <span class="fl">0L</span></span>
 <span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">resfull</span><span class="op">[</span><span class="op">!</span><span class="va">unseen</span>,<span class="op">]</span>, UNSEEN <span class="op">=</span> <span class="va">resfull</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="va">unseen</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>,<span class="op">]</span><span class="op">)</span></span>
@@ -784,18 +785,18 @@ easily.</p>
 </tr>
 <tr class="even">
 <td align="left">posterior_sd_uniform</td>
-<td align="right">0.1821</td>
-<td align="right">0.1673</td>
-<td align="right">0.1078</td>
-<td align="right">0.1078</td>
-<td align="right">0.1312</td>
-<td align="right">0.1078</td>
-<td align="right">0.1954</td>
-<td align="right">0.1312</td>
-<td align="right">0.1954</td>
-<td align="right">0.1506</td>
-<td align="right">0.1312</td>
-<td align="right">0.0767</td>
+<td align="right">0.0279</td>
+<td align="right">0.0257</td>
+<td align="right">0.0165</td>
+<td align="right">0.0165</td>
+<td align="right">0.0201</td>
+<td align="right">0.0165</td>
+<td align="right">0.0300</td>
+<td align="right">0.0201</td>
+<td align="right">0.0300</td>
+<td align="right">0.0231</td>
+<td align="right">0.0201</td>
+<td align="right">0.0118</td>
 </tr>
 <tr class="odd">
 <td align="left">posterior_mean_lessinformative</td>
@@ -814,18 +815,18 @@ easily.</p>
 </tr>
 <tr class="even">
 <td align="left">posterior_sd_lessinformative</td>
-<td align="right">0.2508</td>
-<td align="right">0.2283</td>
-<td align="right">0.1206</td>
-<td align="right">0.1206</td>
-<td align="right">0.1671</td>
-<td align="right">0.1206</td>
-<td align="right">0.2699</td>
-<td align="right">0.1671</td>
-<td align="right">0.2699</td>
-<td align="right">0.2012</td>
-<td align="right">0.1671</td>
-<td align="right">0.0170</td>
+<td align="right">0.0600</td>
+<td align="right">0.0546</td>
+<td align="right">0.0288</td>
+<td align="right">0.0288</td>
+<td align="right">0.0400</td>
+<td align="right">0.0288</td>
+<td align="right">0.0645</td>
+<td align="right">0.0400</td>
+<td align="right">0.0645</td>
+<td align="right">0.0481</td>
+<td align="right">0.0400</td>
+<td align="right">0.0041</td>
 </tr>
 </tbody>
 </table>

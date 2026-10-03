@@ -563,9 +563,10 @@ resfull <- cbind(prior_mean = rep(1/K, K),
                  prior_sd_lessinformative = dirichlet_sd(rep(1/K, K)),
                  rel_freq = counts / sum(counts),
                  posterior_mean_uniform = post_uniform,
-                 posterior_sd_uniform = dirichlet_sd(post_uniform),
+                 posterior_sd_uniform = dirichlet_sd(post_uniform_unnormalized),
                  posterior_mean_lessinformative = post_lessinformative,
-                 posterior_sd_lessinformative = dirichlet_sd(post_lessinformative))
+                 posterior_sd_lessinformative =
+                   dirichlet_sd(post_lessinformative_unnormalized))
 
 unseen <- counts == 0L
 res <- rbind(resfull[!unseen,], UNSEEN = resfull[which(unseen)[1],])
@@ -579,9 +580,9 @@ knitr::kable(t(round(res, 4)))
 | prior_sd_lessinformative | 0.0980 | 0.0980 | 0.0980 | 0.0980 | 0.0980 | 0.0980 | 0.0980 | 0.0980 | 0.0980 | 0.0980 | 0.0980 | 0.0980 |
 | rel_freq | 0.1515 | 0.1212 | 0.0303 | 0.0303 | 0.0606 | 0.0303 | 0.1818 | 0.0606 | 0.1818 | 0.0909 | 0.0606 | 0.0000 |
 | posterior_mean_uniform | 0.0714 | 0.0595 | 0.0238 | 0.0238 | 0.0357 | 0.0238 | 0.0833 | 0.0357 | 0.0833 | 0.0476 | 0.0357 | 0.0119 |
-| posterior_sd_uniform | 0.1821 | 0.1673 | 0.1078 | 0.1078 | 0.1312 | 0.1078 | 0.1954 | 0.1312 | 0.1954 | 0.1506 | 0.1312 | 0.0767 |
+| posterior_sd_uniform | 0.0279 | 0.0257 | 0.0165 | 0.0165 | 0.0201 | 0.0165 | 0.0300 | 0.0201 | 0.0300 | 0.0231 | 0.0201 | 0.0118 |
 | posterior_mean_lessinformative | 0.1476 | 0.1182 | 0.0300 | 0.0300 | 0.0594 | 0.0300 | 0.1770 | 0.0594 | 0.1770 | 0.0888 | 0.0594 | 0.0006 |
-| posterior_sd_lessinformative | 0.2508 | 0.2283 | 0.1206 | 0.1206 | 0.1671 | 0.1206 | 0.2699 | 0.1671 | 0.2699 | 0.2012 | 0.1671 | 0.0170 |
+| posterior_sd_lessinformative | 0.0600 | 0.0546 | 0.0288 | 0.0288 | 0.0400 | 0.0288 | 0.0645 | 0.0400 | 0.0645 | 0.0481 | 0.0400 | 0.0041 |
 
 #### Computing the posterior under an informed prior
 
