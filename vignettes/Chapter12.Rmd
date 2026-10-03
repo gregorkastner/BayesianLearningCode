@@ -227,8 +227,13 @@ SSR <- sum(y^2)
 cN <- c0 + N / 2
 CN <- C0 + SSR / 2
 
+# number of draws
 M <- 1e6 / mcmcspeedup
-draws[[1]]$sigma2s <- rinvgamma(M, cN , CN)
+
+# thinning to save some computer memory
+thin <- ceiling(10 / mcmcspeedup)
+
+draws[[1]]$sigma2s <- rinvgamma(M / thin, cN , CN)
 draws[[1]]$nus <- Inf
 ```
 
@@ -243,9 +248,9 @@ burnin <- 100
 nu <- 7
 
 # allocate space for storing the draws
-draws[[2]]$sigma2s <- rep(NA_real_, M)
-draws[[2]]$nus <- rep(nu, M)
-draws[[2]]$ws <- matrix(NA_real_, nrow = M, ncol = N)
+draws[[2]]$sigma2s <- rep(NA_real_, M / thin)
+draws[[2]]$nus <- rep(nu, M / thin)
+draws[[2]]$ws <- matrix(NA_real_, nrow = M / thin, ncol = N)
 
 # starting value for w
 w <- rep(1, N)
@@ -274,9 +279,9 @@ for (m in 1:(burnin + M)) {
   w <- rgamma(length(eps), (nu + 1) /2, (nu + r) / 2)
 
   # store the results
-  if (m > burnin) {
-    draws[[2]]$sigma2s[m - burnin] <- sigma2
-    draws[[2]]$ws[m - burnin, ] <- w
+  if (m > burnin && (m - burnin) %% thin == 0L) {
+    draws[[2]]$sigma2s[(m - burnin) / thin] <- sigma2
+    draws[[2]]$ws[(m - burnin) / thin, ] <- w
   }
 }
 ```
@@ -292,8 +297,8 @@ cnu <- 0.3
 lambda <- 1 / 7
 
 # allocate space for storing the draws
-draws[[3]]$nus <- draws[[3]]$sigma2s <- rep(NA_real_, M)
-draws[[3]]$ws <- matrix(NA_real_, nrow = M, ncol = N)
+draws[[3]]$nus <- draws[[3]]$sigma2s <- rep(NA_real_, M / thin)
+draws[[3]]$ws <- matrix(NA_real_, nrow = M / thin, ncol = N)
 
 # starting value for log(nu) and w
 w <- rep(1, N)
@@ -325,10 +330,10 @@ for (m in 1:(burnin + M)) {
   w <- rgamma(length(eps), (nu + 1) /2, (nu + r) / 2)
 
   # store the results
-  if (m > burnin) {
-    draws[[3]]$sigma2s[m - burnin] <- sigma2
-    draws[[3]]$nus[m - burnin] <- nu
-    draws[[3]]$ws[m - burnin, ] <- w
+  if (m > burnin && (m - burnin) %% thin == 0L) {
+    draws[[3]]$sigma2s[(m - burnin) / thin] <- sigma2
+    draws[[3]]$nus[(m - burnin) / thin] <- nu
+    draws[[3]]$ws[(m - burnin) / thin, ] <- w
   }
 }
 ```
