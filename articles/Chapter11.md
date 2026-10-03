@@ -1355,7 +1355,7 @@ for (i in seq_along(draws)) {
 
 To explore whether the nonstationarity of the raw series could be caused
 by a unit root, we investigate the posterior of
-$`1 - \phi_1 - \dots - \phi_p`$ for $`p = 1, \dots, 4`$.
+$`\phi_1 + \dots + \phi_p - 1`$ for $`p = 1, \dots, 4`$.
 
 ``` r
 

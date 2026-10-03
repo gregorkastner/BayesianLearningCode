@@ -210,7 +210,7 @@ pdf_u <- post_nonnormalized(sigma2, y = y, nu = nu)
 pdf_u <- pdf_u / max(pdf_u)
 cdf_u <- cumsum(pdf_u) / sum(pdf_u)
 
-# Now we can perform inverse transpose sampling
+# Now we can perform inverse transform sampling
 unifdraws <- runif(ndraws, 0, cdf_u[length(cdf_u)])
 leftind <- findInterval(unifdraws, cdf_u)
 rightind <- leftind + 1L
