@@ -226,7 +226,7 @@ SSR <- sum(y^2)
 cN <- c0 + N / 2
 CN <- C0 + SSR / 2
 
-M <- 10000 / mcmcspeedup
+M <- 100000 / mcmcspeedup
 draws[[1]]$sigma2s <- rinvgamma(M, cN , CN)
 draws[[1]]$nus <- Inf
 ```
@@ -294,7 +294,7 @@ draws[[3]]$nus <- draws[[3]]$sigma2s <- rep(NA_real_, M)
 
 # starting value for log(nu) and w
 w <- rep(1, N)
-nu <- 10
+nu <- 7
 
 accepts <- 0L
 for (m in 1:(burnin + M)) {
