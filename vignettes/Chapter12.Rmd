@@ -376,7 +376,7 @@ knitr::kable(cbind(DIC, avgD, Davg, pd))
 ```
 
 
-### Example 3.7: CHF exchange rate data: Testing normal vs. Student t using hierarchical DIC
+### Example 12.7: CHF exchange rate data: Testing normal vs. Student t using hierarchical DIC
 
 Because we also stored the weights, we can use the samples from above to compute
 conditional and augmented DICs. To do so, we first define the log conditional
