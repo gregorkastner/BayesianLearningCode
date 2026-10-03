@@ -188,14 +188,14 @@ for (i in seq_along(AIC)) {
   y <- tail(logret, -4)
   p <- i - 1     # lag length
   d <- i + 1     # total number of parameters
-  n <- length(y) # number of data points used for estimation
+  N <- length(y) # number of data points used for estimation
   Xy <- ARdesignmatrix(logret, p, conditioninglength = 4)
   fit <- lm(y ~ Xy - 1)
   betahat <- coef(fit)
   sigma2hat <- sum(resid(fit)^2) / length(y)
-  minus2timesloglikmax <- n * (1 + log(2 * pi)) + n * log(sigma2hat)
+  minus2timesloglikmax <- N * (1 + log(2 * pi)) + N * log(sigma2hat)
   AIC[i] <- minus2timesloglikmax + 2 * d      # equals bult-in AIC(fit)
-  BIC[i] <- minus2timesloglikmax + log(n) * d # equals built-in BIC(fit)
+  BIC[i] <- minus2timesloglikmax + log(N) * d # equals built-in BIC(fit)
 }
 knitr::kable(rbind(AIC, BIC), digits = 2)
 ```
