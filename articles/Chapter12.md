@@ -92,15 +92,15 @@ par(mfrow = c(1, 1), mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.5, .5, 0))
 gammas_unique <- unique(res$gamma_post)
 num_mod <- dim(gammas_unique)[1]
 print(num_mod)
-#> [1] 21
+#> [1] 12
 
 k_gamma <- rowSums(res$gamma_post)
 print(mean(k_gamma))
-#> [1] 3.7335
+#> [1] 3.785
 
 # PIPs
 print(colMeans(res$gamma_post))
-#> [1] 0.8995 1.0000 0.7020 1.0000 0.0320 0.0085 0.0065 0.0710 0.0140
+#> [1] 0.830 1.000 0.655 1.000 0.000 0.085 0.065 0.150 0.000
 
 barplot(colMeans(res$gamma_post), col = "blue", names.arg = 1:p,
         xlab = "Covariate", ylab = "PIP")
@@ -130,13 +130,13 @@ knitr::kable(cbind(gammas_unique, freq_gammas / M)[io[1:5], ],
              digits = cbind(rep(0, p), 4))
 ```
 
-|     |     |     |     |     |     |     |     |     |        |
-|----:|----:|----:|----:|----:|----:|----:|----:|----:|-------:|
-|   1 |   1 |   1 |   1 |   0 |   0 |   0 |   0 |   0 | 0.5915 |
-|   1 |   1 |   0 |   1 |   0 |   0 |   0 |   0 |   0 | 0.2060 |
-|   0 |   1 |   0 |   1 |   0 |   0 |   0 |   0 |   0 | 0.0580 |
-|   1 |   1 |   1 |   1 |   0 |   0 |   0 |   1 |   0 | 0.0380 |
-|   0 |   1 |   1 |   1 |   0 |   0 |   0 |   0 |   0 | 0.0255 |
+|     |     |     |     |     |     |     |     |     |       |
+|----:|----:|----:|----:|----:|----:|----:|----:|----:|------:|
+|   1 |   1 |   1 |   1 |   0 |   0 |   0 |   0 |   0 | 0.535 |
+|   0 |   1 |   0 |   1 |   0 |   0 |   0 |   0 |   0 | 0.095 |
+|   1 |   1 |   0 |   1 |   0 |   0 |   0 |   0 |   0 | 0.085 |
+|   1 |   1 |   1 |   1 |   0 |   0 |   0 |   1 |   0 | 0.060 |
+|   0 |   1 |   0 |   1 |   0 |   0 |   0 |   1 |   0 | 0.060 |
 
 ### Section 12.1.2: Perspectives on Bayesian model comparison
 
@@ -223,6 +223,7 @@ inverse gamma, and we can easily draw from it.
 
 ``` r
 
+set.seed(seed)
 c0 <- 2.5
 C0 <- 1.5
 
@@ -230,7 +231,7 @@ SSR <- sum(y^2)
 cN <- c0 + N / 2
 CN <- C0 + SSR / 2
 
-M <- 100000 / mcmcspeedup
+M <- 10^7 / mcmcspeedup
 draws[[1]]$sigma2s <- rinvgamma(M, cN , CN)
 draws[[1]]$nus <- Inf
 ```
@@ -241,7 +242,6 @@ using data augmentation.
 
 ``` r
 
-set.seed(1)
 burnin <- 100
 
 # fix df
@@ -287,8 +287,6 @@ re-run the sampler from Example 8.16, but this time without an
 intercept.
 
 ``` r
-
-set.seed(1)
 
 # fix tuning parameter for MH
 cnu <- 0.3
@@ -345,8 +343,8 @@ D_nonvec <- function(y, sigma2, nu) -2 * loglik(y, sigma2, nu)
 D <- Vectorize(D_nonvec, c("sigma2", "nu"))
 ```
 
-Now, we estimate the average deviance, the effective number of
-parameters, and finally DIC.
+Now, we estimate the average deviance, the deviance of the posterior
+averages, the effective number of parameters, and finally, DIC.
 
 ``` r
 
@@ -358,14 +356,14 @@ for (i in 1:nrow(res)) {
   res[i, "pd"] <-  res[i, "avgD"] - res[i, "Davg"]
   res[i, "DIC"] <- res[i, "avgD"] + res[i, "pd"]
 }
-knitr::kable(res, digits = 2)
+knitr::kable(res, digits = c(0, 0, 0, 1))
 ```
 
-|     DIC |    avgD |    Davg |   pd |
-|--------:|--------:|--------:|-----:|
-| 6906.94 | 6905.93 | 6904.93 | 1.01 |
-| 6269.06 | 6266.67 | 6264.29 | 2.39 |
-| 6379.78 | 6375.27 | 6370.77 | 4.50 |
+|  DIC | avgD | Davg |  pd |
+|-----:|-----:|-----:|----:|
+| 6907 | 6906 | 6905 | 1.0 |
+| 6269 | 6266 | 6264 | 2.4 |
+| 6379 | 6375 | 6370 | 4.6 |
 
 For the Gaussian model (only), we can compute the DIC in closed form.
 
