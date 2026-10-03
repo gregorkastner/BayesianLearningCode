@@ -404,7 +404,7 @@ logcondlik <- function(y, sigma2, nu, w) {
 }
 
 logauglik <- function(y, sigma2, nu, w) {
-  logcondlik(y, sigma2, nu, w) + sum(dinvgamma(w, nu / 2, nu / 2, log = TRUE))
+  logcondlik(y, sigma2, nu, w) + sum(dgamma(w, nu / 2, nu / 2, log = TRUE))
 }
 ```
 
@@ -457,7 +457,7 @@ for (i in 1:nrow(res)) {
 knitr::kable(res)
 ```
 
-|    DIC_C |       pd_C |    DIC_A |      pd_A |
-|---------:|-----------:|---------:|----------:|
-| 6129.955 |    7.55751 | 13786.08 |  811.7167 |
-| 5953.732 | -128.16054 | 15806.54 | 2152.5271 |
+|    DIC_C |       pd_C |    DIC_A |     pd_A |
+|---------:|-----------:|---------:|---------:|
+| 6141.702 |   19.30375 | 10786.02 | 309.9162 |
+| 5953.732 | -128.16054 | 11576.19 | 852.5660 |

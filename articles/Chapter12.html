@@ -543,7 +543,7 @@ likelihood.</p>
 <span><span class="op">}</span></span>
 <span></span>
 <span><span class="va">logauglik</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">y</span>, <span class="va">sigma2</span>, <span class="va">nu</span>, <span class="va">w</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu">logcondlik</span><span class="op">(</span><span class="va">y</span>, <span class="va">sigma2</span>, <span class="va">nu</span>, <span class="va">w</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="../reference/InvGammaDist.html">dinvgamma</a></span><span class="op">(</span><span class="va">w</span>, <span class="va">nu</span> <span class="op">/</span> <span class="fl">2</span>, <span class="va">nu</span> <span class="op">/</span> <span class="fl">2</span>, log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="fu">logcondlik</span><span class="op">(</span><span class="va">y</span>, <span class="va">sigma2</span>, <span class="va">nu</span>, <span class="va">w</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html" class="external-link">dgamma</a></span><span class="op">(</span><span class="va">w</span>, <span class="va">nu</span> <span class="op">/</span> <span class="fl">2</span>, <span class="va">nu</span> <span class="op">/</span> <span class="fl">2</span>, log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>Now we can compute the conditional and the augmented DIC.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
@@ -599,16 +599,16 @@ likelihood.</p>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td align="right">6129.955</td>
-<td align="right">7.55751</td>
-<td align="right">13786.08</td>
-<td align="right">811.7167</td>
+<td align="right">6141.702</td>
+<td align="right">19.30375</td>
+<td align="right">10786.02</td>
+<td align="right">309.9162</td>
 </tr>
 <tr class="even">
 <td align="right">5953.732</td>
 <td align="right">-128.16054</td>
-<td align="right">15806.54</td>
-<td align="right">2152.5271</td>
+<td align="right">11576.19</td>
+<td align="right">852.5660</td>
 </tr>
 </tbody>
 </table>
