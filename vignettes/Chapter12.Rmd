@@ -351,3 +351,17 @@ for (i in 1:nrow(res)) {
 }
 knitr::kable(res, digits = 2)
 ```
+
+For the Gaussian model (only), we can compute the DIC in closed form.
+
+```{r}
+cN <- c0 + N / 2
+CN <- C0 + SSR / 2
+Davg <- N * log(2 * pi * CN / (cN - 1)) + (cN - 1) * SSR / CN
+avgD <- N * (log(2 * pi * CN) - digamma(cN)) + SSR * cN / CN
+pd <- avgD - Davg
+# Explicityly: N * (log(cN - 1) - digamma(cN)) + SSR / CN
+DIC <- avgD + pd
+# N * log(2 * pi * CN * (cN - 1)) - 2 * N * digamma(cN) + (cN + 1) * SSR / CN
+knitr::kable(cbind(DIC, avgD, Davg, pd))
+```
