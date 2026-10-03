@@ -226,3 +226,44 @@ CN <- C0 + SSR / 2
 M <- 10000 / mcmcspeedup
 sigma2normal <- rinvgamma(M, cN , CN)
 ```
+
+Under the t distribution with 7 degrees of freedom, the posterior of $\sigma^2$
+is not available in closed form, but we can draw from it using data
+augmentation.
+
+```{r}
+set.seed(1)
+burnin <- 100
+
+# fix df
+nu <- 7
+
+# allocate space for storing the draws
+sigma2t7 <- rep(NA_real_, M)
+
+# starting value for w
+w <- rep(1, N)
+
+# pre-compute cN
+cN <- c0 + N / 2
+
+# log likelihood
+loglik <- function(y, sigma2, nu) {
+  length(y) * (lgamma((nu + 1) / 2) - lgamma(nu / 2) - .5 * log(nu)) -
+  (nu + 1) / 2 * sum(log(1 + y^2 / nu / sigma2))
+}
+
+for (m in 1:(burnin + M)) {
+  # sample sigma^2 from its full conditional (S-DA)
+  eps <- sqrt(w) * y
+  CN <- C0 + crossprod(eps) / 2
+  sigma2 <- rinvgamma(1, cN, CN)
+
+  # sample w (W-DA)
+  r <- eps^2 / (w * sigma2)
+  w <- rgamma(length(eps), (nu + 1) /2, (nu + r) / 2)
+
+  # store the results
+  if (m > burnin) sigma2t7[m - burnin] <- sigma2
+}
+```
