@@ -277,9 +277,8 @@ we re-run the sampler from Example 8.16, but this time without an intercept.
 ```{r}
 set.seed(1)
 
-# fix tuning parameter for MH, the number of draws M, and burn-in length
+# fix tuning parameter for MH
 cnu <- 0.3
-burnin <- 1000
 
 # fix prior hyperparameters
 lambda <- 1 / 7
@@ -287,19 +286,9 @@ lambda <- 1 / 7
 # allocate space for storing the draws
 draws[[3]]$nus <- draws[[3]]$sigma2s <- rep(NA_real_, M)
 
-# starting value for sigma2, log(nu), and w
-sigma2 <- var(y) / 2
+# starting value for log(nu) and w
 w <- rep(1, N)
 nu <- 10
-
-# pre-compute cN
-cN <- c0 + N / 2
-
-# log likelihood
-loglik <- function(y, sigma2, nu) {
-  length(y) * (lgamma((nu + 1) / 2) - lgamma(nu / 2) - .5 * log(nu)) -
-  (nu + 1) / 2 * sum(log(1 + y^2 / nu / sigma2))
-}
 
 accepts <- 0L
 for (m in 1:(burnin + M)) {
