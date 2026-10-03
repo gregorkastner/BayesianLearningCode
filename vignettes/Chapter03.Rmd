@@ -507,9 +507,10 @@ resfull <- cbind(prior_mean = rep(1/K, K),
                  prior_sd_lessinformative = dirichlet_sd(rep(1/K, K)),
                  rel_freq = counts / sum(counts),
                  posterior_mean_uniform = post_uniform,
-                 posterior_sd_uniform = dirichlet_sd(post_uniform),
+                 posterior_sd_uniform = dirichlet_sd(post_uniform_unnormalized),
                  posterior_mean_lessinformative = post_lessinformative,
-                 posterior_sd_lessinformative = dirichlet_sd(post_lessinformative))
+                 posterior_sd_lessinformative =
+                   dirichlet_sd(post_lessinformative_unnormalized))
 
 unseen <- counts == 0L
 res <- rbind(resfull[!unseen,], UNSEEN = resfull[which(unseen)[1],])
