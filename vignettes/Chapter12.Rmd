@@ -369,3 +369,20 @@ DIC <- avgD + pd
 # N * log(2 * pi * CN * (cN - 1)) - 2 * N * digamma(cN) + (cN + 1) * SSR / CN
 knitr::kable(cbind(DIC, avgD, Davg, pd))
 ```
+
+
+### Example 3.7: CHF exchange rate data: Testing normal vs. Student t using hierarchical DIC
+
+Because we also stored the weights, we can use the samples from above to compute
+conditional and augmented DICs. To do so, we first define the log conditional
+likelihood. and the log augmented ("complete-data") likelihood.
+
+```{r}
+logcondlik <- function(y, sigma2, nu, w) {
+  sum(dnorm(y, 0, sqrt(sigma2 / w), log = TRUE))
+}
+
+logauglik <- function(y, sigma2, nu, w) {
+  logcondlik(y, sigma2, nu, w) + sum(dinvgamma(w, nu / 2, nu / 2, log = TRUE))
+}
+```
