@@ -322,3 +322,11 @@ for (m in 1:(burnin + M)) {
   }
 }
 ```
+
+We can now estimate the DIC from the draws. First, we define the deviance
+function $D$.
+
+```{r}
+D_nonvec <- function(y, sigma2, nu) -2 * loglik(y, sigma2, nu)
+D <- Vectorize(D_nonvec, c("sigma2", "nu"))
+```
