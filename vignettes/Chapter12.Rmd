@@ -228,6 +228,7 @@ CN <- C0 + SSR / 2
 
 M <- 10000 / mcmcspeedup
 draws[[1]]$sigma2s <- rinvgamma(M, cN , CN)
+draws[[1]]$nus <- Inf
 ```
 
 Under the t distribution with 7 degrees of freedom, the posterior of $\sigma^2$
@@ -243,6 +244,7 @@ nu <- 7
 
 # allocate space for storing the draws
 draws[[2]]$sigma2s <- rep(NA_real_, M)
+draws[[2]]$nus <- nu
 
 # starting value for w
 w <- rep(1, N)
@@ -252,8 +254,12 @@ cN <- c0 + N / 2
 
 # log likelihood
 loglik <- function(y, sigma2, nu) {
-  length(y) * (lgamma((nu + 1) / 2) - lgamma(nu / 2) - .5 * log(nu)) -
-  (nu + 1) / 2 * sum(log(1 + y^2 / nu / sigma2))
+  if (is.finite(nu)) {
+    length(y) * (lgamma((nu + 1) / 2) - lgamma(nu / 2) - .5 * log(nu)) -
+    (nu + 1) / 2 * sum(log(1 + y^2 / nu / sigma2))
+  } else {
+    sum(dnorm(y, 0, sqrt(sigma2), log = TRUE))
+  }
 }
 
 for (m in 1:(burnin + M)) {
