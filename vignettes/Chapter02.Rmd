@@ -206,7 +206,7 @@ res
 
 ## Section 2.2.2: Including a structural break
 
-### Example 2.6: Road safety data: Posterior inference including exposures (flat prior)
+### Example 2.6: Road safety data: Posterior inference including a structural break (flat prior)
 
 We now continue with a Poisson model with a (known) structural break at
 $i = 94$ (that is, in October 1994). Because the data is stored as a time
