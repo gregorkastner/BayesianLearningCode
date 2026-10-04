@@ -67,15 +67,16 @@ for (i in seq_along(SN)) {
 #### Example 3.1: Uncertainty quantification for market shares
 
 In city A, 40 out of 400 questioned people would purchase a certain
-product, in a rural community, only 4 out of 400. Assuming a uniform
-prior, we now compute equal-tailed intervals and highest posterior
-density (HPD) intervals. Note that R is (generally) vectorized, so we
-can compute the equal-tailed intervals without using a loop.
+product, in a rural community, only 4 out of 400. Assuming a slightly
+informative prior, we now compute equal-tailed intervals and highest
+posterior density (HPD) intervals. Note that R is (generally)
+vectorized, so we can compute the equal-tailed intervals without using a
+loop.
 
 ``` r
 
-m0 <- 0.05
-N0 <- 40
+m0 <- 0.1
+N0 <- 2
 a <- N0 * m0
 b <- N0 * (1 - m0)
 N <- 400
@@ -317,7 +318,7 @@ aN2 / (aN2 + bN2)
 
 We visualize the joint posterior of $`(\vartheta_1, \vartheta_2)`$ using
 a contour plot as well as a density estimate of the difference
-$`\vartheta_1 - \vartheta_2`$.
+$`\vartheta_2 - \vartheta_1`$.
 
 ``` r
 

@@ -146,13 +146,14 @@ the strength of the prior information.</p>
 <h4 id="example-3-1-uncertainty-quantification-for-market-shares">Example 3.1: Uncertainty quantification for market shares<a class="anchor" aria-label="anchor" href="#example-3-1-uncertainty-quantification-for-market-shares"></a>
 </h4>
 <p>In city A, 40 out of 400 questioned people would purchase a certain
-product, in a rural community, only 4 out of 400. Assuming a uniform
-prior, we now compute equal-tailed intervals and highest posterior
-density (HPD) intervals. Note that R is (generally) vectorized, so we
-can compute the equal-tailed intervals without using a loop.</p>
+product, in a rural community, only 4 out of 400. Assuming a slightly
+informative prior, we now compute equal-tailed intervals and highest
+posterior density (HPD) intervals. Note that R is (generally)
+vectorized, so we can compute the equal-tailed intervals without using a
+loop.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">m0</span> <span class="op">&lt;-</span> <span class="fl">0.05</span></span>
-<span><span class="va">N0</span> <span class="op">&lt;-</span> <span class="fl">40</span></span>
+<code class="sourceCode R"><span><span class="va">m0</span> <span class="op">&lt;-</span> <span class="fl">0.1</span></span>
+<span><span class="va">N0</span> <span class="op">&lt;-</span> <span class="fl">2</span></span>
 <span><span class="va">a</span> <span class="op">&lt;-</span> <span class="va">N0</span> <span class="op">*</span> <span class="va">m0</span></span>
 <span><span class="va">b</span> <span class="op">&lt;-</span> <span class="va">N0</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">m0</span><span class="op">)</span></span>
 <span><span class="va">N</span> <span class="op">&lt;-</span> <span class="fl">400</span></span>
@@ -405,7 +406,7 @@ are given by:</p>
 <p>We visualize the joint posterior of
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>ϑ</mi><mn>1</mn></msub><mo>,</mo><msub><mi>ϑ</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\vartheta_1, \vartheta_2)</annotation></semantics></math>
 using a contour plot as well as a density estimate of the difference
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>ϑ</mi><mn>1</mn></msub><mo>−</mo><msub><mi>ϑ</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">\vartheta_1 - \vartheta_2</annotation></semantics></math>.</p>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>ϑ</mi><mn>2</mn></msub><mo>−</mo><msub><mi>ϑ</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">\vartheta_2 - \vartheta_1</annotation></semantics></math>.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="va">pdfplots</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/grDevices/pdf.html" class="external-link">pdf</a></span><span class="op">(</span><span class="st">"3-2_1.pdf"</span>, width <span class="op">=</span> <span class="fl">8</span>, height <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
