@@ -98,8 +98,8 @@ theta1_y_unnormalized <- PrFA ^ y * (1 - PrFA) ^ (N - y) * PrA
 theta0_y_unnormalized <- PrFAC ^ y * (1 - PrFAC) ^ (N - y) * PrAC
 normalizer <- theta1_y_unnormalized + theta0_y_unnormalized
 
-res <- rbind(theta1_y_unnormalized/ normalizer,
-             theta0_y_unnormalized/ normalizer)
+res <- rbind(theta1_y_unnormalized / normalizer,
+             theta0_y_unnormalized / normalizer)
 colnames(res) <- y
 rownames(res) <- c("reliable company", "less reliable company")
 knitr::kable(round(res, 3))
@@ -110,7 +110,7 @@ knitr::kable(round(res, 3))
 | reliable company      | 0.984 | 0.922 | 0.695 | 0.304 | 0.077 | 0.016 | 0.003 |
 | less reliable company | 0.016 | 0.078 | 0.305 | 0.696 | 0.923 | 0.984 | 0.997 |
 
-### Section 1.3.2: Classyfing continuous observations
+### Section 1.3.2: Classifying continuous observations
 
 #### Example 1.5: Classifying continuous observations into two states
 

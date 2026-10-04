@@ -226,8 +226,8 @@ and recompute the posterior probabilities.</p>
 <span><span class="va">theta0_y_unnormalized</span> <span class="op">&lt;-</span> <span class="va">PrFAC</span> <span class="op">^</span> <span class="va">y</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">PrFAC</span><span class="op">)</span> <span class="op">^</span> <span class="op">(</span><span class="va">N</span> <span class="op">-</span> <span class="va">y</span><span class="op">)</span> <span class="op">*</span> <span class="va">PrAC</span></span>
 <span><span class="va">normalizer</span> <span class="op">&lt;-</span> <span class="va">theta1_y_unnormalized</span> <span class="op">+</span> <span class="va">theta0_y_unnormalized</span></span>
 <span></span>
-<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">theta1_y_unnormalized</span><span class="op">/</span> <span class="va">normalizer</span>,</span>
-<span>             <span class="va">theta0_y_unnormalized</span><span class="op">/</span> <span class="va">normalizer</span><span class="op">)</span></span>
+<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">theta1_y_unnormalized</span> <span class="op">/</span> <span class="va">normalizer</span>,</span>
+<span>             <span class="va">theta0_y_unnormalized</span> <span class="op">/</span> <span class="va">normalizer</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">y</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"reliable company"</span>, <span class="st">"less reliable company"</span><span class="op">)</span></span>
 <span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">res</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
@@ -278,7 +278,7 @@ and recompute the posterior probabilities.</p>
 </div>
 </div>
 <div class="section level3">
-<h3 id="section-1-3-2-classyfing-continuous-observations">Section 1.3.2: Classyfing continuous observations<a class="anchor" aria-label="anchor" href="#section-1-3-2-classyfing-continuous-observations"></a>
+<h3 id="section-1-3-2-classifying-continuous-observations">Section 1.3.2: Classifying continuous observations<a class="anchor" aria-label="anchor" href="#section-1-3-2-classifying-continuous-observations"></a>
 </h3>
 <div class="section level4">
 <h4 id="example-1-5-classifying-continuous-observations-into-two-states">Example 1.5: Classifying continuous observations into two
