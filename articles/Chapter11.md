@@ -649,8 +649,9 @@ if (pdfplots) {
   pdf("11-2_2c.pdf", width = 5, height = 6)
 }
 k_gamma_hier <- rowSums(gamma_post_hier)
-barplot(tabulate(k_gamma_hier), col = "blue", xlab = expression(k[gamma]),
-        ylab = "Frequency", ylim = c(0, M/2), names.arg = 1:p)
+barplot(prop.table(tabulate(k_gamma_hier)), col = "blue",
+        xlab = expression(k[gamma]),
+        ylab = "Proportions", names.arg = 1:p)
 ```
 
 ![](Chapter11_files/figure-html/unnamed-chunk-21-1.png)
@@ -672,6 +673,8 @@ for (m in (1:M)) {
 }
 plot(xx, rowMeans(post_pi), type = "l", col = "blue", xlab = expression(pi),
      ylab = expression(paste("p(", pi, ")")))
+abline(h = 0, lty = 3)
+abline(v = c(0, 1), lty = 3)
 lines(xx, dbeta(xx, a0, b0), col = "black")
 legend("topleft", legend = c("posterior", "prior"), col = c("blue", "black"),
        lty = 1)
