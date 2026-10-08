@@ -521,8 +521,9 @@ if (pdfplots) {
   pdf("11-2_2c.pdf", width = 5, height = 6)
 }
 k_gamma_hier <- rowSums(gamma_post_hier)
-barplot(tabulate(k_gamma_hier), col = "blue", xlab = expression(k[gamma]),
-        ylab = "Frequency", ylim = c(0, M/2), names.arg = 1:p)
+barplot(prop.table(tabulate(k_gamma_hier)), col = "blue",
+        xlab = expression(k[gamma]),
+        ylab = "Proportions", names.arg = 1:p)
 ```
 
 and the posterior of $\pi$.
