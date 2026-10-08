@@ -542,6 +542,8 @@ for (m in (1:M)) {
 }
 plot(xx, rowMeans(post_pi), type = "l", col = "blue", xlab = expression(pi),
      ylab = expression(paste("p(", pi, ")")))
+abline(h = 0, lty = 3)
+abline(v = c(0, 1), lty = 3)
 lines(xx, dbeta(xx, a0, b0), col = "black")
 legend("topleft", legend = c("posterior", "prior"), col = c("blue", "black"),
        lty = 1)
