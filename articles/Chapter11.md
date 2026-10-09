@@ -232,6 +232,16 @@ PIP
 #> [1] 0.0436 1.0000 0.3482
 ```
 
+Alternatively, we could also obtain the PIPs using
+
+``` r
+
+PIP <- colMeans(res$gamma_post)
+PIP
+#>  Budget Screens  Comedy 
+#>  0.0436  1.0000  0.3482
+```
+
 We run model space MCMC and compute PIPs also for the standardized
 covariates.
 
@@ -408,7 +418,7 @@ barplot(colMeans(res_gunif$gamma_post), col = "blue",
         names.arg = 1:p, xlab = "Covariate", ylab = "PIP")
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-15-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-16-1.png)
 
 ``` r
 
@@ -457,7 +467,7 @@ barplot(tabulate(k_gamma), col = "blue", xlab = expression(k[gamma]),
         ylab = "Frequency", ylim = c(0, M/2), names.arg = 1:p)
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-16-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-17-1.png)
 
 ``` r
 
@@ -495,7 +505,7 @@ xlabs[xx %% 10 > 0] <- NA_character_
 axis(side = 1, tick = FALSE, at = colMeans(bp), labels = xlabs, gap.axis = -1)
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-17-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-18-1.png)
 
 #### Example 11.8: Movie data: Hierarchical prior on the model space
 
@@ -586,7 +596,7 @@ barplot(colMeans(gamma_post_hier), col = "blue", names.arg = 1:p,
   xlab = "Covariate", ylab = "PIP")
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-19-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-20-1.png)
 
 ``` r
 
@@ -654,7 +664,7 @@ barplot(prop.table(tabulate(k_gamma_hier)), col = "blue",
         ylab = "Proportions", names.arg = 1:p)
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-21-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-22-1.png)
 
 and the posterior of $`\pi`$.
 
@@ -680,7 +690,7 @@ legend("topleft", legend = c("posterior", "prior"), col = c("blue", "black"),
        lty = 1)
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-22-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-23-1.png)
 
 ### Section 11.2.5: Bayesian model averaging
 
@@ -936,7 +946,7 @@ X_unemp <- with(labor, cbind(female = female,
                              unemp97 = income_1997 == "zero")) # regressor matrix
 p_irrel <- 5
 set.seed(seed)
-X <- cbind(X_unemp, matrix(rnorm(p_irrel*N), ncol = p_irrel))
+X <- cbind(X_unemp, matrix(rnorm(p_irrel * N), ncol = p_irrel))
 colnames(X)[ncol(X_unemp) + (1:p_irrel)] <-
   paste0("irrel", seq_len(p_irrel))
 
@@ -990,7 +1000,7 @@ barplot(colMeans(res$gamma_post), col = "blue", names.arg = 1:p,
         xlab = "Covariate", ylab = "PIP")
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-31-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-32-1.png)
 
 ## Section 11.4: Model selection problems in time series analysis
 
@@ -1138,7 +1148,7 @@ for (i in 2:5) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-36-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-37-1.png)
 
 #### Example 11.13: US GDP data: Quantitative model-order selection
 
@@ -1309,7 +1319,7 @@ acf(dat)
 acf(ret)
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-45-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-46-1.png)
 
 This clearly hints at non-stationarity of the exchange rate series and
 at (first order) stationarity of the returns.
@@ -1354,7 +1364,7 @@ for (i in seq_along(draws)) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-47-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-48-1.png)
 
 To explore whether the nonstationarity of the raw series could be caused
 by a unit root, we investigate the posterior of
@@ -1374,7 +1384,7 @@ for (p in 1:4) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-48-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-49-1.png)
 
 We do the same for the inflation data (currently not included in the
 book).
@@ -1402,7 +1412,7 @@ for (p in 1:4) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-50-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-51-1.png)
 
 #### Example 11.17: CHF exchange rate data: Testing for a unit root using the Savage-Dickey density ratio
 
@@ -1451,7 +1461,7 @@ legend("topright", parse(text = c(paste0("Posterior ~ (D[0] == ", D0, ")"),
        col = rep(seq_along(D0), 2))
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-52-1.png)
+![](Chapter11_files/figure-html/unnamed-chunk-53-1.png)
 
 To compute the numerical value of the SD density ratio, we again use
 Rao-Blackwellization.
