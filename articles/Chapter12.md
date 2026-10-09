@@ -12,37 +12,37 @@ likelihood. We first implement this approach.
 
 ``` r
 
-modsel_probit_BIC <- function(y, X, burnin = 1000L, M = 5000L){
-  n <- dim(X)[1]
-  p <- dim(X)[2] # change to X later
+modsel_probit_BIC <- function(y, X, burnin = 1000L, M = 5000L) {
+  N <- length(y)
+  p <- ncol(X)
 
-  gamma_post <- matrix(ncol = p, nrow = M)
-  acc <- numeric(length = M)
+  gamma_post <- matrix(0L, nrow = M, ncol = p,
+                       dimnames = list(NULL, colnames(X)))
+  acc <- integer(length = M)
 
-  gamma <- matrix(rep(1, p), nrow = 1)
+  gamma <- rep(1L, length.out = p)
   mod0 <- glm(y ~ X, family = binomial(link = "probit"))
-  SC_old <- logLik(mod0) - log(n) * (p + 1) / 2
+  SC_old <- logLik(mod0) - log(N) * (p + 1) / 2
 
   for (m in seq_len(burnin + M)) {
-    gamma_proposed <- gamma_old <- gamma
+    gamma_proposed <- gamma
 
     j <- sample(1:p, size = 1)
-    gamma_proposed[j] <- 1 - gamma_old[j]
+    gamma_proposed[j] <- 1 - gamma[j]
 
     X_gamma <- X[, gamma_proposed == 1]
     model <- glm(y ~ X_gamma, family = binomial(link = "probit"))
-    SC_proposed <- logLik(model) - log(n) * (sum(gamma_proposed) + 1) / 2
+    SC_proposed <- logLik(model) - log(N) * (sum(gamma_proposed) + 1) / 2
     
-    # compute acceptance probability and decide on acceptance
+    # Compute acceptance probability and decide on acceptance
     log_acc <- SC_proposed - SC_old
 
     if (log(runif(1)) < log_acc) {
       gamma <- gamma_proposed
       SC_old <- SC_proposed
-      accept <- 1
+      accept <- 1L
     } else {
-      gamma <- gamma_old
-      accept <- 0
+      accept <- 0L
     }
 
     if (m > burnin) {
@@ -54,8 +54,8 @@ modsel_probit_BIC <- function(y, X, burnin = 1000L, M = 5000L){
 }
 ```
 
-We next load the data and as in exercise 11.11. add 5 irrelevant,
-standard normal regressors. Then we run the algorithm.
+Next we load the data and add 5 irrelevant, standard normal regressors
+as in Example 11.11. Then we run the algorithm.
 
 ``` r
 
@@ -70,17 +70,17 @@ X_unemp <- with(labor, cbind(female = female,
 p_irrel <- 5
 set.seed(seed)
 X <- cbind(X_unemp, matrix(rnorm(p_irrel * N), ncol = p_irrel))
-colnames(X)[4 + (1:p_irrel)] <-
-  c("irrel1", "irrel2", "irrel3", "irrel4", "irrel5")
+p <- ncol(X)
+colnames(X)[ncol(X_unemp) + (1:p_irrel)] <-
+  paste0("irrel", seq_len(p_irrel))
 
-p <- dim(X)[2]
 M <- 20000 / mcmcspeedup
 res <- modsel_probit_BIC(y, X, M = M)
 ```
 
 We determine the number of models visited during MCMC, the average model
-complexity, i.e. the average number of covariates included in the model
-and show the posterior inclusion probabilities.
+complexity, i.e., the average number of covariates included in the
+model, and show the posterior inclusion probabilities.
 
 ``` r
 
@@ -89,54 +89,46 @@ if (pdfplots) {
 }
 par(mfrow = c(1, 1), mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.5, .5, 0))
 
-gammas_unique <- unique(res$gamma_post)
-num_mod <- dim(gammas_unique)[1]
-print(num_mod)
+gammas <- unique(res$gamma_post)
+nrow(gammas)
 #> [1] 21
 
 k_gamma <- rowSums(res$gamma_post)
-print(mean(k_gamma))
+mean(k_gamma)
 #> [1] 3.7335
 
 # PIPs
-print(colMeans(res$gamma_post))
-#> [1] 0.8995 1.0000 0.7020 1.0000 0.0320 0.0085 0.0065 0.0710 0.0140
-
+colMeans(res$gamma_post)
+#>  female   age18 wcollar unemp97  irrel1  irrel2  irrel3  irrel4  irrel5 
+#>  0.8995  1.0000  0.7020  1.0000  0.0320  0.0085  0.0065  0.0710  0.0140
 barplot(colMeans(res$gamma_post), col = "blue", names.arg = 1:p,
         xlab = "Covariate", ylab = "PIP")
 ```
 
 ![](Chapter12_files/figure-html/unnamed-chunk-4-1.png)
 
-To determine the model visited most often we re-use a function which we
+To determine the models visited most often we re-use a function which we
 defined in Chapter 11.
 
 ``` r
 
 number_draws <- function(gamma_post, models) {
-  nmod <- dim(models)[1]
-  freq <- rep(NA, nmod)
-  
-  for (j in (1:nmod)) {
-    freq[j] <- sum(apply(gamma_post, 1, function(x) identical(x, models[j,])))
-  }
-  freq
+  sapply(1:nrow(models), function(j)
+    sum(apply(gamma_post, 1, function(x) identical(x, models[j,]))))
 }
-
-freq_gammas <- number_draws(res$gamma_post, gammas_unique)
-io <- order(freq_gammas, decreasing = TRUE)
-
-knitr::kable(cbind(gammas_unique, freq_gammas / M)[io[1:5], ],
-             digits = cbind(rep(0, p), 4))
+n_gamma <- number_draws(res$gamma_post, gammas)
+io <- order(n_gamma, decreasing = TRUE)
+knitr::kable(cbind(gammas, phat_gamma = n_gamma / M)[io[1:5], ],
+             digits = c(rep(0, p), 4))
 ```
 
-|     |     |     |     |     |     |     |     |     |        |
-|----:|----:|----:|----:|----:|----:|----:|----:|----:|-------:|
-|   1 |   1 |   1 |   1 |   0 |   0 |   0 |   0 |   0 | 0.5915 |
-|   1 |   1 |   0 |   1 |   0 |   0 |   0 |   0 |   0 | 0.2060 |
-|   0 |   1 |   0 |   1 |   0 |   0 |   0 |   0 |   0 | 0.0580 |
-|   1 |   1 |   1 |   1 |   0 |   0 |   0 |   1 |   0 | 0.0380 |
-|   0 |   1 |   1 |   1 |   0 |   0 |   0 |   0 |   0 | 0.0255 |
+| female | age18 | wcollar | unemp97 | irrel1 | irrel2 | irrel3 | irrel4 | irrel5 | phat_gamma |
+|-------:|------:|--------:|--------:|-------:|-------:|-------:|-------:|-------:|-----------:|
+|      1 |     1 |       1 |       1 |      0 |      0 |      0 |      0 |      0 |     0.5915 |
+|      1 |     1 |       0 |       1 |      0 |      0 |      0 |      0 |      0 |     0.2060 |
+|      0 |     1 |       0 |       1 |      0 |      0 |      0 |      0 |      0 |     0.0580 |
+|      1 |     1 |       1 |       1 |      0 |      0 |      0 |      1 |      0 |     0.0380 |
+|      0 |     1 |       1 |       1 |      0 |      0 |      0 |      0 |      0 |     0.0255 |
 
 ### Section 12.1.2: Perspectives on Bayesian model comparison
 
