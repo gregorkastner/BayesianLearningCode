@@ -165,7 +165,7 @@ Let’s load the data and compute log returns.
 
 ``` r
 
-data(gdp, package = "BayesianLearningCode")
+data("gdp", package = "BayesianLearningCode")
 logret <- diff(log(gdp))
 ```
 
@@ -174,6 +174,7 @@ Now we compute five OLS estimates and the corresponding AICs and BICs.
 ``` r
 
 AIC <- BIC <- rep(NA_real_, 5)
+names(AIC) <- 0:4
 for (i in seq_along(AIC)) {
   y <- tail(logret, -4)
   p <- i - 1     # lag length
@@ -184,13 +185,13 @@ for (i in seq_along(AIC)) {
   betahat <- coef(fit)
   sigma2hat <- sum(resid(fit)^2) / length(y)
   minus2timesloglikmax <- N * (1 + log(2 * pi)) + N * log(sigma2hat)
-  AIC[i] <- minus2timesloglikmax + 2 * d      # equals bult-in AIC(fit)
+  AIC[i] <- minus2timesloglikmax + 2 * d      # equals built-in AIC(fit)
   BIC[i] <- minus2timesloglikmax + log(N) * d # equals built-in BIC(fit)
 }
 knitr::kable(rbind(AIC, BIC), digits = 2)
 ```
 
-|     |          |          |          |          |          |
+|     |        0 |        1 |        2 |        3 |        4 |
 |:----|---------:|---------:|---------:|---------:|---------:|
 | AIC | -1808.61 | -1828.87 | -1839.65 | -1837.66 | -1836.24 |
 | BIC | -1801.15 | -1817.68 | -1824.72 | -1819.01 | -1813.86 |
@@ -258,8 +259,9 @@ cN <- c0 + N / 2
 # log likelihood
 loglik <- function(y, sigma2, nu) {
   if (is.finite(nu)) {
-    length(y) * (lgamma((nu + 1) / 2) - lgamma(nu / 2) - .5 * log(nu)) -
-    (nu + 1) / 2 * sum(log(1 + y^2 / nu / sigma2))
+#    length(y) * (lgamma((nu + 1) / 2) - lgamma(nu / 2) - .5 * log(pi * nu * sigma2)) -
+#      (nu + 1) / 2 * sum(log(1 + y^2 / nu / sigma2))
+    sum(dstudt(y, 0, sqrt(sigma2), df = nu, log = TRUE))
   } else {
     sum(dnorm(y, 0, sqrt(sigma2), log = TRUE))
   }
@@ -364,9 +366,9 @@ knitr::kable(res, digits = c(0, 0, 0, 1))
 
 |  DIC | avgD | Davg |  pd |
 |-----:|-----:|-----:|----:|
-| 6907 | 6906 | 6905 | 1.0 |
-| 6269 | 6266 | 6264 | 2.4 |
-| 6379 | 6375 | 6370 | 4.6 |
+| 6907 | 6906 | 6905 |   1 |
+| 6606 | 6605 | 6604 |   1 |
+| 6606 | 6604 | 6602 |   2 |
 
 For the Gaussian model (only), we can compute the DIC in closed form.
 
@@ -377,7 +379,7 @@ CN <- C0 + SSR / 2
 Davg <- N * log(2 * pi * CN / (cN - 1)) + (cN - 1) * SSR / CN
 avgD <- N * (log(2 * pi * CN) - digamma(cN)) + SSR * cN / CN
 pd <- avgD - Davg
-# Explicityly: N * (log(cN - 1) - digamma(cN)) + SSR / CN
+# Explicitly: N * (log(cN - 1) - digamma(cN)) + SSR / CN
 DIC <- avgD + pd
 # N * log(2 * pi * CN * (cN - 1)) - 2 * N * digamma(cN) + (cN + 1) * SSR / CN
 knitr::kable(cbind(DIC, avgD, Davg, pd))
@@ -458,3 +460,50 @@ knitr::kable(res)
 |---------:|----------:|---------:|----------:|
 | 6153.280 |   30.5282 | 10834.66 |  358.1104 |
 | 5948.089 | -132.5316 | 11745.58 | 1019.5312 |
+
+Let’s try with the mean as point estimate.
+
+``` r
+
+res <- matrix(NA_real_, 2, 4)
+colnames(res) <- c("DIC_C", "pd_C", "DIC_A", "pd_A")
+for (i in 1:nrow(res)) {
+  d <- draws[[i + 1]]
+  
+  # Evaluate the log conditional likelihood at all posterior draws
+  alllogcondlik <- sapply(seq_along(d$sigma2s), function(j) {
+    logcondlik(y, d$sigma2s[j], d$nus[j], d$ws[j, ])
+  })
+  
+  # Compute the average conditional deviance
+  avgcondD <- -2 * mean(alllogcondlik)
+  
+  # Evaluate the log augmented likelihood at all posterior draws
+  alllogauglik <- sapply(seq_along(d$sigma2s), function(j) {
+    logauglik(y, d$sigma2s[j], d$nus[j], d$ws[j, ])
+  })
+  
+  # Evaluate the conditional deviance at the posterior mean
+  estcondD <- -2 * logcondlik(y, mean(d$sigma2s), mean(d$nus), colMeans(d$ws))
+  
+  # Compute conditional pd and conditional DIC
+  res[i, "pd_C"] <- avgcondD - estcondD
+  res[i, "DIC_C"] <- 2 * avgcondD - estcondD
+  
+  # Compute the average augmented deviance
+  avgaugD <- -2 * mean(alllogauglik)
+  
+  # Evaluate the augmented deviance at the MAP
+  estaugD <- -2 * logauglik(y, mean(d$sigma2s), mean(d$nus), colMeans(d$ws))
+  
+  # Compute augmented pd and augmented DIC
+  res[i, "pd_A"] <- avgaugD - estaugD
+  res[i, "DIC_A"] <- 2 * avgaugD - estaugD
+}
+knitr::kable(res)
+```
+
+|    DIC_C |    pd_C |   DIC_A |     pd_A |
+|---------:|--------:|--------:|---------:|
+| 6532.050 | 409.299 | 12929.5 | 2452.949 |
+| 6542.342 | 461.721 | 13100.8 | 2374.748 |

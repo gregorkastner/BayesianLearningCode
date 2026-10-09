@@ -310,12 +310,13 @@ BIC<a class="anchor" aria-label="anchor" href="#example-12-2-u-s--gdp-data-choos
 <span><span class="op">}</span></span></code></pre></div>
 <p>Let’s load the data and compute log returns.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">gdp</span>, package <span class="op">=</span> <span class="st">"BayesianLearningCode"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"gdp"</span>, package <span class="op">=</span> <span class="st">"BayesianLearningCode"</span><span class="op">)</span></span>
 <span><span class="va">logret</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/diff.html" class="external-link">diff</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">gdp</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Now we compute five OLS estimates and the corresponding AICs and
 BICs.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">AIC</span> <span class="op">&lt;-</span> <span class="va">BIC</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA_real_</span>, <span class="fl">5</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">AIC</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fl">0</span><span class="op">:</span><span class="fl">4</span></span>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">AIC</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="va">logret</span>, <span class="op">-</span><span class="fl">4</span><span class="op">)</span></span>
 <span>  <span class="va">p</span> <span class="op">&lt;-</span> <span class="va">i</span> <span class="op">-</span> <span class="fl">1</span>     <span class="co"># lag length</span></span>
@@ -326,11 +327,20 @@ BICs.</p>
 <span>  <span class="va">betahat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span>  <span class="va">sigma2hat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/residuals.html" class="external-link">resid</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span></span>
 <span>  <span class="va">minus2timesloglikmax</span> <span class="op">&lt;-</span> <span class="va">N</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">2</span> <span class="op">*</span> <span class="va">pi</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="va">N</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">sigma2hat</span><span class="op">)</span></span>
-<span>  <span class="va">AIC</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">minus2timesloglikmax</span> <span class="op">+</span> <span class="fl">2</span> <span class="op">*</span> <span class="va">d</span>      <span class="co"># equals bult-in AIC(fit)</span></span>
+<span>  <span class="va">AIC</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">minus2timesloglikmax</span> <span class="op">+</span> <span class="fl">2</span> <span class="op">*</span> <span class="va">d</span>      <span class="co"># equals built-in AIC(fit)</span></span>
 <span>  <span class="va">BIC</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">minus2timesloglikmax</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">N</span><span class="op">)</span> <span class="op">*</span> <span class="va">d</span> <span class="co"># equals built-in BIC(fit)</span></span>
 <span><span class="op">}</span></span>
 <span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">AIC</span>, <span class="va">BIC</span><span class="op">)</span>, digits <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
-<table class="table"><tbody>
+<table class="table">
+<thead><tr class="header">
+<th align="left"></th>
+<th align="right">0</th>
+<th align="right">1</th>
+<th align="right">2</th>
+<th align="right">3</th>
+<th align="right">4</th>
+</tr></thead>
+<tbody>
 <tr class="odd">
 <td align="left">AIC</td>
 <td align="right">-1808.61</td>
@@ -347,7 +357,8 @@ BICs.</p>
 <td align="right">-1819.01</td>
 <td align="right">-1813.86</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
 </div>
 <div class="section level4">
 <h4 id="example-12-6-chf-exchange-rate-data-testing-normal-vs--t-using-dic">Example 12.6: CHF exchange rate data: Testing normal vs. t using
@@ -406,8 +417,9 @@ augmentation.</p>
 <span><span class="co"># log likelihood</span></span>
 <span><span class="va">loglik</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">y</span>, <span class="va">sigma2</span>, <span class="va">nu</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/is.finite.html" class="external-link">is.finite</a></span><span class="op">(</span><span class="va">nu</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="op">*</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Special.html" class="external-link">lgamma</a></span><span class="op">(</span><span class="op">(</span><span class="va">nu</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Special.html" class="external-link">lgamma</a></span><span class="op">(</span><span class="va">nu</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span> <span class="op">-</span> <span class="fl">.5</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">nu</span><span class="op">)</span><span class="op">)</span> <span class="op">-</span></span>
-<span>    <span class="op">(</span><span class="va">nu</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="va">y</span><span class="op">^</span><span class="fl">2</span> <span class="op">/</span> <span class="va">nu</span> <span class="op">/</span> <span class="va">sigma2</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#    length(y) * (lgamma((nu + 1) / 2) - lgamma(nu / 2) - .5 * log(pi * nu * sigma2)) -</span></span>
+<span><span class="co">#      (nu + 1) / 2 * sum(log(1 + y^2 / nu / sigma2))</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="../reference/StudTDist.html">dstudt</a></span><span class="op">(</span><span class="va">y</span>, <span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">sigma2</span><span class="op">)</span>, df <span class="op">=</span> <span class="va">nu</span>, log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">dnorm</a></span><span class="op">(</span><span class="va">y</span>, <span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">sigma2</span><span class="op">)</span>, log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="op">}</span></span>
@@ -509,19 +521,19 @@ averages, the effective number of parameters, and finally, DIC.</p>
 <td align="right">6907</td>
 <td align="right">6906</td>
 <td align="right">6905</td>
-<td align="right">1.0</td>
+<td align="right">1</td>
 </tr>
 <tr class="even">
-<td align="right">6269</td>
-<td align="right">6266</td>
-<td align="right">6264</td>
-<td align="right">2.4</td>
+<td align="right">6606</td>
+<td align="right">6605</td>
+<td align="right">6604</td>
+<td align="right">1</td>
 </tr>
 <tr class="odd">
-<td align="right">6379</td>
-<td align="right">6375</td>
-<td align="right">6370</td>
-<td align="right">4.6</td>
+<td align="right">6606</td>
+<td align="right">6604</td>
+<td align="right">6602</td>
+<td align="right">2</td>
 </tr>
 </tbody>
 </table>
@@ -533,7 +545,7 @@ form.</p>
 <span><span class="va">Davg</span> <span class="op">&lt;-</span> <span class="va">N</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">2</span> <span class="op">*</span> <span class="va">pi</span> <span class="op">*</span> <span class="va">CN</span> <span class="op">/</span> <span class="op">(</span><span class="va">cN</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="op">(</span><span class="va">cN</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">*</span> <span class="va">SSR</span> <span class="op">/</span> <span class="va">CN</span></span>
 <span><span class="va">avgD</span> <span class="op">&lt;-</span> <span class="va">N</span> <span class="op">*</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fl">2</span> <span class="op">*</span> <span class="va">pi</span> <span class="op">*</span> <span class="va">CN</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Special.html" class="external-link">digamma</a></span><span class="op">(</span><span class="va">cN</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="va">SSR</span> <span class="op">*</span> <span class="va">cN</span> <span class="op">/</span> <span class="va">CN</span></span>
 <span><span class="va">pd</span> <span class="op">&lt;-</span> <span class="va">avgD</span> <span class="op">-</span> <span class="va">Davg</span></span>
-<span><span class="co"># Explicityly: N * (log(cN - 1) - digamma(cN)) + SSR / CN</span></span>
+<span><span class="co"># Explicitly: N * (log(cN - 1) - digamma(cN)) + SSR / CN</span></span>
 <span><span class="va">DIC</span> <span class="op">&lt;-</span> <span class="va">avgD</span> <span class="op">+</span> <span class="va">pd</span></span>
 <span><span class="co"># N * log(2 * pi * CN * (cN - 1)) - 2 * N * digamma(cN) + (cN + 1) * SSR / CN</span></span>
 <span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">DIC</span>, <span class="va">avgD</span>, <span class="va">Davg</span>, <span class="va">pd</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
@@ -632,6 +644,66 @@ likelihood.</p>
 <td align="right">-132.5316</td>
 <td align="right">11745.58</td>
 <td align="right">1019.5312</td>
+</tr>
+</tbody>
+</table>
+<p>Let’s try with the mean as point estimate.</p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="cn">NA_real_</span>, <span class="fl">2</span>, <span class="fl">4</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"DIC_C"</span>, <span class="st">"pd_C"</span>, <span class="st">"DIC_A"</span>, <span class="st">"pd_A"</span><span class="op">)</span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">d</span> <span class="op">&lt;-</span> <span class="va">draws</span><span class="op">[[</span><span class="va">i</span> <span class="op">+</span> <span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
+<span>  </span>
+<span>  <span class="co"># Evaluate the log conditional likelihood at all posterior draws</span></span>
+<span>  <span class="va">alllogcondlik</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">d</span><span class="op">$</span><span class="va">sigma2s</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">j</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="fu">logcondlik</span><span class="op">(</span><span class="va">y</span>, <span class="va">d</span><span class="op">$</span><span class="va">sigma2s</span><span class="op">[</span><span class="va">j</span><span class="op">]</span>, <span class="va">d</span><span class="op">$</span><span class="va">nus</span><span class="op">[</span><span class="va">j</span><span class="op">]</span>, <span class="va">d</span><span class="op">$</span><span class="va">ws</span><span class="op">[</span><span class="va">j</span>, <span class="op">]</span><span class="op">)</span></span>
+<span>  <span class="op">}</span><span class="op">)</span></span>
+<span>  </span>
+<span>  <span class="co"># Compute the average conditional deviance</span></span>
+<span>  <span class="va">avgcondD</span> <span class="op">&lt;-</span> <span class="op">-</span><span class="fl">2</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">alllogcondlik</span><span class="op">)</span></span>
+<span>  </span>
+<span>  <span class="co"># Evaluate the log augmented likelihood at all posterior draws</span></span>
+<span>  <span class="va">alllogauglik</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">d</span><span class="op">$</span><span class="va">sigma2s</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">j</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="fu">logauglik</span><span class="op">(</span><span class="va">y</span>, <span class="va">d</span><span class="op">$</span><span class="va">sigma2s</span><span class="op">[</span><span class="va">j</span><span class="op">]</span>, <span class="va">d</span><span class="op">$</span><span class="va">nus</span><span class="op">[</span><span class="va">j</span><span class="op">]</span>, <span class="va">d</span><span class="op">$</span><span class="va">ws</span><span class="op">[</span><span class="va">j</span>, <span class="op">]</span><span class="op">)</span></span>
+<span>  <span class="op">}</span><span class="op">)</span></span>
+<span>  </span>
+<span>  <span class="co"># Evaluate the conditional deviance at the posterior mean</span></span>
+<span>  <span class="va">estcondD</span> <span class="op">&lt;-</span> <span class="op">-</span><span class="fl">2</span> <span class="op">*</span> <span class="fu">logcondlik</span><span class="op">(</span><span class="va">y</span>, <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">d</span><span class="op">$</span><span class="va">sigma2s</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">d</span><span class="op">$</span><span class="va">nus</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colMeans</a></span><span class="op">(</span><span class="va">d</span><span class="op">$</span><span class="va">ws</span><span class="op">)</span><span class="op">)</span></span>
+<span>  </span>
+<span>  <span class="co"># Compute conditional pd and conditional DIC</span></span>
+<span>  <span class="va">res</span><span class="op">[</span><span class="va">i</span>, <span class="st">"pd_C"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">avgcondD</span> <span class="op">-</span> <span class="va">estcondD</span></span>
+<span>  <span class="va">res</span><span class="op">[</span><span class="va">i</span>, <span class="st">"DIC_C"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">2</span> <span class="op">*</span> <span class="va">avgcondD</span> <span class="op">-</span> <span class="va">estcondD</span></span>
+<span>  </span>
+<span>  <span class="co"># Compute the average augmented deviance</span></span>
+<span>  <span class="va">avgaugD</span> <span class="op">&lt;-</span> <span class="op">-</span><span class="fl">2</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">alllogauglik</span><span class="op">)</span></span>
+<span>  </span>
+<span>  <span class="co"># Evaluate the augmented deviance at the MAP</span></span>
+<span>  <span class="va">estaugD</span> <span class="op">&lt;-</span> <span class="op">-</span><span class="fl">2</span> <span class="op">*</span> <span class="fu">logauglik</span><span class="op">(</span><span class="va">y</span>, <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">d</span><span class="op">$</span><span class="va">sigma2s</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">d</span><span class="op">$</span><span class="va">nus</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colMeans</a></span><span class="op">(</span><span class="va">d</span><span class="op">$</span><span class="va">ws</span><span class="op">)</span><span class="op">)</span></span>
+<span>  </span>
+<span>  <span class="co"># Compute augmented pd and augmented DIC</span></span>
+<span>  <span class="va">res</span><span class="op">[</span><span class="va">i</span>, <span class="st">"pd_A"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">avgaugD</span> <span class="op">-</span> <span class="va">estaugD</span></span>
+<span>  <span class="va">res</span><span class="op">[</span><span class="va">i</span>, <span class="st">"DIC_A"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">2</span> <span class="op">*</span> <span class="va">avgaugD</span> <span class="op">-</span> <span class="va">estaugD</span></span>
+<span><span class="op">}</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="right">DIC_C</th>
+<th align="right">pd_C</th>
+<th align="right">DIC_A</th>
+<th align="right">pd_A</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="right">6532.050</td>
+<td align="right">409.299</td>
+<td align="right">12929.5</td>
+<td align="right">2452.949</td>
+</tr>
+<tr class="even">
+<td align="right">6542.342</td>
+<td align="right">461.721</td>
+<td align="right">13100.8</td>
+<td align="right">2374.748</td>
 </tr>
 </tbody>
 </table>
