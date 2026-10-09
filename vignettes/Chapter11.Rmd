@@ -208,6 +208,12 @@ for (j in seq_len(p)) {
 PIP
 ```
 
+Alternatively, we could also obtain the PIPs using
+```{r}
+PIP <- colMeans(res$gamma_post)
+PIP
+```
+
 We run model space MCMC and compute PIPs also for the standardized
 covariates.
 
@@ -774,7 +780,7 @@ X_unemp <- with(labor, cbind(female = female,
                              unemp97 = income_1997 == "zero")) # regressor matrix
 p_irrel <- 5
 set.seed(seed)
-X <- cbind(X_unemp, matrix(rnorm(p_irrel*N), ncol = p_irrel))
+X <- cbind(X_unemp, matrix(rnorm(p_irrel * N), ncol = p_irrel))
 colnames(X)[ncol(X_unemp) + (1:p_irrel)] <-
   paste0("irrel", seq_len(p_irrel))
 
