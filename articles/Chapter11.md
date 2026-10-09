@@ -448,8 +448,8 @@ knitr::kable(cbind(gammas_unique, phat_gamma = n_gamma/M)[io[1:10], ],
 |      0 |        0 |      0 |     1 |       1 |     1 |     0 |       1 |       1 |     0.0239 |
 
 Next, we determine the posterior distribution of the size of the models,
-i.e., the number of covariates included. We plot the MCMC draws of the
-model size and its posterior distribution.
+i.e., the number of covariates included. We plot the first 5000 MCMC
+draws of the model size and its posterior distribution.
 
 ``` r
 
@@ -460,9 +460,9 @@ par(mfrow = c(1, 2), mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.5, .5, 0),
     font.main = 1)
 oopts <- options(scipen = 999)
 k_gamma <- rowSums(res_gunif$gamma_post)
-plot(k_gamma, type = "l", xlab = "Draw", ylab = expression(k[gamma]),
+plot(k_gamma[1:5000], type = "l", xlab = "Draw", ylab = expression(k[gamma]),
      xaxt = "n", ylim = c(0, p)) 
-axis(side = 1, at = seq(from = 0, to = M, by = M/5), labels = TRUE)
+axis(side = 1, at = seq(from = 0, to = 5000, by =1000), labels = TRUE)
 barplot(tabulate(k_gamma), col = "blue", xlab = expression(k[gamma]),
         ylab = "Frequency", ylim = c(0, M/2), names.arg = 1:p)
 ```
