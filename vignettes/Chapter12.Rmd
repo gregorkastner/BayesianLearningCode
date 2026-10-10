@@ -251,13 +251,7 @@ cN <- c0 + N / 2
 
 # log likelihood
 loglik <- function(y, sigma2, nu) {
-  if (is.finite(nu)) {
-#    length(y) * (lgamma((nu + 1) / 2) - lgamma(nu / 2) - .5 * log(pi * nu * sigma2)) -
-#      (nu + 1) / 2 * sum(log(1 + y^2 / nu / sigma2))
-    sum(dstudt(y, 0, sqrt(sigma2), df = nu, log = TRUE))
-  } else {
-    sum(dnorm(y, 0, sqrt(sigma2), log = TRUE))
-  }
+  sum(dstudt(y, 0, sqrt(sigma2), df = nu, log = TRUE))
 }
 
 for (m in 1:(burnin + M)) {
