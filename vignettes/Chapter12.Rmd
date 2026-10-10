@@ -221,8 +221,8 @@ CN <- C0 + SSR / 2
 # number of draws
 M <- 100000 / mcmcspeedup
 
-# thinning to save some computer memory
-thin <- ceiling(10 / mcmcspeedup)
+# thinning to save some computer memory (1 = no thinning)
+thin <- 1
 
 draws[[1]]$sigma2s <- rinvgamma(M / thin, cN , CN)
 draws[[1]]$nus <- Inf
