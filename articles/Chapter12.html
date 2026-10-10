@@ -386,7 +386,7 @@ is inverse gamma, and we can easily draw from it.</p>
 <span><span class="va">CN</span> <span class="op">&lt;-</span> <span class="va">C0</span> <span class="op">+</span> <span class="va">SSR</span> <span class="op">/</span> <span class="fl">2</span></span>
 <span></span>
 <span><span class="co"># number of draws</span></span>
-<span><span class="va">M</span> <span class="op">&lt;-</span> <span class="fl">1e6</span> <span class="op">/</span> <span class="va">mcmcspeedup</span></span>
+<span><span class="va">M</span> <span class="op">&lt;-</span> <span class="fl">100000</span> <span class="op">/</span> <span class="va">mcmcspeedup</span></span>
 <span></span>
 <span><span class="co"># thinning to save some computer memory</span></span>
 <span><span class="va">thin</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">ceiling</a></span><span class="op">(</span><span class="fl">10</span> <span class="op">/</span> <span class="va">mcmcspeedup</span><span class="op">)</span></span>
@@ -508,7 +508,7 @@ averages, the effective number of parameters, and finally, DIC.</p>
 <span>  <span class="va">res</span><span class="op">[</span><span class="va">i</span>, <span class="st">"pd"</span><span class="op">]</span> <span class="op">&lt;-</span>  <span class="va">res</span><span class="op">[</span><span class="va">i</span>, <span class="st">"avgD"</span><span class="op">]</span> <span class="op">-</span> <span class="va">res</span><span class="op">[</span><span class="va">i</span>, <span class="st">"Davg"</span><span class="op">]</span></span>
 <span>  <span class="va">res</span><span class="op">[</span><span class="va">i</span>, <span class="st">"DIC"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">res</span><span class="op">[</span><span class="va">i</span>, <span class="st">"avgD"</span><span class="op">]</span> <span class="op">+</span> <span class="va">res</span><span class="op">[</span><span class="va">i</span>, <span class="st">"pd"</span><span class="op">]</span></span>
 <span><span class="op">}</span></span>
-<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">res</span>, digits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">res</span>, digits <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
 <th align="right">DIC</th>
@@ -518,21 +518,21 @@ averages, the effective number of parameters, and finally, DIC.</p>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td align="right">6907</td>
-<td align="right">6906</td>
-<td align="right">6905</td>
+<td align="right">6907.0</td>
+<td align="right">6906.0</td>
+<td align="right">6904.9</td>
 <td align="right">1</td>
 </tr>
 <tr class="even">
-<td align="right">6606</td>
-<td align="right">6605</td>
-<td align="right">6604</td>
+<td align="right">6605.5</td>
+<td align="right">6604.5</td>
+<td align="right">6603.5</td>
 <td align="right">1</td>
 </tr>
 <tr class="odd">
-<td align="right">6606</td>
-<td align="right">6604</td>
-<td align="right">6602</td>
+<td align="right">6605.6</td>
+<td align="right">6603.6</td>
+<td align="right">6601.6</td>
 <td align="right">2</td>
 </tr>
 </tbody>
@@ -634,20 +634,20 @@ likelihood.</p>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td align="right">6153.280</td>
-<td align="right">30.5282</td>
-<td align="right">10834.66</td>
-<td align="right">358.1104</td>
+<td align="right">6141.702</td>
+<td align="right">19.30375</td>
+<td align="right">10786.02</td>
+<td align="right">309.9162</td>
 </tr>
 <tr class="even">
-<td align="right">5948.089</td>
-<td align="right">-132.5316</td>
-<td align="right">11745.58</td>
-<td align="right">1019.5312</td>
+<td align="right">5953.732</td>
+<td align="right">-128.16054</td>
+<td align="right">11576.19</td>
+<td align="right">852.5660</td>
 </tr>
 </tbody>
 </table>
-<p>Let’s try with the mean as point estimate.</p>
+<p>Let’s try with the posterior mean as point estimate.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="cn">NA_real_</span>, <span class="fl">2</span>, <span class="fl">4</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"DIC_C"</span>, <span class="st">"pd_C"</span>, <span class="st">"DIC_A"</span>, <span class="st">"pd_A"</span><span class="op">)</span></span>
@@ -684,7 +684,7 @@ likelihood.</p>
 <span>  <span class="va">res</span><span class="op">[</span><span class="va">i</span>, <span class="st">"pd_A"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">avgaugD</span> <span class="op">-</span> <span class="va">estaugD</span></span>
 <span>  <span class="va">res</span><span class="op">[</span><span class="va">i</span>, <span class="st">"DIC_A"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">2</span> <span class="op">*</span> <span class="va">avgaugD</span> <span class="op">-</span> <span class="va">estaugD</span></span>
 <span><span class="op">}</span></span>
-<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">res</span>, digits <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
 <th align="right">DIC_C</th>
@@ -694,16 +694,66 @@ likelihood.</p>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td align="right">6532.050</td>
-<td align="right">409.299</td>
-<td align="right">12929.5</td>
-<td align="right">2452.949</td>
+<td align="right">6532</td>
+<td align="right">409</td>
+<td align="right">12929</td>
+<td align="right">2453</td>
 </tr>
 <tr class="even">
-<td align="right">6542.342</td>
-<td align="right">461.721</td>
-<td align="right">13100.8</td>
-<td align="right">2374.748</td>
+<td align="right">6543</td>
+<td align="right">461</td>
+<td align="right">13100</td>
+<td align="right">2376</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section level3">
+<h3 id="section-12-2-4-widely-applicable-information-criterion-waic">Section 12.2.4: Widely applicable information criterion (WAIC)<a class="anchor" aria-label="anchor" href="#section-12-2-4-widely-applicable-information-criterion-waic"></a>
+</h3>
+<div class="section level4">
+<h4 id="example-3-8-chf-exchange-rate-data-testing-normal-vs--t-using-waic">Example 3.8: CHF exchange rate data: Testing normal vs. t using
+WAIC<a class="anchor" aria-label="anchor" href="#example-3-8-chf-exchange-rate-data-testing-normal-vs--t-using-waic"></a>
+</h4>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">resWAIC</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="cn">NA_real_</span>, <span class="fl">3</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">resWAIC</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"D"</span>, <span class="st">"Dbiased"</span>, <span class="st">"phat"</span><span class="op">)</span></span>
+<span><span class="va">Ehat</span> <span class="op">&lt;-</span> <span class="va">Vhat</span> <span class="op">&lt;-</span> <span class="va">logpredlik</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">NA_real_</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">d</span> <span class="op">&lt;-</span> <span class="va">draws</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span></span>
+<span>  <span class="kw">for</span> <span class="op">(</span><span class="va">j</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">logpredlikdraws</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/StudTDist.html">dstudt</a></span><span class="op">(</span><span class="va">y</span><span class="op">[</span><span class="va">j</span><span class="op">]</span>, <span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">d</span><span class="op">$</span><span class="va">sigma2s</span><span class="op">)</span>, <span class="va">d</span><span class="op">$</span><span class="va">nus</span>, log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span>    <span class="va">logpredlik</span><span class="op">[</span><span class="va">j</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Logsumexp.html">logmeanexp</a></span><span class="op">(</span><span class="va">logpredlikdraws</span><span class="op">)</span></span>
+<span>    <span class="va">Ehat</span><span class="op">[</span><span class="va">j</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">logpredlikdraws</span><span class="op">)</span></span>
+<span>    <span class="va">Vhat</span><span class="op">[</span><span class="va">j</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">logpredlikdraws</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">-</span> <span class="va">Ehat</span><span class="op">[</span><span class="va">j</span><span class="op">]</span><span class="op">^</span><span class="fl">2</span></span>
+<span>  <span class="op">}</span></span>
+<span>  <span class="va">resWAIC</span><span class="op">[</span><span class="va">i</span>, <span class="st">"Dbiased"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="op">-</span><span class="fl">2</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">logpredlik</span><span class="op">)</span></span>
+<span>  <span class="va">resWAIC</span><span class="op">[</span><span class="va">i</span>, <span class="st">"phat"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">Vhat</span><span class="op">)</span></span>
+<span>  <span class="va">resWAIC</span><span class="op">[</span><span class="va">i</span>, <span class="st">"D"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">resWAIC</span><span class="op">[</span><span class="va">i</span>, <span class="st">"Dbiased"</span><span class="op">]</span> <span class="op">+</span> <span class="fl">2</span> <span class="op">*</span> <span class="va">resWAIC</span><span class="op">[</span><span class="va">i</span>, <span class="st">"phat"</span><span class="op">]</span></span>
+<span><span class="op">}</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">resWAIC</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="right">D</th>
+<th align="right">Dbiased</th>
+<th align="right">phat</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="right">6911.266</td>
+<td align="right">6900.839</td>
+<td align="right">5.2135057</td>
+</tr>
+<tr class="even">
+<td align="right">6605.494</td>
+<td align="right">6603.533</td>
+<td align="right">0.9802571</td>
+</tr>
+<tr class="odd">
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
 </tr>
 </tbody>
 </table>

@@ -225,7 +225,7 @@ cN <- c0 + N / 2
 CN <- C0 + SSR / 2
 
 # number of draws
-M <- 1e6 / mcmcspeedup
+M <- 100000 / mcmcspeedup
 
 # thinning to save some computer memory
 thin <- ceiling(10 / mcmcspeedup)
@@ -361,14 +361,14 @@ for (i in 1:nrow(res)) {
   res[i, "pd"] <-  res[i, "avgD"] - res[i, "Davg"]
   res[i, "DIC"] <- res[i, "avgD"] + res[i, "pd"]
 }
-knitr::kable(res, digits = c(0, 0, 0, 1))
+knitr::kable(res, digits = 1)
 ```
 
-|  DIC | avgD | Davg |  pd |
-|-----:|-----:|-----:|----:|
-| 6907 | 6906 | 6905 |   1 |
-| 6606 | 6605 | 6604 |   1 |
-| 6606 | 6604 | 6602 |   2 |
+|    DIC |   avgD |   Davg |  pd |
+|-------:|-------:|-------:|----:|
+| 6907.0 | 6906.0 | 6904.9 |   1 |
+| 6605.5 | 6604.5 | 6603.5 |   1 |
+| 6605.6 | 6603.6 | 6601.6 |   2 |
 
 For the Gaussian model (only), we can compute the DIC in closed form.
 
@@ -456,12 +456,12 @@ for (i in 1:nrow(res)) {
 knitr::kable(res)
 ```
 
-|    DIC_C |      pd_C |    DIC_A |      pd_A |
-|---------:|----------:|---------:|----------:|
-| 6153.280 |   30.5282 | 10834.66 |  358.1104 |
-| 5948.089 | -132.5316 | 11745.58 | 1019.5312 |
+|    DIC_C |       pd_C |    DIC_A |     pd_A |
+|---------:|-----------:|---------:|---------:|
+| 6141.702 |   19.30375 | 10786.02 | 309.9162 |
+| 5953.732 | -128.16054 | 11576.19 | 852.5660 |
 
-Let’s try with the mean as point estimate.
+Let’s try with the posterior mean as point estimate.
 
 ``` r
 
@@ -500,10 +500,40 @@ for (i in 1:nrow(res)) {
   res[i, "pd_A"] <- avgaugD - estaugD
   res[i, "DIC_A"] <- 2 * avgaugD - estaugD
 }
-knitr::kable(res)
+knitr::kable(res, digits = 0)
 ```
 
-|    DIC_C |    pd_C |   DIC_A |     pd_A |
-|---------:|--------:|--------:|---------:|
-| 6532.050 | 409.299 | 12929.5 | 2452.949 |
-| 6542.342 | 461.721 | 13100.8 | 2374.748 |
+| DIC_C | pd_C | DIC_A | pd_A |
+|------:|-----:|------:|-----:|
+|  6532 |  409 | 12929 | 2453 |
+|  6543 |  461 | 13100 | 2376 |
+
+### Section 12.2.4: Widely applicable information criterion (WAIC)
+
+#### Example 3.8: CHF exchange rate data: Testing normal vs. t using WAIC
+
+``` r
+
+resWAIC <- matrix(NA_real_, 3, 3)
+colnames(resWAIC) <- c("D", "Dbiased", "phat")
+Ehat <- Vhat <- logpredlik <- rep(NA_real_, length(y))
+for (i in 1:nrow(res)) {
+  d <- draws[[i]]
+  for (j in seq_along(y)) {
+    logpredlikdraws <- dstudt(y[j], 0, sqrt(d$sigma2s), d$nus, log = TRUE)
+    logpredlik[j] <- logmeanexp(logpredlikdraws)
+    Ehat[j] <- mean(logpredlikdraws)
+    Vhat[j] <- mean(logpredlikdraws^2) - Ehat[j]^2
+  }
+  resWAIC[i, "Dbiased"] <- -2 * sum(logpredlik)
+  resWAIC[i, "phat"] <- sum(Vhat)
+  resWAIC[i, "D"] <- resWAIC[i, "Dbiased"] + 2 * resWAIC[i, "phat"]
+}
+knitr::kable(resWAIC)
+```
+
+|        D |  Dbiased |      phat |
+|---------:|---------:|----------:|
+| 6911.266 | 6900.839 | 5.2135057 |
+| 6605.494 | 6603.533 | 0.9802571 |
+|       NA |       NA |        NA |
