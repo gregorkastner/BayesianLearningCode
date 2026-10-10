@@ -219,7 +219,7 @@ cN <- c0 + N / 2
 CN <- C0 + SSR / 2
 
 # number of draws
-M <- 1e6 / mcmcspeedup
+M <- 1e5 / mcmcspeedup
 
 # thinning to save some computer memory
 thin <- ceiling(10 / mcmcspeedup)
@@ -350,7 +350,7 @@ for (i in 1:nrow(res)) {
   res[i, "pd"] <-  res[i, "avgD"] - res[i, "Davg"]
   res[i, "DIC"] <- res[i, "avgD"] + res[i, "pd"]
 }
-knitr::kable(res, digits = c(0, 0, 0, 1))
+knitr::kable(res, digits = 1)
 ```
 
 For the Gaussian model (only), we can compute the DIC in closed form.
@@ -432,7 +432,8 @@ for (i in 1:nrow(res)) {
 knitr::kable(res)
 ```
 
-Let's try with the mean as point estimate.
+Let's try with the posterior mean as point estimate.
+
 ```{r}
 res <- matrix(NA_real_, 2, 4)
 colnames(res) <- c("DIC_C", "pd_C", "DIC_A", "pd_A")
@@ -469,6 +470,6 @@ for (i in 1:nrow(res)) {
   res[i, "pd_A"] <- avgaugD - estaugD
   res[i, "DIC_A"] <- 2 * avgaugD - estaugD
 }
-knitr::kable(res)
+knitr::kable(res, digits = 0)
 ```
 
