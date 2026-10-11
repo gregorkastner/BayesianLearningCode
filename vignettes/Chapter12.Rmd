@@ -306,43 +306,47 @@ is not available in closed form, but we can draw from it using data
 augmentation.
 
 ```{r}
-burnin <- 100
+sampler <- function(y, M, burnin, c0, C0, nu) {
+  N <- length(y)
+  
+  # starting value for w
+  w <- rep(1, N)
 
-# fix df
-nu <- 7
+  # pre-compute cN
+  cN <- c0 + N / 2
 
-# allocate space for storing the draws
-draws[[2]]$sigma2s <- rep(NA_real_, M / thin)
-draws[[2]]$nus <- rep(nu, M / thin)
-draws[[2]]$ws <- matrix(NA_real_, nrow = M / thin, ncol = N)
+  # allocate space for storing the draws
+  draws <- list()
+  draws$sigma2s <- rep(NA_real_, M)
+  draws$nus <- rep(nu, M)
+  draws$ws <- matrix(NA_real_, nrow = M, ncol = N)
+ 
+  for (m in 1:(burnin + M)) {
+    # sample sigma^2 from its full conditional (S-DA)
+    eps <- sqrt(w) * y
+    CN <- C0 + crossprod(eps) / 2
+    sigma2 <- rinvgamma(1, cN, CN)
 
-# starting value for w
-w <- rep(1, N)
+    # sample w (W-DA)
+    r <- eps^2 / (w * sigma2)
+    w <- rgamma(length(eps), (nu + 1) /2, (nu + r) / 2)
 
-# pre-compute cN
-cN <- c0 + N / 2
-
-# log likelihood
-loglik <- function(y, sigma2, nu) {
-  sum(dstudt(y, 0, sqrt(sigma2), df = nu, log = TRUE))
-}
-
-for (m in 1:(burnin + M)) {
-  # sample sigma^2 from its full conditional (S-DA)
-  eps <- sqrt(w) * y
-  CN <- C0 + crossprod(eps) / 2
-  sigma2 <- rinvgamma(1, cN, CN)
-
-  # sample w (W-DA)
-  r <- eps^2 / (w * sigma2)
-  w <- rgamma(length(eps), (nu + 1) /2, (nu + r) / 2)
-
-  # store the results
-  if (m > burnin && (m - burnin) %% thin == 0L) {
-    draws[[2]]$sigma2s[(m - burnin) / thin] <- sigma2
-    draws[[2]]$ws[(m - burnin) / thin, ] <- w
+    # store the results
+    if (m > burnin && (m - burnin) %% thin == 0L) {
+      draws$sigma2s[m - burnin] <- sigma2
+      draws$ws[m - burnin, ] <- w
+    }
   }
+  draws
 }
+```
+
+Now we can run the sampler.
+
+```{r}
+burnin <- 100
+nu <- 7
+draws[[2]] <- sampler(y, M, burnin, c0, C0, nu)
 ```
 
 For sampling also the degrees of freedom under an exponential prior, 
@@ -354,6 +358,11 @@ cnu <- 0.3
 
 # fix prior hyperparameters
 lambda <- 1 / 7
+
+# log likelihood
+loglik <- function(y, sigma2, nu) {
+  sum(dstudt(y, 0, sqrt(sigma2), df = nu, log = TRUE))
+}
 
 # allocate space for storing the draws
 draws[[3]]$nus <- draws[[3]]$sigma2s <- rep(NA_real_, M / thin)
