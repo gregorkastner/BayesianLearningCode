@@ -628,4 +628,4 @@ knitr::kable(out)
 
 # Section 12.3: Comparative model assessment through scoring rules
 
-## Section 3.3.1: Log predictive density scores 
+## Section 12.3.1: Log predictive density scores
