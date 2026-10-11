@@ -192,6 +192,8 @@ for (i in seq_along(AIC)) {
 knitr::kable(rbind(AIC, BIC), digits = 2)
 ```
 
+## Section 12.2.3: Deviance information criterion (DIC)
+
 ### Example 12.6: CHF exchange rate data: Testing normal vs. t using DIC
 
 Let's load the data first and make some space for the draws under the three
@@ -544,3 +546,6 @@ rownames(out) <- c("Gaussian", "t_7", "t_nu")
 knitr::kable(out)
 ```
 
+# Section 12.3: Comparative model assessment through scoring rules
+
+## Section 3.3.1: Log predictive density scores 
