@@ -596,9 +596,11 @@ knitr::kable(apply(res, 1:2, max), digits = 2)
 
 ``` r
 
-resWAIC <- array(NA_real_, c(3, 3, 10))
-colnames(resWAIC) <- c("D", "Dbiased", "phat")
-Ehat <- Vhat <- logpredlik <- matrix(NA_real_, length(y), dim(resWAIC)[3])
+resWAIC <- array(NA_real_, c(3, 6, 10))
+colnames(resWAIC) <-
+  c("WAIC", "Dbiased", "phat", "WAIC_C", "Dbiased_C", "phat_C")
+logpredlik <- Ehat <- Vhat <- logcondpredlik <- condEhat <- condVhat <-
+  matrix(NA_real_, length(y), dim(resWAIC)[3])
 for (i in 1:nrow(resWAIC)) {
   d <- draws[[i]]
   for (j in seq_along(y)) {
@@ -606,38 +608,37 @@ for (i in 1:nrow(resWAIC)) {
     logpredlik[j, ] <- apply(batches(logpredlikdraws), 2, logmeanexp)
     Ehat[j, ] <- batchMeans(logpredlikdraws)
     Vhat[j, ] <- batchMeans(logpredlikdraws^2) - Ehat[j ,]^2
+    if (i >= 2L) { # also evaluate the log conditional predictive likelihood
+      logcondpredlikdraws <- dnorm(y[j], 0, sqrt(d$sigma2s / d$ws[, j]),
+                                   log = TRUE)
+      logcondpredlik[j, ] <- apply(batches(logcondpredlikdraws), 2, logmeanexp)
+      condEhat[j, ] <- batchMeans(logcondpredlikdraws)
+      condVhat[j, ] <- batchMeans(logcondpredlikdraws^2) - condEhat[j ,]^2
+    }
   }
   resWAIC[i, "Dbiased", ] <- -2 * batchMeans(logpredlik)
   resWAIC[i, "phat", ] <- colSums(Vhat)
-  resWAIC[i, "D", ] <- resWAIC[i, "Dbiased", ] + 2 * resWAIC[i, "phat", ]
+  resWAIC[i, "WAIC", ] <- resWAIC[i, "Dbiased", ] + 2 * resWAIC[i, "phat", ]
+  if (i >= 2L) { # also evaluate the log conditional predictive likelihood
+    resWAIC[i, "Dbiased_C", ] <- -2 * batchMeans(logcondpredlik)
+    resWAIC[i, "phat_C", ] <- colSums(condVhat)
+    resWAIC[i, "WAIC_C", ] <-
+      resWAIC[i, "Dbiased_C", ] + 2 * resWAIC[i, "phat_C", ]
+  }
 }
-knitr::kable(apply(resWAIC, 1:2, min), digits = 2)
+mins <- apply(resWAIC, 1:2, min)
+maxs <- apply(resWAIC, 1:2, max)
+s <- c(1, 3:4, 6)
+out <- matrix(paste0("[", round(mins[, s], 2), ", ", round(maxs[, s], 2), "]"),
+              nrow = dim(resWAIC)[1])
+out[out == "[NA, NA]"] <- ""
+colnames(out) <- colnames(resWAIC)[s]
+rownames(out) <- c("Gaussian", "t_7", "t_nu")
+knitr::kable(out)
 ```
 
-|     D | Dbiased | phat |
-|------:|--------:|-----:|
-| 11.83 |     2.2 | 4.81 |
-|  3.93 |     2.1 | 0.92 |
-|  6.47 |     2.1 | 2.19 |
-
-``` r
-
-knitr::kable(apply(resWAIC, 1:2, mean), digits = 2)
-```
-
-|     D | Dbiased | phat |
-|------:|--------:|-----:|
-| 12.61 |     2.2 | 5.21 |
-|  4.06 |     2.1 | 0.98 |
-|  6.97 |     2.1 | 2.43 |
-
-``` r
-
-knitr::kable(apply(resWAIC, 1:2, max), digits = 2)
-```
-
-|     D | Dbiased | phat |
-|------:|--------:|-----:|
-| 13.18 |     2.2 | 5.49 |
-|  4.25 |     2.1 | 1.07 |
-|  7.82 |     2.1 | 2.86 |
+|  | WAIC | phat | WAIC_C | phat_C |
+|:---|:---|:---|:---|:---|
+| Gaussian | \[11.83, 13.18\] | \[4.81, 5.49\] |  |  |
+| t_7 | \[3.93, 4.25\] | \[0.92, 1.07\] | \[606.36, 610.94\] | \[302.25, 304.54\] |
+| t_nu | \[6.47, 7.82\] | \[2.19, 2.86\] | \[645.76, 654.56\] | \[321.95, 326.35\] |

@@ -889,9 +889,11 @@ likelihood.</p>
 WAIC<a class="anchor" aria-label="anchor" href="#example-3-8-chf-exchange-rate-data-testing-normal-vs--t-using-waic"></a>
 </h4>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">resWAIC</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></span><span class="op">(</span><span class="cn">NA_real_</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">3</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">resWAIC</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"D"</span>, <span class="st">"Dbiased"</span>, <span class="st">"phat"</span><span class="op">)</span></span>
-<span><span class="va">Ehat</span> <span class="op">&lt;-</span> <span class="va">Vhat</span> <span class="op">&lt;-</span> <span class="va">logpredlik</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="cn">NA_real_</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">resWAIC</span><span class="op">)</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">resWAIC</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></span><span class="op">(</span><span class="cn">NA_real_</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">6</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">resWAIC</span><span class="op">)</span> <span class="op">&lt;-</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"WAIC"</span>, <span class="st">"Dbiased"</span>, <span class="st">"phat"</span>, <span class="st">"WAIC_C"</span>, <span class="st">"Dbiased_C"</span>, <span class="st">"phat_C"</span><span class="op">)</span></span>
+<span><span class="va">logpredlik</span> <span class="op">&lt;-</span> <span class="va">Ehat</span> <span class="op">&lt;-</span> <span class="va">Vhat</span> <span class="op">&lt;-</span> <span class="va">logcondpredlik</span> <span class="op">&lt;-</span> <span class="va">condEhat</span> <span class="op">&lt;-</span> <span class="va">condVhat</span> <span class="op">&lt;-</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="cn">NA_real_</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">resWAIC</span><span class="op">)</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">resWAIC</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">d</span> <span class="op">&lt;-</span> <span class="va">draws</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span></span>
 <span>  <span class="kw">for</span> <span class="op">(</span><span class="va">j</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
@@ -899,85 +901,69 @@ WAIC<a class="anchor" aria-label="anchor" href="#example-3-8-chf-exchange-rate-d
 <span>    <span class="va">logpredlik</span><span class="op">[</span><span class="va">j</span>, <span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="fu">batches</span><span class="op">(</span><span class="va">logpredlikdraws</span><span class="op">)</span>, <span class="fl">2</span>, <span class="va">logmeanexp</span><span class="op">)</span></span>
 <span>    <span class="va">Ehat</span><span class="op">[</span><span class="va">j</span>, <span class="op">]</span> <span class="op">&lt;-</span> <span class="fu">batchMeans</span><span class="op">(</span><span class="va">logpredlikdraws</span><span class="op">)</span></span>
 <span>    <span class="va">Vhat</span><span class="op">[</span><span class="va">j</span>, <span class="op">]</span> <span class="op">&lt;-</span> <span class="fu">batchMeans</span><span class="op">(</span><span class="va">logpredlikdraws</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">-</span> <span class="va">Ehat</span><span class="op">[</span><span class="va">j</span> ,<span class="op">]</span><span class="op">^</span><span class="fl">2</span></span>
+<span>    <span class="kw">if</span> <span class="op">(</span><span class="va">i</span> <span class="op">&gt;=</span> <span class="fl">2L</span><span class="op">)</span> <span class="op">{</span> <span class="co"># also evaluate the log conditional predictive likelihood</span></span>
+<span>      <span class="va">logcondpredlikdraws</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">dnorm</a></span><span class="op">(</span><span class="va">y</span><span class="op">[</span><span class="va">j</span><span class="op">]</span>, <span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">d</span><span class="op">$</span><span class="va">sigma2s</span> <span class="op">/</span> <span class="va">d</span><span class="op">$</span><span class="va">ws</span><span class="op">[</span>, <span class="va">j</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>                                   log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span>      <span class="va">logcondpredlik</span><span class="op">[</span><span class="va">j</span>, <span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="fu">batches</span><span class="op">(</span><span class="va">logcondpredlikdraws</span><span class="op">)</span>, <span class="fl">2</span>, <span class="va">logmeanexp</span><span class="op">)</span></span>
+<span>      <span class="va">condEhat</span><span class="op">[</span><span class="va">j</span>, <span class="op">]</span> <span class="op">&lt;-</span> <span class="fu">batchMeans</span><span class="op">(</span><span class="va">logcondpredlikdraws</span><span class="op">)</span></span>
+<span>      <span class="va">condVhat</span><span class="op">[</span><span class="va">j</span>, <span class="op">]</span> <span class="op">&lt;-</span> <span class="fu">batchMeans</span><span class="op">(</span><span class="va">logcondpredlikdraws</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">-</span> <span class="va">condEhat</span><span class="op">[</span><span class="va">j</span> ,<span class="op">]</span><span class="op">^</span><span class="fl">2</span></span>
+<span>    <span class="op">}</span></span>
 <span>  <span class="op">}</span></span>
 <span>  <span class="va">resWAIC</span><span class="op">[</span><span class="va">i</span>, <span class="st">"Dbiased"</span>, <span class="op">]</span> <span class="op">&lt;-</span> <span class="op">-</span><span class="fl">2</span> <span class="op">*</span> <span class="fu">batchMeans</span><span class="op">(</span><span class="va">logpredlik</span><span class="op">)</span></span>
 <span>  <span class="va">resWAIC</span><span class="op">[</span><span class="va">i</span>, <span class="st">"phat"</span>, <span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colSums</a></span><span class="op">(</span><span class="va">Vhat</span><span class="op">)</span></span>
-<span>  <span class="va">resWAIC</span><span class="op">[</span><span class="va">i</span>, <span class="st">"D"</span>, <span class="op">]</span> <span class="op">&lt;-</span> <span class="va">resWAIC</span><span class="op">[</span><span class="va">i</span>, <span class="st">"Dbiased"</span>, <span class="op">]</span> <span class="op">+</span> <span class="fl">2</span> <span class="op">*</span> <span class="va">resWAIC</span><span class="op">[</span><span class="va">i</span>, <span class="st">"phat"</span>, <span class="op">]</span></span>
+<span>  <span class="va">resWAIC</span><span class="op">[</span><span class="va">i</span>, <span class="st">"WAIC"</span>, <span class="op">]</span> <span class="op">&lt;-</span> <span class="va">resWAIC</span><span class="op">[</span><span class="va">i</span>, <span class="st">"Dbiased"</span>, <span class="op">]</span> <span class="op">+</span> <span class="fl">2</span> <span class="op">*</span> <span class="va">resWAIC</span><span class="op">[</span><span class="va">i</span>, <span class="st">"phat"</span>, <span class="op">]</span></span>
+<span>  <span class="kw">if</span> <span class="op">(</span><span class="va">i</span> <span class="op">&gt;=</span> <span class="fl">2L</span><span class="op">)</span> <span class="op">{</span> <span class="co"># also evaluate the log conditional predictive likelihood</span></span>
+<span>    <span class="va">resWAIC</span><span class="op">[</span><span class="va">i</span>, <span class="st">"Dbiased_C"</span>, <span class="op">]</span> <span class="op">&lt;-</span> <span class="op">-</span><span class="fl">2</span> <span class="op">*</span> <span class="fu">batchMeans</span><span class="op">(</span><span class="va">logcondpredlik</span><span class="op">)</span></span>
+<span>    <span class="va">resWAIC</span><span class="op">[</span><span class="va">i</span>, <span class="st">"phat_C"</span>, <span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colSums</a></span><span class="op">(</span><span class="va">condVhat</span><span class="op">)</span></span>
+<span>    <span class="va">resWAIC</span><span class="op">[</span><span class="va">i</span>, <span class="st">"WAIC_C"</span>, <span class="op">]</span> <span class="op">&lt;-</span></span>
+<span>      <span class="va">resWAIC</span><span class="op">[</span><span class="va">i</span>, <span class="st">"Dbiased_C"</span>, <span class="op">]</span> <span class="op">+</span> <span class="fl">2</span> <span class="op">*</span> <span class="va">resWAIC</span><span class="op">[</span><span class="va">i</span>, <span class="st">"phat_C"</span>, <span class="op">]</span></span>
+<span>  <span class="op">}</span></span>
 <span><span class="op">}</span></span>
-<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">resWAIC</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, <span class="va">min</span><span class="op">)</span>, digits <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">mins</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">resWAIC</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, <span class="va">min</span><span class="op">)</span></span>
+<span><span class="va">maxs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">resWAIC</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, <span class="va">max</span><span class="op">)</span></span>
+<span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">3</span><span class="op">:</span><span class="fl">4</span>, <span class="fl">6</span><span class="op">)</span></span>
+<span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"["</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">mins</span><span class="op">[</span>, <span class="va">s</span><span class="op">]</span>, <span class="fl">2</span><span class="op">)</span>, <span class="st">", "</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">maxs</span><span class="op">[</span>, <span class="va">s</span><span class="op">]</span>, <span class="fl">2</span><span class="op">)</span>, <span class="st">"]"</span><span class="op">)</span>,</span>
+<span>              nrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">resWAIC</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="va">out</span><span class="op">[</span><span class="va">out</span> <span class="op">==</span> <span class="st">"[NA, NA]"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">""</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">out</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">resWAIC</span><span class="op">)</span><span class="op">[</span><span class="va">s</span><span class="op">]</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">out</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Gaussian"</span>, <span class="st">"t_7"</span>, <span class="st">"t_nu"</span><span class="op">)</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">out</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
+<colgroup>
+<col width="12%">
+<col width="21%">
+<col width="18%">
+<col width="23%">
+<col width="23%">
+</colgroup>
 <thead><tr class="header">
-<th align="right">D</th>
-<th align="right">Dbiased</th>
-<th align="right">phat</th>
+<th align="left"></th>
+<th align="left">WAIC</th>
+<th align="left">phat</th>
+<th align="left">WAIC_C</th>
+<th align="left">phat_C</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td align="right">11.83</td>
-<td align="right">2.2</td>
-<td align="right">4.81</td>
+<td align="left">Gaussian</td>
+<td align="left">[11.83, 13.18]</td>
+<td align="left">[4.81, 5.49]</td>
+<td align="left"></td>
+<td align="left"></td>
 </tr>
 <tr class="even">
-<td align="right">3.93</td>
-<td align="right">2.1</td>
-<td align="right">0.92</td>
+<td align="left">t_7</td>
+<td align="left">[3.93, 4.25]</td>
+<td align="left">[0.92, 1.07]</td>
+<td align="left">[606.36, 610.94]</td>
+<td align="left">[302.25, 304.54]</td>
 </tr>
 <tr class="odd">
-<td align="right">6.47</td>
-<td align="right">2.1</td>
-<td align="right">2.19</td>
-</tr>
-</tbody>
-</table>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">resWAIC</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, <span class="va">mean</span><span class="op">)</span>, digits <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
-<table class="table">
-<thead><tr class="header">
-<th align="right">D</th>
-<th align="right">Dbiased</th>
-<th align="right">phat</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td align="right">12.61</td>
-<td align="right">2.2</td>
-<td align="right">5.21</td>
-</tr>
-<tr class="even">
-<td align="right">4.06</td>
-<td align="right">2.1</td>
-<td align="right">0.98</td>
-</tr>
-<tr class="odd">
-<td align="right">6.97</td>
-<td align="right">2.1</td>
-<td align="right">2.43</td>
-</tr>
-</tbody>
-</table>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">resWAIC</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, <span class="va">max</span><span class="op">)</span>, digits <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
-<table class="table">
-<thead><tr class="header">
-<th align="right">D</th>
-<th align="right">Dbiased</th>
-<th align="right">phat</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td align="right">13.18</td>
-<td align="right">2.2</td>
-<td align="right">5.49</td>
-</tr>
-<tr class="even">
-<td align="right">4.25</td>
-<td align="right">2.1</td>
-<td align="right">1.07</td>
-</tr>
-<tr class="odd">
-<td align="right">7.82</td>
-<td align="right">2.1</td>
-<td align="right">2.86</td>
+<td align="left">t_nu</td>
+<td align="left">[6.47, 7.82]</td>
+<td align="left">[2.19, 2.86]</td>
+<td align="left">[645.76, 654.56]</td>
+<td align="left">[321.95, 326.35]</td>
 </tr>
 </tbody>
 </table>
