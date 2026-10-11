@@ -629,3 +629,47 @@ knitr::kable(out)
 # Section 12.3: Comparative model assessment through scoring rules
 
 ## Section 12.3.1: Log predictive density scores
+
+### Example 12.?: CHF exchange rate data: Testing normal vs. t using LPDS
+
+We first set the prior parameters as in Example 10.9.
+
+```{r}
+nu <- 7
+c10 <- c30 <- 3
+C10 <- 3
+C30 <- (nu - 2) / nu * C10
+```
+
+Next, we define our expanding estimation window.
+
+```{r}
+window <- seq(2000, length(y) - 1)
+```
+
+Now we run the prediction on the expanding window and evaluate the one-step ahead
+predictive likelihood. For the normal model, this can be done analytically,
+for the Student t model, we need MCMC draws.
+
+```{r}
+set.seed(seed)
+M <- 100 / mcmcspeedup
+burnin <- 100 / mcmcspeedup
+
+LPDS <- matrix(NA_real_, 2, length(window))
+for (i in seq_along(window)) {
+  ytrain <- y[seq_len(window[i])]
+  Ntrain <- length(ytrain)
+  ytest <- y[window[i] + 1]
+  
+  # Normal model
+  c1N <- c10 + 0.5 * Ntrain
+  C1N <- C10 + 0.5 * sum(ytrain^2)
+  LPDS[1, i] <- dstudt(ytest, 0, sqrt(C1N / c1N), 2 * c1N, log = TRUE)
+  
+  # Student t model
+  draws <- sampler(ytrain, M, burnin, c30, C30, nu)
+  logpreddraws <- dstudt(ytest, 0, sqrt(draws$sigma2s), draws$nus, log = TRUE)
+  LPDS[2, i] <- logmeanexp(logpreddraws)
+}
+```
