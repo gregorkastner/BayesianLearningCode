@@ -503,9 +503,11 @@ knitr::kable(apply(res, 1:2, max), digits = 2)
 ### Example 3.8: CHF exchange rate data: Testing normal vs. t using WAIC
 
 ```{r}
-resWAIC <- array(NA_real_, c(3, 3, 10))
-colnames(resWAIC) <- c("D", "Dbiased", "phat")
-Ehat <- Vhat <- logpredlik <- matrix(NA_real_, length(y), dim(resWAIC)[3])
+resWAIC <- array(NA_real_, c(3, 6, 10))
+colnames(resWAIC) <-
+  c("WAIC", "Dbiased", "phat", "WAIC_C", "Dbiased_C", "phat_C")
+logpredlik <- Ehat <- Vhat <- logcondpredlik <- condEhat <- condVhat <-
+  matrix(NA_real_, length(y), dim(resWAIC)[3])
 for (i in 1:nrow(resWAIC)) {
   d <- draws[[i]]
   for (j in seq_along(y)) {
@@ -513,10 +515,23 @@ for (i in 1:nrow(resWAIC)) {
     logpredlik[j, ] <- apply(batches(logpredlikdraws), 2, logmeanexp)
     Ehat[j, ] <- batchMeans(logpredlikdraws)
     Vhat[j, ] <- batchMeans(logpredlikdraws^2) - Ehat[j ,]^2
+    if (i >= 2L) { # also evaluate the log conditional predictive likelihood
+      logcondpredlikdraws <- dnorm(y[j], 0, sqrt(d$sigma2s / d$ws[, j]),
+                                   log = TRUE)
+      logcondpredlik[j, ] <- apply(batches(logcondpredlikdraws), 2, logmeanexp)
+      condEhat[j, ] <- batchMeans(logcondpredlikdraws)
+      condVhat[j, ] <- batchMeans(logcondpredlikdraws^2) - condEhat[j ,]^2
+    }
   }
   resWAIC[i, "Dbiased", ] <- -2 * batchMeans(logpredlik)
   resWAIC[i, "phat", ] <- colSums(Vhat)
-  resWAIC[i, "D", ] <- resWAIC[i, "Dbiased", ] + 2 * resWAIC[i, "phat", ]
+  resWAIC[i, "WAIC", ] <- resWAIC[i, "Dbiased", ] + 2 * resWAIC[i, "phat", ]
+  if (i >= 2L) { # also evaluate the log conditional predictive likelihood
+    resWAIC[i, "Dbiased_C", ] <- -2 * batchMeans(logcondpredlik)
+    resWAIC[i, "phat_C", ] <- colSums(condVhat)
+    resWAIC[i, "WAIC_C", ] <-
+      resWAIC[i, "Dbiased_C", ] + 2 * resWAIC[i, "phat_C", ]
+  }
 }
 knitr::kable(apply(resWAIC, 1:2, min), digits = 2)
 knitr::kable(apply(resWAIC, 1:2, mean), digits = 2)
