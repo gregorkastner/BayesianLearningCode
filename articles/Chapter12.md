@@ -322,43 +322,48 @@ using data augmentation.
 
 ``` r
 
-burnin <- 100
+sampler <- function(y, M, burnin, c0, C0, nu) {
+  N <- length(y)
+  
+  # starting value for w
+  w <- rep(1, N)
 
-# fix df
-nu <- 7
+  # pre-compute cN
+  cN <- c0 + N / 2
 
-# allocate space for storing the draws
-draws[[2]]$sigma2s <- rep(NA_real_, M / thin)
-draws[[2]]$nus <- rep(nu, M / thin)
-draws[[2]]$ws <- matrix(NA_real_, nrow = M / thin, ncol = N)
+  # allocate space for storing the draws
+  draws <- list()
+  draws$sigma2s <- rep(NA_real_, M)
+  draws$nus <- rep(nu, M)
+  draws$ws <- matrix(NA_real_, nrow = M, ncol = N)
+ 
+  for (m in 1:(burnin + M)) {
+    # sample sigma^2 from its full conditional (S-DA)
+    eps <- sqrt(w) * y
+    CN <- C0 + crossprod(eps) / 2
+    sigma2 <- rinvgamma(1, cN, CN)
 
-# starting value for w
-w <- rep(1, N)
+    # sample w (W-DA)
+    r <- eps^2 / (w * sigma2)
+    w <- rgamma(length(eps), (nu + 1) /2, (nu + r) / 2)
 
-# pre-compute cN
-cN <- c0 + N / 2
-
-# log likelihood
-loglik <- function(y, sigma2, nu) {
-  sum(dstudt(y, 0, sqrt(sigma2), df = nu, log = TRUE))
-}
-
-for (m in 1:(burnin + M)) {
-  # sample sigma^2 from its full conditional (S-DA)
-  eps <- sqrt(w) * y
-  CN <- C0 + crossprod(eps) / 2
-  sigma2 <- rinvgamma(1, cN, CN)
-
-  # sample w (W-DA)
-  r <- eps^2 / (w * sigma2)
-  w <- rgamma(length(eps), (nu + 1) /2, (nu + r) / 2)
-
-  # store the results
-  if (m > burnin && (m - burnin) %% thin == 0L) {
-    draws[[2]]$sigma2s[(m - burnin) / thin] <- sigma2
-    draws[[2]]$ws[(m - burnin) / thin, ] <- w
+    # store the results
+    if (m > burnin && (m - burnin) %% thin == 0L) {
+      draws$sigma2s[m - burnin] <- sigma2
+      draws$ws[m - burnin, ] <- w
+    }
   }
+  draws
 }
+```
+
+Now we can run the sampler.
+
+``` r
+
+burnin <- 100
+nu <- 7
+draws[[2]] <- sampler(y, M, burnin, c0, C0, nu)
 ```
 
 For sampling also the degrees of freedom under an exponential prior, we
@@ -372,6 +377,11 @@ cnu <- 0.3
 
 # fix prior hyperparameters
 lambda <- 1 / 7
+
+# log likelihood
+loglik <- function(y, sigma2, nu) {
+  sum(dstudt(y, 0, sqrt(sigma2), df = nu, log = TRUE))
+}
 
 # allocate space for storing the draws
 draws[[3]]$nus <- draws[[3]]$sigma2s <- rep(NA_real_, M / thin)
@@ -727,4 +737,75 @@ knitr::kable(out)
 
 ## Section 12.3: Comparative model assessment through scoring rules
 
-### Section 3.3.1: Log predictive density scores
+### Section 12.3.1: Log predictive density scores
+
+#### Example 12.?: CHF exchange rate data: Testing normal vs. t using LPDS
+
+We first set the prior parameters as in Example 10.9.
+
+``` r
+
+nu <- 7
+c10 <- c30 <- 3
+C10 <- 3
+C30 <- (nu - 2) / nu * C10
+```
+
+Next, we define our expanding estimation window.
+
+``` r
+
+window <- seq(2000, length(y) - 1)
+```
+
+Now we run the prediction on the expanding window and evaluate the
+one-step ahead predictive likelihood. For the normal model, this can be
+done analytically, for the Student t model, we need MCMC draws.
+
+``` r
+
+set.seed(seed)
+M <- 100 / mcmcspeedup
+burnin <- 100 / mcmcspeedup
+
+LPDS <- matrix(NA_real_, 2, length(window))
+for (i in seq_along(window)) {
+  ytrain <- y[seq_len(window[i])]
+  Ntrain <- length(ytrain)
+  ytest <- y[window[i] + 1]
+  
+  # Normal model
+  c1N <- c10 + 0.5 * Ntrain
+  C1N <- C10 + 0.5 * sum(ytrain^2)
+  LPDS[1, i] <- dstudt(ytest, 0, sqrt(C1N / c1N), 2 * c1N, log = TRUE)
+  
+  # Student t model
+  draws <- sampler(ytrain, M, burnin, c30, C30, nu)
+  logpreddraws <- dstudt(ytest, 0, sqrt(draws$sigma2s), draws$nus, log = TRUE)
+  LPDS[2, i] <- logmeanexp(logpreddraws)
+}
+```
+
+Now we compare and visualize.
+
+``` r
+
+logBF <- LPDS[2, ] - LPDS[1, ]
+cumlogBF <- cumsum(logBF)
+xs <- window + 1
+plot(xs, y[xs], col = "darkgrey", xlab = "Time", ylab = "", yaxt = "n",
+     type = "l")
+axis(4)
+mtext("CHF-USD daily percentage log returns", side = 4, line = 1.5)
+abline(h = 0, lty = 3, col = "darkgray", lwd = 1.5)
+par(new = TRUE)
+plot(xs, cumlogBF, col = rgb(logBF < 0, 0, logBF > 0, .5), type = "b",
+     axes = FALSE, xlab = "", ylab = "", pch = 16, lwd = 2)
+axis(2)
+mtext("Cumulative log BF", side = 2, line = 1.5)
+legend("topleft", c(paste0("LPDS > 0 (", round(100 * mean(logBF > 0)), "%)"),
+                    paste0("LPDS < 0 (", round(100 * mean(logBF < 0)), "%)")),
+       col = rgb(c(0, 1), 0, c(1, 0), .5), pch = 16, lty = 1, lwd = 2)
+```
+
+![](Chapter12_files/figure-html/unnamed-chunk-29-1.png)
