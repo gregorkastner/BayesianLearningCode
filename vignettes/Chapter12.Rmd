@@ -332,19 +332,36 @@ D_nonvec <- function(y, sigma2, nu) -2 * loglik(y, sigma2, nu)
 D <- Vectorize(D_nonvec, c("sigma2", "nu"))
 ```
 
-Now, we estimate the average deviance, the deviance of the posterior averages,
-the effective number of parameters, and finally, DIC.
+Before we move on, let us define a function that sorts a vector into batches,
+and another one which computes the batch-wise means.
+That way, we can numerically gauge the precision of our estimates.
 
 ```{r}
-res <- matrix(NA_real_, 3, 4)
+batches <- function(x, amount = 10) {
+  matrix(x, ncol = amount)
+}
+
+batchMeans <- function(x, amount = 10) {
+  colMeans(batches(x, amount = amount))
+}
+```
+
+Now, we estimate the average deviance, the deviance of the posterior averages,
+the effective number of parameters, and, finally, DIC.
+
+```{r}
+res <- array(NA_real_, c(3, 4, 10))
 colnames(res) <- c("DIC", "avgD", "Davg", "pd")
 for (i in 1:nrow(res)) {
-  res[i, "avgD"] <- mean(D(y, draws[[i]]$sigma2s, draws[[i]]$nus))
-  res[i, "Davg"] <- D(y, mean(draws[[i]]$sigma2s), mean(draws[[i]]$nus))
-  res[i, "pd"] <-  res[i, "avgD"] - res[i, "Davg"]
-  res[i, "DIC"] <- res[i, "avgD"] + res[i, "pd"]
+  d <- draws[[i]]
+  res[i, "avgD", ] <- batchMeans(D(y, d$sigma2s, d$nus))
+  res[i, "Davg", ] <- D(y, batchMeans(d$sigma2s), batchMeans(d$nus))
+  res[i, "pd", ] <-  res[i, "avgD", ] - res[i, "Davg", ]
+  res[i, "DIC", ] <- res[i, "avgD", ] + res[i, "pd", ]
 }
-knitr::kable(res, digits = 1)
+knitr::kable(apply(res, 1:2, min), digits = 2)
+knitr::kable(apply(res, 1:2, mean), digits = 2)
+knitr::kable(apply(res, 1:2, max), digits = 2)
 ```
 
 For the Gaussian model (only), we can compute the DIC in closed form.
@@ -381,7 +398,7 @@ logauglik <- function(y, sigma2, nu, w) {
 Now we can compute the conditional and the augmented DIC.
 
 ```{r}
-res <- matrix(NA_real_, 2, 4)
+res <- array(NA_real_, c(2, 4, 10))
 colnames(res) <- c("DIC_C", "pd_C", "DIC_A", "pd_A")
 for (i in 1:nrow(res)) {
   d <- draws[[i + 1]]
@@ -392,7 +409,7 @@ for (i in 1:nrow(res)) {
   })
   
   # Compute the average conditional deviance
-  avgcondD <- -2 * mean(alllogcondlik)
+  avgcondD <- -2 * batchMeans(alllogcondlik)
   
   # Evaluate the log augmented likelihood at all posterior draws
   alllogauglik <- sapply(seq_along(d$sigma2s), function(j) {
@@ -404,32 +421,34 @@ for (i in 1:nrow(res)) {
     dinvgamma(d$sigma2s, c0, C0, log = TRUE) + dexp(d$nus, lambda, log = TRUE)
   
   # Find the index of the posterior draw with highest joint posterior density
-  MAPind <- which.max(alllogpost_unnormalized)
+  MAPind <- apply(batches(alllogpost_unnormalized), 2, which.max)
   
   # Evaluate the conditional deviance at the MAP
-  estcondD <- -2 * alllogcondlik[MAPind]
+  estcondD <- -2 * batches(alllogcondlik)[cbind(MAPind, seq_len(dim(res)[3]))]
   
   # Compute conditional pd and conditional DIC
-  res[i, "pd_C"] <- avgcondD - estcondD
-  res[i, "DIC_C"] <- 2 * avgcondD - estcondD
+  res[i, "pd_C", ] <- avgcondD - estcondD
+  res[i, "DIC_C", ] <- 2 * avgcondD - estcondD
   
   # Compute the average augmented deviance
-  avgaugD <- -2 * mean(alllogauglik)
+  avgaugD <- -2 * batchMeans(alllogauglik)
   
   # Evaluate the augmented deviance at the MAP
-  estaugD <- -2 * alllogauglik[MAPind]
+  estaugD <- -2 * batches(alllogauglik)[cbind(MAPind, seq_len(dim(res)[3]))]
   
   # Compute augmented pd and augmented DIC
-  res[i, "pd_A"] <- avgaugD - estaugD
-  res[i, "DIC_A"] <- 2 * avgaugD - estaugD
+  res[i, "pd_A", ] <- avgaugD - estaugD
+  res[i, "DIC_A", ] <- 2 * avgaugD - estaugD
 }
-knitr::kable(res)
+knitr::kable(apply(res, 1:2, min), digits = 2)
+knitr::kable(apply(res, 1:2, mean), digits = 2)
+knitr::kable(apply(res, 1:2, max), digits = 2)
 ```
 
 Let's try with the posterior mean as point estimate.
 
 ```{r}
-res <- matrix(NA_real_, 2, 4)
+res <- array(NA_real_, c(2, 4, 10))
 colnames(res) <- c("DIC_C", "pd_C", "DIC_A", "pd_A")
 for (i in 1:nrow(res)) {
   d <- draws[[i + 1]]
@@ -440,7 +459,7 @@ for (i in 1:nrow(res)) {
   })
   
   # Compute the average conditional deviance
-  avgcondD <- -2 * mean(alllogcondlik)
+  avgcondD <- -2 * batchMeans(alllogcondlik)
   
   # Evaluate the log augmented likelihood at all posterior draws
   alllogauglik <- sapply(seq_along(d$sigma2s), function(j) {
@@ -448,23 +467,35 @@ for (i in 1:nrow(res)) {
   })
   
   # Evaluate the conditional deviance at the posterior mean
-  estcondD <- -2 * logcondlik(y, mean(d$sigma2s), mean(d$nus), colMeans(d$ws))
+  sigma2means <- batchMeans(d$sigma2s)
+  numeans <- batchMeans(d$nus)
+  wmeans <- apply(d$ws, 2, batchMeans)
+  
+  estcondD <- rep(NA_real_, dim(res)[3])
+  for (j in seq_len(dim(res)[3])) {
+    estcondD[j] <- -2 * logcondlik(y, sigma2means[j], numeans[j], wmeans[j, ])
+  }
   
   # Compute conditional pd and conditional DIC
-  res[i, "pd_C"] <- avgcondD - estcondD
-  res[i, "DIC_C"] <- 2 * avgcondD - estcondD
+  res[i, "pd_C", ] <- avgcondD - estcondD
+  res[i, "DIC_C", ] <- 2 * avgcondD - estcondD
   
   # Compute the average augmented deviance
-  avgaugD <- -2 * mean(alllogauglik)
+  avgaugD <- -2 * batchMeans(alllogauglik)
   
-  # Evaluate the augmented deviance at the MAP
-  estaugD <- -2 * logauglik(y, mean(d$sigma2s), mean(d$nus), colMeans(d$ws))
+  # Evaluate the augmented deviance at the posterior mean
+  estaugD <- rep(NA_real_, dim(res)[3])
+  for (j in seq_len(dim(res)[3])) {
+    estaugD[j] <- -2 * logauglik(y, sigma2means[j], numeans[j], wmeans[j, ])
+  }
   
   # Compute augmented pd and augmented DIC
-  res[i, "pd_A"] <- avgaugD - estaugD
-  res[i, "DIC_A"] <- 2 * avgaugD - estaugD
+  res[i, "pd_A", ] <- avgaugD - estaugD
+  res[i, "DIC_A", ] <- 2 * avgaugD - estaugD
 }
-knitr::kable(res, digits = 0)
+knitr::kable(apply(res, 1:2, min), digits = 2)
+knitr::kable(apply(res, 1:2, mean), digits = 2)
+knitr::kable(apply(res, 1:2, max), digits = 2)
 ```
 
 ## Section 12.2.4: Widely applicable information criterion (WAIC)
@@ -472,21 +503,23 @@ knitr::kable(res, digits = 0)
 ### Example 3.8: CHF exchange rate data: Testing normal vs. t using WAIC
 
 ```{r}
-resWAIC <- matrix(NA_real_, 3, 3)
+resWAIC <- array(NA_real_, c(3, 3, 10))
 colnames(resWAIC) <- c("D", "Dbiased", "phat")
-Ehat <- Vhat <- logpredlik <- rep(NA_real_, length(y))
-for (i in 1:nrow(res)) {
+Ehat <- Vhat <- logpredlik <- matrix(NA_real_, length(y), dim(resWAIC)[3])
+for (i in 1:nrow(resWAIC)) {
   d <- draws[[i]]
   for (j in seq_along(y)) {
     logpredlikdraws <- dstudt(y[j], 0, sqrt(d$sigma2s), d$nus, log = TRUE)
-    logpredlik[j] <- logmeanexp(logpredlikdraws)
-    Ehat[j] <- mean(logpredlikdraws)
-    Vhat[j] <- mean(logpredlikdraws^2) - Ehat[j]^2
+    logpredlik[j, ] <- apply(batches(logpredlikdraws), 2, logmeanexp)
+    Ehat[j, ] <- batchMeans(logpredlikdraws)
+    Vhat[j, ] <- batchMeans(logpredlikdraws^2) - Ehat[j ,]^2
   }
-  resWAIC[i, "Dbiased"] <- -2 * sum(logpredlik)
-  resWAIC[i, "phat"] <- sum(Vhat)
-  resWAIC[i, "D"] <- resWAIC[i, "Dbiased"] + 2 * resWAIC[i, "phat"]
+  resWAIC[i, "Dbiased", ] <- -2 * batchMeans(logpredlik)
+  resWAIC[i, "phat", ] <- colSums(Vhat)
+  resWAIC[i, "D", ] <- resWAIC[i, "Dbiased", ] + 2 * resWAIC[i, "phat", ]
 }
-knitr::kable(resWAIC)
+knitr::kable(apply(resWAIC, 1:2, min), digits = 2)
+knitr::kable(apply(resWAIC, 1:2, mean), digits = 2)
+knitr::kable(apply(resWAIC, 1:2, max), digits = 2)
 ```
 
