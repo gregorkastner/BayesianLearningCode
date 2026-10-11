@@ -673,3 +673,28 @@ for (i in seq_along(window)) {
   LPDS[2, i] <- logmeanexp(logpreddraws)
 }
 ```
+
+Now we compare and visualize.
+
+```{r, echo = -c(1:2)}
+if (pdfplots) {
+  pdf("12-3_1.pdf", width = 8, height = 4)
+}
+par(mar = c(2.5, 2.5, 0.5, 2.5), mgp = c(1.6, .6, 0))
+logBF <- LPDS[2, ] - LPDS[1, ]
+cumlogBF <- cumsum(logBF)
+xs <- window + 1
+plot(xs, y[xs], col = "darkgrey", xlab = "Time", ylab = "", yaxt = "n",
+     type = "l")
+axis(4)
+mtext("CHF-USD daily percentage log returns", side = 4, line = 1.5)
+abline(h = 0, lty = 3, col = "darkgray", lwd = 1.5)
+par(new = TRUE)
+plot(xs, cumlogBF, col = rgb(logBF < 0, 0, logBF > 0, .5), type = "b",
+     axes = FALSE, xlab = "", ylab = "", pch = 16, lwd = 2)
+axis(2)
+mtext("Cumulative log BF", side = 2, line = 1.5)
+legend("topleft", c(paste0("LPDS > 0 (", round(100 * mean(logBF > 0)), "%)"),
+                    paste0("LPDS < 0 (", round(100 * mean(logBF < 0)), "%)")),
+       col = rgb(c(0, 1), 0, c(1, 0), .5), pch = 16, lty = 1, lwd = 2)
+```
