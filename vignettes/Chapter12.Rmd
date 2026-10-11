@@ -192,9 +192,7 @@ for (i in seq_along(AIC)) {
 knitr::kable(rbind(AIC, BIC), digits = 2)
 ```
 
-## Section 12.2.3: Deviance information criterion (DIC)
-
-### Example 12.6: CHF exchange rate data: Testing normal vs. t using DIC
+### Example 3.3: CHF exchange rate data: Testing normal vs. t using AIC and BIC
 
 Let's load the data first and make some space for the draws under the three
 models.
@@ -204,7 +202,80 @@ data("exrates", package = "stochvol")
 y <- 100 * diff(log(exrates$USD / exrates$CHF))
 X <- 1
 N <- length(y)
+```
 
+The maximum likelihood estimator for normal data is known in closed form, while
+for the $t$ distribution we have to find it numerically. Thus, we write a
+function first. To ensure positivity for our parameter(s), we work on the log
+scale.
+
+```{r}
+mle <- function(y, df = NULL) {
+  # We first define the negative log likelihood function. If df is NULL,
+  # par is expected to have two elements (logsigma and lognu), otherwise
+  # just one (logsigma)
+  nll <- function(y, par, df = NULL) {
+    sigma <- exp(par[1])
+    if (is.null(df)) nu <- exp(par[2]) else nu <- df
+    -sum(dstudt(y, 0, sigma, nu, log = TRUE))
+  }
+  
+  s <- sqrt(mean(y^2)) # starting value
+  
+  if (!is.null(df)) { # Case 1: df known/fixed
+    fit <- optim(log(s), nll, y = y, df = df,
+                 method = "BFGS", hessian = TRUE)
+  } else { # Case 2: df is to be estimated
+    d <- 7 # starting value
+    fit <- optim(c(log(s), log(d)), nll, y = y,
+                 method = "BFGS", hessian = TRUE)
+  }
+
+  list(muhat = 0,
+       sigma2hat = exp(fit$par[1])^2,
+       nuhat = if (is.null(df)) exp(fit$par[2]) else df,
+       loglik = -fit$value, convergence = fit$convergence,
+       hessian = fit$hessian)
+}
+```
+
+Now we can compute the MLEs.
+
+```{r}
+mles <- matrix(NA_real_, nrow = 3, ncol = 2)
+colnames(mles) <- c("sigma2", "nu")
+mles[1, "sigma2"] <- mean(y^2) # same as mle(y, df = Inf)$sigma2hat
+mles[1, "nu"] <- Inf
+mles[2, "sigma2"] <- mle(y, df = 7)$sigma2hat
+mles[2, "nu"] <- 7
+mles[3, "sigma2"] <- mle(y)$sigma2hat
+mles[3, "nu"] <- mle(y)$nuhat
+```
+
+And finally, we compute AIC and BIC.
+
+```{r}
+res <- matrix(NA_real_, nrow = nrow(mles), ncol = 2)
+colnames(res) <- c("AIC", "BIC")
+rownames(res) <- c("Gaussian", "t_7", "t_nu")
+
+for (i in seq_len(nrow(mles))) {
+  ll <- sum(dstudt(y, 0, sqrt(mles[i, "sigma2"]), mles[i, "nu"], log = TRUE))
+  if (rownames(res)[i] == "t_nu") d <- 2 else d <- 1
+  res[i, "AIC"] <- -2 * ll + 2 * d
+  res[i, "BIC"] <- -2 * ll + log(N) * d
+}
+
+knitr::kable(t(res), digits = 2)
+```
+
+## Section 12.2.3: Deviance information criterion (DIC)
+
+### Example 12.6: CHF exchange rate data: Testing normal vs. t using DIC
+
+We will store the MCMC draws of the three models in questions.
+
+```{r}
 draws <- vector("list", 3)
 ```
 
