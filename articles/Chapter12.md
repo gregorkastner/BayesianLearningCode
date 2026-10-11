@@ -196,6 +196,8 @@ knitr::kable(rbind(AIC, BIC), digits = 2)
 | AIC | -1808.61 | -1828.87 | -1839.65 | -1837.66 | -1836.24 |
 | BIC | -1801.15 | -1817.68 | -1824.72 | -1819.01 | -1813.86 |
 
+### Section 12.2.3: Deviance information criterion (DIC)
+
 #### Example 12.6: CHF exchange rate data: Testing normal vs. t using DIC
 
 Let’s load the data first and make some space for the draws under the
@@ -642,3 +644,7 @@ knitr::kable(out)
 | Gaussian | \[11.83, 13.18\] | \[4.81, 5.49\] |  |  |
 | t_7 | \[3.93, 4.25\] | \[0.92, 1.07\] | \[606.36, 610.94\] | \[302.25, 304.54\] |
 | t_nu | \[6.47, 7.82\] | \[2.19, 2.86\] | \[645.76, 654.56\] | \[321.95, 326.35\] |
+
+## Section 12.3: Comparative model assessment through scoring rules
+
+### Section 3.3.1: Log predictive density scores
