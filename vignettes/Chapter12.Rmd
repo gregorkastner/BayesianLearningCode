@@ -404,6 +404,7 @@ for (m in 1:(burnin + M)) {
     draws[[3]]$ws[(m - burnin) / thin, ] <- w
   }
 }
+print(accepts / M)
 ```
 
 We can now estimate the DIC from the draws. First, we define the deviance
