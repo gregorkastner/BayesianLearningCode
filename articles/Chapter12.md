@@ -1,5 +1,12 @@
 # Chapter 12: Model Assessment and Predictive Model Checking
 
+``` r
+
+pdfplots <- FALSE # default: FALSE; set this to TRUE only if you like pdf figures
+mcmcspeedup <- 10L # default: 1L; set this to something higher for fewer draws
+seed <- 42 # for reproducability
+```
+
 ## Section 12.1: Beyond classical Bayesian model comparison
 
 ### Section 12.1.1: Schwarz criterion and BIC
@@ -105,7 +112,7 @@ barplot(colMeans(res$gamma_post), col = "blue", names.arg = 1:p,
         xlab = "Covariate", ylab = "PIP")
 ```
 
-![](Chapter12_files/figure-html/unnamed-chunk-4-1.png)
+![](Chapter12_files/figure-html/unnamed-chunk-5-1.png)
 
 To determine the models visited most often we re-use a function which we
 defined in Chapter 11.
@@ -423,6 +430,8 @@ for (m in 1:(burnin + M)) {
     draws[[3]]$ws[(m - burnin) / thin, ] <- w
   }
 }
+print(accepts / M)
+#> [1] 0.2928
 ```
 
 We can now estimate the DIC from the draws. First, we define the
@@ -441,6 +450,7 @@ we can numerically gauge the precision of our estimates.
 ``` r
 
 batches <- function(x, amount = 10) {
+  stopifnot(length(x) == 1L || length(x) %% amount == 0L)
   matrix(x, ncol = amount)
 }
 
@@ -708,11 +718,11 @@ for (i in 1:nrow(resWAIC)) {
       condVhat[j, ] <- batchMeans(logcondpredlikdraws^2) - condEhat[j ,]^2
     }
   }
-  resWAIC[i, "Dbiased", ] <- -2 * colMeans(logpredlik)
+  resWAIC[i, "Dbiased", ] <- -2 * colSums(logpredlik)
   resWAIC[i, "phat", ] <- colSums(Vhat)
   resWAIC[i, "WAIC", ] <- resWAIC[i, "Dbiased", ] + 2 * resWAIC[i, "phat", ]
   if (i >= 2L) { # also evaluate the log conditional predictive likelihood
-    resWAIC[i, "Dbiased_C", ] <- -2 * colMeans(logcondpredlik)
+    resWAIC[i, "Dbiased_C", ] <- -2 * colSums(logcondpredlik)
     resWAIC[i, "phat_C", ] <- colSums(condVhat)
     resWAIC[i, "WAIC_C", ] <-
       resWAIC[i, "Dbiased_C", ] + 2 * resWAIC[i, "phat_C", ]
@@ -731,9 +741,9 @@ knitr::kable(out)
 
 |  | WAIC | phat | WAIC_C | phat_C |
 |:---|:---|:---|:---|:---|
-| Gaussian | \[11.83, 13.18\] | \[4.81, 5.49\] |  |  |
-| t_7 | \[3.93, 4.25\] | \[0.92, 1.07\] | \[606.36, 610.94\] | \[302.25, 304.54\] |
-| t_nu | \[6.47, 7.82\] | \[2.19, 2.86\] | \[645.76, 654.56\] | \[321.95, 326.35\] |
+| Gaussian | \[6910.8, 6911.71\] | \[4.81, 5.49\] |  |  |
+| t_7 | \[6605.36, 6605.69\] | \[0.92, 1.07\] | \[6484.4, 6488.91\] | \[302.25, 304.54\] |
+| t_nu | \[6605.66, 6606.81\] | \[2.19, 2.86\] | \[6467.73, 6479.75\] | \[321.95, 326.35\] |
 
 ## Section 12.3: Comparative model assessment through scoring rules
 
@@ -808,4 +818,4 @@ legend("topleft", c(paste0("Log BF > 0 (", round(100 * mean(logBF > 0)), "%)"),
        col = rgb(c(0, 1), 0, c(1, 0), .5), pch = 16, lty = 1, lwd = 2)
 ```
 
-![](Chapter12_files/figure-html/unnamed-chunk-29-1.png)
+![](Chapter12_files/figure-html/unnamed-chunk-30-1.png)
