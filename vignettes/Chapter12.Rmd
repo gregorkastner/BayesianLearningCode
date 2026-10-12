@@ -17,9 +17,12 @@ knitr::opts_chunk$set(
   fig.height = 6
 )
 knitr::opts_knit$set(global.par = TRUE)
+```
+
+```{r}
 pdfplots <- FALSE # default: FALSE; set this to TRUE only if you like pdf figures
 mcmcspeedup <- 10L # default: 1L; set this to something higher for fewer draws
-seed <- 42
+seed <- 42 # for reproducability
 ```
 
 # Section 12.1: Beyond classical Bayesian model comparison
