@@ -196,7 +196,7 @@ knitr::kable(rbind(AIC, BIC), digits = 2)
 | AIC | -1808.61 | -1828.87 | -1839.65 | -1837.66 | -1836.24 |
 | BIC | -1801.15 | -1817.68 | -1824.72 | -1819.01 | -1813.86 |
 
-#### Example 3.3: CHF exchange rate data: Testing normal vs. t using AIC and BIC
+#### Example 12.3: CHF exchange rate data: Testing normal vs. t using AIC and BIC
 
 Let’s load the data first and make some space for the draws under the
 three models.
@@ -684,7 +684,7 @@ knitr::kable(apply(res, 1:2, max), digits = 2)
 
 ### Section 12.2.4: Widely applicable information criterion (WAIC)
 
-#### Example 3.8: CHF exchange rate data: Testing normal vs. t using WAIC
+#### Example 12.8: CHF exchange rate data: Testing normal vs. t using WAIC
 
 ``` r
 
@@ -708,11 +708,11 @@ for (i in 1:nrow(resWAIC)) {
       condVhat[j, ] <- batchMeans(logcondpredlikdraws^2) - condEhat[j ,]^2
     }
   }
-  resWAIC[i, "Dbiased", ] <- -2 * batchMeans(logpredlik)
+  resWAIC[i, "Dbiased", ] <- -2 * colMeans(logpredlik)
   resWAIC[i, "phat", ] <- colSums(Vhat)
   resWAIC[i, "WAIC", ] <- resWAIC[i, "Dbiased", ] + 2 * resWAIC[i, "phat", ]
   if (i >= 2L) { # also evaluate the log conditional predictive likelihood
-    resWAIC[i, "Dbiased_C", ] <- -2 * batchMeans(logcondpredlik)
+    resWAIC[i, "Dbiased_C", ] <- -2 * colMeans(logcondpredlik)
     resWAIC[i, "phat_C", ] <- colSums(condVhat)
     resWAIC[i, "WAIC_C", ] <-
       resWAIC[i, "Dbiased_C", ] + 2 * resWAIC[i, "phat_C", ]
@@ -803,8 +803,8 @@ plot(xs, cumlogBF, col = rgb(logBF < 0, 0, logBF > 0, .5), type = "b",
      axes = FALSE, xlab = "", ylab = "", pch = 16, lwd = 2)
 axis(2)
 mtext("Cumulative log BF", side = 2, line = 1.5)
-legend("topleft", c(paste0("LPDS > 0 (", round(100 * mean(logBF > 0)), "%)"),
-                    paste0("LPDS < 0 (", round(100 * mean(logBF < 0)), "%)")),
+legend("topleft", c(paste0("Log BF > 0 (", round(100 * mean(logBF > 0)), "%)"),
+                    paste0("Log BF < 0 (", round(100 * mean(logBF < 0)), "%)")),
        col = rgb(c(0, 1), 0, c(1, 0), .5), pch = 16, lty = 1, lwd = 2)
 ```
 
