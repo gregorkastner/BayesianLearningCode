@@ -420,6 +420,7 @@ That way, we can numerically gauge the precision of our estimates.
 
 ```{r}
 batches <- function(x, amount = 10) {
+  stopifnot(length(x) %% amount == 0L)
   matrix(x, ncol = amount)
 }
 
