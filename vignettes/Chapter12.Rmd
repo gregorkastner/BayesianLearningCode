@@ -192,7 +192,7 @@ for (i in seq_along(AIC)) {
 knitr::kable(rbind(AIC, BIC), digits = 2)
 ```
 
-### Example 3.3: CHF exchange rate data: Testing normal vs. t using AIC and BIC
+### Example 12.3: CHF exchange rate data: Testing normal vs. t using AIC and BIC
 
 Let's load the data first and make some space for the draws under the three
 models.
@@ -582,7 +582,7 @@ knitr::kable(apply(res, 1:2, max), digits = 2)
 
 ## Section 12.2.4: Widely applicable information criterion (WAIC)
 
-### Example 3.8: CHF exchange rate data: Testing normal vs. t using WAIC
+### Example 12.8: CHF exchange rate data: Testing normal vs. t using WAIC
 
 ```{r}
 resWAIC <- array(NA_real_, c(3, 6, 10))
@@ -694,7 +694,7 @@ plot(xs, cumlogBF, col = rgb(logBF < 0, 0, logBF > 0, .5), type = "b",
      axes = FALSE, xlab = "", ylab = "", pch = 16, lwd = 2)
 axis(2)
 mtext("Cumulative log BF", side = 2, line = 1.5)
-legend("topleft", c(paste0("LPDS > 0 (", round(100 * mean(logBF > 0)), "%)"),
-                    paste0("LPDS < 0 (", round(100 * mean(logBF < 0)), "%)")),
+legend("topleft", c(paste0("Log BF > 0 (", round(100 * mean(logBF > 0)), "%)"),
+                    paste0("Log BF < 0 (", round(100 * mean(logBF < 0)), "%)")),
        col = rgb(c(0, 1), 0, c(1, 0), .5), pch = 16, lty = 1, lwd = 2)
 ```
