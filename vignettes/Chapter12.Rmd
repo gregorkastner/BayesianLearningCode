@@ -470,7 +470,7 @@ knitr::kable(cbind(DIC, avgD, Davg, pd))
 
 Because we also stored the weights, we can use the samples from above to compute
 conditional and augmented DICs. To do so, we first define the log conditional
-likelihood. and the log augmented ("complete-data") likelihood.
+likelihood and the log augmented ("complete-data") likelihood.
 
 ```{r}
 logcondlik <- function(y, sigma2, nu, w) {
