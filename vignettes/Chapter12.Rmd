@@ -605,11 +605,11 @@ for (i in 1:nrow(resWAIC)) {
       condVhat[j, ] <- batchMeans(logcondpredlikdraws^2) - condEhat[j ,]^2
     }
   }
-  resWAIC[i, "Dbiased", ] <- -2 * batchMeans(logpredlik)
+  resWAIC[i, "Dbiased", ] <- -2 * colMeans(logpredlik)
   resWAIC[i, "phat", ] <- colSums(Vhat)
   resWAIC[i, "WAIC", ] <- resWAIC[i, "Dbiased", ] + 2 * resWAIC[i, "phat", ]
   if (i >= 2L) { # also evaluate the log conditional predictive likelihood
-    resWAIC[i, "Dbiased_C", ] <- -2 * batchMeans(logcondpredlik)
+    resWAIC[i, "Dbiased_C", ] <- -2 * colMeans(logcondpredlik)
     resWAIC[i, "phat_C", ] <- colSums(condVhat)
     resWAIC[i, "WAIC_C", ] <-
       resWAIC[i, "Dbiased_C", ] + 2 * resWAIC[i, "phat_C", ]
