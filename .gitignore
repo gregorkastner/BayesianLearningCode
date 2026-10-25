@@ -57,3 +57,4 @@ rsconnect/
 .quarto
 docs
 inst/doc
+.posit/assistant
