@@ -1309,12 +1309,12 @@ for the absolute returns.
 ``` r
 
 data("exrates", package = "stochvol")
-dat <- exrates$USD / exrates$CHF
+dat <- log(exrates$USD / exrates$CHF)
 ret <- diff(dat)
-plot(dat, type = "l", main = "CHF-USD exchange rate", xlab = "Days",
-     ylab = "CHF in USD")
-plot(ret, type = "l", main = "CHF-USD daily returns", xlab = "Days",
-     ylab = "CHF-USD")
+plot(dat, type = "l", main = "CHF-USD log exchange rate", xlab = "Days",
+     ylab = "")
+plot(ret, type = "l", main = "CHF-USD daily log returns", xlab = "Days",
+     ylab = "")
 acf(dat)
 acf(ret)
 ```
@@ -1476,9 +1476,9 @@ for (i in seq_along(D0)) {
 }
 logSD <- logpostordinate - dnorm(0, b0[1], sqrt(D0), log = TRUE)
 (round(exp(logSD), 2))
-#> [1]   10.37  103.29 1032.89
+#> [1]   11.33  112.92 1129.22
 (round(sqrt(2 * pi * D0) * exp(logpostordinate), 2)) # equivalent
-#> [1]   10.37  103.29 1032.89
+#> [1]   11.33  112.92 1129.22
 ```
 
 #### Example 11.18: CHF exchange rate data: Bayesian unit root testing with unknown model order
@@ -1557,10 +1557,10 @@ knitr::kable(tab, digits = 2)
 
 |          |      |          |      |
 |---------:|-----:|---------:|-----:|
-| 11366.67 | 0.49 | 11366.60 | 0.45 |
-| 11363.70 | 0.02 | 11363.60 | 0.02 |
-| 11362.49 | 0.01 | 11362.35 | 0.01 |
-| 11358.57 | 0.00 | 11358.42 | 0.00 |
+| 10971.57 | 0.52 | 10971.43 | 0.46 |
+| 10967.55 | 0.01 | 10967.40 | 0.01 |
+| 10965.59 | 0.00 | 10965.40 | 0.00 |
+| 10961.58 | 0.00 | 10961.39 | 0.00 |
 
 ### Section 11.4.3: Bayesian testing for first-order Markov chain models
 

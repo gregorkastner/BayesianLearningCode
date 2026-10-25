@@ -527,7 +527,7 @@ knitr::kable(cbind(DIC, avgD, Davg, pd))
 
 Because we also stored the weights, we can use the samples from above to
 compute conditional and augmented DICs. To do so, we first define the
-log conditional likelihood. and the log augmented (“complete-data”)
+log conditional likelihood and the log augmented (“complete-data”)
 likelihood.
 
 ``` r
@@ -765,7 +765,7 @@ Next, we define our expanding estimation window.
 
 ``` r
 
-window <- seq(2000, length(y) - 1)
+trainends <- seq(2000, length(y) - 1)
 ```
 
 Now we run the prediction on the expanding window and evaluate the
@@ -778,11 +778,11 @@ set.seed(seed)
 M <- 100 / mcmcspeedup
 burnin <- 100 / mcmcspeedup
 
-LPDS <- matrix(NA_real_, 2, length(window))
-for (i in seq_along(window)) {
-  ytrain <- y[seq_len(window[i])]
+LPDS <- matrix(NA_real_, 2, length(trainends))
+for (i in seq_along(trainends)) {
+  ytrain <- y[seq_len(trainends[i])]
   Ntrain <- length(ytrain)
-  ytest <- y[window[i] + 1]
+  ytest <- y[trainends[i] + 1]
   
   # Normal model
   c1N <- c10 + 0.5 * Ntrain
@@ -802,7 +802,7 @@ Now we compare and visualize.
 
 logBF <- LPDS[2, ] - LPDS[1, ]
 cumlogBF <- cumsum(logBF)
-xs <- window + 1
+xs <- trainends + 1
 plot(xs, y[xs], col = "darkgrey", xlab = "Time", ylab = "", yaxt = "n",
      type = "l")
 axis(4)
