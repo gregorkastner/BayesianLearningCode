@@ -1289,6 +1289,7 @@ observations.
 ```{r}
 set.seed(seed - 123)
 pu <- 4
+D0 <- 0.1^2
 resG <- resDF <- vector("list", pu)
 
 # Set up response and covariates:
