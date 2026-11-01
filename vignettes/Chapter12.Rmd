@@ -532,7 +532,51 @@ knitr::kable(apply(res, 1:2, mean), digits = 2)
 knitr::kable(apply(res, 1:2, max), digits = 2)
 ```
 
-Let's try with the posterior mean as point estimate.
+Our MAP approximation is probably rather bad (remember that we are trying
+to find the maximum of a high-dimensional function). Let us try to exploit
+the fact that the conditional maxima of the ws are available in closed form.
+
+```{r}
+# Non-normalized negative joint log-posterior, with w replaced by
+# its closed-form conditional mode
+objective <- function(par, y, c0, C0, lambda) {
+  
+  sigma2 <- exp(par[1])     # sigma2 must be positive
+  nu     <- 1 + exp(par[2]) # nu must be > 1 for the conditional mode to exist
+
+  # Conditional mode of w_i | y_i, sigma2, nu
+#  print(round(c(nu, sigma2), 2))
+  w_hat <- (nu - 1) / (nu + y^2 / sigma2)
+
+  # Log likelihood: y | w, sigma2
+  loglik <- sum(dnorm(y, 0, sqrt(sigma2 / w_hat), log = TRUE))
+
+  # Log prior: w | nu
+  log_w_prior <- sum(dgamma(w_hat, nu / 2, nu / 2, log = TRUE))
+
+  # Inverse-Gamma prior for sigma2 (shape c0, rate C0)
+  log_sigma2_prior <- dinvgamma(sigma2, c0, C0, log = TRUE)
+
+  # Exponential prior for nu
+  log_nu_prior <- dexp(nu, lambda, log = TRUE)
+
+  logpost <- loglik + log_w_prior + log_sigma2_prior + log_nu_prior
+
+  -logpost
+}
+
+fit <- optim(log(c(mean(y^2), 7 - 1)), objective, method = "BFGS", 
+             y = y, c0 = c0, C0 = C0, lambda = lambda)
+
+sigma2_hat <- exp(fit$par[1])
+nu_hat     <- 1 + exp(fit$par[2])
+
+w_hat <- (nu_hat - 1) / (nu_hat + y^2 / sigma2_hat)
+```
+
+This doesn't seem to work too well, either. (Thinking a bit about it reveals that the joint mode is degenerate.)
+
+Let's also try with the posterior mean as point estimate.
 
 ```{r}
 res <- array(NA_real_, c(2, 4, 10))
