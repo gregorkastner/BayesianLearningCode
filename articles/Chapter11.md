@@ -416,12 +416,6 @@ par(mfrow = c(1, 1), mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.5, .5, 0),
 p <- ncol(X)
 barplot(colMeans(res_gunif$gamma_post), col = "blue",
         names.arg = 1:p, xlab = "Covariate", ylab = "PIP")
-```
-
-![](Chapter11_files/figure-html/unnamed-chunk-16-1.png)
-
-``` r
-
 gammas_unique <- unique(res_gunif$gamma_post)
 nmod <- nrow(gammas_unique)
 nmod
@@ -463,14 +457,8 @@ k_gamma <- rowSums(res_gunif$gamma_post)
 plot(k_gamma[1:5000], type = "l", xlab = "Draw", ylab = expression(k[gamma]),
      xaxt = "n", ylim = c(0, p)) 
 axis(side = 1, at = seq(from = 0, to = 5000, by =1000), labels = TRUE)
-barplot(tabulate(k_gamma), col = "blue", xlab = expression(k[gamma]),
-        ylab = "Frequency", ylim = c(0, M/2), names.arg = 1:p)
-```
-
-![](Chapter11_files/figure-html/unnamed-chunk-17-1.png)
-
-``` r
-
+barplot(prop.table(tabulate(k_gamma)), col = "blue", xlab = expression(k[gamma]),
+        ylab = "Frequency", ylim = c(0, 1/2), names.arg = 1:p)
 options(oopts)
 ```
 
@@ -504,8 +492,6 @@ xlabs <- xx
 xlabs[xx %% 10 > 0] <- NA_character_
 axis(side = 1, tick = FALSE, at = colMeans(bp), labels = xlabs, gap.axis = -1)
 ```
-
-![](Chapter11_files/figure-html/unnamed-chunk-18-1.png)
 
 #### Example 11.8: Movie data: Hierarchical prior on the model space
 
@@ -594,12 +580,6 @@ gamma_post_hier <- res$gamma_post
 par(mfrow = c(1, 1), mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.5, .5, 0))
 barplot(colMeans(gamma_post_hier), col = "blue", names.arg = 1:p, 
   xlab = "Covariate", ylab = "PIP")
-```
-
-![](Chapter11_files/figure-html/unnamed-chunk-20-1.png)
-
-``` r
-
 
 gammas_unique_hier <- unique(gamma_post_hier)
 nrow(gammas_unique_hier)
@@ -651,7 +631,7 @@ knitr::kable(cbind(gammas_unique_both, uniform, hierarchical)[io[1:10], ],
 | 0 | 0 | 0 | 1 | 1 | 1 | 0 | 1 | 1 | 0.0239 | 0.0157 |
 
 We also determine the posterior distribution of the model space
-complexity
+complexity.
 
 ``` r
 
@@ -663,8 +643,6 @@ barplot(prop.table(tabulate(k_gamma_hier)), col = "blue",
         xlab = expression(k[gamma]),
         ylab = "Proportions", names.arg = 1:p)
 ```
-
-![](Chapter11_files/figure-html/unnamed-chunk-22-1.png)
 
 and the posterior of $`\pi`$.
 
@@ -689,8 +667,6 @@ lines(xx, dbeta(xx, a0, b0), col = "black")
 legend("topleft", legend = c("posterior", "prior"), col = c("blue", "black"),
        lty = 1)
 ```
-
-![](Chapter11_files/figure-html/unnamed-chunk-23-1.png)
 
 ### Section 11.2.5: Bayesian model averaging
 
@@ -786,6 +762,18 @@ knitr::kable(cbind(res_unif, res_hier), digit = 2)
 | Vol-4-6  | -19.20 |         -16.06 | -13.01 | -19.12 |         -16.01 | -12.93 |
 | Vol-1-3  |  18.40 |          21.64 |  24.95 |  18.42 |          21.57 |  24.80 |
 | sigma2   |  55.81 |          75.96 | 102.51 |  55.23 |          74.86 | 100.91 |
+
+Even if we are estimating a slightly different model, we may compare
+this table with the result reported under the horseshoe prior in Chapter
+6 in Table 6.2. The 95% credible intervals of the effects of *Screens*,
+*Vol-4-6* and *Vol-1-3* are rather similar and do not contain zero,
+whereas zero is clearly included in the 95% credible intervals of the
+effects of *Comedy*, *Thriller* and *S-4-6*. The lower bounds of the
+credible intervals are close to zero or zero for the effects of *Budget*
+and *Weeks* and only for the effect of *S-1-3* there is some
+discrepancy: under the horseshoe prior zero is clearly included in the
+credible interval, whereas the lower bound under is close respectively
+at zero under the BMA priors.
 
 ## Section 11.3: Model selection beyond standard regression analysis
 
@@ -1000,8 +988,6 @@ barplot(colMeans(res$gamma_post), col = "blue", names.arg = 1:p,
         xlab = "Covariate", ylab = "PIP")
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-32-1.png)
-
 ## Section 11.4: Model selection problems in time series analysis
 
 ### Section 11.4.1: Selecting the model order in an AR(p) model
@@ -1147,8 +1133,6 @@ for (i in 2:5) {
   lines(myats, dnorm(myats, b0, sqrt(B0)), lwd = 1.5)
 }
 ```
-
-![](Chapter11_files/figure-html/unnamed-chunk-37-1.png)
 
 #### Example 11.13: US GDP data: Quantitative model-order selection
 
@@ -1319,8 +1303,6 @@ acf(dat)
 acf(ret)
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-46-1.png)
-
 This clearly hints at non-stationarity of the exchange rate series and
 at (first order) stationarity of the returns.
 
@@ -1364,8 +1346,6 @@ for (i in seq_along(draws)) {
 }
 ```
 
-![](Chapter11_files/figure-html/unnamed-chunk-48-1.png)
-
 To explore whether the nonstationarity of the raw series could be caused
 by a unit root, we investigate the posterior of
 $`\phi_1 + \dots + \phi_p - 1`$ for $`p = 1, \dots, 4`$.
@@ -1383,8 +1363,6 @@ for (p in 1:4) {
   abline(v = 0, lty = 2, col = 2)
 }
 ```
-
-![](Chapter11_files/figure-html/unnamed-chunk-49-1.png)
 
 We do the same for the inflation data (currently not included in the
 book).
@@ -1411,8 +1389,6 @@ for (p in 1:4) {
   abline(v = 0, lty = 2, col = 2)
 }
 ```
-
-![](Chapter11_files/figure-html/unnamed-chunk-51-1.png)
 
 #### Example 11.17: CHF exchange rate data: Testing for a unit root using the Savage-Dickey density ratio
 
@@ -1460,8 +1436,6 @@ legend("topright", parse(text = c(paste0("Posterior ~ (D[0] == ", D0, ")"),
        lty = rep(c(1, 2), each = length(D0)),
        col = rep(seq_along(D0), 2))
 ```
-
-![](Chapter11_files/figure-html/unnamed-chunk-53-1.png)
 
 To compute the numerical value of the SD density ratio, we again use
 Rao-Blackwellization.
