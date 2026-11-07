@@ -309,7 +309,7 @@ is not available in closed form, but we can draw from it using data
 augmentation.
 
 ```{r}
-sampler <- function(y, M, burnin, c0, C0, nu) {
+sampler <- function(y, M, burnin, c0, C0, nu, thin = 1L) {
   N <- length(y)
   
   # starting value for w
