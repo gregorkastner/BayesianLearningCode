@@ -452,7 +452,7 @@ for (i in 1:nrow(res)) {
 }
 mins <- apply(res, 1:2, min)
 maxs <- apply(res, 1:2, max)
-out <- matrix(paste0("[", round(mins, 2), ", ", round(maxs, 2), "]"),
+out <- matrix(paste0("[", roun(mins, 2), ", ", roun(maxs, 2), "]"),
               nrow = dim(res)[1])
 colnames(out) <- colnames(res)
 rownames(out) <- c("Gaussian", "t_7", "t_nu")
@@ -537,7 +537,7 @@ for (i in 1:nrow(res)) {
 }
 mins <- apply(res, 1:2, min)
 maxs <- apply(res, 1:2, max)
-out <- matrix(paste0("[", round(mins, 2), ", ", round(maxs, 2), "]"),
+out <- matrix(paste0("[", roun(mins, 2), ", ", roun(maxs, 2), "]"),
               nrow = dim(res)[1])
 colnames(out) <- colnames(res)
 rownames(out) <- c("t_7", "t_nu")
@@ -638,7 +638,7 @@ for (i in 1:nrow(res)) {
 }
 mins <- apply(res, 1:2, min)
 maxs <- apply(res, 1:2, max)
-out <- matrix(paste0("[", round(mins, 2), ", ", round(maxs, 2), "]"),
+out <- matrix(paste0("[", roun(mins, 2), ", ", roun(maxs, 2), "]"),
               nrow = dim(res)[1])
 colnames(out) <- colnames(res)
 rownames(out) <- c("t_7", "t_nu")
@@ -698,7 +698,7 @@ for (i in 1:nrow(res)) {
 
 mins <- apply(res, 1:2, min)
 maxs <- apply(res, 1:2, max)
-out <- matrix(paste0("[", round(mins, 2), ", ", round(maxs, 2), "]"),
+out <- matrix(paste0("[", roun(mins, 2), ", ", roun(maxs, 2), "]"),
               nrow = dim(res)[1])
 colnames(out) <- colnames(res)
 rownames(out) <- c("t_7", "t_nu")
@@ -743,7 +743,7 @@ for (i in 1:nrow(resWAIC)) {
 mins <- apply(resWAIC, 1:2, min)
 maxs <- apply(resWAIC, 1:2, max)
 s <- c(1, 3:4, 6)
-out <- matrix(paste0("[", round(mins[, s], 2), ", ", round(maxs[, s], 2), "]"),
+out <- matrix(paste0("[", roun(mins[, s], 2), ", ", roun(maxs[, s], 2), "]"),
               nrow = dim(resWAIC)[1])
 out[out == "[NA, NA]"] <- ""
 colnames(out) <- colnames(resWAIC)[s]
