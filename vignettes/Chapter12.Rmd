@@ -431,6 +431,10 @@ batches <- function(x, amount = 10) {
 batchMeans <- function(x, amount = 10) {
   colMeans(batches(x, amount = amount))
 }
+
+batchMedians <- function(x, amount = 10) {
+  apply(batches(x, amount = amount), 2, median)
+}
 ```
 
 Now, we estimate the average deviance, the deviance of the posterior averages,
@@ -618,6 +622,61 @@ for (i in 1:nrow(res)) {
   estaugD <- rep(NA_real_, dim(res)[3])
   for (j in seq_len(dim(res)[3])) {
     estaugD[j] <- -2 * logauglik(y, sigma2means[j], numeans[j], wmeans[j, ])
+  }
+  
+  # Compute augmented pd and augmented DIC
+  res[i, "pd_A", ] <- avgaugD - estaugD
+  res[i, "DIC_A", ] <- 2 * avgaugD - estaugD
+}
+knitr::kable(apply(res, 1:2, min), digits = 2)
+knitr::kable(apply(res, 1:2, mean), digits = 2)
+knitr::kable(apply(res, 1:2, max), digits = 2)
+```
+
+And the median.
+
+```{r}
+res <- array(NA_real_, c(2, 4, 10))
+colnames(res) <- c("DIC_C", "pd_C", "DIC_A", "pd_A")
+for (i in 1:nrow(res)) {
+  d <- draws[[i + 1]]
+  
+  # Evaluate the log conditional likelihood at all posterior draws
+  alllogcondlik <- sapply(seq_along(d$sigma2s), function(j) {
+    logcondlik(y, d$sigma2s[j], d$nus[j], d$ws[j, ])
+  })
+  
+  # Compute the average conditional deviance
+  avgcondD <- -2 * batchMeans(alllogcondlik)
+  
+  # Evaluate the log augmented likelihood at all posterior draws
+  alllogauglik <- sapply(seq_along(d$sigma2s), function(j) {
+    logauglik(y, d$sigma2s[j], d$nus[j], d$ws[j, ])
+  })
+  
+  # Evaluate the conditional deviance at the posterior median
+  sigma2medians <- batchMedians(d$sigma2s)
+  numedians <- batchMedians(d$nus)
+  wmedians <- apply(d$ws, 2, batchMedians)
+  
+  estcondD <- rep(NA_real_, dim(res)[3])
+  for (j in seq_len(dim(res)[3])) {
+    estcondD[j] <- -2 * logcondlik(y, sigma2medians[j], numedians[j],
+                                   wmedians[j, ])
+  }
+  
+  # Compute conditional pd and conditional DIC
+  res[i, "pd_C", ] <- avgcondD - estcondD
+  res[i, "DIC_C", ] <- 2 * avgcondD - estcondD
+  
+  # Compute the average augmented deviance
+  avgaugD <- -2 * batchMeans(alllogauglik)
+  
+  # Evaluate the augmented deviance at the posterior median
+  estaugD <- rep(NA_real_, dim(res)[3])
+  for (j in seq_len(dim(res)[3])) {
+    estaugD[j] <- -2 * logauglik(y, sigma2medians[j], numedians[j],
+                                 wmedians[j, ])
   }
   
   # Compute augmented pd and augmented DIC
