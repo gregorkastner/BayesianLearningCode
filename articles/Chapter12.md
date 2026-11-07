@@ -329,7 +329,7 @@ using data augmentation.
 
 ``` r
 
-sampler <- function(y, M, burnin, c0, C0, nu) {
+sampler <- function(y, M, burnin, c0, C0, nu, thin = 1L) {
   N <- length(y)
   
   # starting value for w
@@ -457,6 +457,10 @@ batches <- function(x, amount = 10) {
 batchMeans <- function(x, amount = 10) {
   colMeans(batches(x, amount = amount))
 }
+
+batchMedians <- function(x, amount = 10) {
+  apply(batches(x, amount = amount), 2, median)
+}
 ```
 
 Now, we estimate the average deviance, the deviance of the posterior
@@ -473,36 +477,20 @@ for (i in 1:nrow(res)) {
   res[i, "pd", ] <-  res[i, "avgD", ] - res[i, "Davg", ]
   res[i, "DIC", ] <- res[i, "avgD", ] + res[i, "pd", ]
 }
-knitr::kable(apply(res, 1:2, min), digits = 2)
+mins <- apply(res, 1:2, min)
+maxs <- apply(res, 1:2, max)
+out <- matrix(paste0("[", roun(mins, 2), ", ", roun(maxs, 2), "]"),
+              nrow = dim(res)[1])
+colnames(out) <- colnames(res)
+rownames(out) <- c("Gaussian", "t_7", "t_nu")
+knitr::kable(out)
 ```
 
-|     DIC |    avgD |    Davg |   pd |
-|--------:|--------:|--------:|-----:|
-| 6906.83 | 6905.88 | 6904.93 | 0.95 |
-| 6605.35 | 6604.45 | 6603.54 | 0.90 |
-| 6605.29 | 6603.45 | 6601.61 | 1.79 |
-
-``` r
-
-knitr::kable(apply(res, 1:2, mean), digits = 2)
-```
-
-|     DIC |    avgD |    Davg |   pd |
-|--------:|--------:|--------:|-----:|
-| 6906.99 | 6905.96 | 6904.93 | 1.03 |
-| 6605.48 | 6604.51 | 6603.55 | 0.97 |
-| 6605.57 | 6603.60 | 6601.63 | 1.97 |
-
-``` r
-
-knitr::kable(apply(res, 1:2, max), digits = 2)
-```
-
-|     DIC |    avgD |    Davg |   pd |
-|--------:|--------:|--------:|-----:|
-| 6907.09 | 6906.01 | 6904.94 | 1.08 |
-| 6605.68 | 6604.62 | 6603.56 | 1.06 |
-| 6606.21 | 6603.91 | 6601.76 | 2.30 |
+|  | DIC | avgD | Davg | pd |
+|:---|:---|:---|:---|:---|
+| Gaussian | \[6906.83, 6907.09\] | \[6905.88, 6906.01\] | \[6904.93, 6904.94\] | \[0.95, 1.08\] |
+| t_7 | \[6605.35, 6605.68\] | \[6604.45, 6604.62\] | \[6603.54, 6603.56\] | \[0.90, 1.06\] |
+| t_nu | \[6605.29, 6606.21\] | \[6603.45, 6603.91\] | \[6601.61, 6601.76\] | \[1.79, 2.30\] |
 
 For the Gaussian model (only), we can compute the DIC in closed form.
 
@@ -587,33 +575,19 @@ for (i in 1:nrow(res)) {
   res[i, "pd_A", ] <- avgaugD - estaugD
   res[i, "DIC_A", ] <- 2 * avgaugD - estaugD
 }
-knitr::kable(apply(res, 1:2, min), digits = 2)
+mins <- apply(res, 1:2, min)
+maxs <- apply(res, 1:2, max)
+out <- matrix(paste0("[", roun(mins, 2), ", ", roun(maxs, 2), "]"),
+              nrow = dim(res)[1])
+colnames(out) <- colnames(res)
+rownames(out) <- c("t_7", "t_nu")
+knitr::kable(out)
 ```
 
-|   DIC_C |    pd_C |    DIC_A |   pd_A |
-|--------:|--------:|---------:|-------:|
-| 6125.46 |    3.55 | 10705.80 | 229.25 |
-| 5901.34 | -179.81 | 11276.91 | 590.60 |
-
-``` r
-
-knitr::kable(apply(res, 1:2, mean), digits = 2)
-```
-
-|   DIC_C |   pd_C |    DIC_A |   pd_A |
-|--------:|-------:|---------:|-------:|
-| 6160.26 |  37.87 | 10742.55 | 266.44 |
-| 6002.80 | -79.09 | 11412.62 | 689.00 |
-
-``` r
-
-knitr::kable(apply(res, 1:2, max), digits = 2)
-```
-
-|   DIC_C |   pd_C |    DIC_A |   pd_A |
-|--------:|-------:|---------:|-------:|
-| 6231.83 | 108.02 | 10784.09 | 308.95 |
-| 6091.61 |  12.03 | 11594.55 | 861.75 |
+|  | DIC_C | pd_C | DIC_A | pd_A |
+|:---|:---|:---|:---|:---|
+| t_7 | \[6125.46, 6231.83\] | \[3.55, 108.02\] | \[10705.80, 10784.09\] | \[229.25, 308.95\] |
+| t_nu | \[5901.34, 6091.61\] | \[-179.81, 12.03\] | \[11276.91, 11594.55\] | \[590.60, 861.75\] |
 
 Our MAP approximation is probably rather bad (remember that we are
 trying to find the maximum of a high-dimensional function). Let us try
@@ -711,33 +685,85 @@ for (i in 1:nrow(res)) {
   res[i, "pd_A", ] <- avgaugD - estaugD
   res[i, "DIC_A", ] <- 2 * avgaugD - estaugD
 }
-knitr::kable(apply(res, 1:2, min), digits = 2)
+mins <- apply(res, 1:2, min)
+maxs <- apply(res, 1:2, max)
+out <- matrix(paste0("[", roun(mins, 2), ", ", roun(maxs, 2), "]"),
+              nrow = dim(res)[1])
+colnames(out) <- colnames(res)
+rownames(out) <- c("t_7", "t_nu")
+knitr::kable(out)
 ```
 
-|   DIC_C |   pd_C |    DIC_A |    pd_A |
-|--------:|-------:|---------:|--------:|
-| 6529.24 | 408.05 | 12917.69 | 2445.54 |
-| 6539.79 | 451.65 | 13076.67 | 2366.44 |
+|  | DIC_C | pd_C | DIC_A | pd_A |
+|:---|:---|:---|:---|:---|
+| t_7 | \[6529.24, 6533.37\] | \[408.05, 409.50\] | \[12917.69, 12930.58\] | \[2445.54, 2454.44\] |
+| t_nu | \[6539.79, 6545.51\] | \[451.65, 463.20\] | \[13076.67, 13106.25\] | \[2366.44, 2390.37\] |
+
+And the median.
 
 ``` r
 
-knitr::kable(apply(res, 1:2, mean), digits = 2)
+res <- array(NA_real_, c(2, 4, 10))
+colnames(res) <- c("DIC_C", "pd_C", "DIC_A", "pd_A")
+for (i in 1:nrow(res)) {
+  d <- draws[[i + 1]]
+  
+  # Evaluate the log conditional likelihood at all posterior draws
+  alllogcondlik <- sapply(seq_along(d$sigma2s), function(j) {
+    logcondlik(y, d$sigma2s[j], d$nus[j], d$ws[j, ])
+  })
+  
+  # Compute the average conditional deviance
+  avgcondD <- -2 * batchMeans(alllogcondlik)
+  
+  # Evaluate the log augmented likelihood at all posterior draws
+  alllogauglik <- sapply(seq_along(d$sigma2s), function(j) {
+    logauglik(y, d$sigma2s[j], d$nus[j], d$ws[j, ])
+  })
+  
+  # Evaluate the conditional deviance at the posterior median
+  sigma2medians <- batchMedians(d$sigma2s)
+  numedians <- batchMedians(d$nus)
+  wmedians <- apply(d$ws, 2, batchMedians)
+  
+  estcondD <- rep(NA_real_, dim(res)[3])
+  for (j in seq_len(dim(res)[3])) {
+    estcondD[j] <- -2 * logcondlik(y, sigma2medians[j], numedians[j],
+                                   wmedians[j, ])
+  }
+  
+  # Compute conditional pd and conditional DIC
+  res[i, "pd_C", ] <- avgcondD - estcondD
+  res[i, "DIC_C", ] <- 2 * avgcondD - estcondD
+  
+  # Compute the average augmented deviance
+  avgaugD <- -2 * batchMeans(alllogauglik)
+  
+  # Evaluate the augmented deviance at the posterior median
+  estaugD <- rep(NA_real_, dim(res)[3])
+  for (j in seq_len(dim(res)[3])) {
+    estaugD[j] <- -2 * logauglik(y, sigma2medians[j], numedians[j],
+                                 wmedians[j, ])
+  }
+  
+  # Compute augmented pd and augmented DIC
+  res[i, "pd_A", ] <- avgaugD - estaugD
+  res[i, "DIC_A", ] <- 2 * avgaugD - estaugD
+}
+
+mins <- apply(res, 1:2, min)
+maxs <- apply(res, 1:2, max)
+out <- matrix(paste0("[", roun(mins, 2), ", ", roun(maxs, 2), "]"),
+              nrow = dim(res)[1])
+colnames(out) <- colnames(res)
+rownames(out) <- c("t_7", "t_nu")
+knitr::kable(out)
 ```
 
-|   DIC_C |   pd_C |    DIC_A |    pd_A |
-|--------:|-------:|---------:|--------:|
-| 6531.28 | 408.89 | 12926.71 | 2450.60 |
-| 6542.37 | 460.48 | 13097.58 | 2373.95 |
-
-``` r
-
-knitr::kable(apply(res, 1:2, max), digits = 2)
-```
-
-|   DIC_C |  pd_C |    DIC_A |    pd_A |
-|--------:|------:|---------:|--------:|
-| 6533.37 | 409.5 | 12930.58 | 2454.44 |
-| 6545.51 | 463.2 | 13106.25 | 2390.37 |
+|  | DIC_C | pd_C | DIC_A | pd_A |
+|:---|:---|:---|:---|:---|
+| t_7 | \[6518.02, 6521.56\] | \[396.43, 398.97\] | \[13365.11, 13376.81\] | \[2892.64, 2899.26\] |
+| t_nu | \[6523.65, 6529.91\] | \[436.38, 447.13\] | \[13556.18, 13614.69\] | \[2831.16, 2885.25\] |
 
 ### Section 12.2.4: Widely applicable information criterion (WAIC)
 
@@ -778,7 +804,7 @@ for (i in 1:nrow(resWAIC)) {
 mins <- apply(resWAIC, 1:2, min)
 maxs <- apply(resWAIC, 1:2, max)
 s <- c(1, 3:4, 6)
-out <- matrix(paste0("[", round(mins[, s], 2), ", ", round(maxs[, s], 2), "]"),
+out <- matrix(paste0("[", roun(mins[, s], 2), ", ", roun(maxs[, s], 2), "]"),
               nrow = dim(resWAIC)[1])
 out[out == "[NA, NA]"] <- ""
 colnames(out) <- colnames(resWAIC)[s]
@@ -788,8 +814,8 @@ knitr::kable(out)
 
 |  | WAIC | phat | WAIC_C | phat_C |
 |:---|:---|:---|:---|:---|
-| Gaussian | \[6910.8, 6911.71\] | \[4.81, 5.49\] |  |  |
-| t_7 | \[6605.36, 6605.69\] | \[0.92, 1.07\] | \[6484.4, 6488.91\] | \[302.25, 304.54\] |
+| Gaussian | \[6910.80, 6911.71\] | \[4.81, 5.49\] |  |  |
+| t_7 | \[6605.36, 6605.69\] | \[0.92, 1.07\] | \[6484.40, 6488.91\] | \[302.25, 304.54\] |
 | t_nu | \[6605.66, 6606.81\] | \[2.19, 2.86\] | \[6467.73, 6479.75\] | \[321.95, 326.35\] |
 
 ## Section 12.3: Comparative model assessment through scoring rules
@@ -865,4 +891,4 @@ legend("topleft", c(paste0("Log BF > 0 (", round(100 * mean(logBF > 0)), "%)"),
        col = rgb(c(0, 1), 0, c(1, 0), .5), pch = 16, lty = 1, lwd = 2)
 ```
 
-![](Chapter12_files/figure-html/unnamed-chunk-31-1.png)
+![](Chapter12_files/figure-html/unnamed-chunk-32-1.png)

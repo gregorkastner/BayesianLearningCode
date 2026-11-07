@@ -31,5 +31,7 @@
   : Movie Open Box Office Data
 - [`newcars`](https://gregorkastner.github.io/BayesianLearningCode/reference/newcars.md)
   : New Cars Registration Data
+- [`roun()`](https://gregorkastner.github.io/BayesianLearningCode/reference/roun.md)
+  : Rounding with Trailing Zeros
 - [`words`](https://gregorkastner.github.io/BayesianLearningCode/reference/words.md)
   : Words Data
