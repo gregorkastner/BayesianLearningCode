@@ -450,9 +450,13 @@ for (i in 1:nrow(res)) {
   res[i, "pd", ] <-  res[i, "avgD", ] - res[i, "Davg", ]
   res[i, "DIC", ] <- res[i, "avgD", ] + res[i, "pd", ]
 }
-knitr::kable(apply(res, 1:2, min), digits = 2)
-knitr::kable(apply(res, 1:2, mean), digits = 2)
-knitr::kable(apply(res, 1:2, max), digits = 2)
+mins <- apply(res, 1:2, min)
+maxs <- apply(res, 1:2, max)
+out <- matrix(paste0("[", round(mins, 2), ", ", round(maxs, 2), "]"),
+              nrow = dim(res)[1])
+colnames(out) <- colnames(res)
+rownames(out) <- c("Gaussian", "t_7", "t_nu")
+knitr::kable(out)
 ```
 
 For the Gaussian model (only), we can compute the DIC in closed form.
@@ -531,9 +535,13 @@ for (i in 1:nrow(res)) {
   res[i, "pd_A", ] <- avgaugD - estaugD
   res[i, "DIC_A", ] <- 2 * avgaugD - estaugD
 }
-knitr::kable(apply(res, 1:2, min), digits = 2)
-knitr::kable(apply(res, 1:2, mean), digits = 2)
-knitr::kable(apply(res, 1:2, max), digits = 2)
+mins <- apply(res, 1:2, min)
+maxs <- apply(res, 1:2, max)
+out <- matrix(paste0("[", round(mins, 2), ", ", round(maxs, 2), "]"),
+              nrow = dim(res)[1])
+colnames(out) <- colnames(res)
+rownames(out) <- c("t_7", "t_nu")
+knitr::kable(out)
 ```
 
 Our MAP approximation is probably rather bad (remember that we are trying
@@ -628,9 +636,13 @@ for (i in 1:nrow(res)) {
   res[i, "pd_A", ] <- avgaugD - estaugD
   res[i, "DIC_A", ] <- 2 * avgaugD - estaugD
 }
-knitr::kable(apply(res, 1:2, min), digits = 2)
-knitr::kable(apply(res, 1:2, mean), digits = 2)
-knitr::kable(apply(res, 1:2, max), digits = 2)
+mins <- apply(res, 1:2, min)
+maxs <- apply(res, 1:2, max)
+out <- matrix(paste0("[", round(mins, 2), ", ", round(maxs, 2), "]"),
+              nrow = dim(res)[1])
+colnames(out) <- colnames(res)
+rownames(out) <- c("t_7", "t_nu")
+knitr::kable(out)
 ```
 
 And the median.
@@ -683,9 +695,14 @@ for (i in 1:nrow(res)) {
   res[i, "pd_A", ] <- avgaugD - estaugD
   res[i, "DIC_A", ] <- 2 * avgaugD - estaugD
 }
-knitr::kable(apply(res, 1:2, min), digits = 2)
-knitr::kable(apply(res, 1:2, mean), digits = 2)
-knitr::kable(apply(res, 1:2, max), digits = 2)
+
+mins <- apply(res, 1:2, min)
+maxs <- apply(res, 1:2, max)
+out <- matrix(paste0("[", round(mins, 2), ", ", round(maxs, 2), "]"),
+              nrow = dim(res)[1])
+colnames(out) <- colnames(res)
+rownames(out) <- c("t_7", "t_nu")
+knitr::kable(out)
 ```
 
 ## Section 12.2.4: Widely applicable information criterion (WAIC)
