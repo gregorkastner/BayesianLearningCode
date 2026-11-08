@@ -806,6 +806,70 @@ The negative $p_D^C$ for the $t_\nu$ model is a symptom of the degenerate joint
 mode: the exponential prior is the only thing that keeps $\nu$ finite, so the
 mode sits at $\nu \approx N / (2\lambda) \approx 11000$ with all $w_i$ close
 to one, far away from the bulk of the posterior.
+
+To compare the four plug-in points directly, we collect the conditional and the
+augmented DIC (and the corresponding $p_D$) in one table.
+The entries are the ranges over the ten batches.
+
+```{r}
+dic_plugin <- function(i, nb = 10L) {
+  d <- draws[[i + 1]]
+
+  # Log conditional and augmented likelihood at all posterior draws
+  alllogcondlik <- sapply(seq_along(d$sigma2s), function(j) {
+    logcondlik(y, d$sigma2s[j], d$nus[j], d$ws[j, ])
+  })
+  alllogauglik <- sapply(seq_along(d$sigma2s), function(j) {
+    logauglik(y, d$sigma2s[j], d$nus[j], d$ws[j, ])
+  })
+  avgcondD <- -2 * batchMeans(alllogcondlik)
+  avgaugD <- -2 * batchMeans(alllogauglik)
+
+  # Deviances at plug-in values (one value per batch)
+  deviances <- function(sigma2, nu, w) {
+    list(C = sapply(seq_len(nb), function(j)
+           -2 * logcondlik(y, sigma2[j], nu[j], w[j, ])),
+         A = sapply(seq_len(nb), function(j)
+           -2 * logauglik(y, sigma2[j], nu[j], w[j, ])))
+  }
+
+  # Draw with highest joint posterior density within each batch
+  alllogpost <- alllogauglik + dinvgamma(d$sigma2s, c0, C0, log = TRUE) +
+    dexp(d$nus, lambda, log = TRUE)
+  MAPind <- apply(batches(alllogpost), 2, which.max)
+  idx <- MAPind + (seq_len(nb) - 1L) * (length(d$sigma2s) / nb)
+
+  mode <- modes[[i]]
+  plugins <- list(
+    "MAP draw" = deviances(d$sigma2s[idx], d$nus[idx], d$ws[idx, , drop = FALSE]),
+    "posterior mean" = deviances(batchMeans(d$sigma2s), batchMeans(d$nus),
+                                 apply(d$ws, 2, batchMeans)),
+    "posterior median" = deviances(batchMedians(d$sigma2s), batchMedians(d$nus),
+                                   apply(d$ws, 2, batchMedians)),
+    "joint mode" = deviances(rep(mode$sigma2, nb), rep(mode$nu, nb),
+                             matrix(mode$w, nb, length(y), byrow = TRUE))
+  )
+
+  do.call(rbind, lapply(plugins, function(p) {
+    vals <- cbind(DIC_C = 2 * avgcondD - p$C, pd_C = avgcondD - p$C,
+                  DIC_A = 2 * avgaugD - p$A, pd_A = avgaugD - p$A)
+    paste0("[", roun(apply(vals, 2, min), 1), ", ",
+           roun(apply(vals, 2, max), 1), "]")
+  }))
+}
+
+out <- rbind(dic_plugin(1), dic_plugin(2))
+colnames(out) <- c("DIC_C", "pd_C", "DIC_A", "pd_A")
+rownames(out) <- paste0(rep(c("t_7", "t_nu"), each = 4), ": ",
+                        rep(c("MAP draw", "mean", "median", "joint mode"), 2))
+knitr::kable(out)
+```
+
+Only the posterior mean and the posterior median give stable and plausible
+results for both models; the MAP draw is very noisy across batches with $p_D^C$
+close to zero or negative, and the joint mode inflates $p_D$ for $t_7$ and is
+degenerate for $t_\nu$.
+
 ## Section 12.2.4: Widely applicable information criterion (WAIC)
 
 ### Example 12.8: CHF exchange rate data: Testing normal vs. t using WAIC
