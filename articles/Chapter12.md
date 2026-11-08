@@ -938,7 +938,7 @@ out <- rbind(dic_plugin(1), dic_plugin(2))
 colnames(out) <- c("DIC_C", "pd_C", "DIC_A", "pd_A")
 rownames(out) <- paste0(rep(c("t_7", "t_nu"), each = 4), ": ",
                         rep(c("MAP draw", "mean", "median", "joint mode"), 2))
-knitr::kable(out)
+knitr::kable(out, digits = 0)
 ```
 
 |  | DIC_C | pd_C | DIC_A | pd_A |
