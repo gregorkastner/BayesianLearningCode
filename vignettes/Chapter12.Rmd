@@ -853,8 +853,7 @@ dic_plugin <- function(i, nb = 10L) {
   do.call(rbind, lapply(plugins, function(p) {
     vals <- cbind(DIC_C = 2 * avgcondD - p$C, pd_C = avgcondD - p$C,
                   DIC_A = 2 * avgaugD - p$A, pd_A = avgaugD - p$A)
-    paste0("[", roun(apply(vals, 2, min), 1), ", ",
-           roun(apply(vals, 2, max), 1), "]")
+    paste0("[", roun(apply(vals, 2, min)), ", ", roun(apply(vals, 2, max)), "]")
   }))
 }
 
