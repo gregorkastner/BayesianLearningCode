@@ -1010,6 +1010,313 @@ reveals that the joint mode is degenerate.)</p>
 </tr>
 </tbody>
 </table>
+<p>Finally, we use the actual joint posterior mode of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msup><mi>σ</mi><mn>2</mn></msup><mo>,</mo><mi>ν</mi><mo>,</mo><msub><mi>w</mi><mn>1</mn></msub><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>w</mi><mi>N</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\sigma^2, \nu, w_1, \dots,
+w_N)</annotation></semantics></math>. We find it through simple (block)
+coordinate ascent: the conditional modes of the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>w</mi><mi>i</mi></msub><annotation encoding="application/x-tex">w_i</annotation></semantics></math>
+and of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>σ</mi><mn>2</mn></msup><annotation encoding="application/x-tex">\sigma^2</annotation></semantics></math>
+are available in closed form, and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ν</mi><annotation encoding="application/x-tex">\nu</annotation></semantics></math>
+is updated through a one-dimensional numerical maximization.</p>
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">logpost_joint</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">y</span>, <span class="va">sigma2</span>, <span class="va">nu</span>, <span class="va">w</span>, <span class="va">c0</span>, <span class="va">C0</span>, <span class="va">lambda</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu">logauglik</span><span class="op">(</span><span class="va">y</span>, <span class="va">sigma2</span>, <span class="va">nu</span>, <span class="va">w</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="../reference/InvGammaDist.html">dinvgamma</a></span><span class="op">(</span><span class="va">sigma2</span>, <span class="va">c0</span>, <span class="va">C0</span>, log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/stats/Exponential.html" class="external-link">dexp</a></span><span class="op">(</span><span class="va">nu</span>, <span class="va">lambda</span>, log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="co"># If nu is supplied, it is held fixed and only (w, sigma2) are optimized.</span></span>
+<span><span class="va">joint_mode</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">y</span>, <span class="va">c0</span>, <span class="va">C0</span>, <span class="va">lambda</span>, <span class="va">nu</span> <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">tol</span> <span class="op">=</span> <span class="fl">1e-10</span>,</span>
+<span>                       <span class="va">maxit</span> <span class="op">=</span> <span class="fl">10000L</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">fixed_nu</span> <span class="op">&lt;-</span> <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">nu</span><span class="op">)</span></span>
+<span>  <span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="va">fixed_nu</span><span class="op">)</span> <span class="va">nu</span> <span class="op">&lt;-</span> <span class="fl">7</span></span>
+<span>  <span class="va">sigma2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">y</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span></span>
+<span>  <span class="va">lp_old</span> <span class="op">&lt;-</span> <span class="op">-</span><span class="cn">Inf</span></span>
+<span>  <span class="kw">for</span> <span class="op">(</span><span class="va">it</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">maxit</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="co"># Mode of w_i | y_i, sigma2, nu ~ Gamma((nu + 1) / 2, (nu + y_i^2 / sigma2) / 2)</span></span>
+<span>    <span class="va">w</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">nu</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="va">nu</span> <span class="op">+</span> <span class="va">y</span><span class="op">^</span><span class="fl">2</span> <span class="op">/</span> <span class="va">sigma2</span><span class="op">)</span></span>
+<span>    <span class="co"># Mode of sigma2 | y, w</span></span>
+<span>    <span class="va">sigma2</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">C0</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">w</span> <span class="op">*</span> <span class="va">y</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="va">c0</span> <span class="op">+</span> <span class="fl">1</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span></span>
+<span>    <span class="co"># Mode of nu | w (the objective is concave in nu)</span></span>
+<span>    <span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="va">fixed_nu</span><span class="op">)</span> <span class="op">{</span></span>
+<span>      <span class="va">nu</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/optimize.html" class="external-link">optimize</a></span><span class="op">(</span></span>
+<span>        <span class="kw">function</span><span class="op">(</span><span class="va">u</span><span class="op">)</span> <span class="fu">logpost_joint</span><span class="op">(</span><span class="va">y</span>, <span class="va">sigma2</span>, <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">u</span><span class="op">)</span>, <span class="va">w</span>, <span class="va">c0</span>, <span class="va">C0</span>, <span class="va">lambda</span><span class="op">)</span>,</span>
+<span>        <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="fl">1e-6</span>, <span class="fl">1e6</span><span class="op">)</span><span class="op">)</span>, maximum <span class="op">=</span> <span class="cn">TRUE</span>, tol <span class="op">=</span> <span class="fl">1e-10</span><span class="op">)</span><span class="op">$</span><span class="va">maximum</span><span class="op">)</span></span>
+<span>    <span class="op">}</span></span>
+<span>    <span class="va">lp</span> <span class="op">&lt;-</span> <span class="fu">logpost_joint</span><span class="op">(</span><span class="va">y</span>, <span class="va">sigma2</span>, <span class="va">nu</span>, <span class="va">w</span>, <span class="va">c0</span>, <span class="va">C0</span>, <span class="va">lambda</span><span class="op">)</span></span>
+<span>    <span class="kw">if</span> <span class="op">(</span><span class="va">lp</span> <span class="op">-</span> <span class="va">lp_old</span> <span class="op">&lt;</span> <span class="va">tol</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">lp</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="kw">break</span></span>
+<span>    <span class="va">lp_old</span> <span class="op">&lt;-</span> <span class="va">lp</span></span>
+<span>  <span class="op">}</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>sigma2 <span class="op">=</span> <span class="va">sigma2</span>, nu <span class="op">=</span> <span class="va">nu</span>, w <span class="op">=</span> <span class="va">w</span>, logpost <span class="op">=</span> <span class="va">lp</span>, iterations <span class="op">=</span> <span class="va">it</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="va">modes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu">joint_mode</span><span class="op">(</span><span class="va">y</span>, <span class="va">c0</span>, <span class="va">C0</span>, <span class="va">lambda</span>, nu <span class="op">=</span> <span class="fl">7</span><span class="op">)</span>,</span>
+<span>              <span class="fu">joint_mode</span><span class="op">(</span><span class="va">y</span>, <span class="va">c0</span>, <span class="va">C0</span>, <span class="va">lambda</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>model <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"t_7"</span>, <span class="st">"t_nu"</span><span class="op">)</span>,</span>
+<span>                        sigma2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">modes</span>, <span class="va">`[[`</span>, <span class="st">"sigma2"</span><span class="op">)</span>,</span>
+<span>                        nu <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">modes</span>, <span class="va">`[[`</span>, <span class="st">"nu"</span><span class="op">)</span>,</span>
+<span>                        logpost <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">modes</span>, <span class="va">`[[`</span>, <span class="st">"logpost"</span><span class="op">)</span>,</span>
+<span>                        iterations <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">modes</span>, <span class="va">`[[`</span>, <span class="st">"iterations"</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>             digits <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left">model</th>
+<th align="right">sigma2</th>
+<th align="right">nu</th>
+<th align="right">logpost</th>
+<th align="right">iterations</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">t_7</td>
+<td align="right">0.231</td>
+<td align="right">7.0</td>
+<td align="right">-3497.511</td>
+<td align="right">12</td>
+</tr>
+<tr class="even">
+<td align="left">t_nu</td>
+<td align="right">0.527</td>
+<td align="right">10979.8</td>
+<td align="right">5608.022</td>
+<td align="right">7</td>
+</tr>
+</tbody>
+</table>
+<p>Now we compute the conditional and the augmented DIC at the joint
+mode.</p>
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></span><span class="op">(</span><span class="cn">NA_real_</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">4</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"DIC_C"</span>, <span class="st">"pd_C"</span>, <span class="st">"DIC_A"</span>, <span class="st">"pd_A"</span><span class="op">)</span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">d</span> <span class="op">&lt;-</span> <span class="va">draws</span><span class="op">[[</span><span class="va">i</span> <span class="op">+</span> <span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
+<span>  </span>
+<span>  <span class="co"># Evaluate the log conditional likelihood at all posterior draws</span></span>
+<span>  <span class="va">alllogcondlik</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">d</span><span class="op">$</span><span class="va">sigma2s</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">j</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="fu">logcondlik</span><span class="op">(</span><span class="va">y</span>, <span class="va">d</span><span class="op">$</span><span class="va">sigma2s</span><span class="op">[</span><span class="va">j</span><span class="op">]</span>, <span class="va">d</span><span class="op">$</span><span class="va">nus</span><span class="op">[</span><span class="va">j</span><span class="op">]</span>, <span class="va">d</span><span class="op">$</span><span class="va">ws</span><span class="op">[</span><span class="va">j</span>, <span class="op">]</span><span class="op">)</span></span>
+<span>  <span class="op">}</span><span class="op">)</span></span>
+<span>  </span>
+<span>  <span class="co"># Compute the average conditional deviance</span></span>
+<span>  <span class="va">avgcondD</span> <span class="op">&lt;-</span> <span class="op">-</span><span class="fl">2</span> <span class="op">*</span> <span class="fu">batchMeans</span><span class="op">(</span><span class="va">alllogcondlik</span><span class="op">)</span></span>
+<span>  </span>
+<span>  <span class="co"># Evaluate the log augmented likelihood at all posterior draws</span></span>
+<span>  <span class="va">alllogauglik</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">d</span><span class="op">$</span><span class="va">sigma2s</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">j</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="fu">logauglik</span><span class="op">(</span><span class="va">y</span>, <span class="va">d</span><span class="op">$</span><span class="va">sigma2s</span><span class="op">[</span><span class="va">j</span><span class="op">]</span>, <span class="va">d</span><span class="op">$</span><span class="va">nus</span><span class="op">[</span><span class="va">j</span><span class="op">]</span>, <span class="va">d</span><span class="op">$</span><span class="va">ws</span><span class="op">[</span><span class="va">j</span>, <span class="op">]</span><span class="op">)</span></span>
+<span>  <span class="op">}</span><span class="op">)</span></span>
+<span>  </span>
+<span>  <span class="co"># Evaluate the deviances at the posterior mode (the same for all batches)</span></span>
+<span>  <span class="va">sigma2_mode</span> <span class="op">&lt;-</span> <span class="va">modes</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">sigma2</span></span>
+<span>  <span class="va">nu_mode</span> <span class="op">&lt;-</span> <span class="va">modes</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">nu</span></span>
+<span>  <span class="va">w_mode</span> <span class="op">&lt;-</span> <span class="va">modes</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">w</span></span>
+<span>  <span class="va">estcondD</span> <span class="op">&lt;-</span> <span class="op">-</span><span class="fl">2</span> <span class="op">*</span> <span class="fu">logcondlik</span><span class="op">(</span><span class="va">y</span>, <span class="va">sigma2_mode</span>, <span class="va">nu_mode</span>, <span class="va">w_mode</span><span class="op">)</span></span>
+<span>  </span>
+<span>  <span class="co"># Compute conditional pd and conditional DIC</span></span>
+<span>  <span class="va">res</span><span class="op">[</span><span class="va">i</span>, <span class="st">"pd_C"</span>, <span class="op">]</span> <span class="op">&lt;-</span> <span class="va">avgcondD</span> <span class="op">-</span> <span class="va">estcondD</span></span>
+<span>  <span class="va">res</span><span class="op">[</span><span class="va">i</span>, <span class="st">"DIC_C"</span>, <span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">2</span> <span class="op">*</span> <span class="va">avgcondD</span> <span class="op">-</span> <span class="va">estcondD</span></span>
+<span>  </span>
+<span>  <span class="co"># Compute the average augmented deviance</span></span>
+<span>  <span class="va">avgaugD</span> <span class="op">&lt;-</span> <span class="op">-</span><span class="fl">2</span> <span class="op">*</span> <span class="fu">batchMeans</span><span class="op">(</span><span class="va">alllogauglik</span><span class="op">)</span></span>
+<span>  </span>
+<span>  <span class="co"># Evaluate the augmented deviance at the posterior mode</span></span>
+<span>  <span class="va">estaugD</span> <span class="op">&lt;-</span> <span class="op">-</span><span class="fl">2</span> <span class="op">*</span> <span class="fu">logauglik</span><span class="op">(</span><span class="va">y</span>, <span class="va">sigma2_mode</span>, <span class="va">nu_mode</span>, <span class="va">w_mode</span><span class="op">)</span></span>
+<span>  </span>
+<span>  <span class="co"># Compute augmented pd and augmented DIC</span></span>
+<span>  <span class="va">res</span><span class="op">[</span><span class="va">i</span>, <span class="st">"pd_A"</span>, <span class="op">]</span> <span class="op">&lt;-</span> <span class="va">avgaugD</span> <span class="op">-</span> <span class="va">estaugD</span></span>
+<span>  <span class="va">res</span><span class="op">[</span><span class="va">i</span>, <span class="st">"DIC_A"</span>, <span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">2</span> <span class="op">*</span> <span class="va">avgaugD</span> <span class="op">-</span> <span class="va">estaugD</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="va">mins</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">res</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, <span class="va">min</span><span class="op">)</span></span>
+<span><span class="va">maxs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">res</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, <span class="va">max</span><span class="op">)</span></span>
+<span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"["</span>, <span class="fu"><a href="../reference/roun.html">roun</a></span><span class="op">(</span><span class="va">mins</span>, <span class="fl">2</span><span class="op">)</span>, <span class="st">", "</span>, <span class="fu"><a href="../reference/roun.html">roun</a></span><span class="op">(</span><span class="va">maxs</span>, <span class="fl">2</span><span class="op">)</span>, <span class="st">"]"</span><span class="op">)</span>,</span>
+<span>              nrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">out</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">out</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"t_7"</span>, <span class="st">"t_nu"</span><span class="op">)</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">out</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="5%">
+<col width="22%">
+<col width="22%">
+<col width="24%">
+<col width="24%">
+</colgroup>
+<thead><tr class="header">
+<th align="left"></th>
+<th align="left">DIC_C</th>
+<th align="left">pd_C</th>
+<th align="left">DIC_A</th>
+<th align="left">pd_A</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">t_7</td>
+<td align="left">[6778.86, 6785.53]</td>
+<td align="left">[658.32, 661.66]</td>
+<td align="left">[13956.44, 13971.58]</td>
+<td align="left">[3484.29, 3491.86]</td>
+</tr>
+<tr class="even">
+<td align="left">t_nu</td>
+<td align="left">[5254.61, 5281.59]</td>
+<td align="left">[-823.72, -810.23]</td>
+<td align="left">[35729.39, 35831.18]</td>
+<td align="left">[25043.08, 25093.98]</td>
+</tr>
+</tbody>
+</table>
+<p>The negative
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>p</mi><mi>D</mi><mi>C</mi></msubsup><annotation encoding="application/x-tex">p_D^C</annotation></semantics></math>
+for the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>t</mi><mi>ν</mi></msub><annotation encoding="application/x-tex">t_\nu</annotation></semantics></math>
+model is a symptom of the degenerate joint mode: the exponential prior
+is the only thing that keeps
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ν</mi><annotation encoding="application/x-tex">\nu</annotation></semantics></math>
+finite, so the mode sits at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ν</mi><mo>≈</mo><mi>N</mi><mi>/</mi><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mi>λ</mi><mo stretchy="false" form="postfix">)</mo><mo>≈</mo><mn>11000</mn></mrow><annotation encoding="application/x-tex">\nu \approx N / (2\lambda) \approx 11000</annotation></semantics></math>
+with all
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>w</mi><mi>i</mi></msub><annotation encoding="application/x-tex">w_i</annotation></semantics></math>
+close to one, far away from the bulk of the posterior.</p>
+<p>To compare the four plug-in points directly, we collect the
+conditional and the augmented DIC (and the corresponding
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mi>D</mi></msub><annotation encoding="application/x-tex">p_D</annotation></semantics></math>)
+in one table. The entries are the ranges over the ten batches.</p>
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dic_plugin</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">i</span>, <span class="va">nb</span> <span class="op">=</span> <span class="fl">10L</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">d</span> <span class="op">&lt;-</span> <span class="va">draws</span><span class="op">[[</span><span class="va">i</span> <span class="op">+</span> <span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
+<span></span>
+<span>  <span class="co"># Log conditional and augmented likelihood at all posterior draws</span></span>
+<span>  <span class="va">alllogcondlik</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">d</span><span class="op">$</span><span class="va">sigma2s</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">j</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="fu">logcondlik</span><span class="op">(</span><span class="va">y</span>, <span class="va">d</span><span class="op">$</span><span class="va">sigma2s</span><span class="op">[</span><span class="va">j</span><span class="op">]</span>, <span class="va">d</span><span class="op">$</span><span class="va">nus</span><span class="op">[</span><span class="va">j</span><span class="op">]</span>, <span class="va">d</span><span class="op">$</span><span class="va">ws</span><span class="op">[</span><span class="va">j</span>, <span class="op">]</span><span class="op">)</span></span>
+<span>  <span class="op">}</span><span class="op">)</span></span>
+<span>  <span class="va">alllogauglik</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">d</span><span class="op">$</span><span class="va">sigma2s</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">j</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="fu">logauglik</span><span class="op">(</span><span class="va">y</span>, <span class="va">d</span><span class="op">$</span><span class="va">sigma2s</span><span class="op">[</span><span class="va">j</span><span class="op">]</span>, <span class="va">d</span><span class="op">$</span><span class="va">nus</span><span class="op">[</span><span class="va">j</span><span class="op">]</span>, <span class="va">d</span><span class="op">$</span><span class="va">ws</span><span class="op">[</span><span class="va">j</span>, <span class="op">]</span><span class="op">)</span></span>
+<span>  <span class="op">}</span><span class="op">)</span></span>
+<span>  <span class="va">avgcondD</span> <span class="op">&lt;-</span> <span class="op">-</span><span class="fl">2</span> <span class="op">*</span> <span class="fu">batchMeans</span><span class="op">(</span><span class="va">alllogcondlik</span><span class="op">)</span></span>
+<span>  <span class="va">avgaugD</span> <span class="op">&lt;-</span> <span class="op">-</span><span class="fl">2</span> <span class="op">*</span> <span class="fu">batchMeans</span><span class="op">(</span><span class="va">alllogauglik</span><span class="op">)</span></span>
+<span></span>
+<span>  <span class="co"># Deviances at plug-in values (one value per batch)</span></span>
+<span>  <span class="va">deviances</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">sigma2</span>, <span class="va">nu</span>, <span class="va">w</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>C <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">nb</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">j</span><span class="op">)</span></span>
+<span>           <span class="op">-</span><span class="fl">2</span> <span class="op">*</span> <span class="fu">logcondlik</span><span class="op">(</span><span class="va">y</span>, <span class="va">sigma2</span><span class="op">[</span><span class="va">j</span><span class="op">]</span>, <span class="va">nu</span><span class="op">[</span><span class="va">j</span><span class="op">]</span>, <span class="va">w</span><span class="op">[</span><span class="va">j</span>, <span class="op">]</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>         A <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">nb</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">j</span><span class="op">)</span></span>
+<span>           <span class="op">-</span><span class="fl">2</span> <span class="op">*</span> <span class="fu">logauglik</span><span class="op">(</span><span class="va">y</span>, <span class="va">sigma2</span><span class="op">[</span><span class="va">j</span><span class="op">]</span>, <span class="va">nu</span><span class="op">[</span><span class="va">j</span><span class="op">]</span>, <span class="va">w</span><span class="op">[</span><span class="va">j</span>, <span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="op">}</span></span>
+<span></span>
+<span>  <span class="co"># Draw with highest joint posterior density within each batch</span></span>
+<span>  <span class="va">alllogpost</span> <span class="op">&lt;-</span> <span class="va">alllogauglik</span> <span class="op">+</span> <span class="fu"><a href="../reference/InvGammaDist.html">dinvgamma</a></span><span class="op">(</span><span class="va">d</span><span class="op">$</span><span class="va">sigma2s</span>, <span class="va">c0</span>, <span class="va">C0</span>, log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/stats/Exponential.html" class="external-link">dexp</a></span><span class="op">(</span><span class="va">d</span><span class="op">$</span><span class="va">nus</span>, <span class="va">lambda</span>, log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span>  <span class="va">MAPind</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="fu">batches</span><span class="op">(</span><span class="va">alllogpost</span><span class="op">)</span>, <span class="fl">2</span>, <span class="va">which.max</span><span class="op">)</span></span>
+<span>  <span class="va">idx</span> <span class="op">&lt;-</span> <span class="va">MAPind</span> <span class="op">+</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">nb</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1L</span><span class="op">)</span> <span class="op">*</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">d</span><span class="op">$</span><span class="va">sigma2s</span><span class="op">)</span> <span class="op">/</span> <span class="va">nb</span><span class="op">)</span></span>
+<span></span>
+<span>  <span class="va">mode</span> <span class="op">&lt;-</span> <span class="va">modes</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span></span>
+<span>  <span class="va">plugins</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    <span class="st">"MAP draw"</span> <span class="op">=</span> <span class="fu">deviances</span><span class="op">(</span><span class="va">d</span><span class="op">$</span><span class="va">sigma2s</span><span class="op">[</span><span class="va">idx</span><span class="op">]</span>, <span class="va">d</span><span class="op">$</span><span class="va">nus</span><span class="op">[</span><span class="va">idx</span><span class="op">]</span>, <span class="va">d</span><span class="op">$</span><span class="va">ws</span><span class="op">[</span><span class="va">idx</span>, , drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>    <span class="st">"posterior mean"</span> <span class="op">=</span> <span class="fu">deviances</span><span class="op">(</span><span class="fu">batchMeans</span><span class="op">(</span><span class="va">d</span><span class="op">$</span><span class="va">sigma2s</span><span class="op">)</span>, <span class="fu">batchMeans</span><span class="op">(</span><span class="va">d</span><span class="op">$</span><span class="va">nus</span><span class="op">)</span>,</span>
+<span>                                 <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">d</span><span class="op">$</span><span class="va">ws</span>, <span class="fl">2</span>, <span class="va">batchMeans</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>    <span class="st">"posterior median"</span> <span class="op">=</span> <span class="fu">deviances</span><span class="op">(</span><span class="fu">batchMedians</span><span class="op">(</span><span class="va">d</span><span class="op">$</span><span class="va">sigma2s</span><span class="op">)</span>, <span class="fu">batchMedians</span><span class="op">(</span><span class="va">d</span><span class="op">$</span><span class="va">nus</span><span class="op">)</span>,</span>
+<span>                                   <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">d</span><span class="op">$</span><span class="va">ws</span>, <span class="fl">2</span>, <span class="va">batchMedians</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>    <span class="st">"joint mode"</span> <span class="op">=</span> <span class="fu">deviances</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">mode</span><span class="op">$</span><span class="va">sigma2</span>, <span class="va">nb</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">mode</span><span class="op">$</span><span class="va">nu</span>, <span class="va">nb</span><span class="op">)</span>,</span>
+<span>                             <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="va">mode</span><span class="op">$</span><span class="va">w</span>, <span class="va">nb</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
+<span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">plugins</span>, <span class="kw">function</span><span class="op">(</span><span class="va">p</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">vals</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span>DIC_C <span class="op">=</span> <span class="fl">2</span> <span class="op">*</span> <span class="va">avgcondD</span> <span class="op">-</span> <span class="va">p</span><span class="op">$</span><span class="va">C</span>, pd_C <span class="op">=</span> <span class="va">avgcondD</span> <span class="op">-</span> <span class="va">p</span><span class="op">$</span><span class="va">C</span>,</span>
+<span>                  DIC_A <span class="op">=</span> <span class="fl">2</span> <span class="op">*</span> <span class="va">avgaugD</span> <span class="op">-</span> <span class="va">p</span><span class="op">$</span><span class="va">A</span>, pd_A <span class="op">=</span> <span class="va">avgaugD</span> <span class="op">-</span> <span class="va">p</span><span class="op">$</span><span class="va">A</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"["</span>, <span class="fu"><a href="../reference/roun.html">roun</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">vals</span>, <span class="fl">2</span>, <span class="va">min</span><span class="op">)</span>, <span class="fl">1</span><span class="op">)</span>, <span class="st">", "</span>,</span>
+<span>           <span class="fu"><a href="../reference/roun.html">roun</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">vals</span>, <span class="fl">2</span>, <span class="va">max</span><span class="op">)</span>, <span class="fl">1</span><span class="op">)</span>, <span class="st">"]"</span><span class="op">)</span></span>
+<span>  <span class="op">}</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="fu">dic_plugin</span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>, <span class="fu">dic_plugin</span><span class="op">(</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">out</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"DIC_C"</span>, <span class="st">"pd_C"</span>, <span class="st">"DIC_A"</span>, <span class="st">"pd_A"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">out</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"t_7"</span>, <span class="st">"t_nu"</span><span class="op">)</span>, each <span class="op">=</span> <span class="fl">4</span><span class="op">)</span>, <span class="st">": "</span>,</span>
+<span>                        <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"MAP draw"</span>, <span class="st">"mean"</span>, <span class="st">"median"</span>, <span class="st">"joint mode"</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">out</span><span class="op">)</span></span></code></pre></div>
+<table style="width:100%;" class="table">
+<colgroup>
+<col width="19%">
+<col width="19%">
+<col width="19%">
+<col width="21%">
+<col width="21%">
+</colgroup>
+<thead><tr class="header">
+<th align="left"></th>
+<th align="left">DIC_C</th>
+<th align="left">pd_C</th>
+<th align="left">DIC_A</th>
+<th align="left">pd_A</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">t_7: MAP draw</td>
+<td align="left">[6125.5, 6231.8]</td>
+<td align="left">[3.6, 108.0]</td>
+<td align="left">[10705.8, 10784.1]</td>
+<td align="left">[229.2, 308.9]</td>
+</tr>
+<tr class="even">
+<td align="left">t_7: mean</td>
+<td align="left">[6529.2, 6533.4]</td>
+<td align="left">[408.0, 409.5]</td>
+<td align="left">[12917.7, 12930.6]</td>
+<td align="left">[2445.5, 2454.4]</td>
+</tr>
+<tr class="odd">
+<td align="left">t_7: median</td>
+<td align="left">[6518.0, 6521.6]</td>
+<td align="left">[396.4, 399.0]</td>
+<td align="left">[13365.1, 13376.8]</td>
+<td align="left">[2892.6, 2899.3]</td>
+</tr>
+<tr class="even">
+<td align="left">t_7: joint mode</td>
+<td align="left">[6778.9, 6785.5]</td>
+<td align="left">[658.3, 661.7]</td>
+<td align="left">[13956.4, 13971.6]</td>
+<td align="left">[3484.3, 3491.9]</td>
+</tr>
+<tr class="odd">
+<td align="left">t_nu: MAP draw</td>
+<td align="left">[5901.3, 6091.6]</td>
+<td align="left">[-179.8, 12.0]</td>
+<td align="left">[11276.9, 11594.6]</td>
+<td align="left">[590.6, 861.7]</td>
+</tr>
+<tr class="even">
+<td align="left">t_nu: mean</td>
+<td align="left">[6539.8, 6545.5]</td>
+<td align="left">[451.7, 463.2]</td>
+<td align="left">[13076.7, 13106.3]</td>
+<td align="left">[2366.4, 2390.4]</td>
+</tr>
+<tr class="odd">
+<td align="left">t_nu: median</td>
+<td align="left">[6523.7, 6529.9]</td>
+<td align="left">[436.4, 447.1]</td>
+<td align="left">[13556.2, 13614.7]</td>
+<td align="left">[2831.2, 2885.2]</td>
+</tr>
+<tr class="even">
+<td align="left">t_nu: joint mode</td>
+<td align="left">[5254.6, 5281.6]</td>
+<td align="left">[-823.7, -810.2]</td>
+<td align="left">[35729.4, 35831.2]</td>
+<td align="left">[25043.1, 25094.0]</td>
+</tr>
+</tbody>
+</table>
+<p>Only the posterior mean and the posterior median give stable and
+plausible results for both models; the MAP draw is very noisy across
+batches with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>p</mi><mi>D</mi><mi>C</mi></msubsup><annotation encoding="application/x-tex">p_D^C</annotation></semantics></math>
+close to zero or negative, and the joint mode inflates
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mi>D</mi></msub><annotation encoding="application/x-tex">p_D</annotation></semantics></math>
+for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>t</mi><mn>7</mn></msub><annotation encoding="application/x-tex">t_7</annotation></semantics></math>
+and is degenerate for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>t</mi><mi>ν</mi></msub><annotation encoding="application/x-tex">t_\nu</annotation></semantics></math>.</p>
 </div>
 </div>
 <div class="section level3">
@@ -1019,7 +1326,7 @@ reveals that the joint mode is degenerate.)</p>
 <h4 id="example-12-8-chf-exchange-rate-data-testing-normal-vs--t-using-waic">Example 12.8: CHF exchange rate data: Testing normal vs. t using
 WAIC<a class="anchor" aria-label="anchor" href="#example-12-8-chf-exchange-rate-data-testing-normal-vs--t-using-waic"></a>
 </h4>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">resWAIC</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></span><span class="op">(</span><span class="cn">NA_real_</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">6</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">resWAIC</span><span class="op">)</span> <span class="op">&lt;-</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"WAIC"</span>, <span class="st">"Dbiased"</span>, <span class="st">"phat"</span>, <span class="st">"WAIC_C"</span>, <span class="st">"Dbiased_C"</span>, <span class="st">"phat_C"</span><span class="op">)</span></span>
@@ -1113,18 +1420,18 @@ rules<a class="anchor" aria-label="anchor" href="#section-12-3-comparative-model
 LPDS<a class="anchor" aria-label="anchor" href="#example-12--chf-exchange-rate-data-testing-normal-vs--t-using-lpds"></a>
 </h4>
 <p>We first set the prior parameters as in Example 10.9.</p>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">nu</span> <span class="op">&lt;-</span> <span class="fl">7</span></span>
 <span><span class="va">c10</span> <span class="op">&lt;-</span> <span class="va">c30</span> <span class="op">&lt;-</span> <span class="fl">3</span></span>
 <span><span class="va">C10</span> <span class="op">&lt;-</span> <span class="fl">3</span></span>
 <span><span class="va">C30</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">nu</span> <span class="op">-</span> <span class="fl">2</span><span class="op">)</span> <span class="op">/</span> <span class="va">nu</span> <span class="op">*</span> <span class="va">C10</span></span></code></pre></div>
 <p>Next, we define our expanding estimation window.</p>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">trainends</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">2000</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
 <p>Now we run the prediction on the expanding window and evaluate the
 one-step ahead predictive likelihood. For the normal model, this can be
 done analytically, for the Student t model, we need MCMC draws.</p>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="va">seed</span><span class="op">)</span></span>
 <span><span class="va">M</span> <span class="op">&lt;-</span> <span class="fl">100</span> <span class="op">/</span> <span class="va">mcmcspeedup</span></span>
 <span><span class="va">burnin</span> <span class="op">&lt;-</span> <span class="fl">100</span> <span class="op">/</span> <span class="va">mcmcspeedup</span></span>
@@ -1146,7 +1453,7 @@ done analytically, for the Student t model, we need MCMC draws.</p>
 <span>  <span class="va">LPDS</span><span class="op">[</span><span class="fl">2</span>, <span class="va">i</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Logsumexp.html">logmeanexp</a></span><span class="op">(</span><span class="va">logpreddraws</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>Now we compare and visualize.</p>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">logBF</span> <span class="op">&lt;-</span> <span class="va">LPDS</span><span class="op">[</span><span class="fl">2</span>, <span class="op">]</span> <span class="op">-</span> <span class="va">LPDS</span><span class="op">[</span><span class="fl">1</span>, <span class="op">]</span></span>
 <span><span class="va">cumlogBF</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cumsum.html" class="external-link">cumsum</a></span><span class="op">(</span><span class="va">logBF</span><span class="op">)</span></span>
 <span><span class="va">xs</span> <span class="op">&lt;-</span> <span class="va">trainends</span> <span class="op">+</span> <span class="fl">1</span></span>
@@ -1163,7 +1470,7 @@ done analytically, for the Student t model, we need MCMC draws.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topleft"</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Log BF &gt; 0 ("</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fl">100</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">logBF</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span>, <span class="st">"%)"</span><span class="op">)</span>,</span>
 <span>                    <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Log BF &lt; 0 ("</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fl">100</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">logBF</span> <span class="op">&lt;</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span>, <span class="st">"%)"</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>       col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/rgb.html" class="external-link">rgb</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, <span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span>, <span class="fl">.5</span><span class="op">)</span>, pch <span class="op">=</span> <span class="fl">16</span>, lty <span class="op">=</span> <span class="fl">1</span>, lwd <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Chapter12_files/figure-html/unnamed-chunk-32-1.png" class="r-plt" alt="" width="768"></p>
+<p><img src="Chapter12_files/figure-html/unnamed-chunk-35-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 </div>
 </div>

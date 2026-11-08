@@ -765,6 +765,198 @@ knitr::kable(out)
 | t_7 | \[6518.02, 6521.56\] | \[396.43, 398.97\] | \[13365.11, 13376.81\] | \[2892.64, 2899.26\] |
 | t_nu | \[6523.65, 6529.91\] | \[436.38, 447.13\] | \[13556.18, 13614.69\] | \[2831.16, 2885.25\] |
 
+Finally, we use the actual joint posterior mode of
+$`(\sigma^2, \nu, w_1, \dots,
+w_N)`$. We find it through simple (block) coordinate ascent: the
+conditional modes of the $`w_i`$ and of $`\sigma^2`$ are available in
+closed form, and $`\nu`$ is updated through a one-dimensional numerical
+maximization.
+
+``` r
+
+logpost_joint <- function(y, sigma2, nu, w, c0, C0, lambda) {
+  logauglik(y, sigma2, nu, w) + dinvgamma(sigma2, c0, C0, log = TRUE) +
+    dexp(nu, lambda, log = TRUE)
+}
+
+# If nu is supplied, it is held fixed and only (w, sigma2) are optimized.
+joint_mode <- function(y, c0, C0, lambda, nu = NULL, tol = 1e-10,
+                       maxit = 10000L) {
+  fixed_nu <- !is.null(nu)
+  if (!fixed_nu) nu <- 7
+  sigma2 <- mean(y^2)
+  lp_old <- -Inf
+  for (it in seq_len(maxit)) {
+    # Mode of w_i | y_i, sigma2, nu ~ Gamma((nu + 1) / 2, (nu + y_i^2 / sigma2) / 2)
+    w <- (nu - 1) / (nu + y^2 / sigma2)
+    # Mode of sigma2 | y, w
+    sigma2 <- (C0 + sum(w * y^2) / 2) / (c0 + 1 + length(y) / 2)
+    # Mode of nu | w (the objective is concave in nu)
+    if (!fixed_nu) {
+      nu <- exp(optimize(
+        function(u) logpost_joint(y, sigma2, exp(u), w, c0, C0, lambda),
+        log(c(1 + 1e-6, 1e6)), maximum = TRUE, tol = 1e-10)$maximum)
+    }
+    lp <- logpost_joint(y, sigma2, nu, w, c0, C0, lambda)
+    if (lp - lp_old < tol * (1 + abs(lp))) break
+    lp_old <- lp
+  }
+  list(sigma2 = sigma2, nu = nu, w = w, logpost = lp, iterations = it)
+}
+
+modes <- list(joint_mode(y, c0, C0, lambda, nu = 7),
+              joint_mode(y, c0, C0, lambda))
+knitr::kable(data.frame(model = c("t_7", "t_nu"),
+                        sigma2 = sapply(modes, `[[`, "sigma2"),
+                        nu = sapply(modes, `[[`, "nu"),
+                        logpost = sapply(modes, `[[`, "logpost"),
+                        iterations = sapply(modes, `[[`, "iterations")),
+             digits = 3)
+```
+
+| model | sigma2 |      nu |   logpost | iterations |
+|:------|-------:|--------:|----------:|-----------:|
+| t_7   |  0.231 |     7.0 | -3497.511 |         12 |
+| t_nu  |  0.527 | 10979.8 |  5608.022 |          7 |
+
+Now we compute the conditional and the augmented DIC at the joint mode.
+
+``` r
+
+res <- array(NA_real_, c(2, 4, 10))
+colnames(res) <- c("DIC_C", "pd_C", "DIC_A", "pd_A")
+for (i in 1:nrow(res)) {
+  d <- draws[[i + 1]]
+  
+  # Evaluate the log conditional likelihood at all posterior draws
+  alllogcondlik <- sapply(seq_along(d$sigma2s), function(j) {
+    logcondlik(y, d$sigma2s[j], d$nus[j], d$ws[j, ])
+  })
+  
+  # Compute the average conditional deviance
+  avgcondD <- -2 * batchMeans(alllogcondlik)
+  
+  # Evaluate the log augmented likelihood at all posterior draws
+  alllogauglik <- sapply(seq_along(d$sigma2s), function(j) {
+    logauglik(y, d$sigma2s[j], d$nus[j], d$ws[j, ])
+  })
+  
+  # Evaluate the deviances at the posterior mode (the same for all batches)
+  sigma2_mode <- modes[[i]]$sigma2
+  nu_mode <- modes[[i]]$nu
+  w_mode <- modes[[i]]$w
+  estcondD <- -2 * logcondlik(y, sigma2_mode, nu_mode, w_mode)
+  
+  # Compute conditional pd and conditional DIC
+  res[i, "pd_C", ] <- avgcondD - estcondD
+  res[i, "DIC_C", ] <- 2 * avgcondD - estcondD
+  
+  # Compute the average augmented deviance
+  avgaugD <- -2 * batchMeans(alllogauglik)
+  
+  # Evaluate the augmented deviance at the posterior mode
+  estaugD <- -2 * logauglik(y, sigma2_mode, nu_mode, w_mode)
+  
+  # Compute augmented pd and augmented DIC
+  res[i, "pd_A", ] <- avgaugD - estaugD
+  res[i, "DIC_A", ] <- 2 * avgaugD - estaugD
+}
+
+mins <- apply(res, 1:2, min)
+maxs <- apply(res, 1:2, max)
+out <- matrix(paste0("[", roun(mins, 2), ", ", roun(maxs, 2), "]"),
+              nrow = dim(res)[1])
+colnames(out) <- colnames(res)
+rownames(out) <- c("t_7", "t_nu")
+knitr::kable(out)
+```
+
+|  | DIC_C | pd_C | DIC_A | pd_A |
+|:---|:---|:---|:---|:---|
+| t_7 | \[6778.86, 6785.53\] | \[658.32, 661.66\] | \[13956.44, 13971.58\] | \[3484.29, 3491.86\] |
+| t_nu | \[5254.61, 5281.59\] | \[-823.72, -810.23\] | \[35729.39, 35831.18\] | \[25043.08, 25093.98\] |
+
+The negative $`p_D^C`$ for the $`t_\nu`$ model is a symptom of the
+degenerate joint mode: the exponential prior is the only thing that
+keeps $`\nu`$ finite, so the mode sits at
+$`\nu \approx N / (2\lambda) \approx 11000`$ with all $`w_i`$ close to
+one, far away from the bulk of the posterior.
+
+To compare the four plug-in points directly, we collect the conditional
+and the augmented DIC (and the corresponding $`p_D`$) in one table. The
+entries are the ranges over the ten batches.
+
+``` r
+
+dic_plugin <- function(i, nb = 10L) {
+  d <- draws[[i + 1]]
+
+  # Log conditional and augmented likelihood at all posterior draws
+  alllogcondlik <- sapply(seq_along(d$sigma2s), function(j) {
+    logcondlik(y, d$sigma2s[j], d$nus[j], d$ws[j, ])
+  })
+  alllogauglik <- sapply(seq_along(d$sigma2s), function(j) {
+    logauglik(y, d$sigma2s[j], d$nus[j], d$ws[j, ])
+  })
+  avgcondD <- -2 * batchMeans(alllogcondlik)
+  avgaugD <- -2 * batchMeans(alllogauglik)
+
+  # Deviances at plug-in values (one value per batch)
+  deviances <- function(sigma2, nu, w) {
+    list(C = sapply(seq_len(nb), function(j)
+           -2 * logcondlik(y, sigma2[j], nu[j], w[j, ])),
+         A = sapply(seq_len(nb), function(j)
+           -2 * logauglik(y, sigma2[j], nu[j], w[j, ])))
+  }
+
+  # Draw with highest joint posterior density within each batch
+  alllogpost <- alllogauglik + dinvgamma(d$sigma2s, c0, C0, log = TRUE) +
+    dexp(d$nus, lambda, log = TRUE)
+  MAPind <- apply(batches(alllogpost), 2, which.max)
+  idx <- MAPind + (seq_len(nb) - 1L) * (length(d$sigma2s) / nb)
+
+  mode <- modes[[i]]
+  plugins <- list(
+    "MAP draw" = deviances(d$sigma2s[idx], d$nus[idx], d$ws[idx, , drop = FALSE]),
+    "posterior mean" = deviances(batchMeans(d$sigma2s), batchMeans(d$nus),
+                                 apply(d$ws, 2, batchMeans)),
+    "posterior median" = deviances(batchMedians(d$sigma2s), batchMedians(d$nus),
+                                   apply(d$ws, 2, batchMedians)),
+    "joint mode" = deviances(rep(mode$sigma2, nb), rep(mode$nu, nb),
+                             matrix(mode$w, nb, length(y), byrow = TRUE))
+  )
+
+  do.call(rbind, lapply(plugins, function(p) {
+    vals <- cbind(DIC_C = 2 * avgcondD - p$C, pd_C = avgcondD - p$C,
+                  DIC_A = 2 * avgaugD - p$A, pd_A = avgaugD - p$A)
+    paste0("[", roun(apply(vals, 2, min), 1), ", ",
+           roun(apply(vals, 2, max), 1), "]")
+  }))
+}
+
+out <- rbind(dic_plugin(1), dic_plugin(2))
+colnames(out) <- c("DIC_C", "pd_C", "DIC_A", "pd_A")
+rownames(out) <- paste0(rep(c("t_7", "t_nu"), each = 4), ": ",
+                        rep(c("MAP draw", "mean", "median", "joint mode"), 2))
+knitr::kable(out)
+```
+
+|  | DIC_C | pd_C | DIC_A | pd_A |
+|:---|:---|:---|:---|:---|
+| t_7: MAP draw | \[6125.5, 6231.8\] | \[3.6, 108.0\] | \[10705.8, 10784.1\] | \[229.2, 308.9\] |
+| t_7: mean | \[6529.2, 6533.4\] | \[408.0, 409.5\] | \[12917.7, 12930.6\] | \[2445.5, 2454.4\] |
+| t_7: median | \[6518.0, 6521.6\] | \[396.4, 399.0\] | \[13365.1, 13376.8\] | \[2892.6, 2899.3\] |
+| t_7: joint mode | \[6778.9, 6785.5\] | \[658.3, 661.7\] | \[13956.4, 13971.6\] | \[3484.3, 3491.9\] |
+| t_nu: MAP draw | \[5901.3, 6091.6\] | \[-179.8, 12.0\] | \[11276.9, 11594.6\] | \[590.6, 861.7\] |
+| t_nu: mean | \[6539.8, 6545.5\] | \[451.7, 463.2\] | \[13076.7, 13106.3\] | \[2366.4, 2390.4\] |
+| t_nu: median | \[6523.7, 6529.9\] | \[436.4, 447.1\] | \[13556.2, 13614.7\] | \[2831.2, 2885.2\] |
+| t_nu: joint mode | \[5254.6, 5281.6\] | \[-823.7, -810.2\] | \[35729.4, 35831.2\] | \[25043.1, 25094.0\] |
+
+Only the posterior mean and the posterior median give stable and
+plausible results for both models; the MAP draw is very noisy across
+batches with $`p_D^C`$ close to zero or negative, and the joint mode
+inflates $`p_D`$ for $`t_7`$ and is degenerate for $`t_\nu`$.
+
 ### Section 12.2.4: Widely applicable information criterion (WAIC)
 
 #### Example 12.8: CHF exchange rate data: Testing normal vs. t using WAIC
@@ -891,4 +1083,4 @@ legend("topleft", c(paste0("Log BF > 0 (", round(100 * mean(logBF > 0)), "%)"),
        col = rgb(c(0, 1), 0, c(1, 0), .5), pch = 16, lty = 1, lwd = 2)
 ```
 
-![](Chapter12_files/figure-html/unnamed-chunk-32-1.png)
+![](Chapter12_files/figure-html/unnamed-chunk-35-1.png)
