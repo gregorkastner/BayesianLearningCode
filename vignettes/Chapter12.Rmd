@@ -705,6 +705,107 @@ rownames(out) <- c("t_7", "t_nu")
 knitr::kable(out)
 ```
 
+Finally, we use the actual joint posterior mode of $(\sigma^2, \nu, w_1, \dots,
+w_N)$. We find it through simple (block) coordinate ascent: the conditional
+modes of the $w_i$ and of $\sigma^2$ are available in closed form, and $\nu$
+is updated through a one-dimensional numerical maximization.
+
+```{r}
+logpost_joint <- function(y, sigma2, nu, w, c0, C0, lambda) {
+  logauglik(y, sigma2, nu, w) + dinvgamma(sigma2, c0, C0, log = TRUE) +
+    dexp(nu, lambda, log = TRUE)
+}
+
+# If nu is supplied, it is held fixed and only (w, sigma2) are optimized.
+joint_mode <- function(y, c0, C0, lambda, nu = NULL, tol = 1e-10,
+                       maxit = 10000L) {
+  fixed_nu <- !is.null(nu)
+  if (!fixed_nu) nu <- 7
+  sigma2 <- mean(y^2)
+  lp_old <- -Inf
+  for (it in seq_len(maxit)) {
+    # Mode of w_i | y_i, sigma2, nu ~ Gamma((nu + 1) / 2, (nu + y_i^2 / sigma2) / 2)
+    w <- (nu - 1) / (nu + y^2 / sigma2)
+    # Mode of sigma2 | y, w
+    sigma2 <- (C0 + sum(w * y^2) / 2) / (c0 + 1 + length(y) / 2)
+    # Mode of nu | w (the objective is concave in nu)
+    if (!fixed_nu) {
+      nu <- exp(optimize(
+        function(u) logpost_joint(y, sigma2, exp(u), w, c0, C0, lambda),
+        log(c(1 + 1e-6, 1e6)), maximum = TRUE, tol = 1e-10)$maximum)
+    }
+    lp <- logpost_joint(y, sigma2, nu, w, c0, C0, lambda)
+    if (lp - lp_old < tol * (1 + abs(lp))) break
+    lp_old <- lp
+  }
+  list(sigma2 = sigma2, nu = nu, w = w, logpost = lp, iterations = it)
+}
+
+modes <- list(joint_mode(y, c0, C0, lambda, nu = 7),
+              joint_mode(y, c0, C0, lambda))
+knitr::kable(data.frame(model = c("t_7", "t_nu"),
+                        sigma2 = sapply(modes, `[[`, "sigma2"),
+                        nu = sapply(modes, `[[`, "nu"),
+                        logpost = sapply(modes, `[[`, "logpost"),
+                        iterations = sapply(modes, `[[`, "iterations")),
+             digits = 3)
+```
+
+Now we compute the conditional and the augmented DIC at the joint mode.
+
+```{r}
+res <- array(NA_real_, c(2, 4, 10))
+colnames(res) <- c("DIC_C", "pd_C", "DIC_A", "pd_A")
+for (i in 1:nrow(res)) {
+  d <- draws[[i + 1]]
+  
+  # Evaluate the log conditional likelihood at all posterior draws
+  alllogcondlik <- sapply(seq_along(d$sigma2s), function(j) {
+    logcondlik(y, d$sigma2s[j], d$nus[j], d$ws[j, ])
+  })
+  
+  # Compute the average conditional deviance
+  avgcondD <- -2 * batchMeans(alllogcondlik)
+  
+  # Evaluate the log augmented likelihood at all posterior draws
+  alllogauglik <- sapply(seq_along(d$sigma2s), function(j) {
+    logauglik(y, d$sigma2s[j], d$nus[j], d$ws[j, ])
+  })
+  
+  # Evaluate the deviances at the posterior mode (the same for all batches)
+  sigma2_mode <- modes[[i]]$sigma2
+  nu_mode <- modes[[i]]$nu
+  w_mode <- modes[[i]]$w
+  estcondD <- -2 * logcondlik(y, sigma2_mode, nu_mode, w_mode)
+  
+  # Compute conditional pd and conditional DIC
+  res[i, "pd_C", ] <- avgcondD - estcondD
+  res[i, "DIC_C", ] <- 2 * avgcondD - estcondD
+  
+  # Compute the average augmented deviance
+  avgaugD <- -2 * batchMeans(alllogauglik)
+  
+  # Evaluate the augmented deviance at the posterior mode
+  estaugD <- -2 * logauglik(y, sigma2_mode, nu_mode, w_mode)
+  
+  # Compute augmented pd and augmented DIC
+  res[i, "pd_A", ] <- avgaugD - estaugD
+  res[i, "DIC_A", ] <- 2 * avgaugD - estaugD
+}
+
+mins <- apply(res, 1:2, min)
+maxs <- apply(res, 1:2, max)
+out <- matrix(paste0("[", roun(mins, 2), ", ", roun(maxs, 2), "]"),
+              nrow = dim(res)[1])
+colnames(out) <- colnames(res)
+rownames(out) <- c("t_7", "t_nu")
+knitr::kable(out)
+```
+
+The negative $p_D^C$ for the $t_\nu$ model is a symptom of the degenerate joint
+mode: the exponential prior is the only thing that keeps $\nu$ finite, so the
+mode sits at $\nu \approx N / (2\lambda) \approx 11000$ with all $w_i$ close
+to one, far away from the bulk of the posterior.
 ## Section 12.2.4: Widely applicable information criterion (WAIC)
 
 ### Example 12.8: CHF exchange rate data: Testing normal vs. t using WAIC
