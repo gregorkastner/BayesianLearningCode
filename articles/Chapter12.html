@@ -1223,8 +1223,7 @@ in one table. The entries are the ranges over the ten batches.</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">plugins</span>, <span class="kw">function</span><span class="op">(</span><span class="va">p</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="va">vals</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span>DIC_C <span class="op">=</span> <span class="fl">2</span> <span class="op">*</span> <span class="va">avgcondD</span> <span class="op">-</span> <span class="va">p</span><span class="op">$</span><span class="va">C</span>, pd_C <span class="op">=</span> <span class="va">avgcondD</span> <span class="op">-</span> <span class="va">p</span><span class="op">$</span><span class="va">C</span>,</span>
 <span>                  DIC_A <span class="op">=</span> <span class="fl">2</span> <span class="op">*</span> <span class="va">avgaugD</span> <span class="op">-</span> <span class="va">p</span><span class="op">$</span><span class="va">A</span>, pd_A <span class="op">=</span> <span class="va">avgaugD</span> <span class="op">-</span> <span class="va">p</span><span class="op">$</span><span class="va">A</span><span class="op">)</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"["</span>, <span class="fu"><a href="../reference/roun.html">roun</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">vals</span>, <span class="fl">2</span>, <span class="va">min</span><span class="op">)</span>, <span class="fl">1</span><span class="op">)</span>, <span class="st">", "</span>,</span>
-<span>           <span class="fu"><a href="../reference/roun.html">roun</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">vals</span>, <span class="fl">2</span>, <span class="va">max</span><span class="op">)</span>, <span class="fl">1</span><span class="op">)</span>, <span class="st">"]"</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"["</span>, <span class="fu"><a href="../reference/roun.html">roun</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">vals</span>, <span class="fl">2</span>, <span class="va">min</span><span class="op">)</span><span class="op">)</span>, <span class="st">", "</span>, <span class="fu"><a href="../reference/roun.html">roun</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">vals</span>, <span class="fl">2</span>, <span class="va">max</span><span class="op">)</span><span class="op">)</span>, <span class="st">"]"</span><span class="op">)</span></span>
 <span>  <span class="op">}</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span></span>
@@ -1232,14 +1231,14 @@ in one table. The entries are the ranges over the ten batches.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">out</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"DIC_C"</span>, <span class="st">"pd_C"</span>, <span class="st">"DIC_A"</span>, <span class="st">"pd_A"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">out</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"t_7"</span>, <span class="st">"t_nu"</span><span class="op">)</span>, each <span class="op">=</span> <span class="fl">4</span><span class="op">)</span>, <span class="st">": "</span>,</span>
 <span>                        <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"MAP draw"</span>, <span class="st">"mean"</span>, <span class="st">"median"</span>, <span class="st">"joint mode"</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">out</span>, digits <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">out</span><span class="op">)</span></span></code></pre></div>
 <table style="width:100%;" class="table">
 <colgroup>
-<col width="19%">
-<col width="19%">
-<col width="19%">
-<col width="21%">
-<col width="21%">
+<col width="23%">
+<col width="17%">
+<col width="17%">
+<col width="20%">
+<col width="20%">
 </colgroup>
 <thead><tr class="header">
 <th align="left"></th>
@@ -1251,59 +1250,59 @@ in one table. The entries are the ranges over the ten batches.</p>
 <tbody>
 <tr class="odd">
 <td align="left">t_7: MAP draw</td>
-<td align="left">[6125.5, 6231.8]</td>
-<td align="left">[3.6, 108.0]</td>
-<td align="left">[10705.8, 10784.1]</td>
-<td align="left">[229.2, 308.9]</td>
+<td align="left">[6125, 6232]</td>
+<td align="left">[4, 108]</td>
+<td align="left">[10706, 10784]</td>
+<td align="left">[229, 309]</td>
 </tr>
 <tr class="even">
 <td align="left">t_7: mean</td>
-<td align="left">[6529.2, 6533.4]</td>
-<td align="left">[408.0, 409.5]</td>
-<td align="left">[12917.7, 12930.6]</td>
-<td align="left">[2445.5, 2454.4]</td>
+<td align="left">[6529, 6533]</td>
+<td align="left">[408, 410]</td>
+<td align="left">[12918, 12931]</td>
+<td align="left">[2446, 2454]</td>
 </tr>
 <tr class="odd">
 <td align="left">t_7: median</td>
-<td align="left">[6518.0, 6521.6]</td>
-<td align="left">[396.4, 399.0]</td>
-<td align="left">[13365.1, 13376.8]</td>
-<td align="left">[2892.6, 2899.3]</td>
+<td align="left">[6518, 6522]</td>
+<td align="left">[396, 399]</td>
+<td align="left">[13365, 13377]</td>
+<td align="left">[2893, 2899]</td>
 </tr>
 <tr class="even">
 <td align="left">t_7: joint mode</td>
-<td align="left">[6778.9, 6785.5]</td>
-<td align="left">[658.3, 661.7]</td>
-<td align="left">[13956.4, 13971.6]</td>
-<td align="left">[3484.3, 3491.9]</td>
+<td align="left">[6779, 6786]</td>
+<td align="left">[658, 662]</td>
+<td align="left">[13956, 13972]</td>
+<td align="left">[3484, 3492]</td>
 </tr>
 <tr class="odd">
 <td align="left">t_nu: MAP draw</td>
-<td align="left">[5901.3, 6091.6]</td>
-<td align="left">[-179.8, 12.0]</td>
-<td align="left">[11276.9, 11594.6]</td>
-<td align="left">[590.6, 861.7]</td>
+<td align="left">[5901, 6092]</td>
+<td align="left">[-180, 12]</td>
+<td align="left">[11277, 11595]</td>
+<td align="left">[591, 862]</td>
 </tr>
 <tr class="even">
 <td align="left">t_nu: mean</td>
-<td align="left">[6539.8, 6545.5]</td>
-<td align="left">[451.7, 463.2]</td>
-<td align="left">[13076.7, 13106.3]</td>
-<td align="left">[2366.4, 2390.4]</td>
+<td align="left">[6540, 6546]</td>
+<td align="left">[452, 463]</td>
+<td align="left">[13077, 13106]</td>
+<td align="left">[2366, 2390]</td>
 </tr>
 <tr class="odd">
 <td align="left">t_nu: median</td>
-<td align="left">[6523.7, 6529.9]</td>
-<td align="left">[436.4, 447.1]</td>
-<td align="left">[13556.2, 13614.7]</td>
-<td align="left">[2831.2, 2885.2]</td>
+<td align="left">[6524, 6530]</td>
+<td align="left">[436, 447]</td>
+<td align="left">[13556, 13615]</td>
+<td align="left">[2831, 2885]</td>
 </tr>
 <tr class="even">
 <td align="left">t_nu: joint mode</td>
-<td align="left">[5254.6, 5281.6]</td>
-<td align="left">[-823.7, -810.2]</td>
-<td align="left">[35729.4, 35831.2]</td>
-<td align="left">[25043.1, 25094.0]</td>
+<td align="left">[5255, 5282]</td>
+<td align="left">[-824, -810]</td>
+<td align="left">[35729, 35831]</td>
+<td align="left">[25043, 25094]</td>
 </tr>
 </tbody>
 </table>
