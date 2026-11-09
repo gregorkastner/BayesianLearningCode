@@ -416,6 +416,12 @@ par(mfrow = c(1, 1), mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.5, .5, 0),
 p <- ncol(X)
 barplot(colMeans(res_gunif$gamma_post), col = "blue",
         names.arg = 1:p, xlab = "Covariate", ylab = "PIP")
+```
+
+![](Chapter11_files/figure-html/unnamed-chunk-16-1.png)
+
+``` r
+
 gammas_unique <- unique(res_gunif$gamma_post)
 nmod <- nrow(gammas_unique)
 nmod
@@ -459,6 +465,12 @@ plot(k_gamma[1:5000], type = "l", xlab = "Draw", ylab = expression(k[gamma]),
 axis(side = 1, at = seq(from = 0, to = 5000, by =1000), labels = TRUE)
 barplot(prop.table(tabulate(k_gamma)), col = "blue", xlab = expression(k[gamma]),
         ylab = "Frequency", ylim = c(0, 1/2), names.arg = 1:p)
+```
+
+![](Chapter11_files/figure-html/unnamed-chunk-17-1.png)
+
+``` r
+
 options(oopts)
 ```
 
@@ -492,6 +504,8 @@ xlabs <- xx
 xlabs[xx %% 10 > 0] <- NA_character_
 axis(side = 1, tick = FALSE, at = colMeans(bp), labels = xlabs, gap.axis = -1)
 ```
+
+![](Chapter11_files/figure-html/unnamed-chunk-18-1.png)
 
 #### Example 11.8: Movie data: Hierarchical prior on the model space
 
@@ -580,6 +594,12 @@ gamma_post_hier <- res$gamma_post
 par(mfrow = c(1, 1), mar = c(2.5, 2.5, 1.5, .5), mgp = c(1.5, .5, 0))
 barplot(colMeans(gamma_post_hier), col = "blue", names.arg = 1:p, 
   xlab = "Covariate", ylab = "PIP")
+```
+
+![](Chapter11_files/figure-html/unnamed-chunk-20-1.png)
+
+``` r
+
 
 gammas_unique_hier <- unique(gamma_post_hier)
 nrow(gammas_unique_hier)
@@ -644,6 +664,8 @@ barplot(prop.table(tabulate(k_gamma_hier)), col = "blue",
         ylab = "Proportions", names.arg = 1:p)
 ```
 
+![](Chapter11_files/figure-html/unnamed-chunk-22-1.png)
+
 and the posterior of $`\pi`$.
 
 ``` r
@@ -667,6 +689,8 @@ lines(xx, dbeta(xx, a0, b0), col = "black")
 legend("topleft", legend = c("posterior", "prior"), col = c("blue", "black"),
        lty = 1)
 ```
+
+![](Chapter11_files/figure-html/unnamed-chunk-23-1.png)
 
 ### Section 11.2.5: Bayesian model averaging
 
@@ -988,6 +1012,8 @@ barplot(colMeans(res$gamma_post), col = "blue", names.arg = 1:p,
         xlab = "Covariate", ylab = "PIP")
 ```
 
+![](Chapter11_files/figure-html/unnamed-chunk-32-1.png)
+
 ## Section 11.4: Model selection problems in time series analysis
 
 ### Section 11.4.1: Selecting the model order in an AR(p) model
@@ -1133,6 +1159,8 @@ for (i in 2:5) {
   lines(myats, dnorm(myats, b0, sqrt(B0)), lwd = 1.5)
 }
 ```
+
+![](Chapter11_files/figure-html/unnamed-chunk-37-1.png)
 
 #### Example 11.13: US GDP data: Quantitative model-order selection
 
@@ -1303,6 +1331,8 @@ acf(dat)
 acf(ret)
 ```
 
+![](Chapter11_files/figure-html/unnamed-chunk-46-1.png)
+
 This clearly hints at non-stationarity of the exchange rate series and
 at (first order) stationarity of the returns.
 
@@ -1346,6 +1376,8 @@ for (i in seq_along(draws)) {
 }
 ```
 
+![](Chapter11_files/figure-html/unnamed-chunk-48-1.png)
+
 To explore whether the nonstationarity of the raw series could be caused
 by a unit root, we investigate the posterior of
 $`\phi_1 + \dots + \phi_p - 1`$ for $`p = 1, \dots, 4`$.
@@ -1363,6 +1395,8 @@ for (p in 1:4) {
   abline(v = 0, lty = 2, col = 2)
 }
 ```
+
+![](Chapter11_files/figure-html/unnamed-chunk-49-1.png)
 
 We do the same for the inflation data (currently not included in the
 book).
@@ -1389,6 +1423,8 @@ for (p in 1:4) {
   abline(v = 0, lty = 2, col = 2)
 }
 ```
+
+![](Chapter11_files/figure-html/unnamed-chunk-51-1.png)
 
 #### Example 11.17: CHF exchange rate data: Testing for a unit root using the Savage-Dickey density ratio
 
@@ -1436,6 +1472,8 @@ legend("topright", parse(text = c(paste0("Posterior ~ (D[0] == ", D0, ")"),
        lty = rep(c(1, 2), each = length(D0)),
        col = rep(seq_along(D0), 2))
 ```
+
+![](Chapter11_files/figure-html/unnamed-chunk-53-1.png)
 
 To compute the numerical value of the SD density ratio, we again use
 Rao-Blackwellization.
