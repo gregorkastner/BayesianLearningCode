@@ -701,7 +701,7 @@ using hierarchical DIC<a class="anchor" aria-label="anchor" href="#example-12-7-
 <p>Because we also stored the weights, we can use the samples from above
 to compute conditional and augmented DICs. To do so, we first define the
 log conditional likelihood and the log augmented (“complete-data”)
-likelihood.</p>
+likelihood, as well as the joint posterior.</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">logcondlik</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">y</span>, <span class="va">sigma2</span>, <span class="va">nu</span>, <span class="va">w</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">dnorm</a></span><span class="op">(</span><span class="va">y</span>, <span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">sigma2</span> <span class="op">/</span> <span class="va">w</span><span class="op">)</span>, log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
@@ -709,6 +709,11 @@ likelihood.</p>
 <span></span>
 <span><span class="va">logauglik</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">y</span>, <span class="va">sigma2</span>, <span class="va">nu</span>, <span class="va">w</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu">logcondlik</span><span class="op">(</span><span class="va">y</span>, <span class="va">sigma2</span>, <span class="va">nu</span>, <span class="va">w</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html" class="external-link">dgamma</a></span><span class="op">(</span><span class="va">w</span>, <span class="va">nu</span> <span class="op">/</span> <span class="fl">2</span>, <span class="va">nu</span> <span class="op">/</span> <span class="fl">2</span>, log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="va">logpost_joint</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">y</span>, <span class="va">sigma2</span>, <span class="va">nu</span>, <span class="va">w</span>, <span class="va">c0</span>, <span class="va">C0</span>, <span class="va">lambda</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu">logauglik</span><span class="op">(</span><span class="va">y</span>, <span class="va">sigma2</span>, <span class="va">nu</span>, <span class="va">w</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="../reference/InvGammaDist.html">dinvgamma</a></span><span class="op">(</span><span class="va">sigma2</span>, <span class="va">c0</span>, <span class="va">C0</span>, log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/stats/Exponential.html" class="external-link">dexp</a></span><span class="op">(</span><span class="va">nu</span>, <span class="va">lambda</span>, log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>Now we can compute the conditional and the augmented DIC.</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
@@ -1019,14 +1024,12 @@ and of
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>σ</mi><mn>2</mn></msup><annotation encoding="application/x-tex">\sigma^2</annotation></semantics></math>
 are available in closed form, and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ν</mi><annotation encoding="application/x-tex">\nu</annotation></semantics></math>
-is updated through a one-dimensional numerical maximization.</p>
+is updated through a one-dimensional numerical maximization. Note that
+we currently ignore a potential singularity when the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>w</mi><mi>i</mi></msub><annotation encoding="application/x-tex">w_i</annotation></semantics></math>s
+approach 0.</p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">logpost_joint</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">y</span>, <span class="va">sigma2</span>, <span class="va">nu</span>, <span class="va">w</span>, <span class="va">c0</span>, <span class="va">C0</span>, <span class="va">lambda</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu">logauglik</span><span class="op">(</span><span class="va">y</span>, <span class="va">sigma2</span>, <span class="va">nu</span>, <span class="va">w</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="../reference/InvGammaDist.html">dinvgamma</a></span><span class="op">(</span><span class="va">sigma2</span>, <span class="va">c0</span>, <span class="va">C0</span>, log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/stats/Exponential.html" class="external-link">dexp</a></span><span class="op">(</span><span class="va">nu</span>, <span class="va">lambda</span>, log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span></span>
-<span><span class="co"># If nu is supplied, it is held fixed and only (w, sigma2) are optimized.</span></span>
+<code class="sourceCode R"><span><span class="co"># If nu is supplied, it is held fixed and only (w, sigma2) are optimized.</span></span>
 <span><span class="va">joint_mode</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">y</span>, <span class="va">c0</span>, <span class="va">C0</span>, <span class="va">lambda</span>, <span class="va">nu</span> <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">tol</span> <span class="op">=</span> <span class="fl">1e-10</span>,</span>
 <span>                       <span class="va">maxit</span> <span class="op">=</span> <span class="fl">10000L</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">fixed_nu</span> <span class="op">&lt;-</span> <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">nu</span><span class="op">)</span></span>
