@@ -478,7 +478,8 @@ knitr::kable(cbind(DIC, avgD, Davg, pd))
 
 Because we also stored the weights, we can use the samples from above to compute
 conditional and augmented DICs. To do so, we first define the log conditional
-likelihood and the log augmented ("complete-data") likelihood.
+likelihood and the log augmented ("complete-data") likelihood, as well as the
+joint posterior.
 
 ```{r}
 logcondlik <- function(y, sigma2, nu, w) {
@@ -487,6 +488,11 @@ logcondlik <- function(y, sigma2, nu, w) {
 
 logauglik <- function(y, sigma2, nu, w) {
   logcondlik(y, sigma2, nu, w) + sum(dgamma(w, nu / 2, nu / 2, log = TRUE))
+}
+
+logpost_joint <- function(y, sigma2, nu, w, c0, C0, lambda) {
+  logauglik(y, sigma2, nu, w) + dinvgamma(sigma2, c0, C0, log = TRUE) +
+    dexp(nu, lambda, log = TRUE)
 }
 ```
 
@@ -708,14 +714,10 @@ knitr::kable(out)
 Finally, we use the actual joint posterior mode of $(\sigma^2, \nu, w_1, \dots,
 w_N)$. We find it through simple (block) coordinate ascent: the conditional
 modes of the $w_i$ and of $\sigma^2$ are available in closed form, and $\nu$
-is updated through a one-dimensional numerical maximization.
+is updated through a one-dimensional numerical maximization. Note that we
+currently ignore a potential singularity when the $w_i$s approach 0.
 
 ```{r}
-logpost_joint <- function(y, sigma2, nu, w, c0, C0, lambda) {
-  logauglik(y, sigma2, nu, w) + dinvgamma(sigma2, c0, C0, log = TRUE) +
-    dexp(nu, lambda, log = TRUE)
-}
-
 # If nu is supplied, it is held fixed and only (w, sigma2) are optimized.
 joint_mode <- function(y, c0, C0, lambda, nu = NULL, tol = 1e-10,
                        maxit = 10000L) {
