@@ -917,6 +917,27 @@ rownames(out) <- c("Gaussian", "t_7", "t_nu")
 knitr::kable(out)
 ```
 
+For the Gaussian model (only), we can compute the WAIC in closed form.
+
+```{r}
+log_pred <- lgamma(cN + 0.5) -
+  lgamma(cN) -
+  0.5 * log(2 * pi * CN) -
+  (cN + 0.5) * log(1 + y^2 / (2 * CN))
+
+lppd <- sum(log_pred)
+
+S2 <- sum(y^2)
+S4 <- sum(y^4)
+
+(pWAIC <- 0.25 * (N * psigamma(cN, deriv = 1) + cN * S4 / CN^2 - 2 * S2 / CN))
+
+kurtosis <- N * sum(y^4) / sum(y^2)^2
+(kurtosis - 1) / 2
+
+(WAIC <- -2 * (lppd - pWAIC))
+```
+
 # Section 12.3: Comparative model assessment through scoring rules
 
 ## Section 12.3.1: Log predictive density scores
