@@ -1010,6 +1010,31 @@ knitr::kable(out)
 | t_7 | \[6605.36, 6605.69\] | \[0.92, 1.07\] | \[6484.40, 6488.91\] | \[302.25, 304.54\] |
 | t_nu | \[6605.66, 6606.81\] | \[2.19, 2.86\] | \[6467.73, 6479.75\] | \[321.95, 326.35\] |
 
+For the Gaussian model (only), we can compute the WAIC in closed form.
+
+``` r
+
+log_pred <- lgamma(cN + 0.5) -
+  lgamma(cN) -
+  0.5 * log(2 * pi * CN) -
+  (cN + 0.5) * log(1 + y^2 / (2 * CN))
+
+lppd <- sum(log_pred)
+
+S2 <- sum(y^2)
+S4 <- sum(y^4)
+
+(pWAIC <- 0.25 * (N * psigamma(cN, deriv = 1) + cN * S4 / CN^2 - 2 * S2 / CN))
+#> [1] 5.049913
+
+kurtosis <- N * sum(y^4) / sum(y^2)^2
+(kurtosis - 1) / 2
+#> [1] 5.059983
+
+(WAIC <- -2 * (lppd - pWAIC))
+#> [1] 6911.056
+```
+
 ## Section 12.3: Comparative model assessment through scoring rules
 
 ### Section 12.3.1: Log predictive density scores
@@ -1083,4 +1108,4 @@ legend("topleft", c(paste0("Log BF > 0 (", round(100 * mean(logBF > 0)), "%)"),
        col = rgb(c(0, 1), 0, c(1, 0), .5), pch = 16, lty = 1, lwd = 2)
 ```
 
-![](Chapter12_files/figure-html/unnamed-chunk-35-1.png)
+![](Chapter12_files/figure-html/unnamed-chunk-36-1.png)
