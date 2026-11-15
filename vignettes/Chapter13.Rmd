@@ -1,0 +1,131 @@
+---
+title: "Chapter 13: Principles in Computational Bayesian Inference"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{Chapter 13: Principles in Computational Bayesian Inference
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 8,
+  fig.height = 6
+)
+knitr::opts_knit$set(global.par = TRUE)
+```
+
+```{r}
+pdfplots <- FALSE # default: FALSE; set this to TRUE only if you like pdf figures
+mcmcspeedup <- 10L # default: 1L; set this to something higher for fewer draws
+seed <- 42 # for reproducability
+```
+
+# Section 13.1: Obtaining i.i.d. Posterior Draws
+
+# Section 13.2: Integration Methods for Bayesian Inference
+
+## Section 13.2.2: Laplace approximations
+
+### Example 13.8: Road Safety data: Laplace Approximation of Marginal likelihoods
+We follow up on Example 8.8 where we fitted 
+two Poisson regression models to the monthly counts of children aged 6–10 that
+were killed and seriously injured in Linz. In both models we included an effect
+of the legal intervention. In the first model we additionally 
+included a dummy variable for the holiday months July and August, whereas in the 
+second model we included seasonal effects for all months.
+
+We used the Newton-Raphson method to construct a  Normal proposal centered at 
+the posterior mode for an independence Metropolis Hastings algorithm. 
+We make use of this function to approximate the marginal likelihoods of the two
+models using  Laplace approximation.
+
+We first load the data and define  response, exposures and the regressor matrices of 
+both models.
+
+```{r}
+data("accidents", package = "BayesianLearningCode")
+y <- accidents[, "children_accidents"]
+e <- accidents[, "children_exposure"]
+
+X <- cbind(intercept = rep(1, length(y)),
+           intervention = rep(c(0, 1), c(7 * 12 + 9, 8 * 12 + 3)),
+           holiday = rep(rep(c(0, 1, 0), c(6, 2, 4)), 16))
+
+seas <- rbind(diag(1, 11), rep(0, 11))
+seas_dummies <- matrix(rep(t(seas), 16), ncol = 11, byrow = TRUE)
+colnames(seas_dummies) <- c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul",
+                            "Aug", "Sep", "Oct", "Nov")
+X_large <- cbind(X[, -3], seas_dummies)
+```
+
+Then we implement finding of the posterior mode and computing the Laplace 
+approximation.
+
+```{r}
+logmarlik_poisson <- function(y, X, e, b0 = 0, B0 = 100, t.max = 20) {
+  N <- length(y)
+  d <- ncol(X)
+
+  if(length(b0==1)){
+      b0<- rep(0,d)
+      }
+  if(length(B0==1)){
+    B0 <- diag(B0, ncol=d, nrow=d)
+  }
+  B0.inv <- solve(B0)
+
+  # determine the MAP
+  beta_new <- matrix(c(log(mean(y/e)),rnorm(d - 1)/10), nrow = d)
+  if(is.nan(beta_new[1])){
+    beta.new[1]<- log(mean(y)/mean(e))
+  }
+
+  XtXi <- lapply(seq_len(N), function(i) tcrossprod(X[i,]))
+
+  for (t in seq_len(t.max)) {
+    beta_old <- beta_new
+
+    rate <- e * exp(X %*% beta_old)
+    score <- t(crossprod(y - rate, X) - t(beta_old - b0) %*% B0.inv)
+
+    H <- -B0.inv
+    for (i in seq_len(N)) {
+      H <- H - rate[i] * XtXi[[i]]
+    }
+    beta_new <- beta_old - solve(H, score)
+    if (max(abs(beta_new - beta_old)) < .Machine$double.eps) break
+  }
+
+  qmean <- beta_new
+
+  # Determine the variance matrix
+  rate <- e * exp(X %*% qmean)
+  H <- -B0.inv
+  for (i in seq_len(N)) {
+    H <- H - rate[i] * XtXi[[i]]
+  }
+  qvar <- -solve(H)
+
+  loglik<- sum(y*log(rate) - lgamma(y+1) - rate)
+  lpri <-  mvtnorm::dmvnorm(t(qmean), mean = b0, sigma = B0,log = TRUE)
+
+  lmarlik<-loglik+lpri+d/2*log(2*pi)+log(sqrt(det(qvar)))
+  return(res=list(beta.post=qmean,var.beta=qvar, lmarlik=lmarlik))
+}
+```
+
+We use the function to determine the approximated marginal likelihoods  for 
+both models. 
+
+```{r}
+res1 <- logmarlik_poisson(y, X, e, b0 = 0, B0 = 100)
+res2 <- logmarlik_poisson(y, X_large, e, b0 =0, B0 = 100)
+print(c(res1$lmarlik, res2$lmarlik))
+```
+
+We clearly prefer model 1.
