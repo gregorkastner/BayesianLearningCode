@@ -26,3 +26,5 @@
   Analysis](https://gregorkastner.github.io/BayesianLearningCode/articles/Chapter11.md):
 - [Chapter 12: Model Assessment and Predictive Model
   Checking](https://gregorkastner.github.io/BayesianLearningCode/articles/Chapter12.md):
+- [Chapter 13: Principles in Computational Bayesian
+  Inference](https://gregorkastner.github.io/BayesianLearningCode/articles/Chapter13.md):
