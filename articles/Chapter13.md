@@ -58,8 +58,9 @@ logmarlik_poisson <- function(y, X, e, b0 = 0, B0 = 100, t.max = 20) {
 
   if(length(b0==1)){
       b0<- rep(0,d)
-      }
-  if(length(B0==1)){
+  }
+  
+  if(length(B0)==1){
     B0 <- diag(B0, ncol=d, nrow=d)
   }
   B0.inv <- solve(B0)
@@ -114,6 +115,20 @@ res2 <- logmarlik_poisson(y, X_large, e, b0 =0, B0 = 100)
 print(c(res1$lmarlik, res2$lmarlik))
 #>      rate      rate 
 #> -312.8341 -342.2533
+
+res1a <- logmarlik_poisson(y, X, e, b0 = 0, B0 = 10)
+res2a <- logmarlik_poisson(y, X_large, e, b0 =0, B0 = 10)
+print(c(res1a$lmarlik, res2a$lmarlik))
+#>      rate      rate 
+#> -312.4534 -330.4334
+
+d<- dim(X)[2]
+dl<- dim(X_large)[2]
+res1b <- logmarlik_poisson(y, X, e, b0 = 0, B0 = diag(c(100, rep(1,d-1))) )
+res2b <- logmarlik_poisson(y, X_large, e, b0 =0, B0 =  diag(c(100, rep(1,dl-1))))
+print(c(res1b$lmarlik, res2b$lmarlik))
+#>      rate      rate 
+#> -308.6131 -315.9575
 ```
 
-We clearly prefer model 1.
+Model 1 is clearly preferred.
