@@ -972,12 +972,19 @@ trainends <- seq(2000, length(y) - 1)
 
 Now we run the prediction on the expanding window and evaluate the one-step ahead
 predictive likelihood. For the normal model, this can be done analytically,
-for the Student t model, we need MCMC draws.
+for the Student t model (both with nu fixed and otherwise), we need MCMC draws.
+
+Note that we used a "warm start" in the sense that sample means of posterior
+draws from previous runs are used as starting values for consecutive runs.
 
 ```{r}
 set.seed(seed)
-M <- 100 / mcmcspeedup
+M <- 1000 / mcmcspeedup
 burnin <- 100 / mcmcspeedup
+
+startsigma2_nufix <- var(y[seq_len(trainends[1])]) * (nu - 2) / nu
+startsigma2_nuest <- startsigma2_nufix
+startnu <- nu
 
 LPDS <- matrix(NA_real_, 3, length(trainends))
 for (i in seq_along(trainends)) {
