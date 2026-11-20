@@ -356,58 +356,67 @@ For sampling also the degrees of freedom under an exponential prior,
 we re-run the sampler from Example 8.16, but this time without an intercept.
 
 ```{r}
-# fix tuning parameter for MH
-cnu <- 0.3
-
-# fix prior hyperparameters
-lambda <- 1 / 7
-
-# log likelihood
-loglik <- function(y, sigma2, nu) {
-  sum(dstudt(y, 0, sqrt(sigma2), df = nu, log = TRUE))
-}
-
-# allocate space for storing the draws
-draws[[3]]$nus <- draws[[3]]$sigma2s <- rep(NA_real_, M / thin)
-draws[[3]]$ws <- matrix(NA_real_, nrow = M / thin, ncol = N)
-
-# starting value for log(nu) and w
-w <- rep(1, N)
-nu <- 7
-
-accepts <- 0L
-for (m in 1:(burnin + M)) {
-  # sample sigma^2 from its full conditional (S-DA)
-  eps <- sqrt(w) * y
-  CN <- C0 + crossprod(eps) / 2
-  sigma2 <- rinvgamma(1, cN, CN)
-
-  # sample nu (N-MH)
-  nuprop <- exp(rnorm(1, log(nu), cnu))
-  logR <- loglik(y, sigma2, nuprop) -
-          loglik(y, sigma2, nu) +
-          dexp(nuprop, lambda, log = TRUE) -
-          dexp(nu, lambda, log = TRUE) +
-          log(nuprop) -
-          log(nu)
-  
-  if (log(runif(1)) < logR) {
-    nu <- nuprop
-    if (m > burnin) accepts <- accepts + 1L
+sampler2 <- function(y, M, burnin, c0, C0, lambda, startsigma2 = var(y),
+                     startnu = 7, cnu = 0.3, thin = 1L) {
+  # log likelihood
+  loglik <- function(y, sigma2, nu) {
+    sum(dstudt(y, 0, sqrt(sigma2), df = nu, log = TRUE))
   }
-  
-  # sample w (W-DA)
-  r <- eps^2 / (w * sigma2)
-  w <- rgamma(length(eps), (nu + 1) /2, (nu + r) / 2)
 
-  # store the results
-  if (m > burnin && (m - burnin) %% thin == 0L) {
-    draws[[3]]$sigma2s[(m - burnin) / thin] <- sigma2
-    draws[[3]]$nus[(m - burnin) / thin] <- nu
-    draws[[3]]$ws[(m - burnin) / thin, ] <- w
+  # Some pre-computations
+  N <- length(y)
+  cN <- c0 + N / 2
+  
+  # allocate space for storing the draws
+  draws <- list()
+  draws$nus <- draws$sigma2s <- rep(NA_real_, M / thin)
+  draws$ws <- matrix(NA_real_, nrow = M / thin, ncol = N)
+
+  # starting value for sigma2 and nu
+  sigma2 <- startsigma2
+  nu <- startnu
+
+  accepts <- 0L
+  for (m in 1:(burnin + M)) {
+    # sample w (W-DA)
+    w <- rgamma(N, (nu + 1) /2, (nu + y^2 / sigma2) / 2)
+  
+    # sample sigma^2 (S-DA)
+    eps <- sqrt(w) * y
+    CN <- C0 + crossprod(sqrt(w) * y) / 2
+    sigma2 <- rinvgamma(1, cN, CN)
+
+    # sample nu (N-MH)
+    nuprop <- exp(rnorm(1, log(nu), cnu))
+    logR <- loglik(y, sigma2, nuprop) -
+            loglik(y, sigma2, nu) +
+            dexp(nuprop, lambda, log = TRUE) -
+            dexp(nu, lambda, log = TRUE) +
+            log(nuprop) -
+            log(nu)
+  
+    if (log(runif(1)) < logR) {
+      nu <- nuprop
+      if (m > burnin) accepts <- accepts + 1L
+    }
+
+    # store the results
+    if (m > burnin && (m - burnin) %% thin == 0L) {
+      draws$sigma2s[(m - burnin) / thin] <- sigma2
+      draws$nus[(m - burnin) / thin] <- nu
+      draws$ws[(m - burnin) / thin, ] <- w
+    }
   }
+  list(draws = draws, acceptrate = accepts / M)
 }
-print(accepts / M)
+```
+
+Now we can run the sampler.
+
+```{r}
+res <- sampler2(y, M, burnin, c0, C0, lambda)
+draws[[3]] <- res$draws
+print(res$acceptrate)
 ```
 
 We can now estimate the DIC from the draws. First, we define the deviance
