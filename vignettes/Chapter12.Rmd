@@ -411,6 +411,7 @@ sampler2 <- function(y, M, burnin, c0, C0, lambda, startsigma2 = var(y),
 Now we can run the sampler.
 
 ```{r}
+lambda <- 1 / 7
 res <- sampler2(y, M, burnin, c0, C0, lambda)
 draws[[3]] <- res$draws
 print(res$acceptrate)
