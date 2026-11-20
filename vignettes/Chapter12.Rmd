@@ -421,6 +421,10 @@ We can now estimate the DIC from the draws. First, we define the deviance
 function $D$.
 
 ```{r}
+loglik <- function(y, sigma2, nu) {
+  sum(dstudt(y, 0, sqrt(sigma2), df = nu, log = TRUE))
+}
+
 D_nonvec <- function(y, sigma2, nu) -2 * loglik(y, sigma2, nu)
 D <- Vectorize(D_nonvec, c("sigma2", "nu"))
 ```
