@@ -979,7 +979,7 @@ set.seed(seed)
 M <- 100 / mcmcspeedup
 burnin <- 100 / mcmcspeedup
 
-LPDS <- matrix(NA_real_, 2, length(trainends))
+LPDS <- matrix(NA_real_, 3, length(trainends))
 for (i in seq_along(trainends)) {
   ytrain <- y[seq_len(trainends[i])]
   Ntrain <- length(ytrain)
@@ -990,10 +990,15 @@ for (i in seq_along(trainends)) {
   C1N <- C10 + 0.5 * sum(ytrain^2)
   LPDS[1, i] <- dstudt(ytest, 0, sqrt(C1N / c1N), 2 * c1N, log = TRUE)
   
-  # Student t model
+  # Student t model (nu fixed at 7)
   draws <- sampler(ytrain, M, burnin, c30, C30, nu)
   logpreddraws <- dstudt(ytest, 0, sqrt(draws$sigma2s), draws$nus, log = TRUE)
   LPDS[2, i] <- logmeanexp(logpreddraws)
+  
+  # Student t model (nu unknown)
+  draws <- sampler2(ytrain, M, burnin, c30, C30, lambda)
+  logpreddraws <- dstudt(ytest, 0, sqrt(draws$sigma2s), draws$nus, log = TRUE)
+  LPDS[3, i] <- logmeanexp(logpreddraws)
 }
 ```
 
