@@ -986,6 +986,8 @@ startsigma2_nufix <- var(y[seq_len(trainends[1])]) * (nu - 2) / nu
 startsigma2_nuest <- startsigma2_nufix
 startnu <- nu
 
+nudraws <- matrix(NA_real_, nrow = M, ncol = length(trainends))
+
 LPDS <- matrix(NA_real_, 3, length(trainends))
 for (i in seq_along(trainends)) {
   ytrain <- y[seq_len(trainends[i])]
@@ -998,14 +1000,21 @@ for (i in seq_along(trainends)) {
   LPDS[1, i] <- dstudt(ytest, 0, sqrt(C1N / c1N), 2 * c1N, log = TRUE)
   
   # Student t model (nu fixed at 7)
-  draws <- sampler(ytrain, M, burnin, c30, C30, nu)
+  draws <- sampler(ytrain, M, burnin, c30, C30, nu,
+                   startsigma2 = startsigma2_nufix)
   logpreddraws <- dstudt(ytest, 0, sqrt(draws$sigma2s), draws$nus, log = TRUE)
   LPDS[2, i] <- logmeanexp(logpreddraws)
+  starts2_nufix <- mean(draws$sigma2s)
   
   # Student t model (nu unknown)
-  draws <- sampler2(ytrain, M, burnin, c30, C30, lambda)
+  res <- sampler2(ytrain, M, burnin, c30, C30, lambda,
+                  startsigma2 = startsigma2_nuest, startnu = startnu)
+  draws <- res$draws
   logpreddraws <- dstudt(ytest, 0, sqrt(draws$sigma2s), draws$nus, log = TRUE)
   LPDS[3, i] <- logmeanexp(logpreddraws)
+  starts2_nuest <- mean(draws$sigma2s)
+  startnu <- mean(draws$nu)
+  nudraws[, i] <- draws$nu
 }
 ```
 
@@ -1013,9 +1022,9 @@ Now we compare and visualize.
 
 ```{r, echo = -c(1:2)}
 if (pdfplots) {
-  pdf("12-3_1.pdf", width = 10, height = 4)
+  pdf("12-3_1.pdf", width = 8, height = 7)
 }
-par(mar = c(2.5, 2.5, 0.5, 2.5), mgp = c(1.6, .6, 0), mfrow = c(1, 2))
+par(mar = c(2.5, 2.5, 0.5, 2.5), mgp = c(1.6, .6, 0), mfrow = c(2, 1))
 logBF <- cbind(LPDS[2, ] - LPDS[1, ], LPDS[3, ] - LPDS[2, ])
 for (i in seq_len(ncol(logBF))) {
   cumlogBF <- cumsum(logBF[, i])
