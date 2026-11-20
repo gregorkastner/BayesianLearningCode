@@ -329,13 +329,12 @@ using data augmentation.
 
 ``` r
 
-sampler <- function(y, M, burnin, c0, C0, nu, thin = 1L) {
-  N <- length(y)
-  
-  # starting value for w
-  w <- rep(1, N)
+sampler <- function(y, M, burnin, c0, C0, nu, startsigma2 = var(y), thin = 1L) {
+  # starting value for sigma2
+  sigma2 <- startsigma2
 
   # pre-compute cN
+  N <- length(y)
   cN <- c0 + N / 2
 
   # allocate space for storing the draws
@@ -345,14 +344,12 @@ sampler <- function(y, M, burnin, c0, C0, nu, thin = 1L) {
   draws$ws <- matrix(NA_real_, nrow = M, ncol = N)
  
   for (m in 1:(burnin + M)) {
-    # sample sigma^2 from its full conditional (S-DA)
-    eps <- sqrt(w) * y
-    CN <- C0 + crossprod(eps) / 2
-    sigma2 <- rinvgamma(1, cN, CN)
-
     # sample w (W-DA)
-    r <- eps^2 / (w * sigma2)
-    w <- rgamma(length(eps), (nu + 1) /2, (nu + r) / 2)
+    w <- rgamma(N, (nu + 1) /2, (nu + y^2 / sigma2) / 2)
+    
+    # sample sigma^2 from its full conditional (S-DA)
+    CN <- C0 + crossprod(sqrt(w) * y) / 2
+    sigma2 <- rinvgamma(1, cN, CN)
 
     # store the results
     if (m > burnin && (m - burnin) %% thin == 0L) {
@@ -379,65 +376,80 @@ intercept.
 
 ``` r
 
-# fix tuning parameter for MH
-cnu <- 0.3
+sampler2 <- function(y, M, burnin, c0, C0, lambda, startsigma2 = var(y),
+                     startnu = 7, cnu = 0.3, thin = 1L) {
+  # log likelihood
+  loglik <- function(y, sigma2, nu) {
+    sum(dstudt(y, 0, sqrt(sigma2), df = nu, log = TRUE))
+  }
 
-# fix prior hyperparameters
+  # Some pre-computations
+  N <- length(y)
+  cN <- c0 + N / 2
+  
+  # allocate space for storing the draws
+  draws <- list()
+  draws$nus <- draws$sigma2s <- rep(NA_real_, M / thin)
+  draws$ws <- matrix(NA_real_, nrow = M / thin, ncol = N)
+
+  # starting value for sigma2 and nu
+  sigma2 <- startsigma2
+  nu <- startnu
+
+  accepts <- 0L
+  for (m in 1:(burnin + M)) {
+    # sample w (W-DA)
+    w <- rgamma(N, (nu + 1) /2, (nu + y^2 / sigma2) / 2)
+  
+    # sample sigma^2 (S-DA)
+    eps <- sqrt(w) * y
+    CN <- C0 + crossprod(sqrt(w) * y) / 2
+    sigma2 <- rinvgamma(1, cN, CN)
+
+    # sample nu (N-MH)
+    nuprop <- exp(rnorm(1, log(nu), cnu))
+    logR <- loglik(y, sigma2, nuprop) -
+            loglik(y, sigma2, nu) +
+            dexp(nuprop, lambda, log = TRUE) -
+            dexp(nu, lambda, log = TRUE) +
+            log(nuprop) -
+            log(nu)
+  
+    if (log(runif(1)) < logR) {
+      nu <- nuprop
+      if (m > burnin) accepts <- accepts + 1L
+    }
+
+    # store the results
+    if (m > burnin && (m - burnin) %% thin == 0L) {
+      draws$sigma2s[(m - burnin) / thin] <- sigma2
+      draws$nus[(m - burnin) / thin] <- nu
+      draws$ws[(m - burnin) / thin, ] <- w
+    }
+  }
+  list(draws = draws, acceptrate = accepts / M)
+}
+```
+
+Now we can run the sampler.
+
+``` r
+
 lambda <- 1 / 7
-
-# log likelihood
-loglik <- function(y, sigma2, nu) {
-  sum(dstudt(y, 0, sqrt(sigma2), df = nu, log = TRUE))
-}
-
-# allocate space for storing the draws
-draws[[3]]$nus <- draws[[3]]$sigma2s <- rep(NA_real_, M / thin)
-draws[[3]]$ws <- matrix(NA_real_, nrow = M / thin, ncol = N)
-
-# starting value for log(nu) and w
-w <- rep(1, N)
-nu <- 7
-
-accepts <- 0L
-for (m in 1:(burnin + M)) {
-  # sample sigma^2 from its full conditional (S-DA)
-  eps <- sqrt(w) * y
-  CN <- C0 + crossprod(eps) / 2
-  sigma2 <- rinvgamma(1, cN, CN)
-
-  # sample nu (N-MH)
-  nuprop <- exp(rnorm(1, log(nu), cnu))
-  logR <- loglik(y, sigma2, nuprop) -
-          loglik(y, sigma2, nu) +
-          dexp(nuprop, lambda, log = TRUE) -
-          dexp(nu, lambda, log = TRUE) +
-          log(nuprop) -
-          log(nu)
-  
-  if (log(runif(1)) < logR) {
-    nu <- nuprop
-    if (m > burnin) accepts <- accepts + 1L
-  }
-  
-  # sample w (W-DA)
-  r <- eps^2 / (w * sigma2)
-  w <- rgamma(length(eps), (nu + 1) /2, (nu + r) / 2)
-
-  # store the results
-  if (m > burnin && (m - burnin) %% thin == 0L) {
-    draws[[3]]$sigma2s[(m - burnin) / thin] <- sigma2
-    draws[[3]]$nus[(m - burnin) / thin] <- nu
-    draws[[3]]$ws[(m - burnin) / thin, ] <- w
-  }
-}
-print(accepts / M)
-#> [1] 0.2928
+res <- sampler2(y, M, burnin, c0, C0, lambda)
+draws[[3]] <- res$draws
+print(res$acceptrate)
+#> [1] 0.2953
 ```
 
 We can now estimate the DIC from the draws. First, we define the
 deviance function $`D`$.
 
 ``` r
+
+loglik <- function(y, sigma2, nu) {
+  sum(dstudt(y, 0, sqrt(sigma2), df = nu, log = TRUE))
+}
 
 D_nonvec <- function(y, sigma2, nu) -2 * loglik(y, sigma2, nu)
 D <- Vectorize(D_nonvec, c("sigma2", "nu"))
@@ -489,8 +501,8 @@ knitr::kable(out)
 |  | DIC | avgD | Davg | pd |
 |:---|:---|:---|:---|:---|
 | Gaussian | \[6906.83, 6907.09\] | \[6905.88, 6906.01\] | \[6904.93, 6904.94\] | \[0.95, 1.08\] |
-| t_7 | \[6605.35, 6605.68\] | \[6604.45, 6604.62\] | \[6603.54, 6603.56\] | \[0.90, 1.06\] |
-| t_nu | \[6605.29, 6606.21\] | \[6603.45, 6603.91\] | \[6601.61, 6601.76\] | \[1.79, 2.30\] |
+| t_7 | \[6605.36, 6605.68\] | \[6604.45, 6604.62\] | \[6603.54, 6603.56\] | \[0.91, 1.06\] |
+| t_nu | \[6605.41, 6606.12\] | \[6603.50, 6603.88\] | \[6601.59, 6601.69\] | \[1.91, 2.24\] |
 
 For the Gaussian model (only), we can compute the DIC in closed form.
 
@@ -591,8 +603,8 @@ knitr::kable(out)
 
 |  | DIC_C | pd_C | DIC_A | pd_A |
 |:---|:---|:---|:---|:---|
-| t_7 | \[6125.46, 6231.83\] | \[3.55, 108.02\] | \[10705.80, 10784.09\] | \[229.25, 308.95\] |
-| t_nu | \[5901.34, 6091.61\] | \[-179.81, 12.03\] | \[11276.91, 11594.55\] | \[590.60, 861.75\] |
+| t_7 | \[6125.47, 6231.91\] | \[3.55, 108.11\] | \[10704.88, 10784.35\] | \[228.28, 309.17\] |
+| t_nu | \[5958.43, 6070.19\] | \[-127.09, -11.34\] | \[11327.79, 11523.24\] | \[583.49, 811.24\] |
 
 Our MAP approximation is probably rather bad (remember that we are
 trying to find the maximum of a high-dimensional function). Let us try
@@ -701,8 +713,8 @@ knitr::kable(out)
 
 |  | DIC_C | pd_C | DIC_A | pd_A |
 |:---|:---|:---|:---|:---|
-| t_7 | \[6529.24, 6533.37\] | \[408.05, 409.50\] | \[12917.69, 12930.58\] | \[2445.54, 2454.44\] |
-| t_nu | \[6539.79, 6545.51\] | \[451.65, 463.20\] | \[13076.67, 13106.25\] | \[2366.44, 2390.37\] |
+| t_7 | \[6529.27, 6533.31\] | \[408.03, 409.47\] | \[12917.65, 12930.61\] | \[2445.52, 2454.41\] |
+| t_nu | \[6541.00, 6543.93\] | \[456.27, 467.80\] | \[13101.41, 13130.84\] | \[2367.42, 2389.42\] |
 
 And the median.
 
@@ -767,8 +779,8 @@ knitr::kable(out)
 
 |  | DIC_C | pd_C | DIC_A | pd_A |
 |:---|:---|:---|:---|:---|
-| t_7 | \[6518.02, 6521.56\] | \[396.43, 398.97\] | \[13365.11, 13376.81\] | \[2892.64, 2899.26\] |
-| t_nu | \[6523.65, 6529.91\] | \[436.38, 447.13\] | \[13556.18, 13614.69\] | \[2831.16, 2885.25\] |
+| t_7 | \[6518.04, 6521.67\] | \[396.45, 399.04\] | \[13365.07, 13376.76\] | \[2892.62, 2899.18\] |
+| t_nu | \[6523.45, 6528.04\] | \[440.19, 450.08\] | \[13546.56, 13619.59\] | \[2825.41, 2895.26\] |
 
 Finally, we use the actual joint posterior mode of
 $`(\sigma^2, \nu, w_1, \dots,
@@ -874,8 +886,8 @@ knitr::kable(out)
 
 |  | DIC_C | pd_C | DIC_A | pd_A |
 |:---|:---|:---|:---|:---|
-| t_7 | \[6778.86, 6785.53\] | \[658.32, 661.66\] | \[13956.44, 13971.58\] | \[3484.29, 3491.86\] |
-| t_nu | \[5254.61, 5281.59\] | \[-823.72, -810.23\] | \[35729.39, 35831.18\] | \[25043.08, 25093.98\] |
+| t_7 | \[6778.88, 6785.46\] | \[658.33, 661.62\] | \[13956.40, 13971.45\] | \[3484.27, 3491.80\] |
+| t_nu | \[5246.93, 5269.00\] | \[-827.56, -816.52\] | \[35780.76, 35883.60\] | \[25068.77, 25120.19\] |
 
 The negative $`p_D^C`$ for the $`t_\nu`$ model is a symptom of the
 degenerate joint mode: the exponential prior is the only thing that
@@ -943,14 +955,14 @@ knitr::kable(out)
 
 |  | DIC_C | pd_C | DIC_A | pd_A |
 |:---|:---|:---|:---|:---|
-| t_7: MAP draw | \[6125, 6232\] | \[4, 108\] | \[10706, 10784\] | \[229, 309\] |
-| t_7: mean | \[6529, 6533\] | \[408, 410\] | \[12918, 12931\] | \[2446, 2454\] |
+| t_7: MAP draw | \[6125, 6232\] | \[4, 108\] | \[10705, 10784\] | \[228, 309\] |
+| t_7: mean | \[6529, 6533\] | \[408, 409\] | \[12918, 12931\] | \[2446, 2454\] |
 | t_7: median | \[6518, 6522\] | \[396, 399\] | \[13365, 13377\] | \[2893, 2899\] |
-| t_7: joint mode | \[6779, 6786\] | \[658, 662\] | \[13956, 13972\] | \[3484, 3492\] |
-| t_nu: MAP draw | \[5901, 6092\] | \[-180, 12\] | \[11277, 11595\] | \[591, 862\] |
-| t_nu: mean | \[6540, 6546\] | \[452, 463\] | \[13077, 13106\] | \[2366, 2390\] |
-| t_nu: median | \[6524, 6530\] | \[436, 447\] | \[13556, 13615\] | \[2831, 2885\] |
-| t_nu: joint mode | \[5255, 5282\] | \[-824, -810\] | \[35729, 35831\] | \[25043, 25094\] |
+| t_7: joint mode | \[6779, 6785\] | \[658, 662\] | \[13956, 13971\] | \[3484, 3492\] |
+| t_nu: MAP draw | \[5958, 6070\] | \[-127, -11\] | \[11328, 11523\] | \[583, 811\] |
+| t_nu: mean | \[6541, 6544\] | \[456, 468\] | \[13101, 13131\] | \[2367, 2389\] |
+| t_nu: median | \[6523, 6528\] | \[440, 450\] | \[13547, 13620\] | \[2825, 2895\] |
+| t_nu: joint mode | \[5247, 5269\] | \[-828, -817\] | \[35781, 35884\] | \[25069, 25120\] |
 
 Only the posterior mean and the posterior median give stable and
 plausible results for both models; the MAP draw is very noisy across
@@ -1007,8 +1019,8 @@ knitr::kable(out)
 |  | WAIC | phat | WAIC_C | phat_C |
 |:---|:---|:---|:---|:---|
 | Gaussian | \[6910.80, 6911.71\] | \[4.81, 5.49\] |  |  |
-| t_7 | \[6605.36, 6605.69\] | \[0.92, 1.07\] | \[6484.40, 6488.91\] | \[302.25, 304.54\] |
-| t_nu | \[6605.66, 6606.81\] | \[2.19, 2.86\] | \[6467.73, 6479.75\] | \[321.95, 326.35\] |
+| t_7 | \[6605.37, 6605.70\] | \[0.92, 1.07\] | \[6484.32, 6489.21\] | \[302.16, 304.67\] |
+| t_nu | \[6605.84, 6606.61\] | \[2.31, 2.76\] | \[6466.17, 6476.91\] | \[321.35, 325.31\] |
 
 For the Gaussian model (only), we can compute the WAIC in closed form.
 
@@ -1060,15 +1072,26 @@ trainends <- seq(2000, length(y) - 1)
 
 Now we run the prediction on the expanding window and evaluate the
 one-step ahead predictive likelihood. For the normal model, this can be
-done analytically, for the Student t model, we need MCMC draws.
+done analytically, for the Student t model (both with nu fixed and
+otherwise), we need MCMC draws.
+
+Note that we used a “warm start” in the sense that sample means of
+posterior draws from previous runs are used as starting values for
+consecutive runs.
 
 ``` r
 
 set.seed(seed)
-M <- 100 / mcmcspeedup
+M <- 1000 / mcmcspeedup
 burnin <- 100 / mcmcspeedup
 
-LPDS <- matrix(NA_real_, 2, length(trainends))
+startsigma2_nufix <- var(y[seq_len(trainends[1])]) * (nu - 2) / nu
+startsigma2_nuest <- startsigma2_nufix
+startnu <- nu
+
+nudraws <- matrix(NA_real_, nrow = M, ncol = length(trainends))
+
+LPDS <- matrix(NA_real_, 3, length(trainends))
 for (i in seq_along(trainends)) {
   ytrain <- y[seq_len(trainends[i])]
   Ntrain <- length(ytrain)
@@ -1079,10 +1102,22 @@ for (i in seq_along(trainends)) {
   C1N <- C10 + 0.5 * sum(ytrain^2)
   LPDS[1, i] <- dstudt(ytest, 0, sqrt(C1N / c1N), 2 * c1N, log = TRUE)
   
-  # Student t model
-  draws <- sampler(ytrain, M, burnin, c30, C30, nu)
+  # Student t model (nu fixed at 7)
+  draws <- sampler(ytrain, M, burnin, c30, C30, nu,
+                   startsigma2 = startsigma2_nufix)
   logpreddraws <- dstudt(ytest, 0, sqrt(draws$sigma2s), draws$nus, log = TRUE)
   LPDS[2, i] <- logmeanexp(logpreddraws)
+  starts2_nufix <- mean(draws$sigma2s)
+  
+  # Student t model (nu unknown)
+  res <- sampler2(ytrain, M, burnin, c30, C30, lambda,
+                  startsigma2 = startsigma2_nuest, startnu = startnu)
+  draws <- res$draws
+  logpreddraws <- dstudt(ytest, 0, sqrt(draws$sigma2s), draws$nus, log = TRUE)
+  LPDS[3, i] <- logmeanexp(logpreddraws)
+  starts2_nuest <- mean(draws$sigma2s)
+  startnu <- mean(draws$nu)
+  nudraws[, i] <- draws$nu
 }
 ```
 
@@ -1090,22 +1125,25 @@ Now we compare and visualize.
 
 ``` r
 
-logBF <- LPDS[2, ] - LPDS[1, ]
-cumlogBF <- cumsum(logBF)
-xs <- trainends + 1
-plot(xs, y[xs], col = "darkgrey", xlab = "Time", ylab = "", yaxt = "n",
-     type = "l")
-axis(4)
-mtext("CHF-USD daily percentage log returns", side = 4, line = 1.5)
-abline(h = 0, lty = 3, col = "darkgray", lwd = 1.5)
-par(new = TRUE)
-plot(xs, cumlogBF, col = rgb(logBF < 0, 0, logBF > 0, .5), type = "b",
-     axes = FALSE, xlab = "", ylab = "", pch = 16, lwd = 2)
-axis(2)
-mtext("Cumulative log BF", side = 2, line = 1.5)
-legend("topleft", c(paste0("Log BF > 0 (", round(100 * mean(logBF > 0)), "%)"),
-                    paste0("Log BF < 0 (", round(100 * mean(logBF < 0)), "%)")),
-       col = rgb(c(0, 1), 0, c(1, 0), .5), pch = 16, lty = 1, lwd = 2)
+logBF <- cbind(LPDS[2, ] - LPDS[1, ], LPDS[3, ] - LPDS[2, ])
+for (i in seq_len(ncol(logBF))) {
+  cumlogBF <- cumsum(logBF[, i])
+  xs <- trainends + 1
+  plot(xs, y[xs], col = "darkgrey", xlab = "Time", ylab = "", yaxt = "n",
+       type = "l")
+  axis(4)
+  mtext("CHF-USD daily percentage log returns", side = 4, line = 1.5)
+  abline(h = 0, lty = 3, col = "darkgray", lwd = 1.5)
+  par(new = TRUE)
+  plot(xs, cumlogBF, col = rgb(logBF[, i] < 0, 0, logBF[, i] > 0, .5),
+       type = "b", axes = FALSE, xlab = "", ylab = "", pch = 16, lwd = 2)
+  axis(2)
+  mtext("Cumulative log BF", side = 2, line = 1.5)
+  legend("topleft",
+         c(paste0("Log BF > 0 (", round(100 * mean(logBF[, i] > 0)), "%)"),
+           paste0("Log BF < 0 (", round(100 * mean(logBF[, i] < 0)), "%)")),
+         col = rgb(c(0, 1), 0, c(1, 0), .5), pch = 16, lty = 1, lwd = 2)
+}
 ```
 
-![](Chapter12_files/figure-html/unnamed-chunk-36-1.png)
+![](Chapter12_files/figure-html/unnamed-chunk-37-1.png)
