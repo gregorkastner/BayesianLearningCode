@@ -4,7 +4,7 @@
 
 pdfplots <- FALSE # default: FALSE; set this to TRUE only if you like pdf figures
 mcmcspeedup <- 10L # default: 1L; set this to something higher for fewer draws
-seed <- 42 # for reproducability
+seed <- 42 # for reproducibility
 ```
 
 ## Section 12.1: Beyond classical Bayesian model comparison
@@ -353,8 +353,8 @@ sampler <- function(y, M, burnin, c0, C0, nu, startsigma2 = var(y), thin = 1L) {
 
     # store the results
     if (m > burnin && (m - burnin) %% thin == 0L) {
-      draws$sigma2s[m - burnin] <- sigma2
-      draws$ws[m - burnin, ] <- w
+      draws$sigma2s[(m - burnin) / thin] <- sigma2
+      draws$ws[(m - burnin) / thin, ] <- w
     }
   }
   draws
@@ -402,7 +402,6 @@ sampler2 <- function(y, M, burnin, c0, C0, lambda, startsigma2 = var(y),
     w <- rgamma(N, (nu + 1) /2, (nu + y^2 / sigma2) / 2)
   
     # sample sigma^2 (S-DA)
-    eps <- sqrt(w) * y
     CN <- C0 + crossprod(sqrt(w) * y) / 2
     sigma2 <- rinvgamma(1, cN, CN)
 
@@ -1107,7 +1106,7 @@ for (i in seq_along(trainends)) {
                    startsigma2 = startsigma2_nufix)
   logpreddraws <- dstudt(ytest, 0, sqrt(draws$sigma2s), draws$nus, log = TRUE)
   LPDS[2, i] <- logmeanexp(logpreddraws)
-  starts2_nufix <- mean(draws$sigma2s)
+  startsigma2_nufix <- mean(draws$sigma2s)
   
   # Student t model (nu unknown)
   res <- sampler2(ytrain, M, burnin, c30, C30, lambda,
@@ -1115,9 +1114,9 @@ for (i in seq_along(trainends)) {
   draws <- res$draws
   logpreddraws <- dstudt(ytest, 0, sqrt(draws$sigma2s), draws$nus, log = TRUE)
   LPDS[3, i] <- logmeanexp(logpreddraws)
-  starts2_nuest <- mean(draws$sigma2s)
-  startnu <- mean(draws$nu)
-  nudraws[, i] <- draws$nu
+  startsigma2_nuest <- mean(draws$sigma2s)
+  startnu <- mean(draws$nus)
+  nudraws[, i] <- draws$nus
 }
 ```
 
