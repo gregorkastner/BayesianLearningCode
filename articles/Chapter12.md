@@ -545,253 +545,15 @@ logpost_joint <- function(y, sigma2, nu, w, c0, C0, lambda) {
 }
 ```
 
-Now we can compute the conditional and the augmented DIC.
+Next, we implement a simple (block) coordinate ascent algorithm to find
+the joint mode of the posterior: the conditional modes of the $`w_i`$
+and of $`\sigma^2`$ are available in closed form, and $`\nu`$ is updated
+through a one-dimensional numerical maximization. Note that we currently
+ignore a potential singularity when the $`w_i`$s approach 0.
 
 ``` r
 
-res <- array(NA_real_, c(2, 4, 10))
-colnames(res) <- c("DIC_C", "pd_C", "DIC_A", "pd_A")
-for (i in 1:nrow(res)) {
-  d <- draws[[i + 1]]
-  
-  # Evaluate the log conditional likelihood at all posterior draws
-  alllogcondlik <- sapply(seq_along(d$sigma2s), function(j) {
-    logcondlik(y, d$sigma2s[j], d$nus[j], d$ws[j, ])
-  })
-  
-  # Compute the average conditional deviance
-  avgcondD <- -2 * batchMeans(alllogcondlik)
-  
-  # Evaluate the log augmented likelihood at all posterior draws
-  alllogauglik <- sapply(seq_along(d$sigma2s), function(j) {
-    logauglik(y, d$sigma2s[j], d$nus[j], d$ws[j, ])
-  })
-  
-  # Evaluate the unnormalized log posterior
-  alllogpost_unnormalized <- alllogauglik +
-    dinvgamma(d$sigma2s, c0, C0, log = TRUE) + dexp(d$nus, lambda, log = TRUE)
-  
-  # Find the index of the posterior draw with highest joint posterior density
-  MAPind <- apply(batches(alllogpost_unnormalized), 2, which.max)
-  
-  # Evaluate the conditional deviance at the MAP
-  estcondD <- -2 * batches(alllogcondlik)[cbind(MAPind, seq_len(dim(res)[3]))]
-  
-  # Compute conditional pd and conditional DIC
-  res[i, "pd_C", ] <- avgcondD - estcondD
-  res[i, "DIC_C", ] <- 2 * avgcondD - estcondD
-  
-  # Compute the average augmented deviance
-  avgaugD <- -2 * batchMeans(alllogauglik)
-  
-  # Evaluate the augmented deviance at the MAP
-  estaugD <- -2 * batches(alllogauglik)[cbind(MAPind, seq_len(dim(res)[3]))]
-  
-  # Compute augmented pd and augmented DIC
-  res[i, "pd_A", ] <- avgaugD - estaugD
-  res[i, "DIC_A", ] <- 2 * avgaugD - estaugD
-}
-mins <- apply(res, 1:2, min)
-maxs <- apply(res, 1:2, max)
-out <- matrix(paste0("[", roun(mins, 2), ", ", roun(maxs, 2), "]"),
-              nrow = dim(res)[1])
-colnames(out) <- colnames(res)
-rownames(out) <- c("t_7", "t_nu")
-knitr::kable(out)
-```
-
-|  | DIC_C | pd_C | DIC_A | pd_A |
-|:---|:---|:---|:---|:---|
-| t_7 | \[6125.47, 6231.91\] | \[3.55, 108.11\] | \[10704.88, 10784.35\] | \[228.28, 309.17\] |
-| t_nu | \[5958.43, 6070.19\] | \[-127.09, -11.34\] | \[11327.79, 11523.24\] | \[583.49, 811.24\] |
-
-Our MAP approximation is probably rather bad (remember that we are
-trying to find the maximum of a high-dimensional function). Let us try
-to exploit the fact that the conditional maxima of the ws are available
-in closed form.
-
-``` r
-
-# Non-normalized negative joint log-posterior, with w replaced by
-# its closed-form conditional mode
-objective <- function(par, y, c0, C0, lambda) {
-  
-  sigma2 <- exp(par[1])     # sigma2 must be positive
-  nu     <- 1 + exp(par[2]) # nu must be > 1 for the conditional mode to exist
-
-  # Conditional mode of w_i | y_i, sigma2, nu
-#  print(round(c(nu, sigma2), 2))
-  w_hat <- (nu - 1) / (nu + y^2 / sigma2)
-
-  # Log likelihood: y | w, sigma2
-  loglik <- sum(dnorm(y, 0, sqrt(sigma2 / w_hat), log = TRUE))
-
-  # Log prior: w | nu
-  log_w_prior <- sum(dgamma(w_hat, nu / 2, nu / 2, log = TRUE))
-
-  # Inverse-Gamma prior for sigma2 (shape c0, rate C0)
-  log_sigma2_prior <- dinvgamma(sigma2, c0, C0, log = TRUE)
-
-  # Exponential prior for nu
-  log_nu_prior <- dexp(nu, lambda, log = TRUE)
-
-  logpost <- loglik + log_w_prior + log_sigma2_prior + log_nu_prior
-
-  -logpost
-}
-
-fit <- optim(log(c(mean(y^2), 7 - 1)), objective, method = "BFGS", 
-             y = y, c0 = c0, C0 = C0, lambda = lambda)
-
-sigma2_hat <- exp(fit$par[1])
-nu_hat     <- 1 + exp(fit$par[2])
-
-w_hat <- (nu_hat - 1) / (nu_hat + y^2 / sigma2_hat)
-```
-
-This doesn’t seem to work too well, either. (Thinking a bit about it
-reveals that the joint mode is degenerate.)
-
-Let’s also try with the posterior mean as point estimate.
-
-``` r
-
-res <- array(NA_real_, c(2, 4, 10))
-colnames(res) <- c("DIC_C", "pd_C", "DIC_A", "pd_A")
-for (i in 1:nrow(res)) {
-  d <- draws[[i + 1]]
-  
-  # Evaluate the log conditional likelihood at all posterior draws
-  alllogcondlik <- sapply(seq_along(d$sigma2s), function(j) {
-    logcondlik(y, d$sigma2s[j], d$nus[j], d$ws[j, ])
-  })
-  
-  # Compute the average conditional deviance
-  avgcondD <- -2 * batchMeans(alllogcondlik)
-  
-  # Evaluate the log augmented likelihood at all posterior draws
-  alllogauglik <- sapply(seq_along(d$sigma2s), function(j) {
-    logauglik(y, d$sigma2s[j], d$nus[j], d$ws[j, ])
-  })
-  
-  # Evaluate the conditional deviance at the posterior mean
-  sigma2means <- batchMeans(d$sigma2s)
-  numeans <- batchMeans(d$nus)
-  wmeans <- apply(d$ws, 2, batchMeans)
-  
-  estcondD <- rep(NA_real_, dim(res)[3])
-  for (j in seq_len(dim(res)[3])) {
-    estcondD[j] <- -2 * logcondlik(y, sigma2means[j], numeans[j], wmeans[j, ])
-  }
-  
-  # Compute conditional pd and conditional DIC
-  res[i, "pd_C", ] <- avgcondD - estcondD
-  res[i, "DIC_C", ] <- 2 * avgcondD - estcondD
-  
-  # Compute the average augmented deviance
-  avgaugD <- -2 * batchMeans(alllogauglik)
-  
-  # Evaluate the augmented deviance at the posterior mean
-  estaugD <- rep(NA_real_, dim(res)[3])
-  for (j in seq_len(dim(res)[3])) {
-    estaugD[j] <- -2 * logauglik(y, sigma2means[j], numeans[j], wmeans[j, ])
-  }
-  
-  # Compute augmented pd and augmented DIC
-  res[i, "pd_A", ] <- avgaugD - estaugD
-  res[i, "DIC_A", ] <- 2 * avgaugD - estaugD
-}
-mins <- apply(res, 1:2, min)
-maxs <- apply(res, 1:2, max)
-out <- matrix(paste0("[", roun(mins, 2), ", ", roun(maxs, 2), "]"),
-              nrow = dim(res)[1])
-colnames(out) <- colnames(res)
-rownames(out) <- c("t_7", "t_nu")
-knitr::kable(out)
-```
-
-|  | DIC_C | pd_C | DIC_A | pd_A |
-|:---|:---|:---|:---|:---|
-| t_7 | \[6529.27, 6533.31\] | \[408.03, 409.47\] | \[12917.65, 12930.61\] | \[2445.52, 2454.41\] |
-| t_nu | \[6541.00, 6543.93\] | \[456.27, 467.80\] | \[13101.41, 13130.84\] | \[2367.42, 2389.42\] |
-
-And the median.
-
-``` r
-
-res <- array(NA_real_, c(2, 4, 10))
-colnames(res) <- c("DIC_C", "pd_C", "DIC_A", "pd_A")
-for (i in 1:nrow(res)) {
-  d <- draws[[i + 1]]
-  
-  # Evaluate the log conditional likelihood at all posterior draws
-  alllogcondlik <- sapply(seq_along(d$sigma2s), function(j) {
-    logcondlik(y, d$sigma2s[j], d$nus[j], d$ws[j, ])
-  })
-  
-  # Compute the average conditional deviance
-  avgcondD <- -2 * batchMeans(alllogcondlik)
-  
-  # Evaluate the log augmented likelihood at all posterior draws
-  alllogauglik <- sapply(seq_along(d$sigma2s), function(j) {
-    logauglik(y, d$sigma2s[j], d$nus[j], d$ws[j, ])
-  })
-  
-  # Evaluate the conditional deviance at the posterior median
-  sigma2medians <- batchMedians(d$sigma2s)
-  numedians <- batchMedians(d$nus)
-  wmedians <- apply(d$ws, 2, batchMedians)
-  
-  estcondD <- rep(NA_real_, dim(res)[3])
-  for (j in seq_len(dim(res)[3])) {
-    estcondD[j] <- -2 * logcondlik(y, sigma2medians[j], numedians[j],
-                                   wmedians[j, ])
-  }
-  
-  # Compute conditional pd and conditional DIC
-  res[i, "pd_C", ] <- avgcondD - estcondD
-  res[i, "DIC_C", ] <- 2 * avgcondD - estcondD
-  
-  # Compute the average augmented deviance
-  avgaugD <- -2 * batchMeans(alllogauglik)
-  
-  # Evaluate the augmented deviance at the posterior median
-  estaugD <- rep(NA_real_, dim(res)[3])
-  for (j in seq_len(dim(res)[3])) {
-    estaugD[j] <- -2 * logauglik(y, sigma2medians[j], numedians[j],
-                                 wmedians[j, ])
-  }
-  
-  # Compute augmented pd and augmented DIC
-  res[i, "pd_A", ] <- avgaugD - estaugD
-  res[i, "DIC_A", ] <- 2 * avgaugD - estaugD
-}
-
-mins <- apply(res, 1:2, min)
-maxs <- apply(res, 1:2, max)
-out <- matrix(paste0("[", roun(mins, 2), ", ", roun(maxs, 2), "]"),
-              nrow = dim(res)[1])
-colnames(out) <- colnames(res)
-rownames(out) <- c("t_7", "t_nu")
-knitr::kable(out)
-```
-
-|  | DIC_C | pd_C | DIC_A | pd_A |
-|:---|:---|:---|:---|:---|
-| t_7 | \[6518.04, 6521.67\] | \[396.45, 399.04\] | \[13365.07, 13376.76\] | \[2892.62, 2899.18\] |
-| t_nu | \[6523.45, 6528.04\] | \[440.19, 450.08\] | \[13546.56, 13619.59\] | \[2825.41, 2895.26\] |
-
-Finally, we use the actual joint posterior mode of
-$`(\sigma^2, \nu, w_1, \dots,
-w_N)`$. We find it through simple (block) coordinate ascent: the
-conditional modes of the $`w_i`$ and of $`\sigma^2`$ are available in
-closed form, and $`\nu`$ is updated through a one-dimensional numerical
-maximization. Note that we currently ignore a potential singularity when
-the $`w_i`$s approach 0.
-
-``` r
-
-# If nu is supplied, it is held fixed and only (w, sigma2) are optimized.
+# If nu is supplied, it is held fixed and only (w, sigma2) is optimized.
 joint_mode <- function(y, c0, C0, lambda, nu = NULL, tol = 1e-10,
                        maxit = 10000L) {
   fixed_nu <- !is.null(nu)
@@ -831,68 +593,14 @@ knitr::kable(data.frame(model = c("t_7", "t_nu"),
 | t_7   |  0.231 |     7.0 | -3497.511 |         12 |
 | t_nu  |  0.527 | 10979.8 |  5608.022 |          7 |
 
-Now we compute the conditional and the augmented DIC at the joint mode.
-
-``` r
-
-res <- array(NA_real_, c(2, 4, 10))
-colnames(res) <- c("DIC_C", "pd_C", "DIC_A", "pd_A")
-for (i in 1:nrow(res)) {
-  d <- draws[[i + 1]]
-  
-  # Evaluate the log conditional likelihood at all posterior draws
-  alllogcondlik <- sapply(seq_along(d$sigma2s), function(j) {
-    logcondlik(y, d$sigma2s[j], d$nus[j], d$ws[j, ])
-  })
-  
-  # Compute the average conditional deviance
-  avgcondD <- -2 * batchMeans(alllogcondlik)
-  
-  # Evaluate the log augmented likelihood at all posterior draws
-  alllogauglik <- sapply(seq_along(d$sigma2s), function(j) {
-    logauglik(y, d$sigma2s[j], d$nus[j], d$ws[j, ])
-  })
-  
-  # Evaluate the deviances at the posterior mode (the same for all batches)
-  sigma2_mode <- modes[[i]]$sigma2
-  nu_mode <- modes[[i]]$nu
-  w_mode <- modes[[i]]$w
-  estcondD <- -2 * logcondlik(y, sigma2_mode, nu_mode, w_mode)
-  
-  # Compute conditional pd and conditional DIC
-  res[i, "pd_C", ] <- avgcondD - estcondD
-  res[i, "DIC_C", ] <- 2 * avgcondD - estcondD
-  
-  # Compute the average augmented deviance
-  avgaugD <- -2 * batchMeans(alllogauglik)
-  
-  # Evaluate the augmented deviance at the posterior mode
-  estaugD <- -2 * logauglik(y, sigma2_mode, nu_mode, w_mode)
-  
-  # Compute augmented pd and augmented DIC
-  res[i, "pd_A", ] <- avgaugD - estaugD
-  res[i, "DIC_A", ] <- 2 * avgaugD - estaugD
-}
-
-mins <- apply(res, 1:2, min)
-maxs <- apply(res, 1:2, max)
-out <- matrix(paste0("[", roun(mins, 2), ", ", roun(maxs, 2), "]"),
-              nrow = dim(res)[1])
-colnames(out) <- colnames(res)
-rownames(out) <- c("t_7", "t_nu")
-knitr::kable(out)
-```
-
-|  | DIC_C | pd_C | DIC_A | pd_A |
-|:---|:---|:---|:---|:---|
-| t_7 | \[6778.88, 6785.46\] | \[658.33, 661.62\] | \[13956.40, 13971.45\] | \[3484.27, 3491.80\] |
-| t_nu | \[5246.93, 5269.00\] | \[-827.56, -816.52\] | \[35780.76, 35883.60\] | \[25068.77, 25120.19\] |
-
-The negative $`p_D^C`$ for the $`t_\nu`$ model is a symptom of the
-degenerate joint mode: the exponential prior is the only thing that
-keeps $`\nu`$ finite, so the mode sits at
-$`\nu \approx N / (2\lambda) \approx 11000`$ with all $`w_i`$ close to
-one, far away from the bulk of the posterior.
+Now we can compute the conditional and the augmented DIC. We explore
+several variants. First, we use the posterior draw with the highest
+density as a MAP approximation. Second, as this MAP approximation is
+probably rather bad (remember that we are trying to find the maximum of
+a high-dimensional function), we also consider the mode found through
+the (block) coordinate ascent algorithm above. Third and fourth, we
+consider the posterior mean and median, approximated through the
+empirical mean and median of the posterior draws, respectively.
 
 To compare the four plug-in points directly, we collect the conditional
 and the augmented DIC (and the corresponding $`p_D`$) in one table. The
@@ -966,7 +674,8 @@ knitr::kable(out)
 Only the posterior mean and the posterior median give stable and
 plausible results for both models; the MAP draw is very noisy across
 batches with $`p_D^C`$ close to zero or negative, and the joint mode
-inflates $`p_D`$ for $`t_7`$ and is degenerate for $`t_\nu`$.
+found through optimixation inflates $`p_D`$ for $`t_7`$ and is
+degenerate for $`t_\nu`$.
 
 ### Section 12.2.4: Widely applicable information criterion (WAIC)
 
@@ -1124,25 +833,61 @@ Now we compare and visualize.
 
 ``` r
 
-logBF <- cbind(LPDS[2, ] - LPDS[1, ], LPDS[3, ] - LPDS[2, ])
-for (i in seq_len(ncol(logBF))) {
-  cumlogBF <- cumsum(logBF[, i])
-  xs <- trainends + 1
-  plot(xs, y[xs], col = "darkgrey", xlab = "Time", ylab = "", yaxt = "n",
-       type = "l")
-  axis(4)
-  mtext("CHF-USD daily percentage log returns", side = 4, line = 1.5)
-  abline(h = 0, lty = 3, col = "darkgray", lwd = 1.5)
-  par(new = TRUE)
-  plot(xs, cumlogBF, col = rgb(logBF[, i] < 0, 0, logBF[, i] > 0, .5),
-       type = "b", axes = FALSE, xlab = "", ylab = "", pch = 16, lwd = 2)
-  axis(2)
-  mtext("Cumulative log BF", side = 2, line = 1.5)
-  legend("topleft",
-         c(paste0("Log BF > 0 (", round(100 * mean(logBF[, i] > 0)), "%)"),
-           paste0("Log BF < 0 (", round(100 * mean(logBF[, i] < 0)), "%)")),
-         col = rgb(c(0, 1), 0, c(1, 0), .5), pch = 16, lty = 1, lwd = 2)
-}
+xs <- trainends + 1
+
+plot(xs, y[xs], col = "darkgrey", xlab = "Time", ylab = "", yaxt = "n",
+     type = "l")
+axis(4, col = "darkgrey", col.axis = "darkgrey")
+mtext("CHF-USD log returns (in %)", side = 4, line = 1.7, col = "darkgrey")
+
+par(new = TRUE)
+logBF <- LPDS[2, ] - LPDS[1, ]
+cumlogBF <- cumsum(logBF)
+cols <- rgb(logBF < 0, 0, logBF > 0, .5)
+plot(xs, cumlogBF, col = cols, axes = FALSE, xlab = "", ylab = "", pch = 16)
+abline(h = 0, lty = 3, lwd = 1.6)
+cols[abs(logBF) < 0.03 * abs(cumlogBF[length(cumlogBF)])] <- NA
+segments(xs[-length(xs)], cumlogBF[-length(cumlogBF)], xs[-1], cumlogBF[-1],
+         col = cols[-1], lwd = 2)
+axis(2)
+mtext(expression("Cumulative " * log ~ BF[3:1]), side = 2, line = 1.7)
+legend("topleft",
+       legend = list(
+         bquote("Log BF"[3:1] > 0 ~ "(" * .(round(100 * mean(logBF > 0))) * "%)"),
+         bquote("Log BF"[3:1] < 0 ~ "(" * .(round(100 * mean(logBF < 0))) * "%)")),
+       col = rgb(c(0, 1), 0, c(1, 0), .5), pch = 16, lty = 1, lwd = 2)
+
+quants <- apply(nudraws, 2, quantile, c(0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95))
+plot(NULL, xlim = range(xs), ylim = range(quants), xlab = "Time", ylab = "",
+     yaxt = "n")
+pxs <- c(xs[1], xs, rev(xs))
+polygon(pxs, c(quants["25%", 1], quants["75%", ], rev(quants["25%", ])),
+        col = rgb(0, 0, 0, .2), border = NA)
+polygon(pxs, c(quants["10%", 1], quants["90%", ], rev(quants["10%", ])),
+        col = rgb(0, 0, 0, .2), border = NA)
+polygon(pxs, c(quants["5%", 1], quants["95%", ], rev(quants["5%", ])),
+        col = rgb(0, 0, 0, .2), border = NA)
+axis(4, col = "darkgrey", col.axis = "darkgrey")
+mtext(expression("Quantiles of " * p(nu * "|" * bold(y))), side = 4, line = 1.7,
+      col = "darkgrey")
+abline(h = 7, lty = 3, col = "darkgray", lwd = 1.5)
+
+par(new = TRUE)
+logBF <- LPDS[3, ] - LPDS[2, ]
+cumlogBF <- cumsum(logBF)
+cols <- rgb(logBF < 0, 0, logBF > 0, .5)
+plot(xs, cumlogBF, col = cols, axes = FALSE, xlab = "", ylab = "", pch = 16)
+cols[abs(logBF) < 0.03 * abs(cumlogBF[length(cumlogBF)])] <- NA
+segments(xs[-length(xs)], cumlogBF[-length(cumlogBF)], xs[-1], cumlogBF[-1],
+         col = cols[-1], lwd = 2)
+axis(2)
+mtext(expression("Cumulative " * log ~ BF[4:3]), side = 2, line = 1.7)
+abline(h = 0, lty = 3, lwd = 1.5)
+legend("topright",
+       legend = list(
+         bquote("Log BF"[4:3] > 0 ~ "(" * .(round(100 * mean(logBF > 0))) * "%)"),
+         bquote("Log BF"[4:3] < 0 ~ "(" * .(round(100 * mean(logBF < 0))) * "%)")),
+       col = rgb(c(0, 1), 0, c(1, 0), .5), pch = 16, lty = 1, lwd = 2)
 ```
 
-![](Chapter12_files/figure-html/unnamed-chunk-37-1.png)
+![](Chapter12_files/figure-html/unnamed-chunk-32-1.png)
