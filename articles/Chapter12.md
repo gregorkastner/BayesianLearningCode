@@ -565,6 +565,8 @@ estcondD <- sapply(seq_len(nrow(wmeans)), function(j) {
 
 pd_C <- avgcondD - estcondD
 DIC_C <- avgcondD + pd_C
+print(range(avgcondD))
+#> [1] 6119.713 6122.856
 ```
 
 Because the $`w_i`$ are independent gamma variables given $`y_i`$, the
@@ -610,22 +612,7 @@ estcondD_map <- -2 * batches(alllogcondlik)[cbind(MAPind, seq_along(MAPind))]
 
 pd_C_map <- avgcondD - estcondD_map
 DIC_C_map <- avgcondD + pd_C_map
-knitr::kable(cbind(DIC_C = DIC_C_map, avgcondD, estcondD = estcondD_map,
-                   pd_C = pd_C_map), digits = 2)
 ```
-
-|   DIC_C | avgcondD | estcondD |   pd_C |
-|--------:|---------:|---------:|-------:|
-| 6184.67 |  6121.48 |  6058.30 |  63.18 |
-| 6216.06 |  6120.73 |  6025.40 |  95.33 |
-| 6085.86 |  6122.62 |  6159.38 | -36.76 |
-| 6071.42 |  6121.34 |  6171.27 | -49.92 |
-| 6169.39 |  6122.86 |  6076.32 |  46.54 |
-| 6108.77 |  6122.78 |  6136.79 | -14.01 |
-| 6162.96 |  6120.23 |  6077.50 |  42.73 |
-| 6144.16 |  6120.78 |  6097.40 |  23.38 |
-| 6155.87 |  6122.42 |  6088.98 |  33.44 |
-| 6148.93 |  6119.71 |  6090.49 |  29.22 |
 
 The exact median and mode of the gamma distributions are available as
 well.
@@ -661,21 +648,20 @@ out <- rbind(
   sapply(estD, function(e) rng(2 * avgcondD - e))
 )
 colnames(out) <- c("mean", "median", "mode")
-rownames(out) <- c("$D(\\vartheta, \\tilde{z} \\mid y)$",
-                   "$D(\\vartheta, \\widehat{z} \\mid y)$",
-                   "$p_D^C$", "$\\widehat{p}_D^C$",
-                   "$\\mathrm{DIC}^C$", "$\\widehat{\\mathrm{DIC}}^C$")
+rownames(out) <- c("D evaluated at truth", "D evaluated at estimator",
+                   "penalty term", "estimated penalty term",
+                   "DIC", "estimated DIC")
 knitr::kable(out, align = "c")
 ```
 
 |  | mean | median | mode |
 |:---|:--:|:--:|:--:|
-| $`D(\vartheta, \tilde{z} \mid y)`$ | 5712.66 | 5723.86 | 5831.04 |
-| $`D(\vartheta, \widehat{z} \mid y)`$ | \[5711.84, 5714.60\] | \[5722.75, 5727.17\] | \[6025.40, 6171.27\] |
-| $`p_D^C`$ | 408.62 | 397.43 | 290.24 |
-| $`\widehat{p}_D^C`$ | \[407.88, 408.90\] | \[395.61, 397.82\] | \[-49.92, 95.33\] |
-| $`\mathrm{DIC}^C`$ | 6529.91 | 6518.71 | 6411.53 |
-| $`\widehat{\mathrm{DIC}}^C`$ | \[6527.59, 6531.32\] | \[6516.33, 6520.67\] | \[6071.42, 6216.06\] |
+| D evaluated at truth | 5712.66 | 5723.86 | 5831.04 |
+| D evaluated at estimator | \[5711.84, 5714.60\] | \[5722.75, 5727.17\] | \[6025.40, 6171.27\] |
+| penalty term | 408.62 | 397.43 | 290.24 |
+| estimated penalty term | \[407.88, 408.90\] | \[395.61, 397.82\] | \[-49.92, 95.33\] |
+| DIC | 6529.91 | 6518.71 | 6411.53 |
+| estimated DIC | \[6527.59, 6531.32\] | \[6516.33, 6520.67\] | \[6071.42, 6216.06\] |
 
 #### Example 12.10: CHF exchange rate data: Testing normal vs. Student t using hierarchical DIC
 
