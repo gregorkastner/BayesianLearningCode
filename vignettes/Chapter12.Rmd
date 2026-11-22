@@ -761,24 +761,60 @@ Now we compare and visualize.
 if (pdfplots) {
   pdf("12-3_1.pdf", width = 8, height = 7)
 }
-par(mar = c(2.5, 2.5, 0.5, 2.5), mgp = c(1.6, .6, 0), mfrow = c(2, 1))
-logBF <- cbind(LPDS[2, ] - LPDS[1, ], LPDS[3, ] - LPDS[2, ])
-for (i in seq_len(ncol(logBF))) {
-  cumlogBF <- cumsum(logBF[, i])
-  xs <- trainends + 1
-  plot(xs, y[xs], col = "darkgrey", xlab = "Time", ylab = "", yaxt = "n",
-       type = "l")
-  axis(4)
-  mtext("CHF-USD daily percentage log returns", side = 4, line = 1.5)
-  abline(h = 0, lty = 3, col = "darkgray", lwd = 1.5)
-  par(new = TRUE)
-  plot(xs, cumlogBF, col = rgb(logBF[, i] < 0, 0, logBF[, i] > 0, .5),
-       type = "b", axes = FALSE, xlab = "", ylab = "", pch = 16, lwd = 2)
-  axis(2)
-  mtext("Cumulative log BF", side = 2, line = 1.5)
-  legend("topleft",
-         c(paste0("Log BF > 0 (", round(100 * mean(logBF[, i] > 0)), "%)"),
-           paste0("Log BF < 0 (", round(100 * mean(logBF[, i] < 0)), "%)")),
-         col = rgb(c(0, 1), 0, c(1, 0), .5), pch = 16, lty = 1, lwd = 2)
-}
+par(mar = c(2.8, 2.8, 0.5, 2.8), mgp = c(1.6, .6, 0), mfrow = c(2, 1))
+xs <- trainends + 1
+
+plot(xs, y[xs], col = "darkgrey", xlab = "Time", ylab = "", yaxt = "n",
+     type = "l")
+axis(4, col = "darkgrey", col.axis = "darkgrey")
+mtext("CHF-USD log returns (in %)", side = 4, line = 1.7, col = "darkgrey")
+
+par(new = TRUE)
+logBF <- LPDS[2, ] - LPDS[1, ]
+cumlogBF <- cumsum(logBF)
+cols <- rgb(logBF < 0, 0, logBF > 0, .5)
+plot(xs, cumlogBF, col = cols, axes = FALSE, xlab = "", ylab = "", pch = 16)
+abline(h = 0, lty = 3, lwd = 1.6)
+cols[abs(logBF) < 0.03 * abs(cumlogBF[length(cumlogBF)])] <- NA
+segments(xs[-length(xs)], cumlogBF[-length(cumlogBF)], xs[-1], cumlogBF[-1],
+         col = cols[-1], lwd = 2)
+axis(2)
+mtext(expression("Cumulative " * log ~ BF[3:1]), side = 2, line = 1.7)
+legend("topleft",
+       legend = list(
+         bquote("Log BF"[3:1] > 0 ~ "(" * .(round(100 * mean(logBF > 0))) * "%)"),
+         bquote("Log BF"[3:1] < 0 ~ "(" * .(round(100 * mean(logBF < 0))) * "%)")),
+       col = rgb(c(0, 1), 0, c(1, 0), .5), pch = 16, lty = 1, lwd = 2)
+
+quants <- apply(nudraws, 2, quantile, c(0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95))
+plot(NULL, xlim = range(xs), ylim = range(quants), xlab = "Time", ylab = "",
+     yaxt = "n")
+pxs <- c(xs[1], xs, rev(xs))
+polygon(pxs, c(quants["25%", 1], quants["75%", ], rev(quants["25%", ])),
+        col = rgb(0, 0, 0, .2), border = NA)
+polygon(pxs, c(quants["10%", 1], quants["90%", ], rev(quants["10%", ])),
+        col = rgb(0, 0, 0, .2), border = NA)
+polygon(pxs, c(quants["5%", 1], quants["95%", ], rev(quants["5%", ])),
+        col = rgb(0, 0, 0, .2), border = NA)
+axis(4, col = "darkgrey", col.axis = "darkgrey")
+mtext(expression("Quantiles of " * p(nu * "|" * bold(y))), side = 4, line = 1.7,
+      col = "darkgrey")
+abline(h = 7, lty = 3, col = "darkgray", lwd = 1.5)
+
+par(new = TRUE)
+logBF <- LPDS[3, ] - LPDS[2, ]
+cumlogBF <- cumsum(logBF)
+cols <- rgb(logBF < 0, 0, logBF > 0, .5)
+plot(xs, cumlogBF, col = cols, axes = FALSE, xlab = "", ylab = "", pch = 16)
+cols[abs(logBF) < 0.03 * abs(cumlogBF[length(cumlogBF)])] <- NA
+segments(xs[-length(xs)], cumlogBF[-length(cumlogBF)], xs[-1], cumlogBF[-1],
+         col = cols[-1], lwd = 2)
+axis(2)
+mtext(expression("Cumulative " * log ~ BF[4:3]), side = 2, line = 1.7)
+abline(h = 0, lty = 3, lwd = 1.5)
+legend("topright",
+       legend = list(
+         bquote("Log BF"[4:3] > 0 ~ "(" * .(round(100 * mean(logBF > 0))) * "%)"),
+         bquote("Log BF"[4:3] < 0 ~ "(" * .(round(100 * mean(logBF < 0))) * "%)")),
+       col = rgb(c(0, 1), 0, c(1, 0), .5), pch = 16, lty = 1, lwd = 2)
 ```
