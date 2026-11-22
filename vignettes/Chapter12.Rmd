@@ -485,12 +485,8 @@ knitr::kable(cbind(DIC, avgD, Davg, pd))
 
 ### Example 12.9: CHF exchange rate data: Estimating the conditional DIC from posterior draws
 
-### Example 12.10: CHF exchange rate data: Testing normal vs. Student t using hierarchical DIC
-
-Because we also stored the weights, we can use the samples from above to compute
-conditional and augmented DICs. To do so, we first define the log conditional
-likelihood and the log augmented ("complete-data") likelihood, as well as the
-joint posterior.
+We begin by defining the log conditional likelihood and the log augmented
+("complete-data") likelihood, as well as the joint posterior.
 
 ```{r}
 logcondlik <- function(y, sigma2, nu, w) {
@@ -507,11 +503,127 @@ logpost_joint <- function(y, sigma2, nu, w, c0, C0, lambda) {
 }
 ```
 
-Next, we implement a simple (block) coordinate ascent algorithm to find the
-joint mode of the posterior: the conditional
-modes of the $w_i$ and of $\sigma^2$ are available in closed form, and $\nu$
-is updated through a one-dimensional numerical maximization. Note that we
-currently ignore a potential singularity when the $w_i$s approach 0.
+For $\nu = 7$ and $\sigma^2 = 0.354$ fixed, draws for $w_i, i = 1, ..., T,$
+are easily available, and we can estimate the quantities of interest via
+(standard) Monte Carlo.
+
+```{r}
+N <- length(y)
+nu <- 7
+sigma2 <- 0.354
+w <- matrix(rgamma(N * M, (nu + 1) /2, (nu + y^2 / sigma2) / 2), M, N,
+            byrow = TRUE)
+
+alllogcondlik <- apply(w, 1, function(wm) logcondlik(y, sigma2, nu, wm))
+
+avgcondD <- -2 * batchMeans(alllogcondlik)
+wmeans <- apply(w, 2, batchMeans)
+estcondD <- sapply(seq_len(nrow(wmeans)), function(j) {
+  -2 * logcondlik(y, sigma2, nu, wmeans[j, ])
+})
+
+pd_C <- avgcondD - estcondD
+DIC_C <- avgcondD + pd_C
+knitr::kable(cbind(DIC_C, avgcondD, estcondD, pd_C), digits = 2)
+```
+
+Because the $w_i$ are independent gamma variables given $y_i$, the conditional
+DIC is also available in closed form, which provides a check.
+
+```{r}
+a <- (nu + 1) / 2
+b <- (nu + y^2 / sigma2) / 2
+Ew <- a / b
+Elogw <- digamma(a) - log(b)
+avgcondD_exact <- -2 * sum(-log(2 * pi * sigma2) / 2 + Elogw / 2 -
+                             Ew * y^2 / (2 * sigma2))
+estcondD_exact <- -2 * logcondlik(y, sigma2, nu, Ew)
+pd_C_exact <- avgcondD_exact - estcondD_exact
+knitr::kable(data.frame(DIC_C = avgcondD_exact + pd_C_exact,
+                        avgcondD = avgcondD_exact, estcondD = estcondD_exact,
+                        pd_C = pd_C_exact), digits = 2)
+```
+
+The same can be done with other point estimates of $w$. For instance, the
+posterior median (the average deviance is the same as above).
+
+```{r}
+wmedians <- apply(w, 2, batchMedians)
+estcondD_med <- sapply(seq_len(nrow(wmedians)), function(j) {
+  -2 * logcondlik(y, sigma2, nu, wmedians[j, ])
+})
+
+pd_C_med <- avgcondD - estcondD_med
+DIC_C_med <- avgcondD + pd_C_med
+knitr::kable(cbind(DIC_C = DIC_C_med, avgcondD, estcondD = estcondD_med,
+                   pd_C = pd_C_med), digits = 2)
+```
+
+Or the mode, approximated by the draw with the highest posterior density.
+Given $\nu$ and $\sigma^2$, the posterior density of $w$ is proportional to the
+augmented likelihood. We pick the best draw within each batch.
+
+```{r}
+alllogauglik <- apply(w, 1, function(wm) logauglik(y, sigma2, nu, wm))
+MAPind <- apply(batches(alllogauglik), 2, which.max)
+estcondD_map <- -2 * batches(alllogcondlik)[cbind(MAPind, seq_along(MAPind))]
+
+pd_C_map <- avgcondD - estcondD_map
+DIC_C_map <- avgcondD + pd_C_map
+knitr::kable(cbind(DIC_C = DIC_C_map, avgcondD, estcondD = estcondD_map,
+                   pd_C = pd_C_map), digits = 2)
+```
+
+The exact median and mode of the gamma distributions are available as well.
+
+```{r}
+w_median_exact <- qgamma(0.5, a, b)
+w_mode_exact <- (nu - 1) / (nu + y^2 / sigma2)
+estcondD_exact_pt <- c(
+  median = -2 * logcondlik(y, sigma2, nu, w_median_exact),
+  mode = -2 * logcondlik(y, sigma2, nu, w_mode_exact)
+)
+knitr::kable(data.frame(DIC_C = 2 * avgcondD_exact - estcondD_exact_pt,
+                        avgcondD = avgcondD_exact,
+                        estcondD = estcondD_exact_pt,
+                        pd_C = avgcondD_exact - estcondD_exact_pt),
+             digits = 2)
+```
+
+We summarize the results. The exact values are shown first, followed by the
+range of the Monte Carlo estimates over the ten batches.
+
+```{r}
+rng <- function(x) paste0("[", roun(min(x), 2), ", ", roun(max(x), 2), "]")
+
+exactD <- c(estcondD_exact, estcondD_exact_pt)
+exactpd <- avgcondD_exact - exactD
+exactDIC <- avgcondD_exact + exactpd
+estD <- list(estcondD, estcondD_med, estcondD_map)
+
+out <- rbind(
+  roun(exactD, 2),
+  sapply(estD, rng),
+  roun(exactpd, 2),
+  sapply(estD, function(e) rng(avgcondD - e)),
+  roun(exactDIC, 2),
+  sapply(estD, function(e) rng(2 * avgcondD - e))
+)
+colnames(out) <- c("mean", "median", "mode")
+rownames(out) <- c("$D(\\vartheta, \\tilde{z} \\mid y)$",
+                   "$D(\\vartheta, \\widehat{z} \\mid y)$",
+                   "$p_D^C$", "$\\widehat{p}_D^C$",
+                   "$\\mathrm{DIC}^C$", "$\\widehat{\\mathrm{DIC}}^C$")
+knitr::kable(out, align = "c")
+```
+
+### Example 12.10: CHF exchange rate data: Testing normal vs. Student t using hierarchical DIC
+
+Before computing conditional and augmented DICs, we implement a simple (block)
+coordinate ascent algorithm to find the joint mode of the posterior: the
+conditional modes of the $w_i$ and of $\sigma^2$ are available in closed form,
+and $\nu$ is updated through a one-dimensional numerical maximization. Note that
+we currently ignore a potential singularity when the $w_i$s approach 0.
 
 ```{r}
 # If nu is supplied, it is held fixed and only (w, sigma2) is optimized.
@@ -551,7 +663,7 @@ knitr::kable(data.frame(model = c("t_7", "t_nu"),
 
 Now we can compute the conditional and the augmented DIC. We explore several
 variants. First, we use the posterior draw with the highest density as a
-MAP approximation. Second, as this MAP approximation is probably rather bad
+MAP approximation. Second, as this MAP approximation is possibly rather bad
 (remember that we are trying to find the maximum of a high-dimensional
 function), we also consider the mode found through the (block) coordinate
 ascent algorithm above. Third and fourth, we consider the posterior mean and
@@ -789,6 +901,7 @@ legend("topleft",
          bquote(widehat(plain(LPDS))[t](M[3]) < widehat(plain(LPDS))[t](M[1]) ~
                 "(" * .(round(100 * mean(logBF < 0))) * "%)")),
        col = rgb(c(0, 1), 0, c(1, 0), .5), pch = 16, lty = 1, lwd = 2)
+
 quants <- apply(nudraws, 2, quantile, c(0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95))
 plot(NULL, xlim = range(xs), ylim = range(quants), xlab = "Time", ylab = "",
      yaxt = "n")
