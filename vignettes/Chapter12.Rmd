@@ -592,12 +592,12 @@ dic_plugin <- function(i, nb = 10L) {
   mode <- modes[[i]]
   plugins <- list(
     "MAP draw" = deviances(d$sigma2s[idx], d$nus[idx], d$ws[idx, , drop = FALSE]),
+    "joint mode" = deviances(rep(mode$sigma2, nb), rep(mode$nu, nb),
+                             matrix(mode$w, nb, length(y), byrow = TRUE)),
     "posterior mean" = deviances(batchMeans(d$sigma2s), batchMeans(d$nus),
                                  apply(d$ws, 2, batchMeans)),
     "posterior median" = deviances(batchMedians(d$sigma2s), batchMedians(d$nus),
-                                   apply(d$ws, 2, batchMedians)),
-    "joint mode" = deviances(rep(mode$sigma2, nb), rep(mode$nu, nb),
-                             matrix(mode$w, nb, length(y), byrow = TRUE))
+                                   apply(d$ws, 2, batchMedians))
   )
 
   do.call(rbind, lapply(plugins, function(p) {
@@ -609,9 +609,10 @@ dic_plugin <- function(i, nb = 10L) {
 
 out <- rbind(dic_plugin(1), dic_plugin(2))
 colnames(out) <- c("DIC_C", "pd_C", "DIC_A", "pd_A")
-rownames(out) <- paste0(rep(c("t_7", "t_nu"), each = 4), ": ",
-                        rep(c("MAP draw", "mean", "median", "joint mode"), 2))
-knitr::kable(out)
+rownames(out) <- paste0(rep(c("MAP draw", "joint mode", "mean", "median"), 2),
+                        ": ", rep(c("t_7", "t_nu"), each = 4))
+n <- nrow(out) / 2
+knitr::kable(out[as.vector(rbind(seq_len(n), (n + 1):(2 * n))), ])
 ```
 
 Only the posterior mean and the posterior median give stable and plausible
