@@ -524,6 +524,7 @@ estcondD <- sapply(seq_len(nrow(wmeans)), function(j) {
 
 pd_C <- avgcondD - estcondD
 DIC_C <- avgcondD + pd_C
+print(range(avgcondD))
 ```
 
 Because the $w_i$ are independent gamma variables given $y_i$, the conditional
