@@ -608,7 +608,7 @@ knitr::kable(out, align = "c")
 
 Before computing conditional and augmented DICs, we implement a simple (block)
 coordinate ascent algorithm to find the joint mode of the posterior: the
-conditional modes of the $w_i$ and of $\sigma^2$ are available in closed form,
+conditional modes of the $w_i$s and of $\sigma^2$ are available in closed form,
 and $\nu$ is updated through a one-dimensional numerical maximization. Note that
 we currently ignore a potential singularity when the $w_i$s approach 0.
 
