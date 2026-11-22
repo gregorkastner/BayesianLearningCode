@@ -483,8 +483,9 @@ DIC <- avgD + pd
 knitr::kable(cbind(DIC, avgD, Davg, pd))
 ```
 
+### Example 12.9: CHF exchange rate data: Estimating the conditional DIC from posterior draws
 
-### Example 12.7: CHF exchange rate data: Testing normal vs. Student t using hierarchical DIC
+### Example 12.10: CHF exchange rate data: Testing normal vs. Student t using hierarchical DIC
 
 Because we also stored the weights, we can use the samples from above to compute
 conditional and augmented DICs. To do so, we first define the log conditional
@@ -622,7 +623,7 @@ inflates $p_D$ for $t_7$ and is degenerate for $t_\nu$.
 
 ## Section 12.2.4: Widely applicable information criterion (WAIC)
 
-### Example 12.8: CHF exchange rate data: Testing normal vs. t using WAIC
+### Example 12.?: CHF exchange rate data: Testing normal vs. t using WAIC
 
 ```{r}
 resWAIC <- array(NA_real_, c(3, 6, 10))
