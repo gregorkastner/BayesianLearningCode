@@ -783,10 +783,11 @@ axis(2)
 mtext(expression("Cumulative " * log ~ BF[3:1]), side = 2, line = 1.7)
 legend("topleft",
        legend = list(
-         bquote("Log BF"[3:1] > 0 ~ "(" * .(round(100 * mean(logBF > 0))) * "%)"),
-         bquote("Log BF"[3:1] < 0 ~ "(" * .(round(100 * mean(logBF < 0))) * "%)")),
+         bquote(widehat(plain(LPDS))[t](M[3]) > widehat(plain(LPDS))[t](M[1]) ~
+                "(" * .(round(100 * mean(logBF > 0))) * "%)"),
+         bquote(widehat(plain(LPDS))[t](M[3]) < widehat(plain(LPDS))[t](M[1]) ~
+                "(" * .(round(100 * mean(logBF < 0))) * "%)")),
        col = rgb(c(0, 1), 0, c(1, 0), .5), pch = 16, lty = 1, lwd = 2)
-
 quants <- apply(nudraws, 2, quantile, c(0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95))
 plot(NULL, xlim = range(xs), ylim = range(quants), xlab = "Time", ylab = "",
      yaxt = "n")
@@ -798,8 +799,8 @@ polygon(pxs, c(quants["10%", 1], quants["90%", ], rev(quants["10%", ])),
 polygon(pxs, c(quants["5%", 1], quants["95%", ], rev(quants["5%", ])),
         col = rgb(0, 0, 0, .2), border = NA)
 axis(4, col = "darkgrey", col.axis = "darkgrey")
-mtext(expression("Quantiles of " * p(nu * "|" * bold(y))), side = 4, line = 1.7,
-      col = "darkgrey")
+mtext(expression("Credible intervals of " * p(nu * "|" * bold(y))), side = 4,
+      line = 1.7, col = "darkgrey")
 abline(h = 7, lty = 3, col = "darkgray", lwd = 1.5)
 
 par(new = TRUE)
@@ -815,7 +816,9 @@ mtext(expression("Cumulative " * log ~ BF[4:3]), side = 2, line = 1.7)
 abline(h = 0, lty = 3, lwd = 1.5)
 legend("topright",
        legend = list(
-         bquote("Log BF"[4:3] > 0 ~ "(" * .(round(100 * mean(logBF > 0))) * "%)"),
-         bquote("Log BF"[4:3] < 0 ~ "(" * .(round(100 * mean(logBF < 0))) * "%)")),
+         bquote(widehat(plain(LPDS))[t](M[4]) > widehat(plain(LPDS))[t](M[3]) ~
+                "(" * .(round(100 * mean(logBF > 0))) * "%)"),
+         bquote(widehat(plain(LPDS))[t](M[4]) < widehat(plain(LPDS))[t](M[3]) ~
+                "(" * .(round(100 * mean(logBF < 0))) * "%)")),
        col = rgb(c(0, 1), 0, c(1, 0), .5), pch = 16, lty = 1, lwd = 2)
 ```
