@@ -667,7 +667,7 @@ knitr::kable(out, align = "c")
 
 Before computing conditional and augmented DICs, we implement a simple
 (block) coordinate ascent algorithm to find the joint mode of the
-posterior: the conditional modes of the $`w_i`$ and of $`\sigma^2`$ are
+posterior: the conditional modes of the $`w_i`$s and of $`\sigma^2`$ are
 available in closed form, and $`\nu`$ is updated through a
 one-dimensional numerical maximization. Note that we currently ignore a
 potential singularity when the $`w_i`$s approach 0.
@@ -1017,3 +1017,47 @@ legend("topright",
 ```
 
 ![](Chapter12_files/figure-html/unnamed-chunk-38-1.png)
+
+#### Example 12.?: CHF exchange rate data: XXX
+
+``` r
+
+N0 <- 1
+c0 <- 2.5
+C0 <- 1.5
+N <- length(y)
+mu <- c(0, cumsum(y[-N]) / (N0 + 1:(N - 1)))
+cTm1 <- c0 + 0:(N - 1) / 2
+CTm1 <- C0 + (c(0, cumsum(y[-N]^2)) - (N0 + 0:(N - 1)) * mu^2) / 2
+sigma2 <- CTm1 * (N0 + 1:N) / ((N0 + 0:(N - 1)) * cTm1)
+LPDS <- dstudt(y, mu, sqrt(sigma2), 2 * cTm1, log = TRUE)
+# Gaussian with the same mean and variance as the Student t predictive
+pLPDS1 <- dnorm(y, mu, sqrt(sigma2 * cTm1 / (cTm1 - 1)), log = TRUE)
+# Gaussian plug-in: posterior mean of sigma^2 as the variance
+pLPDS2 <- dnorm(y, mu, sqrt(CTm1 / (cTm1 - 1)), log = TRUE)
+
+knitr::kable(data.frame(
+  predictive = c("Student t", "Gaussian, same moments",
+                 "Gaussian plug-in (posterior mean of sigma^2)"),
+  LPDS = c(sum(LPDS), sum(pLPDS1), sum(pLPDS2))),
+  digits = 3)
+```
+
+| predictive                                   |      LPDS |
+|:---------------------------------------------|----------:|
+| Student t                                    | -3458.848 |
+| Gaussian, same moments                       | -3461.501 |
+| Gaussian plug-in (posterior mean of sigma^2) | -3461.753 |
+
+``` r
+
+cumdiffs <- cbind(cumsum(LPDS - pLPDS1), cumsum(LPDS - pLPDS2))
+matplot(cumdiffs, type = "l", lty = 1, lwd = 1.5, col = 1:2, xlab = "Time",
+        ylab = "Cumulative LPDS difference")
+abline(h = 0, lty = 3)
+legend("topleft", c("Student t - Gaussian, same moments",
+                    "Student t - Gaussian plug-in"),
+       col = 1:2, lty = 1, lwd = 1.5, cex = 0.8)
+```
+
+![](Chapter12_files/figure-html/unnamed-chunk-40-1.png)
