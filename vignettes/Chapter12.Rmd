@@ -503,7 +503,7 @@ logpost_joint <- function(y, sigma2, nu, w, c0, C0, lambda) {
 }
 ```
 
-For $\nu = 7$ and $\sigma^2 = 0.354$ fixed, draws for $w_i, i = 1, ..., T,$
+For $\nu = 7$ and $\sigma^2 = 0.354$ fixed, draws for the $w_i$s
 are easily available, and we can estimate the quantities of interest via
 (standard) Monte Carlo.
 
@@ -524,7 +524,6 @@ estcondD <- sapply(seq_len(nrow(wmeans)), function(j) {
 
 pd_C <- avgcondD - estcondD
 DIC_C <- avgcondD + pd_C
-knitr::kable(cbind(DIC_C, avgcondD, estcondD, pd_C), digits = 2)
 ```
 
 Because the $w_i$ are independent gamma variables given $y_i$, the conditional
@@ -539,9 +538,6 @@ avgcondD_exact <- -2 * sum(-log(2 * pi * sigma2) / 2 + Elogw / 2 -
                              Ew * y^2 / (2 * sigma2))
 estcondD_exact <- -2 * logcondlik(y, sigma2, nu, Ew)
 pd_C_exact <- avgcondD_exact - estcondD_exact
-knitr::kable(data.frame(DIC_C = avgcondD_exact + pd_C_exact,
-                        avgcondD = avgcondD_exact, estcondD = estcondD_exact,
-                        pd_C = pd_C_exact), digits = 2)
 ```
 
 The same can be done with other point estimates of $w$. For instance, the
@@ -555,8 +551,6 @@ estcondD_med <- sapply(seq_len(nrow(wmedians)), function(j) {
 
 pd_C_med <- avgcondD - estcondD_med
 DIC_C_med <- avgcondD + pd_C_med
-knitr::kable(cbind(DIC_C = DIC_C_med, avgcondD, estcondD = estcondD_med,
-                   pd_C = pd_C_med), digits = 2)
 ```
 
 Or the mode, approximated by the draw with the highest posterior density.
@@ -583,11 +577,6 @@ estcondD_exact_pt <- c(
   median = -2 * logcondlik(y, sigma2, nu, w_median_exact),
   mode = -2 * logcondlik(y, sigma2, nu, w_mode_exact)
 )
-knitr::kable(data.frame(DIC_C = 2 * avgcondD_exact - estcondD_exact_pt,
-                        avgcondD = avgcondD_exact,
-                        estcondD = estcondD_exact_pt,
-                        pd_C = avgcondD_exact - estcondD_exact_pt),
-             digits = 2)
 ```
 
 We summarize the results. The exact values are shown first, followed by the
