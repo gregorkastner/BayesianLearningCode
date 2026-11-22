@@ -506,229 +506,14 @@ logpost_joint <- function(y, sigma2, nu, w, c0, C0, lambda) {
 }
 ```
 
-Now we can compute the conditional and the augmented DIC.
-
-```{r}
-res <- array(NA_real_, c(2, 4, 10))
-colnames(res) <- c("DIC_C", "pd_C", "DIC_A", "pd_A")
-for (i in 1:nrow(res)) {
-  d <- draws[[i + 1]]
-  
-  # Evaluate the log conditional likelihood at all posterior draws
-  alllogcondlik <- sapply(seq_along(d$sigma2s), function(j) {
-    logcondlik(y, d$sigma2s[j], d$nus[j], d$ws[j, ])
-  })
-  
-  # Compute the average conditional deviance
-  avgcondD <- -2 * batchMeans(alllogcondlik)
-  
-  # Evaluate the log augmented likelihood at all posterior draws
-  alllogauglik <- sapply(seq_along(d$sigma2s), function(j) {
-    logauglik(y, d$sigma2s[j], d$nus[j], d$ws[j, ])
-  })
-  
-  # Evaluate the unnormalized log posterior
-  alllogpost_unnormalized <- alllogauglik +
-    dinvgamma(d$sigma2s, c0, C0, log = TRUE) + dexp(d$nus, lambda, log = TRUE)
-  
-  # Find the index of the posterior draw with highest joint posterior density
-  MAPind <- apply(batches(alllogpost_unnormalized), 2, which.max)
-  
-  # Evaluate the conditional deviance at the MAP
-  estcondD <- -2 * batches(alllogcondlik)[cbind(MAPind, seq_len(dim(res)[3]))]
-  
-  # Compute conditional pd and conditional DIC
-  res[i, "pd_C", ] <- avgcondD - estcondD
-  res[i, "DIC_C", ] <- 2 * avgcondD - estcondD
-  
-  # Compute the average augmented deviance
-  avgaugD <- -2 * batchMeans(alllogauglik)
-  
-  # Evaluate the augmented deviance at the MAP
-  estaugD <- -2 * batches(alllogauglik)[cbind(MAPind, seq_len(dim(res)[3]))]
-  
-  # Compute augmented pd and augmented DIC
-  res[i, "pd_A", ] <- avgaugD - estaugD
-  res[i, "DIC_A", ] <- 2 * avgaugD - estaugD
-}
-mins <- apply(res, 1:2, min)
-maxs <- apply(res, 1:2, max)
-out <- matrix(paste0("[", roun(mins, 2), ", ", roun(maxs, 2), "]"),
-              nrow = dim(res)[1])
-colnames(out) <- colnames(res)
-rownames(out) <- c("t_7", "t_nu")
-knitr::kable(out)
-```
-
-Our MAP approximation is probably rather bad (remember that we are trying
-to find the maximum of a high-dimensional function). Let us try to exploit
-the fact that the conditional maxima of the ws are available in closed form.
-
-```{r}
-# Non-normalized negative joint log-posterior, with w replaced by
-# its closed-form conditional mode
-objective <- function(par, y, c0, C0, lambda) {
-  
-  sigma2 <- exp(par[1])     # sigma2 must be positive
-  nu     <- 1 + exp(par[2]) # nu must be > 1 for the conditional mode to exist
-
-  # Conditional mode of w_i | y_i, sigma2, nu
-#  print(round(c(nu, sigma2), 2))
-  w_hat <- (nu - 1) / (nu + y^2 / sigma2)
-
-  # Log likelihood: y | w, sigma2
-  loglik <- sum(dnorm(y, 0, sqrt(sigma2 / w_hat), log = TRUE))
-
-  # Log prior: w | nu
-  log_w_prior <- sum(dgamma(w_hat, nu / 2, nu / 2, log = TRUE))
-
-  # Inverse-Gamma prior for sigma2 (shape c0, rate C0)
-  log_sigma2_prior <- dinvgamma(sigma2, c0, C0, log = TRUE)
-
-  # Exponential prior for nu
-  log_nu_prior <- dexp(nu, lambda, log = TRUE)
-
-  logpost <- loglik + log_w_prior + log_sigma2_prior + log_nu_prior
-
-  -logpost
-}
-
-fit <- optim(log(c(mean(y^2), 7 - 1)), objective, method = "BFGS", 
-             y = y, c0 = c0, C0 = C0, lambda = lambda)
-
-sigma2_hat <- exp(fit$par[1])
-nu_hat     <- 1 + exp(fit$par[2])
-
-w_hat <- (nu_hat - 1) / (nu_hat + y^2 / sigma2_hat)
-```
-
-This doesn't seem to work too well, either. (Thinking a bit about it reveals that the joint mode is degenerate.)
-
-Let's also try with the posterior mean as point estimate.
-
-```{r}
-res <- array(NA_real_, c(2, 4, 10))
-colnames(res) <- c("DIC_C", "pd_C", "DIC_A", "pd_A")
-for (i in 1:nrow(res)) {
-  d <- draws[[i + 1]]
-  
-  # Evaluate the log conditional likelihood at all posterior draws
-  alllogcondlik <- sapply(seq_along(d$sigma2s), function(j) {
-    logcondlik(y, d$sigma2s[j], d$nus[j], d$ws[j, ])
-  })
-  
-  # Compute the average conditional deviance
-  avgcondD <- -2 * batchMeans(alllogcondlik)
-  
-  # Evaluate the log augmented likelihood at all posterior draws
-  alllogauglik <- sapply(seq_along(d$sigma2s), function(j) {
-    logauglik(y, d$sigma2s[j], d$nus[j], d$ws[j, ])
-  })
-  
-  # Evaluate the conditional deviance at the posterior mean
-  sigma2means <- batchMeans(d$sigma2s)
-  numeans <- batchMeans(d$nus)
-  wmeans <- apply(d$ws, 2, batchMeans)
-  
-  estcondD <- rep(NA_real_, dim(res)[3])
-  for (j in seq_len(dim(res)[3])) {
-    estcondD[j] <- -2 * logcondlik(y, sigma2means[j], numeans[j], wmeans[j, ])
-  }
-  
-  # Compute conditional pd and conditional DIC
-  res[i, "pd_C", ] <- avgcondD - estcondD
-  res[i, "DIC_C", ] <- 2 * avgcondD - estcondD
-  
-  # Compute the average augmented deviance
-  avgaugD <- -2 * batchMeans(alllogauglik)
-  
-  # Evaluate the augmented deviance at the posterior mean
-  estaugD <- rep(NA_real_, dim(res)[3])
-  for (j in seq_len(dim(res)[3])) {
-    estaugD[j] <- -2 * logauglik(y, sigma2means[j], numeans[j], wmeans[j, ])
-  }
-  
-  # Compute augmented pd and augmented DIC
-  res[i, "pd_A", ] <- avgaugD - estaugD
-  res[i, "DIC_A", ] <- 2 * avgaugD - estaugD
-}
-mins <- apply(res, 1:2, min)
-maxs <- apply(res, 1:2, max)
-out <- matrix(paste0("[", roun(mins, 2), ", ", roun(maxs, 2), "]"),
-              nrow = dim(res)[1])
-colnames(out) <- colnames(res)
-rownames(out) <- c("t_7", "t_nu")
-knitr::kable(out)
-```
-
-And the median.
-
-```{r}
-res <- array(NA_real_, c(2, 4, 10))
-colnames(res) <- c("DIC_C", "pd_C", "DIC_A", "pd_A")
-for (i in 1:nrow(res)) {
-  d <- draws[[i + 1]]
-  
-  # Evaluate the log conditional likelihood at all posterior draws
-  alllogcondlik <- sapply(seq_along(d$sigma2s), function(j) {
-    logcondlik(y, d$sigma2s[j], d$nus[j], d$ws[j, ])
-  })
-  
-  # Compute the average conditional deviance
-  avgcondD <- -2 * batchMeans(alllogcondlik)
-  
-  # Evaluate the log augmented likelihood at all posterior draws
-  alllogauglik <- sapply(seq_along(d$sigma2s), function(j) {
-    logauglik(y, d$sigma2s[j], d$nus[j], d$ws[j, ])
-  })
-  
-  # Evaluate the conditional deviance at the posterior median
-  sigma2medians <- batchMedians(d$sigma2s)
-  numedians <- batchMedians(d$nus)
-  wmedians <- apply(d$ws, 2, batchMedians)
-  
-  estcondD <- rep(NA_real_, dim(res)[3])
-  for (j in seq_len(dim(res)[3])) {
-    estcondD[j] <- -2 * logcondlik(y, sigma2medians[j], numedians[j],
-                                   wmedians[j, ])
-  }
-  
-  # Compute conditional pd and conditional DIC
-  res[i, "pd_C", ] <- avgcondD - estcondD
-  res[i, "DIC_C", ] <- 2 * avgcondD - estcondD
-  
-  # Compute the average augmented deviance
-  avgaugD <- -2 * batchMeans(alllogauglik)
-  
-  # Evaluate the augmented deviance at the posterior median
-  estaugD <- rep(NA_real_, dim(res)[3])
-  for (j in seq_len(dim(res)[3])) {
-    estaugD[j] <- -2 * logauglik(y, sigma2medians[j], numedians[j],
-                                 wmedians[j, ])
-  }
-  
-  # Compute augmented pd and augmented DIC
-  res[i, "pd_A", ] <- avgaugD - estaugD
-  res[i, "DIC_A", ] <- 2 * avgaugD - estaugD
-}
-
-mins <- apply(res, 1:2, min)
-maxs <- apply(res, 1:2, max)
-out <- matrix(paste0("[", roun(mins, 2), ", ", roun(maxs, 2), "]"),
-              nrow = dim(res)[1])
-colnames(out) <- colnames(res)
-rownames(out) <- c("t_7", "t_nu")
-knitr::kable(out)
-```
-
-Finally, we use the actual joint posterior mode of $(\sigma^2, \nu, w_1, \dots,
-w_N)$. We find it through simple (block) coordinate ascent: the conditional
+Next, we implement a simple (block) coordinate ascent algorithm to find the
+joint mode of the posterior: the conditional
 modes of the $w_i$ and of $\sigma^2$ are available in closed form, and $\nu$
 is updated through a one-dimensional numerical maximization. Note that we
 currently ignore a potential singularity when the $w_i$s approach 0.
 
 ```{r}
-# If nu is supplied, it is held fixed and only (w, sigma2) are optimized.
+# If nu is supplied, it is held fixed and only (w, sigma2) is optimized.
 joint_mode <- function(y, c0, C0, lambda, nu = NULL, tol = 1e-10,
                        maxit = 10000L) {
   fixed_nu <- !is.null(nu)
@@ -763,61 +548,14 @@ knitr::kable(data.frame(model = c("t_7", "t_nu"),
              digits = 3)
 ```
 
-Now we compute the conditional and the augmented DIC at the joint mode.
-
-```{r}
-res <- array(NA_real_, c(2, 4, 10))
-colnames(res) <- c("DIC_C", "pd_C", "DIC_A", "pd_A")
-for (i in 1:nrow(res)) {
-  d <- draws[[i + 1]]
-  
-  # Evaluate the log conditional likelihood at all posterior draws
-  alllogcondlik <- sapply(seq_along(d$sigma2s), function(j) {
-    logcondlik(y, d$sigma2s[j], d$nus[j], d$ws[j, ])
-  })
-  
-  # Compute the average conditional deviance
-  avgcondD <- -2 * batchMeans(alllogcondlik)
-  
-  # Evaluate the log augmented likelihood at all posterior draws
-  alllogauglik <- sapply(seq_along(d$sigma2s), function(j) {
-    logauglik(y, d$sigma2s[j], d$nus[j], d$ws[j, ])
-  })
-  
-  # Evaluate the deviances at the posterior mode (the same for all batches)
-  sigma2_mode <- modes[[i]]$sigma2
-  nu_mode <- modes[[i]]$nu
-  w_mode <- modes[[i]]$w
-  estcondD <- -2 * logcondlik(y, sigma2_mode, nu_mode, w_mode)
-  
-  # Compute conditional pd and conditional DIC
-  res[i, "pd_C", ] <- avgcondD - estcondD
-  res[i, "DIC_C", ] <- 2 * avgcondD - estcondD
-  
-  # Compute the average augmented deviance
-  avgaugD <- -2 * batchMeans(alllogauglik)
-  
-  # Evaluate the augmented deviance at the posterior mode
-  estaugD <- -2 * logauglik(y, sigma2_mode, nu_mode, w_mode)
-  
-  # Compute augmented pd and augmented DIC
-  res[i, "pd_A", ] <- avgaugD - estaugD
-  res[i, "DIC_A", ] <- 2 * avgaugD - estaugD
-}
-
-mins <- apply(res, 1:2, min)
-maxs <- apply(res, 1:2, max)
-out <- matrix(paste0("[", roun(mins, 2), ", ", roun(maxs, 2), "]"),
-              nrow = dim(res)[1])
-colnames(out) <- colnames(res)
-rownames(out) <- c("t_7", "t_nu")
-knitr::kable(out)
-```
-
-The negative $p_D^C$ for the $t_\nu$ model is a symptom of the degenerate joint
-mode: the exponential prior is the only thing that keeps $\nu$ finite, so the
-mode sits at $\nu \approx N / (2\lambda) \approx 11000$ with all $w_i$ close
-to one, far away from the bulk of the posterior.
+Now we can compute the conditional and the augmented DIC. We explore several
+variants. First, we use the posterior draw with the highest density as a
+MAP approximation. Second, as this MAP approximation is probably rather bad
+(remember that we are trying to find the maximum of a high-dimensional
+function), we also consider the mode found through the (block) coordinate
+ascent algorithm above. Third and fourth, we consider the posterior mean and
+median, approximated through the empirical mean and median of the posterior
+draws, respectively.
 
 To compare the four plug-in points directly, we collect the conditional and the
 augmented DIC (and the corresponding $p_D$) in one table.
@@ -878,8 +616,8 @@ knitr::kable(out)
 
 Only the posterior mean and the posterior median give stable and plausible
 results for both models; the MAP draw is very noisy across batches with $p_D^C$
-close to zero or negative, and the joint mode inflates $p_D$ for $t_7$ and is
-degenerate for $t_\nu$.
+close to zero or negative, and the joint mode found through optimixation
+inflates $p_D$ for $t_7$ and is degenerate for $t_\nu$.
 
 ## Section 12.2.4: Widely applicable information criterion (WAIC)
 
