@@ -565,8 +565,6 @@ estcondD_map <- -2 * batches(alllogcondlik)[cbind(MAPind, seq_along(MAPind))]
 
 pd_C_map <- avgcondD - estcondD_map
 DIC_C_map <- avgcondD + pd_C_map
-knitr::kable(cbind(DIC_C = DIC_C_map, avgcondD, estcondD = estcondD_map,
-                   pd_C = pd_C_map), digits = 2)
 ```
 
 The exact median and mode of the gamma distributions are available as well.
@@ -600,10 +598,9 @@ out <- rbind(
   sapply(estD, function(e) rng(2 * avgcondD - e))
 )
 colnames(out) <- c("mean", "median", "mode")
-rownames(out) <- c("$D(\\vartheta, \\tilde{z} \\mid y)$",
-                   "$D(\\vartheta, \\widehat{z} \\mid y)$",
-                   "$p_D^C$", "$\\widehat{p}_D^C$",
-                   "$\\mathrm{DIC}^C$", "$\\widehat{\\mathrm{DIC}}^C$")
+rownames(out) <- c("D evaluated at truth", "D evaluated at estimator",
+                   "penalty term", "estimated penalty term",
+                   "DIC", "estimated DIC")
 knitr::kable(out, align = "c")
 ```
 
