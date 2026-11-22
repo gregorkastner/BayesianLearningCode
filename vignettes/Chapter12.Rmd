@@ -923,3 +923,41 @@ legend("topright",
                 "(" * .(round(100 * mean(logBF < 0))) * "%)")),
        col = rgb(c(0, 1), 0, c(1, 0), .5), pch = 16, lty = 1, lwd = 2)
 ```
+
+### Example 12.?: CHF exchange rate data: XXX
+
+```{r}
+N0 <- 1
+c0 <- 2.5
+C0 <- 1.5
+N <- length(y)
+mu <- c(0, cumsum(y[-N]) / (N0 + 1:(N - 1)))
+cTm1 <- c0 + 0:(N - 1) / 2
+CTm1 <- C0 + (c(0, cumsum(y[-N]^2)) - (N0 + 0:(N - 1)) * mu^2) / 2
+sigma2 <- CTm1 * (N0 + 1:N) / ((N0 + 0:(N - 1)) * cTm1)
+LPDS <- dstudt(y, mu, sqrt(sigma2), 2 * cTm1, log = TRUE)
+# Gaussian with the same mean and variance as the Student t predictive
+pLPDS1 <- dnorm(y, mu, sqrt(sigma2 * cTm1 / (cTm1 - 1)), log = TRUE)
+# Gaussian plug-in: posterior mean of sigma^2 as the variance
+pLPDS2 <- dnorm(y, mu, sqrt(CTm1 / (cTm1 - 1)), log = TRUE)
+
+knitr::kable(data.frame(
+  predictive = c("Student t", "Gaussian, same moments",
+                 "Gaussian plug-in (posterior mean of sigma^2)"),
+  LPDS = c(sum(LPDS), sum(pLPDS1), sum(pLPDS2))),
+  digits = 3)
+```
+
+```{r, echo = -c(1:2)}
+if (pdfplots) {
+  pdf("12-3_2.pdf", width = 8, height = 4)
+}
+par(mar = c(2.5, 2.8, 0.5, 0.5), mgp = c(1.6, .6, 0), mfrow = c(1, 1))
+cumdiffs <- cbind(cumsum(LPDS - pLPDS1), cumsum(LPDS - pLPDS2))
+matplot(cumdiffs, type = "l", lty = 1, lwd = 1.5, col = 1:2, xlab = "Time",
+        ylab = "Cumulative LPDS difference")
+abline(h = 0, lty = 3)
+legend("topleft", c("Student t - Gaussian, same moments",
+                    "Student t - Gaussian plug-in"),
+       col = 1:2, lty = 1, lwd = 1.5, cex = 0.8)
+```
